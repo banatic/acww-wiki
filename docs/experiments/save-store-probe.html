@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세이브 저장소 프로브 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li class="active"><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>세이브 저장소 프로브</span></div><header class="page-head"><h1>세이브 저장소 프로브</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span><span class="gchip g-E"><b>E</b> 6</span></div><div class="source-line">원문: <code>wiki/experiments/save-store-probe.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 설계만 됨, 아직 미실행.</strong></p>
+<h2 id="목적">목적</h2>
+<p>포트는 <code>ACWW_SAVE</code> 뒤에 실제 256 KB 백업 저장소를 가지고 있으며, 기록상 게임 실행에서
+단 한 바이트도 영속화한 적이 없다. 심(shim)은 쓴 바이트를 세어 합계를 출력하므로, 이
+질문은 직접 답할 수 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code></span></span>. 세 가지를 분리할 가치가 있으며,
+오직 도구만이 이들을 분리할 수 있다:</p>
+<ol>
+<li>게임이 마을 회관으로 가는 길에 백업 요청을 <em>발행</em>하는가(요청 타입 6, 그리고 혹시
+   7이나 9)?</li>
+<li>실제로 무엇인가 파일에 도달하는가?</li>
+<li>정직한 0xFF 소거 읽기가 부팅을 바꾸는가?</li>
+</ol>
+<p>세 번째는 이미 절반이 측정되어 있다: 읽기 채움(read fill)을 켠 상태에서 키 입력 START
+실행은 프레임 10 근처에서 <code>unimplemented: func_02225a90</code>에 멈췄고(심볼 테이블은 이를
+<code>func_ov003_02225a90</code>, <code>ov003</code>으로 명명한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/ov003/symbols.txt</code></span></span>),
+채움을 끈 같은 빌드는 깨끗하게 실행된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code></span></span>. 이는 정직한 답이
+부팅을 포트가 아직 따라갈 수 없는 경로로 옮긴다는 뜻이다 &ndash; 어느 경로인지는 말해 주지
+않는다.</p>
+<h2 id="레시피">레시피</h2>
+<p>세 개의 조건. 첫 번째는 대조 실행이며 먼저 실행해야 한다 (M15).</p>
+<p><strong>조건 A &ndash; 저장소 없음, 대조.</strong> <code>two-tap-town-recipe.md</code>가 제시하는 그대로의 마을
+레시피, <code>ACWW_SAVE</code> 미설정. <code>run_town.py</code>는 이미 기본값에서 세이브 변수를 해제하므로,
+이는 기존 실행이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/run_town.py</code>, <code>BASE</code></span></span>.</p>
+<p><strong>조건 B &ndash; 새로 소거된 저장소.</strong> <code>scratchpad/save/fresh.sav</code>가 있으면 삭제한 뒤:</p>
+<pre><code>python -B scratchpad/cycle40/run_town.py save-fresh \
+  ACWW_SAVE=C:/Users/moomin/Desktop/acww/scratchpad/save/fresh.sav \
+  ACWW_INTERP=1 \
+  ACWW_TOUCH_AT=6900 ACWW_TOUCH_EVERY=60 ACWW_TOUCH_REPEAT=2 \
+  ACWW_TOUCH2_X=221 ACWW_TOUCH2_Y=181 ACWW_TOUCH2_AT=24600 ACWW_TOUCH2_FOR=10 \
+  ACWW_TOUCH2_EVERY=60 ACWW_TOUCH2_REPEAT=2 \
+  ACWW_STOP_FRAME=48000 ACWW_SHOT_AFTER=6000 ACWW_SHOT_EVERY=1500 ACWW_PAD_SAMPLE=0
+</code></pre>
+<p><code>run_town.py</code>는 기본값에서 <code>ACWW_SAVE</code>를 해제하므로, 다른 무엇을 읽기 전에 부팅 줄에서
+오버라이드가 살아남았는지 확인한다 &ndash; 저장소가 조용히 꺼진 조건은 다른 이름을 쓴 조건 A일
+뿐이다.</p>
+<p><strong>조건 C &ndash; 0으로 채운 저장소.</strong> 같은 실행을, 256 KB의 <code>0x00</code>으로 만든 파일에 대해
+수행한다. 이는 의도적으로 손상된 세이브 분기이다: 0으로 채운 블록은 세이브 부재가
+아니라, 헤더와 체크섬이 0인 세이브이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code></span></span>.</p>
+<h2 id="예상-관측">예상 관측</h2>
+<p>도구들, 모두 실행 로그에 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code></span></span>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>줄</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>acww save: backup store LIVE, 256 KB flash, newly erased (0xFF)</code></td>
+<td>조건 B의 저장소가 올라왔다</td>
+</tr>
+<tr>
+<td><code>acww save: backup store LIVE, 256 KB flash, existing file</code></td>
+<td>파일이 이미 전체 크기였다</td>
+</tr>
+<tr>
+<td><code>acww card: request type 6 (with a command block)</code></td>
+<td>첫 백업 읽기, 서로 다른 타입마다 한 번</td>
+</tr>
+<tr>
+<td><code>acww card: request type 7</code> / <code>type 9</code></td>
+<td>쓰기와 그 검증 &ndash; <strong>게임이 저장을 시도했다고 말하는 줄</strong></td>
+</tr>
+<tr>
+<td><code>acww save: persisted N bytes</code></td>
+<td>첫 쓰기 때, 그 뒤 64 KB마다 &ndash; <strong>바이트가 파일에 도달했다고 말하는 줄</strong></td>
+</tr>
+<tr>
+<td><code>acww pxi: card request ... queued for the next VBlank</code></td>
+<td>요청이 한 프레임 늦는 경로를 탔다</td>
+</tr>
+</tbody>
+</table></div>
+<p>예측, 각각 반증 가능:</p>
+<ul>
+<li>조건 A와 조건 B는 <strong>29 프레임 전부에서 동일한 스크린샷</strong>을 만든다. 새로 소거된 0xFF
+  저장소와 저장소 없음은 둘 다 "세이브 없음"을 뜻하기 때문이다 &ndash; 단, 손대지 않은 버퍼
+  경로와 0xFF 경로가 다르다면 예외이며, 그것이 바로 위의 <code>func_02225a90</code> 정지이다. 다르다면
+  그 정지가 인터프리터 경로에서 재현된 것이고 <code>ACWW_EXPLORE=1</code>로 진단할 수 있다.</li>
+<li>조건 B의 파일은 이후에도 여전히 256 KB의 <code>0xFF</code>이고, <code>persisted</code> 줄이 없다: 마을
+  레시피는 게임 내 저장에 결코 도달하지 않는다.</li>
+<li>조건 C는 조건 A와 일찍 &ndash; 처음 수백 프레임 안에 &ndash; 갈라지며, 손상된 세이브 경로를
+  보여 준다.</li>
+</ul>
+<p>이후, 로그를 믿지 말고 파일을 확인한다:</p>
+<pre><code>python -c "d=open(r'scratchpad/save/fresh.sav','rb').read(); print(len(d), d.count(255))"
+</code></pre>
+<p>256 KB에 카운트 262,144이면 아무것도 쓰이지 않은 것이다.</p>
+<h2 id="반증-조건">반증 조건</h2>
+<ul>
+<li><code>acww card: request type 6</code> 줄이 전혀 없음: 게임은 이 경로에서 백업을 결코 읽지 않으며,
+  세이브 동작에 관한 모든 결론은 레시피가 도달하지 않는 코드 경로에 관한 것이다.</li>
+<li>조건 A에 <code>persisted</code> 줄이 있음. 거기서는 <code>ACWW_SAVE</code>가 미설정이다; 쓰기가 있다면 다른
+  무엇인가가 저장소를 열었다는 뜻이다.</li>
+<li>어느 쪽도 쓰기를 발행하지 않은 프레임에서 조건 B가 조건 A와 다름. 이는 읽기 채움이
+  부팅을 바꾸는 것이며, 노이즈가 아니라 발견 사항이다.</li>
+<li><code>persisted</code> 줄의 부재를 "포트는 저장할 수 없다"로 읽는 것. 그것은 이 레시피가 저장하지
+  않았다는 뜻이다. 발화할 수 없는 도구는 발화하되 아무것도 바꾸지 않는 도구와 구별할 수
+  없다 &ndash; 이 심이 이미 가졌던 두 상수 결함이 정확히 그 모양이었다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code></span></span>.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../systems/save-data.md</code></li>
+<li><code>two-tap-town-recipe.md</code></li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/rtc-hour-sweep.html"><small>◀ 이전</small>RTC 시각 스윕</a><a class="pn next" href="../experiments/rng-determinism.html"><small>다음 ▶</small>RNG 결정성</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#목적">목적</a></li><li><a href="#레시피">레시피</a></li><li><a href="#예상-관측">예상 관측</a></li><li><a href="#반증-조건">반증 조건</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

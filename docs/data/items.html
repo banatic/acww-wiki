@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아이템과 가구 · ACWW 근거 위키</title>
+<meta name="description" content="ACWW는 &quot;물건&quot;을 병렬 저장 구조를 가진 두 계열로 나눈다. 가구는 0x0000-0x06e8 범위의 16비트 id이며, ftr/ 아래에 모델과 텍스처 세트를 가지고, ftr_info/의 세 테이블로 기술된다. 그 외의 모든 것 — 도구, 옷, 과일, 화석, 편지지 ">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li class="active"><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>아이템과 가구</span></div><header class="page-head"><h1>아이템과 가구</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 21</span><span class="gchip g-H"><b>H</b> 5</span></div><div class="source-line">원문: <code>wiki/data/items.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ACWW는 "물건"을 병렬 저장 구조를 가진 두 계열로 나눈다. 가구는 <code>0x0000</code>-<code>0x06e8</code> 범위의
+16비트 id이며, <code>ftr/</code> 아래에 모델과 텍스처 세트를 가지고, <code>ftr_info/</code>의 세 테이블로 기술된다. 그 외의
+모든 것 — 도구, 옷, 과일, 화석, 편지지 — 은 <em>아이템</em> 계열로, <code>item_info/</code>의 네 테이블로 기술되며
+모델이 아닌 아이콘 시트에서 그려진다. 양쪽의 이름은 테이블이 아니라 메시지 시스템에서 나온다.</p>
+<p>등급 주석: 이 페이지의 <strong>S</strong>는 심볼 테이블, 매칭된 소스, 그리고 추출된 ROM 이미지에서 직접 읽어낸
+바이트(경로와 필드를 항상 명시)를 포함한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<h3 id="가구">가구</h3>
+<p>가구 에셋은 두 디렉터리 레벨로 분할된 16비트 id로 지정된다. 템플릿은 <code>/ftr/%d/%d/%04x.arc</code>이고
+대응되는 <code>.nsbtx</code>가 있으며, <code>ov004</code>에 컴파일되어 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov004.bin</code>, path-format string literals</span></span>. 두 <code>%d</code>는 id의 상위 바이트와
+중간 니블이다: <code>ftr/0/0/</code>은 <code>0000</code>..<code>000f</code>를, <code>ftr/0/1/</code>은 <code>0010</code>..<code>001f</code>를, <code>ftr/1/0/</code>은
+<code>0100</code>..<code>010f</code>를, 마지막으로 채워진 디렉터리 <code>ftr/6/14/</code>는 <code>06e0</code>..<code>06e8</code>을 담는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/ftr/0/0/</code>, <code>ftr/0/1/</code>, <code>ftr/1/0/</code>, <code>ftr/6/14/</code>, directory listings</span></span>. 따라서
+<strong><code>0x0000</code>부터 <code>0x06e8</code>까지 1,769개의 가구 id</strong>가 있고, 각각 하나의 <code>.arc</code>와 하나의 <code>.nsbtx</code>를 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/ftr/</code>, 1,770 <code>.arc</code> and 1,792 <code>.nsbtx</code>; the extra <code>.arc</code> is <code>ftr/anm/anm.arc</code> and the extra 23 <code>.nsbtx</code> belong to <code>ftr/tv/</code></span></span>.</p>
+<p><code>ftr/anm/anm.arc</code>는 공유 가구 애니메이션 아카이브이고, <code>ftr/tv/</code>는 텔레비전이다: <code>tv.nsbtx</code> 하나,
+<code>/ftr/tv/prog/tv_program%d.nsbtp</code>로 접근하는 <code>prog/</code> 디렉터리, 그리고 <code>/ftr/tv/weather/%s.nsbtp</code>로
+접근하는 <code>weather/</code> 디렉터리로 이루어진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/ftr/</code>; <code>extract/adm-kr/arm9_overlays/ov004.bin</code>, path literals</span></span>.</p>
+<p>가구 테이블은 <code>ftr_info/</code> 아래의 세 파일이다: <code>always.bin</code> 16,384바이트, <code>dma.bin</code> 65,536바이트,
+<code>indoor.bin</code> 8,192바이트이며, <code>/ftr_info/always.bin</code>, <code>/ftr_info/dma.bin</code>, <code>/ftr_info/indoor.bin</code>
+경로로 열린다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/ftr_info/</code>, file sizes; <code>extract/adm-kr/arm9/arm9.bin</code>, the three path literals</span></span>. 세 크기 모두 2의 거듭제곱인데, 이는 항목당 각각 8, 32, 4바이트에 고정 슬롯 수 2,048개라는
+가정과 일치한다 — 1,769개의 실제 id를 여유 있게 담을 수 있는 크기다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">arithmetic on the sizes above; see Hypotheses</span></span>. <code>dma.bin</code>이라는 이름과 같은 디렉터리 내 위치는, 이것이 필드 단위로 읽히는 것이 아니라
+작업 버퍼로 DMA되는 블록임을 시사한다 [H].</p>
+<h3 id="아이템">아이템</h3>
+<p>아이템 테이블은 <code>item_info/</code> 아래의 네 파일이다: <code>always.bin</code> 18,432바이트, <code>dma.bin</code> 36,864,
+<code>indoor.bin</code> 6,144, <code>series.bin</code> 3,072이며, 모두 ARM9 이미지의 리터럴 경로로 열린다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/item_info/</code>, file sizes; <code>extract/adm-kr/arm9/arm9.bin</code>, the four path literals</span></span>. 네 크기는 공통 약수 1,536을 가지며, 항목당 12, 24, 4, 2바이트가 된다 — 아이템당 2바이트인
+<code>series.bin</code>은 정확히 시리즈 id의 형태이며, 이는 가구 시리즈(세트 매칭)에 필요한 것이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">arithmetic; see Hypotheses</span></span>. 네 파일 전체에 대해 2, 4, 6, 8, 12, 16바이트로 레코드 크기 탐색을 수행했지만 항목이
+명백하게 구조화되는 크기는 발견되지 않았으므로, 레이아웃은 이미지만으로는 결정되지 않는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">probe over <code>extract/adm-kr/files/item_info/*.bin</code>, distinct-record counts at each stride</span></span>.</p>
+<p>들고 있거나 떨어뜨린 아이템은 3D이다: <code>PItm/</code>은 53개의 모델, 43개의 조인트 애니메이션, 2개의 텍스처
+SRT 애니메이션을 담으며, <code>/PItm/Mdl%d/%d.nsbmd</code>, <code>/PItm/Anm%d/%d.nsbca</code>, <code>/PItm/ItaAnm%d/%d.nsbta</code>,
+<code>/PItm/Uki0/%d.nsbmd</code>로 지정된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/PItm/</code>, per-directory counts; <code>extract/adm-kr/arm9/arm9.bin</code>, the four path literals</span></span>. <code>Mdl0</code>과 <code>Anm0</code>은 각각 32개 항목을, <code>Mdl1</code>/<code>Anm1</code>은 18개와 11개를 담으므로, 아이템
+모델 공간은 아이템 id 공간보다 훨씬 작다 — 대부분의 아이템은 인벤토리 아이콘으로만 존재한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/PItm/</code>, per-directory counts</span></span>.</p>
+<p>그 아이콘들은 <code>menu/icon/</code>과 <code>menu/inventory/</code>에 있다. <code>ov094</code>는 템플릿 <code>menu/icon/icon%02d.bch</code>,
+<code>menu/icon/pre%d.bch</code>, <code>menu/inventory/itmp/m%d.bch</code>, <code>menu/inventory/itmp/w%d.bch</code>와, 각각
+8,192바이트인 세 개의 고정 아이템 시트 <code>b_itm0.bch</code>, <code>b_itm1.bch</code>, <code>b_itm2.bch</code>를 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov094.bin</code>, path literals; <code>extract/adm-kr/files/menu/inventory/</code>, file sizes</span></span>. <code>menu/icon/</code>은 24개의 파일을, <code>menu/inventory/</code>는
+59개를 담는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/menu/icon/</code>, <code>extract/adm-kr/files/menu/inventory/</code>, counts</span></span>.</p>
+<h3 id="착용물과-표면">착용물과 표면</h3>
+<p>셔츠는 텍스처만으로 이루어진다: 16개씩 16개 디렉터리에 담긴 256개의 <code>.nsbtx</code> 파일이며,
+<code>/cloth/%d/cloth%03d.nsbtx</code>로 지정된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/cloth/</code>, 16 subdirectories of 16 files; <code>extract/adm-kr/arm9/arm9.bin</code>, path literal</span></span>. 벽지와 바닥재는 같은 형태이지만 평면적이다: 68개의
+<code>wall/wall_%d.nsbtx</code>와 68개의 <code>carpet/floor_%d.nsbtx</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/wall/</code>, <code>extract/adm-kr/files/carpet/</code>, counts; <code>extract/adm-kr/arm9/arm9.bin</code>, both path literals</span></span>. 플레이어 자신의 신체 파츠도 같은 <code>%d/%d</code> 방식을
+따른다: <code>PHead/</code> 아래 0..157번의 158개 머리, <code>PGls/</code> 아래 75개의 눈/얼굴 모델, <code>PPal/</code> 아래 192개의
+팔레트, <code>PFcTx/</code> 아래 32개의 얼굴 텍스처, <code>FcAnm/</code> 아래 367개의 얼굴 애니메이션, 그리고 두 개의 몸체
+<code>PBody/boy.nsbmd</code>와 <code>PBody/grl.nsbmd</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, per-directory counts and listings; <code>extract/adm-kr/arm9/arm9.bin</code>, the seven <code>/P*</code> and <code>/FcAnm/</code> path literals</span></span>.</p>
+<p>가게 비품은 <code>roomObj/</code>이다: <code>ov004</code>에서 <code>/roomObj/%s.arc</code>와 <code>/roomObj/%s.nsbtx</code>로 열리는 23개의
+<code>.arc</code> + <code>.nsbtx</code> 쌍이며, 이름 중 열두 개는 리터럴로도 존재한다 — 카페, 양복점, 타로 부스, 박물관
+전시물, 전화기, 체크인 데스크
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/roomObj/</code>, 46 files; <code>extract/adm-kr/arm9_overlays/ov004.bin</code>, path literals</span></span>.</p>
+<h3 id="이름">이름</h3>
+<p>이 페이지의 어떤 테이블도 이름을 담지 않는다. 아이템, 물고기, 곤충의 이름은 메시지 시스템의 <code>string/</code>
+뱅크에서 나온다: 생물은 <code>script/KOR/string/obj_etc_fish.bmg</code>(4,239바이트)와
+<code>obj_etc_insect.bmg</code>(4,214바이트)에서, 대화에서 이름을 불러야 하는 분류들은 <code>st_*.bmg</code> 파일들에서 —
+<code>st_object.bmg</code>, <code>st_furniture_taste.bmg</code>, <code>st_furniture_letter.bmg</code>, <code>st_fashion.bmg</code>, <code>st_food.bmg</code>,
+<code>st_fossil.bmg</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/string/</code>, file names and sizes</span></span>. 이를 표시하는 카탈로그 화면은
+<code>ov142</code>이며, <code>menu/catalog/</code> 에셋을 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov142.bin</code>, path literals</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>테이블 또는 에셋</th>
+<th>위치</th>
+<th>항목 수</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>가구 모델</td>
+<td><code>ftr/&lt;hi&gt;/&lt;mid&gt;/&lt;id&gt;.arc</code> + <code>.nsbtx</code></td>
+<td>1,769개 id <code>0x0000</code>-<code>0x06e8</code></td>
+<td>S: <code>extract/adm-kr/files/ftr/</code></td>
+</tr>
+<tr>
+<td>가구 애니메이션</td>
+<td><code>ftr/anm/anm.arc</code></td>
+<td>아카이브 1개</td>
+<td>S: <code>extract/adm-kr/files/ftr/anm/</code></td>
+</tr>
+<tr>
+<td>텔레비전</td>
+<td><code>ftr/tv/tv.nsbtx</code>, <code>prog/</code>, <code>weather/</code></td>
+<td>23개 파일</td>
+<td>S: <code>extract/adm-kr/files/ftr/tv/</code></td>
+</tr>
+<tr>
+<td>가구 테이블 (상주)</td>
+<td><code>ftr_info/always.bin</code></td>
+<td>16,384 B</td>
+<td>S: <code>extract/adm-kr/files/ftr_info/</code></td>
+</tr>
+<tr>
+<td>가구 테이블 (DMA)</td>
+<td><code>ftr_info/dma.bin</code></td>
+<td>65,536 B</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td>가구 테이블 (실내)</td>
+<td><code>ftr_info/indoor.bin</code></td>
+<td>8,192 B</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td>아이템 테이블 (상주)</td>
+<td><code>item_info/always.bin</code></td>
+<td>18,432 B</td>
+<td>S: <code>extract/adm-kr/files/item_info/</code></td>
+</tr>
+<tr>
+<td>아이템 테이블 (DMA)</td>
+<td><code>item_info/dma.bin</code></td>
+<td>36,864 B</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td>아이템 테이블 (실내)</td>
+<td><code>item_info/indoor.bin</code></td>
+<td>6,144 B</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td>아이템 시리즈</td>
+<td><code>item_info/series.bin</code></td>
+<td>3,072 B</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td>아이템 모델</td>
+<td><code>PItm/Mdl0</code>, <code>Mdl1</code>, <code>Uki0</code></td>
+<td>53개 <code>.nsbmd</code></td>
+<td>S: <code>extract/adm-kr/files/PItm/</code></td>
+</tr>
+<tr>
+<td>아이템 아이콘</td>
+<td><code>menu/icon/</code>, <code>menu/inventory/</code></td>
+<td>24 + 59개 파일</td>
+<td>S: <code>extract/adm-kr/files/menu/</code></td>
+</tr>
+<tr>
+<td>셔츠</td>
+<td><code>cloth/%d/cloth%03d.nsbtx</code></td>
+<td>256</td>
+<td>S: <code>extract/adm-kr/files/cloth/</code></td>
+</tr>
+<tr>
+<td>벽지 / 바닥재</td>
+<td><code>wall/wall_%d.nsbtx</code>, <code>carpet/floor_%d.nsbtx</code></td>
+<td>각 68</td>
+<td>S: <code>extract/adm-kr/files/</code></td>
+</tr>
+<tr>
+<td>플레이어 파츠</td>
+<td><code>PHead/</code>, <code>PGls/</code>, <code>PPal/</code>, <code>PFcTx/</code>, <code>FcAnm/</code>, <code>PBody/</code></td>
+<td>158/75/192/32/367/2</td>
+<td>S: <code>extract/adm-kr/files/</code></td>
+</tr>
+<tr>
+<td>이름</td>
+<td><code>script/KOR/string/*.bmg</code></td>
+<td>36개 뱅크</td>
+<td>S: <code>extract/adm-kr/files/script/KOR/string/</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>가구 id (u16)</td>
+<td><code>ftr/&lt;id&gt;&gt;&gt;8&gt;/&lt;(id&gt;&gt;4)&amp;15&gt;/&lt;id&gt;.arc</code>를 선택한다</td>
+<td>세이브와 가게</td>
+<td><code>ov004</code>의 가구 로더 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov004.bin</code></span></span></td>
+</tr>
+<tr>
+<td><code>ftr_info/dma.bin</code> 슬롯</td>
+<td>RAM으로 복사되는 가구별 레코드</td>
+<td>패커</td>
+<td>가구 시스템 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">name and size</span></span></td>
+</tr>
+<tr>
+<td><code>item_info/series.bin</code> 슬롯</td>
+<td>2바이트, 아마도 세트 매칭 id</td>
+<td>패커</td>
+<td>가구/인테리어 코드 [H]</td>
+</tr>
+<tr>
+<td><code>menu/inventory/itmp/m%d.bch</code>, <code>w%d.bch</code></td>
+<td>아이템별 인벤토리 그림</td>
+<td>패커</td>
+<td><code>ov094</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov094.bin</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>정적 확인부터. 가구 id 범위를 확인하려면:</p>
+<pre><code class="language-bash">python - &lt;&lt;'PY'
+import os, glob
+ids = sorted(int(os.path.basename(p)[:4], 16)
+             for p in glob.glob(r&quot;extract/adm-kr/files/ftr/*/*/*.nsbtx&quot;))
+print(len(ids), hex(ids[0]), hex(ids[-1]), ids == list(range(ids[0], ids[-1] + 1)))
+PY
+</code></pre>
+<p>예상 출력: <code>1769 0x0 0x6e8 True</code>.</p>
+<p>테이블의 레코드 크기를 결정하려면 유용한 측정은 실제 실행이다: 마을에 도달하는 인터프리터 레시피를
+실행하고(<code>../engine/file-system.md</code> 참조), 로더가 <code>ftr_info/dma.bin</code>을 저장하는 주소를 관찰하며, 연속된
+두 가구 조회 사이의 스트라이드를 기록한다. 포트는 이미 ROM 자체의 <code>FS_*</code> 경로를 통해 이 파일들을
+읽으므로 심(shim)은 필요 없다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/romfs.c</code>, header</span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong><code>item_info/</code>는 12/24/4/2바이트의 1,536개 슬롯을, <code>ftr_info/</code>는 8/32/4바이트의 2,048개 슬롯을
+  가진다.</strong> 유일한 근거는 그 약수들이 네 파일(각각 세 파일)을 모두 나누어떨어지게 한다는 것뿐이다
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">arithmetic on the sizes</span></span>. <code>/item_info/always.bin</code>을 로드하는 함수가 무엇이든 그 안의 인덱스 연산을
+  추적해서 결정한다 — <code>ACWW_INTERP=1</code> 아래에서 해당 경로에 대해 <code>FS_ConvertPathToFileID</code>에 브레이크를
+  걸고 호출자를 따라가면 찾을 수 있다.</li>
+<li><strong><code>always</code> / <code>dma</code> / <code>indoor</code>는 내용 분할이 아니라 상주 정책을 이름 붙인 것이다.</strong> 두 디렉터리 모두
+  같은 세 이름을 쓰고, 양쪽에서 <code>dma</code>가 가장 크다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">file names and sizes</span></span>. 같은 방법으로, 어느 것이
+  통째로 복사되고 어느 것이 제자리에서 읽히는지 보아 결정한다.</li>
+<li><strong>1,769개의 가구 id가 모두 실제 가구는 아니다.</strong> 1,769는 빈틈 없는 완전한 <code>0x06e9</code> 범위에 가까우며,
+  이는 패딩 항목을 시사한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">the id range is contiguous — see the check above</span></span>.
+  <code>ftr_info/always.bin</code> 슬롯 중 0이 아닌 것이 몇 개인지 세어 결정한다.</li>
+<li><strong>아이템 id와 가구 id는 서로 다른 id 공간이다.</strong> 측정된 어떤 것도 이 둘을 연결하지 않는다; 단지
+  별도의 테이블과 별도의 에셋을 가질 뿐이다 [H]. <code>../systems/save-data.md</code>에 대조하여 세이브의 인벤토리
+  인코딩을 읽어 결정한다.</li>
+<li><strong><code>PItm/Uki0/</code>(모델 3개)는 낚시찌이다.</strong> "Uki"는 그럴듯한 해석이고, 이 디렉터리는 작으며 아이템 모델
+  옆에 위치한다 [H]. 낚싯대를 사용할 때 바인딩되는 모델을 덤프해서 결정한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>rom-layout.md</code> — 이 개수들의 근거가 되는 디렉터리 조사.</li>
+<li><code>archives.md</code> — 각 에셋이 들어 있는 <code>NARC</code>와 <code>nsb*</code> 컨테이너.</li>
+<li><code>fish-and-bugs.md</code> — 같은 아이콘 시트 패턴을 쓰는 생물 계열.</li>
+<li><code>../engine/file-system.md</code> — <code>/ftr/1/0/0100.arc</code>가 어떻게 바이트가 되는가.</li>
+</ul></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../data/villagers.html"><small>다음 ▶</small>주민과 특수 캐릭터</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#가구">가구</a></li><li><a href="#아이템">아이템</a></li><li><a href="#착용물과-표면">착용물과 표면</a></li><li><a href="#이름">이름</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

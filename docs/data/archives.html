@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아카이브와 컨테이너 포맷 · ACWW 근거 위키</title>
+<meta name="description" content="ROM의 거의 모든 파일은 4바이트 LZ77 매직과 그 뒤의 표준 NitroSDK 압축 헤더로 감싸여 있고, 그 래퍼 안에는 소수의 Nintendo 컨테이너 포맷 중 하나가 들어 있다: NARC 아카이브, nsb* 3D 리소스 계열, MESGbmg1 메시지 뱅크, 그리">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li class="active"><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>아카이브와 컨테이너 포맷</span></div><header class="page-head"><h1>아카이브와 컨테이너 포맷</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 28</span></div><div class="source-line">원문: <code>wiki/data/archives.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ROM의 거의 모든 파일은 4바이트 <code>LZ77</code> 매직과 그 뒤의 표준 NitroSDK 압축 헤더로 감싸여 있고,
+그 래퍼 안에는 소수의 Nintendo 컨테이너 포맷 중 하나가 들어 있다: <code>NARC</code> 아카이브, <code>nsb*</code> 3D 리소스
+계열, <code>MESGbmg1</code> 메시지 뱅크, 그리고 하나의 <code>SDAT</code> 사운드 아카이브. 래퍼를 아는 것이 파일 트리를 읽을
+수 있는 데이터로 바꾸는 열쇠이다: 9,508개 파일 중 8,120개가 <code>LZ77</code>로 시작하며 압축을 풀기 전까지는
+실제 타입에 대해 아무것도 드러내지 않는다.</p>
+<p>등급 주석: 이 페이지의 <strong>S</strong>는 심볼 테이블 / 매칭된 소스와 추출된 ROM 이미지에서 직접 읽어낸 바이트
+둘 다를 포함한다; 이미지 출처는 항상 파일과 필드를 명시한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>9,508개 파일 중 8,120개가 네 개의 ASCII 바이트 <code>LZ77</code>로 시작한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, first-four-bytes census across all files</span></span>. 그 매직 뒤의 워드는 통상적인 NitroSDK 압축 헤더로, 하위
+바이트 = 타입, 상위 24비트 = 압축 해제 크기이다. 6,330개의 파일은 SDK의 LZ77인 타입 <code>0x10</code>을 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same census, byte 4 histogram</span></span>. 나머지 1,790개는 타입 <code>0xf7</code>을 가지며, 그 모두가 <code>.bmg</code> 메시지
+파일이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same census; the 1,790 non-<code>0x10</code> files are exactly the compressed subset of the 1,791 <code>.bmg</code> files</span></span>. 크기 필드는 두 경우 모두 그럴듯하게 읽힌다 — <code>script/KOR/select/select.bmg</code>는
+디스크에서 2,080바이트이고 크기 필드가 <code>0x001380</code> = 4,992이며, <code>anm/0/0.nsbca</code>는 2,242바이트에
+<code>0x000a34</code> = 2,612이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, first 8 bytes of each file</span></span>.</p>
+<p>포트 자체의 압축 해제기는 SDK 루틴 <code>MI_UncompressLZ8</code>이며, 포트가 살아남은 모든 직접 텍스처 바이트를
+거슬러 추적해 도달한 곳이 바로 여기이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/render.md</code>, VRAM last-write tracing, host <code>0x008b932f</code> / <code>0x008b939a</code> in <code>port/shim/gfx/lz77.c</code></span></span>.</p>
+<p>감싸이지 <em>않은</em> 1,388개의 파일은 자신의 고유 매직을 직접 보여주며, 아래의 포맷 목록은 그렇게 얻은
+것이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, first-four-bytes census</span></span>.</p>
+<h3 id="narc-아카이브-arc">NARC 아카이브 (<code>.arc</code>)</h3>
+<p>229개의 <code>.arc</code> 파일은 비압축으로 저장되어 있고 <code>NARC</code>로 시작한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">census</span></span>. 헤더는 NitroSDK의 일반
+헤더이다: 매직, 바이트 순서 표식 <code>FFFE</code>, 버전 <code>0100</code>, 전체 파일 크기, 헤더 크기 <code>0x0010</code>, 블록 수 3
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/str/bsize.arc</code>, bytes 0..16 read as <code>NARC</code>, <code>fe ff</code>, <code>00 01</code>, <code>0x1730</code>, <code>0x0010</code>, <code>0x0003</code></span></span>. 세 블록은 <code>BTAF</code>(파일 할당 테이블),
+<code>BTNF</code>(파일 이름 테이블), <code>GMIF</code>(패킹된 이미지)이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/str/bsize.arc</code>, <code>bg/grd_anm.arc</code>, <code>str/npcHsX.arc</code>, block magics at the header-size offset</span></span>. <code>BTAF</code>의 첫 하프워드는 항목 수이다: <code>str/bsize.arc</code>는 30개의 하위 파일을,
+<code>str/npcHsX.arc</code>는 7개를, <code>bg/grd_anm.arc</code>는 6개를 담는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same files, <code>BTAF</code> +8</span></span>.</p>
+<p><code>GMIF</code> 안의 하위 파일들은 그 자체로 고유한 매직을 가진 리소스 파일이다 — <code>bg/grd_anm.arc</code>의 첫 하위
+파일은 <code>BMA0</code> 머티리얼 애니메이션이고 <code>str/npcHsX.arc</code>의 것은 <code>BMD0</code> 모델이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same files, first four bytes of the <code>GMIF</code> payload</span></span>.</p>
+<p>가구와 방 오브젝트 디렉터리는 <code>.arc</code>와 같은 이름의 <code>.nsbtx</code>를 짝지으며, 하나는 지오메트리를, 다른
+하나는 텍스처 세트를 담는다: <code>ftr/0/0/0000.arc</code> 옆에 <code>ftr/0/0/0000.nsbtx</code>, <code>roomObj/obj_cafe1.arc</code>
+옆에 <code>roomObj/obj_cafe1.nsbtx</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/ftr/0/0/</code>, <code>extract/adm-kr/files/roomObj/</code>, directory listings</span></span>. 코드는 이들을 하나의 템플릿 쌍
+<code>/ftr/%d/%d/%04x.arc</code>와 <code>/ftr/%d/%d/%04x.nsbtx</code>로부터 쌍으로 연다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov004.bin</code>, path-format string literals</span></span>.</p>
+<h3 id="nsb-3d-리소스-계열"><code>nsb*</code> 3D 리소스 계열</h3>
+<p>3D 리소스는 NitroSystem G3D 블록 매직을 사용한다: <code>BMD0</code> 모델(767개의 <code>.nsbmd</code> 중 243개 비압축), <code>BTX0</code>
+텍스처(3,017개의 <code>.nsbtx</code> 중 515개), <code>BCA0</code> 조인트 애니메이션(591개의 <code>.nsbca</code> 중 80개), <code>BTP0</code> 텍스처
+패턴 애니메이션(391개의 <code>.nsbtp</code> 중 1개), <code>BVA0</code> 가시성 애니메이션(42개의 <code>.nsbva</code> 중 1개), <code>BTA0</code>
+텍스처 SRT 애니메이션(6개의 <code>.nsbta</code> 중 2개), 그리고 <code>BMA0</code> 머티리얼 애니메이션(<code>.nsbma</code> 4개 전부)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, census by extension and magic</span></span>. 이들은 <code>autoload_2</code>의 NNS G3D 로더가
+소비하는 리소스이다: <code>NNS_G3dGetResDataByName</code>(<code>0x021079ac</code>)은 블록 딕셔너리를 순회하고,
+<code>NNS_G3dBindMdlTex</code>(<code>0x02104f38</code>)는 모델의 이름 붙은 텍스처를 <code>nsbtx</code>에 바인딩하며,
+<code>NNS_G3dGetJntAnmSet</code> / <code>GetTexPatAnmSet</code> / <code>GetTexSRTAnmSet</code> / <code>GetVisAnmSet</code>(<code>0x02107b28</code>,
+<code>0x02107bdc</code>, <code>0x02107ba0</code>, <code>0x02107cd4</code>)은 각각 애니메이션 세트 하나를 가져온다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>src/matched/NNS_G3dGetResDataByName.c</code>, <code>src/matched/NNS_G3dBindMdlTex.c</code></span></span>.</p>
+<h3 id="mesgbmg1-메시지-뱅크-bmg"><code>MESGbmg1</code> 메시지 뱅크 (<code>.bmg</code>)</h3>
+<p>ROM에서 정확히 하나의 <code>.bmg</code>만 비압축으로 저장되어 있는데, <code>script/KOR/message/Other/test_.bmg</code>이며,
+나머지 1,790개가 압축 해제되면 갖게 되는 포맷을 보여준다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, magic census</span></span>.
+그 헤더는 <code>MESGbmg1</code>, 파일과 정확히 일치하는 32비트 파일 크기(1,056), 블록 수 2, 인코딩 바이트 2이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/Other/test_.bmg</code>, bytes 0..17</span></span>. 두 블록은 <code>INF1</code>(224바이트)과 <code>DAT1</code>(800바이트)이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, block magics at offset 32</span></span>. <code>INF1</code>의 헤더는 각 12바이트인 16개의 항목을 알려주고,
+<code>DAT1</code>의 페이로드는 null 항목으로 시작한 뒤 UTF-16LE 텍스트가 이어진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, <code>INF1</code> +8 = <code>0x0010</code>, <code>0x000c</code>; <code>DAT1</code> payload bytes</span></span>. 인코딩 2와 UTF-16 페이로드는 ROM이 탑재한 SDK 헬퍼
+<code>0x02104cec</code>의 <code>NNSi_G2dSplitCharUTF16</code>과 일치한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>src/matched/NNSi_G2dSplitCharUTF16.c</code></span></span>.</p>
+<p>패킹된 메시지 뱅크는 없다: 1,791개의 <code>.bmg</code> 파일 전부가 낱개이며 경로로 개별적으로 열린다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/</code>, recursive census; <code>extract/adm-kr/arm9/arm9.bin</code>, the five <code>%s/...bmg</code> path templates</span></span>. 메시지 키가 어떻게 그 경로 중 하나가 되는지는
+<code>../engine/text-and-messages.md</code>를 참조한다.</p>
+<h3 id="sdat-sound-datasdat"><code>SDAT</code> (<code>sound_data.sdat</code>)</h3>
+<p>단일 사운드 아카이브는 NitroSDK <code>SDAT</code> 컨테이너로, 10,704,768바이트, 헤더 크기 64이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/sound_data.sdat</code>, bytes 0..16</span></span>. <code>SYMB</code> 심볼 블록이 없으므로(오프셋 0, 크기 0)
+출시된 ROM에서 사운드 항목들은 이름을 갖지 않는다; <code>INFO</code>는 <code>0x40</code>에 24,712바이트, <code>FAT</code>는 <code>0x60c8</code>에
+24,188바이트, <code>FILE</code>은 <code>0xbf44</code>에 10,655,804바이트이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, the four block offset/size pairs at offset 16</span></span>. <code>INFO</code> 내부의 레코드 개수는 <code>music.md</code>를 참조한다.</p>
+<h3 id="2d-메뉴-포맷-bch-bsc-bpl">2D 메뉴 포맷 (<code>.bch</code> / <code>.bsc</code> / <code>.bpl</code>)</h3>
+<p><code>menu/</code>는 어떤 Nintendo 컨테이너도 아닌 자체적인 세 가지 확장자 규약을 사용한다: <code>.bch</code>
+캐릭터/타일 그래픽, <code>.bsc</code> 스크린 맵, <code>.bpl</code> 팔레트로, 385 / 177 / 175개의 파일이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/menu/</code>, extension census</span></span>. 이들은 자체 매직을 갖지 않는다 — 비압축된 것들은
+곧바로 데이터로 시작한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same census, magic column shows raw byte patterns such as <code>00000000</code> and <code>DDDD</code></span></span>. 같은 삼중 구성이 낱개 <code>.bin</code> 디렉터리들에서 더 오래된 <code>nc*</code> 표기로
+나타난다: <code>a_mes/</code>는 파일 이름을 <code>_ncg</code>(타일), <code>_ncl</code>(팔레트), <code>_nsc</code>(스크린)로 붙이며
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/a_mes/</code>, file names</span></span>, <code>sky/</code>도 같은 접미사를 사용한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/sky/</code>, file names</span></span>.</p>
+<h3 id="spa-파티클"><code>SPA</code> 파티클</h3>
+<p>파티클 아카이브 하나, <code>spl/spl.spa</code>, 61,212바이트, 리틀 엔디언으로 저장된 매직 <code>SPA</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/spl/spl.spa</code>, bytes 0..4</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>컨테이너</th>
+<th>파일 수</th>
+<th>매직</th>
+<th>읽는 쪽</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LZ77 래퍼, 타입 <code>0x10</code></td>
+<td>6,330</td>
+<td><code>LZ77</code> + <code>0x10</code></td>
+<td><code>MI_UncompressLZ8</code></td>
+<td>S: image census; <code>docs/kb/port/render.md</code></td>
+</tr>
+<tr>
+<td>LZ77 래퍼, 타입 <code>0xf7</code></td>
+<td>1,790</td>
+<td><code>LZ77</code> + <code>0xf7</code></td>
+<td>메시지 리더 (모든 <code>.bmg</code>)</td>
+<td>S: image census</td>
+</tr>
+<tr>
+<td><code>NARC</code></td>
+<td>229개 비압축</td>
+<td><code>NARC</code>+<code>BTAF</code>/<code>BTNF</code>/<code>GMIF</code></td>
+<td>아카이브 로더</td>
+<td>S: <code>str/bsize.arc</code> etc.</td>
+</tr>
+<tr>
+<td><code>BMD0</code>/<code>BTX0</code>/<code>BCA0</code>/<code>BTP0</code>/<code>BVA0</code>/<code>BTA0</code>/<code>BMA0</code></td>
+<td>846개 비압축</td>
+<td>포맷별</td>
+<td><code>autoload_2</code>의 <code>NNS_G3d*</code></td>
+<td>S: image census; <code>config/.../autoload_2/symbols.txt</code></td>
+</tr>
+<tr>
+<td><code>MESGbmg1</code></td>
+<td>1,791 (1개 비압축)</td>
+<td><code>MESG</code></td>
+<td>게임 자체의 BMG 리더</td>
+<td>S: <code>script/KOR/message/Other/test_.bmg</code></td>
+</tr>
+<tr>
+<td><code>SDAT</code></td>
+<td>1</td>
+<td><code>SDAT</code></td>
+<td><code>NNS_SndArcInit</code> @ <code>0x0210...</code> 계열</td>
+<td>S: <code>sound_data.sdat</code>; <code>src/matched/NNS_SndArcInit.c</code></td>
+</tr>
+<tr>
+<td><code>.bch</code>/<code>.bsc</code>/<code>.bpl</code></td>
+<td>737</td>
+<td>없음</td>
+<td>메뉴 오버레이들</td>
+<td>S: <code>extract/adm-kr/files/menu/</code></td>
+</tr>
+<tr>
+<td><code>SPA</code></td>
+<td>1</td>
+<td><code>SPA</code></td>
+<td>파티클 시스템</td>
+<td>S: <code>spl/spl.spa</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>구조</th>
+<th>이미지에 나타나는 필드</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LZ77 래퍼</td>
+<td><code>'LZ77'</code>, 그 뒤 u8 타입 + u24 압축 해제 크기</td>
+<td>S: image census; <code>select.bmg</code>, <code>anm/0/0.nsbca</code></td>
+</tr>
+<tr>
+<td>NARC 헤더</td>
+<td>매직, BOM <code>FFFE</code>, 버전 <code>0100</code>, u32 크기, u16 헤더 크기 <code>0x10</code>, u16 블록 수 <code>3</code></td>
+<td>S: <code>str/bsize.arc</code> +0..16</td>
+</tr>
+<tr>
+<td>NARC <code>BTAF</code></td>
+<td>매직, u32 블록 크기, u16 항목 수, 그 뒤 시작/끝 쌍</td>
+<td>S: <code>str/bsize.arc</code> <code>BTAF</code> +8 = 30</td>
+</tr>
+<tr>
+<td>BMG 헤더</td>
+<td><code>MESGbmg1</code>, u32 파일 크기, u32 블록 수 <code>2</code>, u8 인코딩 <code>2</code></td>
+<td>S: <code>test_.bmg</code> +0..17</td>
+</tr>
+<tr>
+<td>BMG <code>INF1</code></td>
+<td>매직, u32 크기, u16 항목 수, u16 항목 크기</td>
+<td>S: <code>test_.bmg</code> <code>INF1</code> +8 = 16, 12</td>
+</tr>
+<tr>
+<td>SDAT 헤더</td>
+<td><code>SDAT</code>, BOM, u32 크기, u16 헤더 크기 <code>64</code>, 그 뒤 SYMB/INFO/FAT/FILE 오프셋+크기</td>
+<td>S: <code>sound_data.sdat</code> +0..48</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>정적이며, 실행이 필요 없다:</p>
+<pre><code class="language-bash">python - &lt;&lt;'PY'
+import os, collections
+B = r&quot;extract/adm-kr/files&quot;
+by = collections.defaultdict(collections.Counter)
+for dp, dn, fn in os.walk(B):
+    for f in fn:
+        with open(os.path.join(dp, f), 'rb') as h:
+            by[os.path.splitext(f)[1].lower()][h.read(4)] += 1
+for e in sorted(by):
+    print(e, dict(by[e].most_common(4)))
+PY
+</code></pre>
+<p>예상 출력: <code>.arc</code> = 1,835 <code>LZ77</code> + 229 <code>NARC</code>; <code>.bmg</code> = 1,790 <code>LZ77</code> + 1 <code>MESG</code>; <code>.nsbtx</code> =
+2,502 <code>LZ77</code> + 515 <code>BTX0</code>; <code>.sdat</code> = 1 <code>SDAT</code>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>모든 <code>.bmg</code>의 <code>0xf7</code> 압축 타입은 SDK의 <code>0x10</code>이 아니다. 별개의 압축 변형이거나 텍스트의
+  난독화일 수 있다. <code>.bmg</code> 열기(<code>../engine/text-and-messages.md</code>의 메시지 경로)에서 포트의 압축
+  해제기에 브레이크포인트를 걸고 어느 루틴이 버퍼를 소비하는지와 첫 출력 바이트가 무엇인지 기록하여
+  결정한다 — 페이로드가 평범한 BMG라면 <code>MESGbmg1</code>이어야 한다.</li>
+<li>타입 바이트 뒤의 크기 필드는 샘플링한 두 파일에서 그럴듯하게 읽히지만, 실제 압축 해제와 대조
+  확인되지는 않았다. <code>0x10</code> 파일 하나와 <code>0xf7</code> 파일 하나를 압축 해제하고 출력 길이를 헤더 필드와
+  비교하여 결정한다.</li>
+<li><code>.bch</code>/<code>.bsc</code>/<code>.bpl</code>은 <code>a_mes/</code>와 <code>sky/</code>의 <code>_ncg</code>/<code>_nsc</code>/<code>_ncl</code> 명명과의 유추에 의해 헤더가 제거된
+  NCGR/NSCR/NCLR 페이로드로 가정된다. <code>ov147</code>을 통한 <code>menu/title/bg.bch</code> 로드 하나를 추적하여 어느
+  VRAM 영역이 어떤 스트라이드로 이를 받는지 보아 결정한다.</li>
+<li><code>NARC</code> <code>BTNF</code> 이름 테이블은 읽지 않았으므로, <code>ftr/</code> 아카이브 안의 하위 파일들이 의미 있는 이름을
+  가지는지는 알려지지 않았다. <code>ftr/anm/anm.arc</code>의 <code>BTNF</code>를 파싱하여 결정한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>rom-layout.md</code> — 이 파일들이 위치하는 곳과 각각의 개수.</li>
+<li><code>../engine/file-system.md</code> — 이들을 여는 <code>FS_*</code> 프로토콜.</li>
+<li><code>../engine/graphics-pipeline.md</code> — <code>nsb*</code> 리소스가 화면에서 무엇이 되는가.</li>
+<li><code>music.md</code> — <code>sound_data.sdat</code>의 내부.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../data/music.html"><small>◀ 이전</small>음악과 사운드</a><a class="pn next" href="../data/rom-layout.html"><small>다음 ▶</small>ROM 레이아웃</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#narc-아카이브-arc">NARC 아카이브 (.arc)</a></li><li><a href="#nsb-3d-리소스-계열">nsb* 3D 리소스 계열</a></li><li><a href="#mesgbmg1-메시지-뱅크-bmg">MESGbmg1 메시지 뱅크 (.bmg)</a></li><li><a href="#sdat-sound-datasdat">SDAT (sound_data.sdat)</a></li><li><a href="#2d-메뉴-포맷-bch-bsc-bpl">2D 메뉴 포맷 (.bch / .bsc / .bpl)</a></li><li><a href="#spa-파티클">SPA 파티클</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

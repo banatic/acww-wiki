@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>난수 · ACWW 근거 위키</title>
+<meta name="description" content="이 ROM에는 단일한 난수 생성기가 없다. 매칭된 소스에는 서로 무관한 세 개의 선형 합동 생성기(LCG)가 있다: 네트워킹 코드가 사용하는 NitroSDK의 MATH_Rand16과 MATH_Rand32; 시각적 흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li class="active"><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>난수</span></div><header class="page-head"><h1>난수</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 37</span><span class="gchip g-E"><b>E</b> 4</span><span class="gchip g-O"><b>O</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/rng.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 이 ROM에는 단일한 난수 생성기가 없다. 매칭된 소스에는 서로 무관한 세 개의 선형
+합동 생성기(LCG)가 있다: 네트워킹 코드가 사용하는 NitroSDK의 <code>MATH_Rand16</code>과 <code>MATH_Rand32</code>;
+시각적 흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기; 그리고 Wi-Fi 설정 오버레이의
+독자적인 생성기. 이들 모두는 하드웨어 틱 카운터, 실시간 시계, 또는 둘 다로부터 시드된다.
+<strong>게임 자체가 게임플레이 결과 &ndash; 물고기, 곤충, 주민, 상점 재고 &ndash; 에 사용하는 생성기는 아직
+발견되지 않았다.</strong> 그것을 소비할 함수들이 아직 디컴파일되지 않았기 때문이다. 이 페이지는
+확립된 것을 기록하며 그 구멍에 대해 명시적으로 밝힌다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p><strong>이 페이지에 필요한 명명 주석.</strong> <code>MATH_Rand16</code>, <code>MATH_Rand32</code>, <code>MATH_InitRand16/32</code>,
+<code>OS_IsTickAvailable</code>은 NitroSDK 라이브러리 이름이지 이 ROM의 심볼 테이블에 있는 이름이
+아니다: 어떤 <code>config/adm-kr/arm9/**/symbols.txt</code>에도 그런 심볼은 존재하지 않으며, 이들 모두는
+<code>src/matched/</code>에서 <code>func_*</code> 이름으로 도달된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/**/symbols.txt</code>, name sweep</span></span>.
+<code>../STYLE.md</code> 규칙 2가 SDK 이름을 허용하기 때문에 여기서는 그 이름을 사용하며, <code>func_*</code> 이름이
+존재하는 곳에서는 함께 병기한다.</p>
+<h3 id="sdk-생성기">SDK 생성기</h3>
+<p><code>MATHRandContext32</code>는 세 필드 구조체 &ndash; 상태, 승수, 가수, 모두 64비트 &ndash; 이며, <code>MATH_Rand32</code>는
+이를 <code>x = mul * x + add</code>로 진행시키고 새 상태의 상위 32비트를 반환하거나, 범위 제한 추출의
+경우 <code>(top32 * max) &gt;&gt; 32</code>를 반환한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>MATH_Rand32</code>, ov065, <code>src/matched/func_ov065_0227ef00.c</code></span></span>. 상수는 승수
+<code>0x5D588B656C078965</code>와 가수 <code>0x269EC3</code>이다; 승수는 소스에
+<code>(1566083941 &lt;&lt; 32) + 1812433253</code>으로 적혀 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>.</p>
+<p><code>MATHRandContext16</code>은 같은 계열을 절단한 것이다: 32비트 상태, 승수 <code>0x5D588B65</code> &ndash; 정확히
+64비트 승수의 상위 절반 &ndash; 가수 <code>0x269EC3</code>, 출력은 상위 16비트
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>MATH_Rand16</code> / <code>MATH_InitRand16</code>, autoload_2, <code>src/matched/func_02100cbc.c</code></span></span>. 하위 비트가
+아니라 상위 비트를 취하는 것이 설계의 요점이다: LCG의 하위 비트는 주기가 짧다.</p>
+<p>파티클 생성기는 무관하며 그 상수가 그렇게 말한다: 승수 <code>0x5EEDF715</code>, 가수 <code>0x1B0CB173</code>,
+32비트 상태, 출력은 상위 비트
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SPLRandom_Next</code> / <code>gSPLRandomState</code>, main, <code>src/matched/func_020fded0.c</code></span></span>. 이것은 파티클
+스폰 위치, 속도, 회전, 수명, 텍스처 프레임과 색상을 구동한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SPLEmitter_EmitParticles</code>, main, <code>src/matched/func_020fded0.c</code></span></span>. 같은 생성기 본체가 두 개의
+추가적이고 독립적인 상태 워드 &ndash; 하나는 ov066에, 하나는 main에서 <code>g_rng_state</code>라는 이름으로 &ndash;
+에 대해서도 나타나므로, 최소 세 개의 파티클 류 스트림이 병렬로 돈다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_022699ec.c</code>, <code>src/matched/func_020ff994.c</code></span></span>.</p>
+<p>ov001의 <code>AOSS_Rand</code>는 SDK를 호출하는 대신 16비트 상수를 자신만의 독립적인 32비트 LCG로
+재사용하는 네 번째 구현이며, <code>(0x7fff * (v &gt;&gt; 16)) &gt;&gt; 16</code>으로 15비트 값을 반환한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>AOSS_Rand</code>, ov001, <code>src/matched/AOSS_Rand.c</code></span></span>.</p>
+<h3 id="시드는-어디에서-오는가">시드는 어디에서 오는가</h3>
+<p>두 소스가 있으며 둘 다 시계다.</p>
+<p><code>OS_GetTick</code>이 지배적인 소스다. <code>func_ov065_0227876c</code>(임시 로그인 id를 꾸며내는 데 쓰이는
+일회용 컨텍스트)와 <code>func_021013d0</code>(틱을 읽고, LCG 한 스텝을 손으로 돌리며, 곱의 상위 32비트만
+연결별 시드로 저장)에서 직접 시드가 된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227876c.c</code>, <code>src/matched/func_021013d0.c</code></span></span>. 공유 네트워크 컨텍스트 <code>DWCi_GetMathRand32</code>는 본체의 MAC
+주소와 틱을 결합해 한 번, 지연 방식으로 스스로를 시드한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_ov065_0227ef00</code>, ov065, <code>src/matched/func_ov065_0227ef00.c</code></span></span>.</p>
+<p>RTC가 다른 하나다. <code>DWCi_AUTH_GetNewWiFiInfo</code>와 <code>DWCi_AUTH_RemakeWiFiID</code>는 초로 변환한 RTC
+날짜와 시각으로 16비트 컨텍스트를 시드하고, <code>OS_IsTickAvailable</code>이 그렇다고 하면 틱을 더하며,
+그 다음 <code>MATH_Rand16</code>을 사용해 Wi-Fi id와 0이 아닌 <code>randomHistory</code> 값을 만든다 &ndash; 재생성
+경로는 이전 history 값을 제외한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100cbc.c</code>, <code>src/matched/func_02100b18.c</code></span></span>. <code>AOSS_Rand</code>는 첫 호출 시
+<code>hour &lt;&lt; 10 + minute &lt;&lt; 3 + second</code>를 시드에 접어 넣으며, RTC 읽기가 실패하면 시드 0으로
+대체한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>AOSS_Rand</code>, ov001, <code>src/matched/AOSS_Rand.c</code></span></span>.</p>
+<p>매칭된 코퍼스에서 아무도 소비하는 것으로 나타나지 않는 엔트로피 풀도 있다.
+<code>OS_GetLowEntropyData</code>는 <code>OS_GetTickLo</code>와 결합한 VCOUNT(<code>0x04000006</code>), MAC 바이트 및 VBlank
+카운터와 XOR한 64비트 틱, <code>0x04000600</code>의 지오메트리 엔진 상태 레지스터, 하위 WRAM의 RTC
+바이트, 마이크 데이터, 터치 패널 상태, Wi-Fi RSSI 풀로부터 여덟 워드를 채운다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>OS_GetLowEntropyData</code>, autoload_2, <code>src/matched/OS_GetLowEntropyData.c</code></span></span>. 이것은 위의 어느 생성기에도 연결된 것이 아니라 사용
+가능한 인프라로 읽힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence of callers in <code>src/matched</code></span></span>.</p>
+<h3 id="아직-발견되지-않은-것">아직 발견되지 않은 것</h3>
+<p>세이브 측이나 마을 측의 시드 필드는 없다. <code>src/matched</code> 전체에서 <code>SaveData</code>, <code>TownData</code>,
+<code>randomSeed</code>, <code>worldSeed</code>, <code>townSeed</code> 등을 검색해도 아무것도 나오지 않으며, 관측된 모든 시딩은
+세션 한정이거나, 세이브 블록에 기록되거나 거기서 복원되는 모습이 한 번도 보이지 않는 단일
+지연 초기화 전역 변수다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence in <code>src/matched</code></span></span>. 이것은 게임이 아니라 코퍼스에 대한
+진술이다: 마을별 시드를 소비할 법한 게임플레이 시스템 &ndash; 주민 행동, 물고기와 곤충 스폰, 상점
+재고, 마을 자체의 배치 &ndash; 은 <code>src/matched</code>에 전혀 디컴파일되어 있지 않으므로, 그 RNG 배관은
+단순히 아직 보이지 않는다.</p>
+<p>세이브 체크섬의 증거도 없다. 코퍼스의 모든 <code>crc</code>/<code>checksum</code> 심볼
+(<code>0x02128ac4</code>의 <code>MATH_CalcCRC8</code>, 다항식 <code>0xA001</code>의 <code>0x02128a90</code> <code>MATH_CalcCRC16</code>,
+다항식 <code>0xEDB88320</code>과 반전 출력의 <code>0x02128a58</code> <code>MATH_CalcCRC32</code>, 그리고
+<code>MBi_calc_cksum</code>과 <code>check_tcpudpsum</code>)은 무선, 소켓 또는 PPP/TCP 스택에 속하며, 그중 어느
+것에서도 세이브 경로로 이어지는 호출 간선이 없다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence of call edges in <code>src/matched</code>; see <code>save-data.md</code></span></span>.</p>
+<h3 id="포트">포트</h3>
+<p>포트는 이 생성기들 중 어느 것도 건드리지 않는다: 이들은 ROM 코드이며 나머지와 마찬가지로
+인터프리트되어 실행된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/runtime.md</code>'s registry policy; <code>scratchpad/cycle40/runs/tap-D56</code></span></span>.
+포트의 유일한 관련 효과는 두 엔트로피 소스가 <em>고정</em>된다는 것이다. 틱은 0부터 프레임당
+정확히 8,728 카운트씩 진행하고 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/tick.c</code></span></span>, RTC는 고정된 순간이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code></span></span>. 따라서 포트 실행은 어느 쪽에서든 시드되는 모든 생성기에서
+결정론적이며, 이것이 프레임 단위 오라클 비교를 애초에 의미 있게 만드는 것이다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code>, where the two producers agree to whole-frame ncc 0.9920-0.9959 from 6000 to 24000</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MATH_Rand32</code> / <code>MATH_InitRand32</code> / <code>MATHRandContext32</code></td>
+<td>ov065</td>
+<td>64비트 LCG, 승수 <code>0x5D588B656C078965</code>, 가수 <code>0x269EC3</code>, 출력 상위 32</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227ef00.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>MATH_Rand16</code> / <code>MATH_InitRand16</code> / <code>MATHRandContext16</code></td>
+<td>autoload_2</td>
+<td>32비트 LCG, 승수 <code>0x5D588B65</code>, 가수 <code>0x269EC3</code>, 출력 상위 16</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100cbc.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWCi_GetMathRand32</code> <code>0x0227ef00</code></td>
+<td>ov065</td>
+<td>공유 네트워크 컨텍스트, MAC과 틱으로 한 번 시드</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227ef00.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_ov065_02268c78</code> (<code>CPS_Resolve</code>)</td>
+<td>ov065</td>
+<td>DNS 트랜잭션 id를 위해 <code>MATH_Rand32(ctx, 0x10000)</code>을 추출</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02268c78.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_ov065_0227876c</code></td>
+<td>ov065</td>
+<td>임시 로그인 id를 위해 <code>OS_GetTick</code>으로 시드한 일회용 컨텍스트</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227876c.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_021013d0</code></td>
+<td>autoload_2</td>
+<td>틱에 대한 손으로 쓴 LCG 한 스텝; 상위 32비트만 유지</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_021013d0.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_02100cbc</code> (<code>DWCi_AUTH_GetNewWiFiInfo</code>)</td>
+<td>autoload_2</td>
+<td>RTC 더하기 틱 시드, Wi-Fi id와 <code>randomHistory</code>를 위한 <code>MATH_Rand16</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100cbc.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_02100b18</code> (<code>DWCi_AUTH_RemakeWiFiID</code>)</td>
+<td>autoload_2</td>
+<td>같은 것, 이전 history 값을 제외</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100b18.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>SPLRandom_Next</code>, <code>gSPLRandomState</code></td>
+<td>main</td>
+<td>파티클 LCG, 승수 <code>0x5EEDF715</code>, 가수 <code>0x1B0CB173</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020fded0.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>SPLEmitter_EmitParticles</code> / <code>SPLEmitter_EmitChildParticles</code></td>
+<td>main</td>
+<td>그 소비자들: 스폰 흔들림, 회전, 수명, 프레임, 색상</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020fded0.c</code>, <code>src/matched/func_020fdc08.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020ff994</code></td>
+<td>main</td>
+<td><code>g_rng_state</code>에 대한 세 번째 파티클 류 스트림</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ff994.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>AOSS_Rand</code> <code>0x02207cd4</code></td>
+<td>ov001</td>
+<td>Wi-Fi 설정 LCG, <code>RTC_GetTime</code>으로 시드</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/AOSS_Rand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>OS_GetLowEntropyData</code> <code>0x02116da8</code></td>
+<td>autoload_2</td>
+<td>VCOUNT, 틱, MAC, GX 상태, RTC, 마이크, 터치, RSSI로부터의 여덟 워드 풀</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/OS_GetLowEntropyData.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>MATH_CalcCRC8</code> / <code>CalcCRC16</code> / <code>CalcCRC32</code></td>
+<td>autoload_2</td>
+<td>CRC 헬퍼; 세이브가 아니라 네트워크 스택이 사용</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/MATH_CalcCRC32.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MATHRandContext32.x</code></td>
+<td>64비트 LCG 상태</td>
+<td><code>MATH_Rand32</code>, <code>MATH_InitRand32</code></td>
+<td><code>MATH_Rand32</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227ef00.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>MATHRandContext16.x</code></td>
+<td>32비트 LCG 상태</td>
+<td><code>MATH_Rand16</code>, <code>MATH_InitRand16</code></td>
+<td><code>MATH_Rand16</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100cbc.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>gSPLRandomState</code></td>
+<td>파티클 스트림의 상태 워드</td>
+<td><code>SPLRandom_Next</code></td>
+<td>모든 <code>SPLRandom_*</code> 접근자 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020fded0.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>AOSS_RandState</code> / <code>AOSS_RandInited</code></td>
+<td><code>{x, a, c}</code>와 한 번 초기화 플래그</td>
+<td><code>AOSS_Rand</code></td>
+<td><code>AOSS_Rand</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/AOSS_Rand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000100</code> (틱)</td>
+<td>모든 네트워크 시드가 접어 넣는 엔트로피</td>
+<td>타이머 0 (포트: <code>acww_tick_advance</code>)</td>
+<td><code>OS_GetTick</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/OS_GetTick.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000006</code> (VCOUNT)</td>
+<td>엔트로피 풀의 여덟 입력 중 하나</td>
+<td>디스플레이 컨트롤러 (포트: DISPSTAT/VCOUNT 훅)</td>
+<td><code>OS_GetLowEntropyData</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/OS_GetLowEntropyData.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p><code>../experiments/rng-determinism.md</code>(설계만 됨, 아직 미실행): 같은 고정 시계로 같은 레시피를
+두 번 실행해 스크린샷이 바이트 단위로 동일함을 확인한 뒤, <code>ACWW_RTC_TIME</code>을 1초 옮겨 무엇이든
+움직이는지 본다. 이는 "포트가 결정론적이다"와 "이 씬에서는 시계로 시드된 추출을 소비하는
+것이 없다"를 분리하는데, 기존 실행으로는 불가능한 일이다.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>게임플레이 RNG는 위 세 개 모두와 구별되는 네 번째 생성기로, 디컴파일되지 않은 <code>func_020*</code>
+  게임 글루 코드 안에 있다. ov004 또는 main 게임 코드 안에서 정적 워드에 대한 곱셈-덧셈의
+  호출자를 찾아 확정하며, <code>src/matched</code>의 어떤 검색도 아직 이를 찾아내지 못했다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence</span></span>.</li>
+<li>마을의 배치는 세이브에 저장된 시드로부터 생성된다. 같은 고정 시계 아래 두 개의 새
+  <code>ACWW_SAVE</code> 파일로 같은 실행을 두 번 하여 확정한다: 동일한 마을이면 시드는 세이브별이
+  아니고, 다른 마을이면 세이브별이다 (<code>save-data.md</code>가 먼저 지속되어야 한다).</li>
+<li><code>OS_GetLowEntropyData</code>는 이 ROM에서 죽은 코드다. 전체 마을 실행에 걸쳐 그 진입 주소에
+  <code>ACWW_WATCH</code>를 걸어 확정한다.</li>
+<li>포트의 프레임 계수 틱과 에뮬레이터의 사이클 정확 틱은 네트워크 생성기를 다르게 시드하며,
+  네트워크 코드가 실행되지 않으므로 상관없다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">no DWC or WM symbol is reached on any recorded run; see <code>network.md</code></span></span>.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>time-and-rtc.md</code> &ndash; 두 엔트로피 소스.</li>
+<li><code>save-data.md</code> &ndash; 마을별 시드가 있을 법한 곳, 그리고 체크섬이 발견되지 않은 이유.</li>
+<li><code>network.md</code> &ndash; 모든 SDK 생성기의 유일하게 확립된 소비자.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/input-and-touch.html"><small>◀ 이전</small>입력과 터치</a><a class="pn next" href="../systems/network.html"><small>다음 ▶</small>네트워크</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#sdk-생성기">SDK 생성기</a></li><li><a href="#시드는-어디에서-오는가">시드는 어디에서 오는가</a></li><li><a href="#아직-발견되지-않은-것">아직 발견되지 않은 것</a></li><li><a href="#포트">포트</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

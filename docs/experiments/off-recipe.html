@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OFF 레시피 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li class="active"><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>OFF 레시피</span></div><header class="page-head"><h1>OFF 레시피</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 8</span><span class="gchip g-O"><b>O</b> 4</span></div><div class="source-line">원문: <code>wiki/experiments/off-recipe.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 실행됨, 여러 번.</strong> 이것은 다른 모든 측정을 읽을 때 기준이 되는 대조 실행이다.</p>
+<h2 id="목적">목적</h2>
+<p>스타일러스를 비활성화한 채 게임을 프레임 9,000까지 실행하고, 스크린샷 31장 전부를
+보관된 레퍼런스와 SHA-256으로 비교하여, 포트에 가한 변경이 아무것도 움직이지 <strong>않았음</strong>을
+확립한다. 31장 중 31장이 같으면 통과이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span>.</p>
+<p><strong>이름은 함정이며 B1이 그 이유다.</strong> "OFF"는 <code>ACWW_TOUCH</code>가 꺼져 있음을 가리킨다. 그 외에는
+<strong>키 입력 START</strong> 레시피로, <code>ACWW_KEYS=9</code>(A와 START)가 프레임 300부터 펄스를 낸다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/README.md</code>, "THE RECIPE NAMED OFF IS NOT AN UNKEYED RUN"</span></span>. 정말로
+입력이 없는 무비를 오라클 쪽에서 한 번 시도한 적이 있다: 입력이 없으면 원본은 타이틀
+화면을 영영 벗어나지 않는 반면 포트는 택시 인트로 깊숙이 들어가 있어, 모든 프레임의
+정규화 상호상관(normalised cross-correlation)이 0.10 근처로 나왔고, 그 결과로 나온 31개
+불일치 표는 포트에 관해 아무것도 말해 주지 않았다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same</span></span>.</p>
+<h2 id="레시피">레시피</h2>
+<p>먼저 재링크를 수행하는 반복 스크립트를 통해 실행한다:</p>
+<pre><code>sh scratchpad/cycle40/iterate.sh &lt;name&gt; [KEY=VAL ...]
+</code></pre>
+<p>이 스크립트는 순서대로, 실행 채널 컨트롤러를 통한 링크(약 3분)를 수행한 뒤, 다음을 실행한다:</p>
+<pre><code>python -B scratchpad/cycle40/run_direct.py off-&lt;name&gt; \
+  ACWW_INTERP=1 ACWW_TOUCH_ENABLE=0 \
+  ACWW_STOP_FRAME=9000 ACWW_SHOT_AFTER=4500
+</code></pre>
+<p>그 다음 31장의 BMP 전부를 <code>scratchpad/cycle39/execution39-touch39-005/off</code>와
+SHA-256으로 비교하고, 로그에서 BOOT 줄, 정지 줄, 폴트, <code>unimplemented</code>, 그리고 STOP 줄을
+grep한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/iterate.sh</code>; <code>docs/kb/hybrid/recipes.md</code> section 2</span></span>.</p>
+<p>패드 페이즈는 스크립트 자체의 기본값에서 오며, 커스텀 START 레시피이다:
+<code>ACWW_KEYS=9 ACWW_KEYS_AT=300 ACWW_KEYS_FOR=10 ACWW_KEYS_EVERY=30</code>
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/README.md</code>; cycle39 log</span></span>.</p>
+<p>같은 레시피의 오라클 조건:</p>
+<pre><code>python port/tools/oracle/oracle.py --frames 4500,4650,...,9000 --out scratchpad/oracle/off
+python port/tools/oracle/compare.py scratchpad/oracle/off scratchpad/cycle40/runs/off-&lt;name&gt;
+</code></pre>
+<p><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 6</span></span>.</p>
+<h2 id="예상-관측">예상 관측</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>예상</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프레임</td>
+<td>9,000, 자식 종료 코드 100, 런처 0</td>
+</tr>
+<tr>
+<td>스크린샷</td>
+<td>프레임 4,500부터 BMP 31장</td>
+</tr>
+<tr>
+<td>통과</td>
+<td><code>equal 31 differ 0</code></td>
+</tr>
+<tr>
+<td>로그</td>
+<td><code>acww touch: up</code> 줄이 하나, 그 이상은 없음 &ndash; 변경 시에만 출력하는 도구가 <code>last = -1</code>에서 시작하므로 모든 실행은 정확히 한 번의 초기 "up"을 출력한다; ON 실행은 세 개다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code>, TOUCH39</span></span></td>
+</tr>
+<tr>
+<td>소요 시간</td>
+<td>링크가 워밍업된 뒤에는 한 턴에 약 90초 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="이-관측을-만들어-낸-실행">이 관측을 만들어 낸 실행</h2>
+<p>레퍼런스는 <code>scratchpad/cycle39/execution39-touch39-005/off</code>이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span>. REG40b와 REG40c의 거부 목록(deny list) 이분 탐색
+전체가 이 루프 위에서 구축되었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> REG40b, REG40c</span></span>. 오라클
+쪽은 <code>scratchpad/oracle/off</code>이며, 그 옆에 <code>compare-off.json</code>과 <code>diff-off/</code>가 있다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/off</code></span></span>.</p>
+<h2 id="반증-조건">반증 조건</h2>
+<ul>
+<li>포트에 의도적인 변경 없이 BMP가 하나라도 달라지는 것. 이는 노이즈가 아니라 변경의
+  결함으로 읽어야 한다: 레퍼런스는 유사도 점수가 아니라 바이트 비교이다.</li>
+<li><code>acww touch: up</code> 줄 없이 끝나는 실행. 이는 도구 자체가 조용해졌다는 뜻이며 &ndash; 측정
+  대상이 조용해진 것과 구별할 수 없다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/hostinput.c</code>'s announcement rationale</span></span>.</li>
+<li>이 대조 실행 전에 ON 조건을 실행하는 것 (M15). 31 프레임 비교가 있어야 ON 쪽의
+  차이가 의미를 갖는다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>two-tap-town-recipe.md</code> &ndash; 이 레시피가 대조하는 ON 레시피.</li>
+<li><code>../systems/input-and-touch.md</code></li>
+</ul></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../experiments/two-tap-town-recipe.html"><small>다음 ▶</small>두 번 탭 마을 레시피</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#목적">목적</a></li><li><a href="#레시피">레시피</a></li><li><a href="#예상-관측">예상 관측</a></li><li><a href="#이-관측을-만들어-낸-실행">이 관측을 만들어 낸 실행</a></li><li><a href="#반증-조건">반증 조건</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

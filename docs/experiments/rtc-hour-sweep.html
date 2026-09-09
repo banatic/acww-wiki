@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RTC 시각 스윕 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li class="active"><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>RTC 시각 스윕</span></div><header class="page-head"><h1>RTC 시각 스윕</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span><span class="gchip g-E"><b>E</b> 5</span><span class="gchip g-O"><b>O</b> 2</span></div><div class="source-line">원문: <code>wiki/experiments/rtc-hour-sweep.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 설계만 됨, 아직 미실행.</strong></p>
+<h2 id="목적">목적</h2>
+<p>이 프로젝트의 지금까지 모든 측정은 시계를 2005-06-15 10:00:00에 고정하므로, 게임의
+낮/밤 조명은 한 지점 이상에서 검증된 적이 없다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code>; <code>scratchpad/cycle40/runs/tap-D56</code></span></span>. 조명이 보간하는 블렌드
+가중치는 <code>0x021dc758</code>의 분(minute) 바이트를 4096/60으로 스케일링한 값이며, 이를 호스트
+스택 쓰레기 값에서 읽었던 적이 있어 이 포트의 모든 스크린샷 비교에 20-26%의 픽셀 노이즈
+바닥이 깔린 적이 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code></span></span>. 이 실험은 두 가지를 한꺼번에 묻는다:
+시각이 씬을 눈에 띄게 바꾸는가, 그리고 포트와 원본이 같은 방식으로 바뀌는가.</p>
+<p>또한 더 작은 질문 하나를 결론짓는다. <code>ACWW_RTC_TIME=000000</code>은 예전에는 "기본값을
+사용한다"는 뜻이었는데, 포트의 옛 파서가 미설정, 파싱 불가, 0을 하나의 답으로 합쳤기
+때문이다 &ndash; 그래서 자정 프로브는 10:00 프로브와 바이트 단위로 동일하게 돌아왔고, 이는
+답처럼 보이는 측정이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code></span></span>. 현재 파서는 이들을 구별한다; 이
+실행은 실제로 그러한지 확인하는 것이다.</p>
+<h2 id="레시피">레시피</h2>
+<p>네 개의 조건, 시각당 하나씩, 각각 <code>ACWW_RTC_TIME</code>만 바꾼 마을 레시피이다. 10:00 조건을
+먼저 실행한다: 이는 <code>scratchpad/cycle40/runs/tap-D56</code>을 프레임 단위로 재현해야 하며,
+그렇지 않으면 스윕은 시각이 아니라 빌드를 측정하는 것이다 (M15).</p>
+<pre><code>for T in 100000 000000 060000 200000; do
+  python -B scratchpad/cycle40/run_town.py rtc-$T \
+    ACWW_RTC_DATE=20050615 ACWW_RTC_TIME=$T \
+    ACWW_INTERP=1 \
+    ACWW_TOUCH_AT=6900 ACWW_TOUCH_EVERY=60 ACWW_TOUCH_REPEAT=2 \
+    ACWW_TOUCH2_X=221 ACWW_TOUCH2_Y=181 ACWW_TOUCH2_AT=24600 ACWW_TOUCH2_FOR=10 \
+    ACWW_TOUCH2_EVERY=60 ACWW_TOUCH2_REPEAT=2 \
+    ACWW_STOP_FRAME=39000 ACWW_SHOT_AFTER=36000 ACWW_SHOT_EVERY=750 ACWW_PAD_SAMPLE=0
+done
+</code></pre>
+<p>정지를 48,000이 아닌 39,000으로 두는 이유는 37,500의 마을 외부가 조명을 살펴볼 만한
+프레임이기 때문이다; 40,500 이후의 마을 회관 내부는 실내이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40</span></span>.</p>
+<p>오라클 조건, 시각당 하나씩 &ndash; RTC는 생성된 무비의 <code>rtcStart</code> 줄에 고정되므로, 환경
+변수가 아니라 플래그이다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/README.md</code>, "How the RTC and the input recipe are enforced"</span></span>:</p>
+<pre><code>python port/tools/oracle/oracle.py --frames 36000,36750,37500,38250,39000 \
+  --rtc-start 2005-06-15T00:00:00Z \
+  --touch-x 221 --touch-y 181 --touch-at 6900 --touch-for 10 \
+  --touch-every 60 --touch-repeat 2 \
+  --touch2-x 221 --touch2-y 181 --touch2-at 24600 --touch2-for 10 \
+  --touch2-every 60 --touch2-repeat 2 \
+  --out scratchpad/oracle/rtc-000000
+
+python port/tools/oracle/compare.py scratchpad/oracle/rtc-000000 \
+  scratchpad/cycle40/runs/rtc-000000 --json scratchpad/oracle/rtc-000000.json
+</code></pre>
+<p>실행 전에 <code>oracle.py --help</code>에서 정확한 <code>rtcStart</code> 플래그 이름을 확인한다; README는
+플래그가 아니라 필드를 문서화하고 있다.</p>
+<p><strong>ORACLE42가 제거한 주의 사항.</strong> 24,600 레시피에서 원본은 마을에 전혀 도달하지 못했다 &ndash;
+25,500부터 48,000까지 마을 이름 키보드에 머물렀으므로, 모든 오라클 조건은 <em>키보드</em> 화면을
+채점했을 것이다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE41</span></span>. 이는 결론이 났다:
+24,600의 탭은 KEYS3 A 누름 프레임에 떨어졌고 원본의 스타일러스 샘플은 1~2 프레임 늦게
+도착하므로, <code>ACWW_TOUCH2_AT=24700</code>으로 하면 양쪽 모두 확정하고 일치한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42; E: <code>tap-D62</code>; O: <code>scratchpad/oracle/tap-24700</code></span></span>. <strong>위의 포트 조건과 오라클 조건 모두에서 24,700을 사용할
+것</strong>; 위에 적힌 명령은 여전히 24,600이라고 되어 있어 옛 주의 사항을 재현하게 된다.</p>
+<h2 id="예상-관측">예상 관측</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>조건</th>
+<th>예상</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ACWW_RTC_TIME=100000</code></td>
+<td>36,000과 37,500에서 <code>tap-D56</code>과 바이트 단위로 동일</td>
+</tr>
+<tr>
+<td><code>000000</code></td>
+<td>자정: 부팅 줄이 <code>hour=0 min=0</code>으로 읽히고, 37,500의 마을 외부가 눈에 띄게 어둡다</td>
+</tr>
+<tr>
+<td><code>060000</code></td>
+<td>새벽</td>
+</tr>
+<tr>
+<td><code>200000</code></td>
+<td>밤</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 로그에서 확인할 부팅 줄은 <code>acww rtc: fixed clock year+2000=5 month=6 day=f
+week=3 hour=... min=0 sec=0</code>이다 &ndash; 값은 16진수로 출력된다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code></span></span>. week 3은 수요일이며, 계산된 값이지 환경에서 가져온
+값이 아니다.</p>
+<p>반증 가능한 예측: 네 조건 모두 37,500에서 바이트 단위로 동일한 이미지를 만든다면,
+오버라이드가 적용되지 않고 있거나(다른 무엇보다 먼저 부팅 줄을 확인할 것) 그 프레임의
+씬이 낮/밤 블렌드를 사용하지 않는 것이다.</p>
+<h2 id="이-실험이-검증하는-가설의-반증-조건">이 실험이 검증하는 가설의 반증 조건</h2>
+<ul>
+<li>네 개의 서로 다른 부팅 줄에 네 시각에 걸쳐 동일한 이미지: 블렌드 가중치는 렌더러에
+  도달하지만 마을 외부는 이를 사용하지 않는다.</li>
+<li>오버라이드 거부 줄 <code>acww rtc: ACWW_RTC_TIME rejected, keeping the default</code> &ndash; 값이 범위
+  밖이며, 그 조건은 당신이 생각하는 조건이 아니다.</li>
+<li>10:00 조건이 <code>tap-D56</code>과 다른 것: 빌드가 움직였으며, 이것이 설명되기 전까지는 다른
+  어떤 조건도 의미가 없다 (M1).</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../systems/time-and-rtc.md</code></li>
+<li><code>two-tap-town-recipe.md</code>, <code>off-recipe.md</code></li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/touch-calibration.html"><small>◀ 이전</small>터치 보정: 탭했을 때 게임이 보는 것</a><a class="pn next" href="../experiments/save-store-probe.html"><small>다음 ▶</small>세이브 저장소 프로브</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#목적">목적</a></li><li><a href="#레시피">레시피</a></li><li><a href="#예상-관측">예상 관측</a></li><li><a href="#이-실험이-검증하는-가설의-반증-조건">이 실험이 검증하는 가설의 반증 조건</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

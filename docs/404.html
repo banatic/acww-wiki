@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>길을 잃었어요 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="/acww-wiki/assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/acww-wiki/assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="/acww-wiki/index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="/acww-wiki/assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="/acww-wiki/systems/index.html">시스템</a></summary><ul>
+<li><a href="/acww-wiki/systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="/acww-wiki/systems/save-data.html">세이브 데이터</a></li>
+<li><a href="/acww-wiki/systems/town.html">마을</a></li>
+<li><a href="/acww-wiki/systems/villagers.html">주민</a></li>
+<li><a href="/acww-wiki/systems/player.html">플레이어</a></li>
+<li><a href="/acww-wiki/systems/economy.html">경제</a></li>
+<li><a href="/acww-wiki/systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="/acww-wiki/systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="/acww-wiki/systems/dialogue.html">대화</a></li>
+<li><a href="/acww-wiki/systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="/acww-wiki/systems/rng.html">난수</a></li>
+<li><a href="/acww-wiki/systems/network.html">네트워크</a></li>
+<li><a href="/acww-wiki/systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="/acww-wiki/data/index.html">데이터</a></summary><ul>
+<li><a href="/acww-wiki/data/items.html">아이템과 가구</a></li>
+<li><a href="/acww-wiki/data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="/acww-wiki/data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="/acww-wiki/data/music.html">음악과 사운드</a></li>
+<li><a href="/acww-wiki/data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="/acww-wiki/data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="/acww-wiki/engine/index.html">엔진</a></summary><ul>
+<li><a href="/acww-wiki/engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="/acww-wiki/engine/overlays.html">오버레이</a></li>
+<li><a href="/acww-wiki/engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="/acww-wiki/engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="/acww-wiki/engine/memory-map.html">메모리 맵</a></li>
+<li><a href="/acww-wiki/engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="/acww-wiki/engine/file-system.html">파일 시스템</a></li>
+<li><a href="/acww-wiki/engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="/acww-wiki/engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="/acww-wiki/experiments/index.html">실험</a></summary><ul>
+<li><a href="/acww-wiki/experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="/acww-wiki/experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="/acww-wiki/experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="/acww-wiki/experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="/acww-wiki/experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="/acww-wiki/experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="/acww-wiki/experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="/acww-wiki/audits/index.html">감사</a></summary><ul>
+<li><a href="/acww-wiki/audits/consistency.html">일관성 감사</a></li>
+<li><a href="/acww-wiki/audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="/acww-wiki/audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="/acww-wiki/audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="/acww-wiki/audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="/acww-wiki/audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="/acww-wiki/glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="/acww-wiki/about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="/acww-wiki/style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="md notfound"><h1>이 길은 막혀 있어요</h1><p>찾는 문서가 없다. <a href="/acww-wiki/index.html">홈으로</a> 돌아가거나 검색해 보자.</p></div>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "/acww-wiki/";</script>
+<script src="/acww-wiki/assets/site.js" defer></script>
+</body>
+</html>

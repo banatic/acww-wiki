@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>네트워크 · ACWW 근거 위키</title>
+<meta name="description" content="놀러오세요 동물의 숲(Wild World)에는 완전히 별개인 두 개의 네트워킹 스택이 있다. 로컬 무선(같은 방에 있는 두 대의 DS 본체)은 무선 매니저와 그 연결 매니저에서 멈추며 IP 주소를 전혀 건드리지 않는다. 닌텐도 Wi-Fi 커넥션은 완전한 TCP/IP 스">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li class="active"><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>네트워크</span></div><header class="page-head"><h1>네트워크</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 43</span><span class="gchip g-E"><b>E</b> 11</span></div><div class="source-line">원문: <code>wiki/systems/network.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 놀러오세요 동물의 숲(Wild World)에는 완전히 별개인 두 개의 네트워킹 스택이 있다. 로컬
+무선(같은 방에 있는 두 대의 DS 본체)은 무선 매니저와 그 연결 매니저에서 멈추며 IP 주소를 전혀
+건드리지 않는다. 닌텐도 Wi-Fi 커넥션은 완전한 TCP/IP 스택, TLS, GameSpy의 매치메이킹 서버를
+거치며, 이 모든 것이 하나의 오버레이 <code>ov065</code>에 담겨 있다. 그 서버가 제공하던 서비스는 2014년에
+종료되었으므로, 두 번째 스택의 어떤 것도 출시 당시 그대로는 동작할 수 없다. PC 포트는 이 모든 것을
+의도적으로, 완전히 스텁 처리한다. 무선을 끈 DS인 셈이다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<h3 id="두-개의-스택">두 개의 스택</h3>
+<p>로컬 무선은 <code>WCM*</code> 위의 <code>WM_*</code>이다. 무선 매니저는 무선 장치와 MAC 계층을 소유한다. 부모와 자식
+역할(<code>WM_SetParentParameter</code>, <code>WM_StartConnectEx</code>), MP 데이터 포트(<code>WM_StartMPEx</code>,
+<code>WM_SetMPDataToPortEx</code>, <code>WM_ReadMPData</code>), DCF 전송, 데이터 공유, 키 공유, 비콘 스캔, WEP를 담당한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">44 <code>WM_*</code> files, NitroWiFi, <code>src/matched/WM_Init.c</code> and siblings</span></span>. <code>WCM*</code>/<code>Wcm*</code>은 그 위에
+있는 연결 매니저이며, <code>WCMi_CpsifRecvCallback</code>을 통해 IP 스택이 있을 때 그리로 연결하는 다리이기도
+하다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">21 files, libwcm, <code>src/matched/WCMi_CpsifRecvCallback.c</code></span></span>. 순수 로컬 세션은 이 선 위의
+어떤 것도 필요로 하지 않는다.</p>
+<p>Wi-Fi 커넥션은 그 위에 세 개의 계층을 더 얹는다. <code>SOC*</code>/<code>SOCL*</code>은 libsoc으로, 자체 ARM7 명령 파이프를
+가진 BSD 스타일 소켓 API다. <code>SOCL_Startup</code>, <code>SOCL_CreateSocket</code>, <code>SOCL_Bind</code>, <code>SOCL_Connect</code>,
+<code>SOCL_ReadFrom</code>, <code>SOCL_WriteTo</code>에 DHCP 타임아웃 경로가 더해진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">77 files, libsoc, <code>src/matched/SOCL_Startup.c</code> and siblings</span></span>. <code>CPS*</code>/<code>CPSi_*</code>는 Ubiquitous
+Corporation의 libcps와 libssl이다. 실제 TCP/IP와 ARP와 DHCP, 그리고 RC4, MD5, SHA-1과 키 교환용
+빅넘 라이브러리를 갖춘 TLS다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">42 files, <code>src/matched/CPS_TcpConnect.c</code>, <code>src/matched/CPSi_rc4_crypt.c</code>, <code>src/matched/CPSi_sha1_calc.c</code></span></span>. <code>DWC*</code>/<code>DWCi_*</code>는 그 위의 NitroDWC이다. 계정, 친구 코드, 매칭,
+전송, 닌텐도 인증 호스트로의 HTTP POST를 담당한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">119 files, <code>src/matched/DWC_GetState.c</code> and siblings</span></span>.</p>
+<h3 id="ov065의-실체">ov065의 실체</h3>
+<p><code>ov065</code>는 하나의 라이브러리가 아니다. 하나의 오버레이로 링크된 네 개의 외부 구성요소다. 닌텐도의
+libsoc과 libwcm은 실제 C 소스로 제공되고, Ubiquitous의 libcps와 libssl 그리고 닌텐도의 libdwcac과
+libdwcbase는 바이너리 전용 아카이브로 제공된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065.md</code></span></span>. 이 오버레이는
+약 <code>0x02269618</code>부터 약 <code>0x02292xxx</code>까지 차지하며, 그 안에서 <code>0x0227c038</code>부터 <code>0x022929f0</code>까지의
+NitroDWC/GameSpy 블록(92,600바이트)은 경계가 없는 rodata와 코드였고, 여기서 706개의 함수 경계를
+복구해야 했다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065.md</code></span></span>. 인증 블록(<code>dwc_auth.c</code>, <code>dwc_netcheck.c</code>)은
+<code>0x02274798</code>..<code>0x02277000</code>에, 액세스 연결 블록은 <code>0x02272400</code>..<code>0x02273000</code>에, libdwcbase 본체는
+<code>0x02277000</code>..<code>0x0227bxxx</code>에 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065.md</code></span></span>.</p>
+<p>GameSpy 리비전은 추측이 아니라 확정되어 있다. NitroDWC 0pr2에 번들된 GameSpy SDK 0.01로, 133개
+함수가 바이트 단위로 그대로 일치했으며 DWARF 라인 테이블이 문장 단위로 맞아떨어진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065-dwc.md</code></span></span>. 좁은 범위 <code>0x02269618</code>..<code>0x0226e434</code>(libcps/libssl의 함수
+네 개)는 오버레이의 나머지(1.2/base)보다 나중의 CodeWarrior 드롭(1.2/sp2p3)으로 빌드되었는데, 이는
+ROM이 어떻게 조립되었는지에 관한 사실이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065.md</code></span></span>.</p>
+<p>바이너리 전용 오버레이가 이만큼이나 이해된 이유는 아카이브에 완전한 DWARF-2 디버그 정보가 함께
+실려 있었기 때문이다. 508개 멤버 중 352개가 이를 담고 있어 구조체 레이아웃, 시그니처, 지역 변수별
+레지스터 할당, 라인 테이블을 얻을 수 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065.md</code></span></span>. 그렇게 복구된 구체적인 상수로는 <code>WCM_PHASE_DCF == 9</code>,
+<code>DWC_ERROR_FATAL == 8</code>, <code>DWC_MAX_PLAYER_NAME == 16</code>이 있고, <code>DWCMatchControl</code>의 친구 목록, 친구
+인덱스 목록, 평가 콜백의 필드 오프셋도 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065-dwc.md</code></span></span>.</p>
+<h3 id="친구-코드와-로그인-흐름">친구 코드와 로그인 흐름</h3>
+<p>친구 코드는 <code>DWC_CheckFriendKey</code>와 <code>DWC_Acc_CheckFriendKey</code>를 통해 검증되고, 그것이 속한 계정
+객체는 <code>DWCi_Acc_*</code> 접근자(플래그, 친구 키, 사용자 id, 더티 비트, 마스크 설정자)를 통해 도달한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_CheckFriendKey.c</code>, <code>src/matched/DWCi_Acc_GetFriendKey.c</code></span></span>. 목록을 변경해도 되는지는 별도의 게이트
+<code>DWC_CanChangeFriendList</code>가 결정한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_CanChangeFriendList.c</code></span></span>. 로그인 자체는
+<code>gsbrcd</code>와 MAC 주소를 담아 <code>nas.nintendowifi.net/ac</code>에 <code>acctcreate</code> 또는 <code>login</code>을 POST하며, 요청에는
+RTC에서 12자리로 포맷한 <code>devtime</code> 필드가 실린다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065-dwc.md</code>; <code>func_ov065_02274798</code> (<code>DWC_Auth_Prepare_FirstPost</code>), ov065, <code>src/matched/func_ov065_02274798.c</code></span></span>. 그 함수는 시계 읽기가 실패하면 <code>DWCAUTH_E_RTCERR</code>를
+반환하므로, 실시간 시계는 로그인의 필수 의존성이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02274798.c</code></span></span>.</p>
+<p><code>DWCi_*</code> 목록 중 놀랄 만큼 많은 부분이 프로토콜과 무관하다. <code>DWCi_KB*</code>, <code>DWCi_BTN*</code>, <code>DWCi_MOV*</code>,
+<code>DWCi_FNT*</code>, <code>DWCi_IPT*</code>, <code>DWCi_OBJ*</code>, <code>DWCi_GX*</code>는 Wi-Fi 설정 및 연결 확인 UI의 화면 키보드, 버튼,
+씬 위젯, 폰트, 입력 반복, OAM 연결 코드다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWCi_KBlGet.c</code>, <code>src/matched/DWCi_BTNlEnable.c</code>, <code>src/matched/DWCi_FNTlRenewBg.c</code></span></span>. 모듈 노트가 산문으로 이름을 언급하는 핵심 연결 상태 함수들
+(<code>DWC_ProcessInet</code>, <code>DWC_GetInetStatus</code>, <code>DWCi_TransportProcess</code>, <code>DWCi_MatchInit</code>,
+<code>DWCi_Netcheck_Thread</code>)은 매칭되었지만 여전히 익명의 <code>func_ov065_*</code> 이름으로 정리되어 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065-dwc.md</code></span></span>.</p>
+<h3 id="포트가-하는-일">포트가 하는 일</h3>
+<p>아무것도 실행되지 않는다. <code>port/DESIGN.md</code> 4절이 정책을 밝힌다. 883개 진입점 중 164개(19%)가
+무선(<code>WM</code>, <code>MB</code>, <code>AOSS</code>, <code>CPS</code>, <code>WXC</code>, <code>DWC</code>, GameSpy)이고, 닌텐도 WFC는 2014년에 종료되었으므로,
+v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답하고, 그 인터페이스를 명시된 모딩 대상으로
+남겨둔다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/DESIGN.md</code> section 4</span></span>.</p>
+<p>그럼에도 네 개의 작은 조각은 도달 가능하며, 각각은 스텁이 아니라 실제 응답이다.
+<code>port/shim/net/dwcinit.c</code>는 설정 저장소 초기화 결과를 2비트 코드로 좁히는 <code>func_0210172c</code>를
+대체하며, 항상 0(설정 유효, 지워진 것 없음)으로 응답한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcinit.c</code></span></span>. <code>port/shim/net/dwcbackup.c</code>는 SSID, WEP 키, DHCP 설정을 담는
+저장소인 <code>DWCi_BACKUPlInit</code>, <code>DWCi_BACKUPlRead</code>, <code>DWCi_BACKUPlWriteAll</code>을 구현한다. 읽기는 모두 0인
+페이지를 반환하는데, 이는 한 번도 설정된 적 없는 공장 초기 상태의 본체이고, 쓰기는 수락된 뒤
+버려진다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcbackup.c</code></span></span>.
+<code>port/shim/tu_wcm_bits.c</code>는 어셈블리로만 존재하며 무선을 꺼도 부팅 경로에 있는 두 libwcm 함수
+(<code>WcmCountBits</code>, 즉 popcount와 <code>func_ov065_0227029c</code>, 즉 선행 0 개수 세기)의 C 본체를 공급하는데,
+호스트 컴파일러가 mwcc <code>asm</code> 본체를 빌드할 수 없기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/tu_wcm_bits.c</code></span></span>. 그리고
+<code>port/shim/game/ov065thunks.c</code>는 <em>타이틀 메뉴</em>가 ov065의 로드된 이미지를 가리키는 잔존 vtable 슬롯을
+통해 도달하는 세 함수에 응답한다. 셋 모두 포트의 스텁 처리된 무선이 결코 채우지 않는 전역 함수
+포인터 슬롯을 검사하고 거절한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/ov065thunks.c</code></span></span>.</p>
+<p>이와 일관되게, 기록된 어떤 실행 로그에도 <code>DWC</code>나 <code>WM</code> 심볼은 나타나지 않는다. 유일하게 네트워크에
+인접한 PXI 트래픽은 태그 10(WM)이며, 포트는 이를 한 번 이름을 밝히고 버린다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>; <code>docs/kb/hybrid/hardware-services.md</code> section 1, "Other tags"</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WM_Init</code>, <code>WM_Initialize</code>, <code>WM_Enable</code>, <code>WM_PowerOn</code></td>
+<td>NitroWiFi (ov065)</td>
+<td>무선 장치 기동과 전원 상태</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_Init.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WM_SetParentParameter</code>, <code>WM_StartConnectEx</code>, <code>WM_Disconnect</code></td>
+<td>NitroWiFi</td>
+<td>로컬 무선의 부모 및 자식 역할</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartConnectEx.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WM_StartMPEx</code>, <code>WM_SetMPDataToPortEx</code>, <code>WM_ReadMPData</code></td>
+<td>NitroWiFi</td>
+<td>로컬 플레이에 쓰이는 MP 데이터 포트 세션</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartMPEx.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WM_StartScan</code>, <code>WM_MeasureChannel</code>, <code>WM_GetAllowedChannel</code></td>
+<td>NitroWiFi</td>
+<td>비콘 스캔과 규제상 허용 채널 집합</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartScan.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WM_StartDataSharing</code>, <code>WM_StartKeySharing</code>, <code>WM_StartDCF</code></td>
+<td>NitroWiFi</td>
+<td>세 가지 브로드캐스트 세션 유형</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartDataSharing.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WM_SetWEPKey</code>, <code>WM_SetGameInfo</code>, <code>WM_GetLinkLevel</code></td>
+<td>NitroWiFi</td>
+<td>WEP, 비콘 페이로드, 신호 강도</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_SetWEPKey.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WCM_BeginSearchAsync</code>, <code>WCM_SearchAsync</code>, <code>WcmSetPhase</code></td>
+<td>libwcm</td>
+<td>비동기 AP 검색과 페이즈 상태 머신</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WCM_BeginSearchAsync.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WCMi_CpsifRecvCallback</code></td>
+<td>libwcm</td>
+<td>libwcm에서 libcps로 올라가는 다리</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WCMi_CpsifRecvCallback.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WcmCountBits</code>, <code>WcmNotify</code>, <code>WcmWmReset</code></td>
+<td>libwcm</td>
+<td>popcount, 이벤트 알림, <code>WM_*</code> 리셋 연결 코드</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WcmCountBits.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>SOCL_Startup</code>, <code>SOCL_CreateSocket</code>, <code>SOCL_Bind</code>, <code>SOCL_Connect</code></td>
+<td>libsoc</td>
+<td>소켓 API</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SOCL_Startup.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>SOCLi_ExecCommandPacket</code>, <code>SOCLi_SendCommandPacket</code>, <code>SOCLi_DhcpTimeout</code></td>
+<td>libsoc</td>
+<td>ARM7 명령 파이프와 DHCP 타임아웃</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SOCLi_ExecCommandPacket.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CPS_TcpConnect</code>, <code>CPS_SocRead</code>, <code>CPS_SocWrite</code>, <code>CPS_SetUdpCallback</code></td>
+<td>libcps</td>
+<td>벤더 IP 스택 위의 TCP와 UDP</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CPS_TcpConnect.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CPSi_SslConnect</code>, <code>CPSi_SslRead</code>, <code>CPSi_SslWrite2</code></td>
+<td>libssl</td>
+<td>TLS 세션</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CPSi_SslConnect.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CPSi_rc4_crypt</code>, <code>CPSi_md5_calc</code>, <code>CPSi_sha1_calc</code>, <code>CPSi_big_add_part</code></td>
+<td>libssl</td>
+<td>RC4, MD5, SHA-1과 빅넘 계층</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CPSi_rc4_crypt.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWC_GetState</code>, <code>DWC_GetLastError</code>, <code>DWC_GetMyAID</code>, <code>DWC_Alloc</code></td>
+<td>libdwcbase</td>
+<td>연결 상태, 오류, 연관 id, 힙</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_GetState.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWC_CheckFriendKey</code>, <code>DWC_Acc_CheckFriendKey</code>, <code>DWC_CanChangeFriendList</code></td>
+<td>libdwcac</td>
+<td>친구 코드와 목록 변경 가능 게이트</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_CheckFriendKey.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWCi_Acc_GetFlags</code>, <code>_GetFriendKey</code>, <code>_GetUserId</code>, <code>_IsDirty</code>, <code>_SetMaskBits</code></td>
+<td>libdwcac</td>
+<td>계정 객체의 접근자</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWCi_Acc_GetFriendKey.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_ov065_02274798</code> (<code>DWC_Auth_Prepare_FirstPost</code>)</td>
+<td>ov065</td>
+<td>RTC에서 얻은 <code>devtime</code>을 포함해 WFC 인증 POST를 구성</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02274798.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWCi_BACKUPlInit</code> / <code>_Read</code> / <code>_WriteAll</code></td>
+<td>libdwcac</td>
+<td>무선 설정 백업 저장소</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_BACKUPlCheckSsid.c</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">replaced by <code>port/shim/net/dwcbackup.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWCi_SNDlPlay</code>, <code>_Stop</code>, <code>_SetVolume</code>, <code>_SetPitch</code></td>
+<td>libdwcac</td>
+<td>네트워크 UI가 사운드 플레이어로 들어가는 훅</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWCi_SNDlPlay.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_0210172c</code></td>
+<td>autoload_2</td>
+<td>설정 저장소 초기화 결과를 좁힘; 포트는 0으로 응답</td>
+<td><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcinit.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PXI 태그 10</td>
+<td>ARM7으로 가는 WM 채널</td>
+<td>ARM9 무선 매니저</td>
+<td>ARM7 (포트는 태그 이름을 한 번 밝히고 버린다) <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWCMatchControl.friendList</code> / <code>.friendIdxList</code> / <code>.evalCallback</code></td>
+<td>세션이 실행되는 근거인 매치메이킹 상태</td>
+<td><code>DWCi_MatchInit</code></td>
+<td>매칭 계층 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065-dwc.md</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWCLoginControl</code> 사용자 id / 비밀번호 / 연결 플래그 / 인증 토큰</td>
+<td>POST가 담는 계정 자격 증명</td>
+<td>인증 스레드</td>
+<td><code>DWC_Auth_Prepare_FirstPost</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065-dwc.md</code></span></span></td>
+</tr>
+<tr>
+<td>DWC 백업 페이지</td>
+<td>SSID, WEP 키, DHCP 설정, CRC-16으로 검증됨</td>
+<td><code>DWCi_BACKUPlWriteAll</code> (포트: 버림)</td>
+<td><code>DWCi_BACKUPlRead</code> (포트: 모두 0) <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcbackup.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>DWC_BM</code> 4페이지 맵</td>
+<td><code>DWC_BM_Init</code>이 <code>MATH_CalcCRC16</code>으로 검증하고 복구하는 설정 저장소</td>
+<td><code>DWC_BM_Init</code></td>
+<td>설정 UI <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100830.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>실행할 것은 없다. 의미 있는 검사는 부정적 검사이며 이미 모든 마을 실행의 일부다. 로그에서
+<code>acww pxi: tag a</code>(WM)와 <code>unimplemented:</code> 줄에 나오는 <code>DWC</code>/<code>WM</code> 심볼을 grep한다.
+<code>scratchpad/cycle40/runs/tap-D56</code>의 59,808줄 로그에는 둘 다 나타나지 않는다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code>, 48,000 frames</span></span>. 만약 언젠가 나타난다면, 게임이 네트워크
+경로에 도달한 것이며 이 페이지는 더 이상 서술적이지 않게 된다.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>로컬 무선(<code>WM_*</code>/<code>WCM*</code>만, IP 없음)은 되살릴 수 있는 쪽 절반이다. 더 이상 존재하지 않는 서버가
+  필요 없기 때문이다. 게임 자체의 "근처 친구 방문" 경로가 44개 <code>WM_*</code> 진입점 중 실제로 어느 것을
+  호출하는지 추적하면 해결되는데, 그러려면 그 메뉴에 도달해야 하고, 아직 어떤 레시피도 그러지
+  못한다.</li>
+<li>타이틀 메뉴가 도달하는 <code>ov065thunks.c</code>의 세 함수는 부팅 경로에 있는 유일한 네트워크 인접 코드다.
+  근거: 48,000프레임 동안 다른 ov065 심볼은 하나도 이름이 나오지 않았다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code></span></span>. 전체 실행에 걸쳐 ov065의 주소 범위에 대한 <code>ACWW_WATCH</code>
+  스윕으로 해결된다.</li>
+<li><code>func_0210172c</code>의 실제 응답이 중요하다. 포트는 항상 "설정 유효, 지워진 것 없음"이라 답한다.
+  다른 응답이라면 게임을 설정 삭제 경로로 보낼 것이다. 심(shim)의 반환값을 뒤집고 부팅을 비교하면
+  해결된다.</li>
+<li><code>devtime</code> 의존성은, 여전히 로그인할 수 있는 ACWW라 해도 포트의 고정된 2005년 시계 아래에서는
+  로그인을 거부할 것임을 뜻한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_ov065_02274798</code> returns <code>DWCAUTH_E_RTCERR</code> on a failed read, and the port's read succeeds &ndash; so the failure would be server-side, not clock-side</span></span>.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>time-and-rtc.md</code> &ndash; 인증 POST가 담는 시계.</li>
+<li><code>rng.md</code> &ndash; 확립된 소비자가 여기에만 있는 SDK 생성기.</li>
+<li><code>../experiments/off-recipe.md</code> &ndash; 위의 부정적 검사를 읽어내는 실행.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/rng.html"><small>◀ 이전</small>난수</a><a class="pn next" href="../systems/audio.html"><small>다음 ▶</small>오디오</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#두-개의-스택">두 개의 스택</a></li><li><a href="#ov065의-실체">ov065의 실체</a></li><li><a href="#친구-코드와-로그인-흐름">친구 코드와 로그인 흐름</a></li><li><a href="#포트가-하는-일">포트가 하는 일</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

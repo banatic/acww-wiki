@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대화 · ACWW 근거 위키</title>
+<meta name="description" content="누군가와 대화하는 것은 NPC 안이 아니라 NPC 곁에 존재하는 작은 상태 머신이다. {enter, update} 멤버 함수 쌍으로 이루어진 다섯 항목의 테이블이 정적 초기화 시점에 만들어지고, 대화 요청은 요청 바이트에 상태 번호를 쓴다. 머신은 유휴 상태일 때에만 ">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li class="active"><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>대화</span></div><header class="page-head"><h1>대화</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 33</span><span class="gchip g-E"><b>E</b> 9</span><span class="gchip g-O"><b>O</b> 3</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/dialogue.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 누군가와 대화하는 것은 NPC 안이 아니라 NPC 곁에 존재하는 작은 상태 머신이다.
+<code>{enter, update}</code> 멤버 함수 쌍으로 이루어진 다섯 항목의 테이블이 정적 초기화 시점에 만들어지고,
+대화 요청은 요청 바이트에 상태 번호를 쓴다. 머신은 유휴 상태일 때에만 요청을 알아채고, 이를 래치한 뒤
+그 항목의 <code>enter</code>를 한 번, <code>update</code>를 매 프레임 실행한다. 어떤 대사가 나오는지는 더 아래에서, 머신이
+시작되는 순간 NPC에 바인딩된 스크립트가 결정한다. 선택지 프롬프트와 두 개의 이름 키보드는 같은
+대화가 구동하는 별도의 화면이다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>대화 테이블은 <code>data_021c17c4</code>이다. <code>{enter, update}</code> 멤버 함수 포인터로 된 16바이트 항목 다섯 개이며,
+정적 초기화 시점에 <code>__sinit_020c4270</code>이 채운다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">data_021c17c4, main, port/shim/game/w1_taxitalk.c</span></span>. 항목들은 일반 함수 포인터가 아니라 멤버
+포인터이므로 mwcc의 <code>{lo, hi}</code> 쌍이며, 디스패치는 포트의 단일 멤버 포인터 해석기를 거친다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/memptr.c, port/shim/game/w1_taxitalk.c</span></span>.</p>
+<p>머신의 상태는 작은 객체(<code>sm</code>)의 세 바이트에 있다. <code>f9</code>는 요청, <code>f8</code>은 현재 상태, <code>fa</code>는 하위 상태다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020146cc / func_02014688, main, port/shim/game/w1_taxitalk.c</span></span>. 유휴는 <code>f9 == 5</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02014788, main, port/shim/game/w1_taxitalk.c</span></span>. 호출자는 <code>f9</code>에 상태 번호를 써서 대화를
+요청한다. <code>func_020147e0(obj + 0x618, 1, 0)</code>은 <code>func_02014788(sm, 1, ...)</code>에 도달하며, 이는
+<code>sm-&gt;f9 == 5</code>를 요구한 뒤 <code>sm-&gt;f9 = 1</code>을 설정한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020147e0 / func_02014788, main, port/shim/game/w1_taxitalk.c</span></span>. 요청은 <code>func_020146cc</code>가
+받아들이는데, 그 조건은 <code>sm-&gt;f9 &lt; 5 &amp;&amp; sm-&gt;f8 == 5</code>이다. 이 함수는 <code>sm-&gt;f8 = sm-&gt;f9</code>로 래치하고,
+<code>sm-&gt;fa = 0</code>으로 지우고, <code>gTbl[1].enter = func_02014060</code>을 실행한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020146cc, main, port/shim/game/w1_taxitalk.c</span></span>. 매 프레임
+<code>func_02014688</code>은 <code>gTbl[1].update = func_02013e68</code>을 실행하며, 이는 <code>sm-&gt;fa</code>에 따라 하위 테이블로
+디스패치하여 <code>func_0201404c</code>에 도달한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02014688 / func_02013e68, main, port/shim/game/w1_taxitalk.c</span></span>.</p>
+<p>"대화가 시작된다"를 "이 NPC가 이 대사를 한다"로 바꾸는 바인딩은 <code>func_02014718</code>이다. 이 함수는
+<code>npc-&gt;f634 != 0</code>을 요구한 뒤, <code>func_0203ee14 -&gt; func_02068340</code>을 거쳐 바인딩하고, <code>func_020a8164</code>로
+스크립트를 붙이고, <code>p-&gt;f1e</code>에서 키를 가져오고, <code>p-&gt;f40-&gt;f8 = 1</code>을 설정하여 대화를 준비(arm)한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02014718, main, port/shim/game/w1_taxitalk.c</span></span>. <code>npc-&gt;f634</code>는 씬 자신의 슬롯 1
+(<code>func_ov051_02261364 -&gt; func_0201c280(self, self + 0x658)</code>)이 <code>npc + 0x658</code>로 설정한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov051_02261364, ov051, port/shim/game/w1_taxitalk.c</span></span>. 즉 어떤 요청이든 성공하려면 그 전에
+NPC에 대화 하위 구조가 주어져 있어야 한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/w1_taxitalk.c</span></span>.</p>
+<p>NPC 쪽에는 게이트가 하나 더 있다. 그 프레임당 스텝 <code>func_0201b910</code>은 <code>self-&gt;f561 != 0</code>일 때에만
+<code>func_02014688(self + 0x618, self)</code>를 호출하며, 그 바이트는 <code>func_0201bdb4</code>가 1로 설정한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0201b910 / func_0201bdb4, main, port/shim/game/w1_taxitalk.c</span></span>.</p>
+<p>게임의 첫 대화인 택시 안의 갑돌이는 씬 쪽 게이트가 붙은 전체 체인을 보여준다.
+<code>func_ov051_0226131c</code>(vtable <code>0x0226193c</code> 슬롯 0)는 씬 상태 0을 설정하고 <code>self + 0x718</code>에 41프레임
+카운트다운 <code>0x29</code>를 쓴다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov051_0226131c, ov051, port/shim/game/w1_taxitalk.c</span></span>. 프레임당 스텝
+<code>func_ov051_02261270</code>은 <code>(self-&gt;*tbl[self-&gt;f654].update)()</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov051_02261270, ov051, port/shim/game/w1_taxitalk.c</span></span>. 씬 상태 0의 update인
+<code>func_ov051_022611e0</code>은 화면 페이드가 끝났을 것(<code>*(u8 *)0x021c75b8 == 2</code>, 여기서 0은 유휴, 1은
+페이드 인, 3은 페이드 아웃)과 카운트다운이 만료되었을 것(<code>func_020e8840(self + 0x718) == 0</code>)을
+요구하며, 그런 뒤에야 씬 상태 1로 진행하고, 그 enter가 대화 요청을 발행한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov051_022611e0, ov051, port/shim/game/w1_taxitalk.c</span></span>.</p>
+<p>대화 및 메뉴 위젯은 공유 번역 단위에서 만들어지며, 그 템플릿은 아홉 인수 생성자인 <code>func_0202da38</code>이다.
+<code>Self</code> 레이아웃은 <code>f100</code>, 배열 <code>f104[0x1e]</code>, <code>f122</code>를 담고 있으며, 그 범위 게이트 중 하나는
+volatile 이중 읽기다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0202da38 / func_020224c4, main, src/matched/func_020224c4.c and src/matched/func_0202b800.c</span></span>. 배열 항목 수 <code>0x1e</code>는 위젯의 항목 용량이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_0202b800.c</span></span>.</p>
+<p>작은 <code>ov002</code> 상태 함수 한 쌍이 약 스무 개의 작은 NPC/대화 오버레이에서 호출되며, 호출 지점은 총
+34곳이다. 즉 NPC별 대화 코드는 하나의 상태 헬퍼를 공유하는 수많은 작은 오버레이에 흩어져 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov002, port/shim/c6d_ov002state.c</span></span>. 스크립트 자체는 ov068 자신의 풀에 이름이 있다:
+<code>q10_call</code>, <code>q10_back</code>, <code>q10_wait</code>, <code>q10_door</code>, <code>q10_first</code>, <code>q10_furniture</code>, <code>q10_layout</code>,
+즉 도착 시퀀스의 질문 스크립트가 라벨별로 나열되어 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov068 pool words, docs/kb/modules/ov003-068.md</span></span>. 메시지 텍스트는 ROM 파일 시스템에 BMG 파일로
+저장된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/VISIBLE-STATE.md, filesystem search returning twelve BMG files</span></span>.</p>
+<p>갑돌이 자신의 대사는 플래그로 선택된다. <code>func_ov080_02278c88</code>은 플레이어의 이벤트 플래그 1을 읽어
+평소의 <code>sp_npc_turtle</code> 대사 대신 인트로 그룹 <code>sp_etc_sequence5_2</code>를 고른다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov080_02278c88, ov080, port/shim/game/spnpc.c</span></span>. 따라서 대화 선택은 NPC의 상태만이 아니라
+플레이어의 진행 비트필드를 직접 참조한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>.</p>
+<p>스크립트된 A 펄스로 대화를 구동하는 인터프리터 경로에서 관측된 바는 다음과 같다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TAP40/MENU40/LONG40/TOWN40/LONG41, runs <code>tap-native</code>, <code>menu-a</code>, <code>menu-b</code>, <code>long-a</code>, <code>tap-D56</code>, <code>tap-D59</code></span></span>:</p>
+<ul>
+<li>첫 번째 키보드는 <code>당신 이름은?</code>을 묻는다. 두 번의 탭이 약 7,500프레임에서 이름을 확정한다.</li>
+<li>이어서 운전수(<code>운전수</code>)가 입력된 이름에 반응하고, 두 선택지 확인 메뉴 <code>그렇대두! / 아니야</code>가
+  표시된다.</li>
+<li>대화는 탭이 멈출 때에만 계속된다. 대화 중의 스타일러스 접촉은 대화를 진행시키지 않으며, 반복되는
+  탭은 확인 메뉴를 2,300프레임 동안 열린 채로 유지시켰다.</li>
+<li>13,500프레임에 다섯 선택지 목적지 메뉴가 나타난다:
+  <code>바다 / 마을사무소 / 가게 / 관문 / 박물관</code>.</li>
+<li>16,500에 두 선택지 돈 질문이 이어진다 (<code>돈 있어 / 조금밖에 없어</code>).</li>
+<li>두 번째 키보드는 약 24,000프레임에 <code>마을 이름은?</code>을 묻고 24,600에 두 번의 탭으로 확정된다.</li>
+<li>40,500프레임부터 마을 회관에서 <code>펠리</code>(Pelly)가 말하고 선택지 프롬프트가 화면에 있다. 그녀는
+  60,000에 작별 인사를 하고, 스크립트된 A 펄스가 90,000까지 대화를 다시 시작시킨다
+  (<code>어머 무슨 일 있으신가요?</code>).</li>
+</ul>
+<p>기록에 남은 두 가지 모순이 있으며, 이는 잡음이 아니라 내용이다. 첫째, DeSmuME 레퍼런스와 포트는
+6,000프레임부터 24,000프레임까지 한 단계씩 일치하다가(아래 화면 ncc 0.9997-1.0000) 25,500에서
+갈라진다. 포트의 두 탭은 마을 이름을 확정하지만 레퍼런스의 동일한 탭은 그러지 않아, 48,000까지
+마을 이름 키보드에 머문다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md ORACLE41, <code>scratchpad/oracle/tap-fullpad</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D56</code></span></span>. 해결됨(ORACLE42): 24,600의 탭은 KEYS3의 A 누름 프레임(2400 + 37 x 600)에
+떨어지고, 레퍼런스의 스타일러스 샘플은 포트보다 1-2프레임 늦게 게임에 도달하므로, 둘은 누름과 탭의
+순서를 다르게 매긴다. 탭을 24,700으로 옮기면 둘 다 확정하고 일치한다(24000..27000의 11프레임,
+ncc 0.9955, 위 화면 1.0000)
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-24700</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D62</code></span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md ORACLE42</span></span>.
+포트가 그 지연을 모델링해야 하는지는 아래의 가설이다. 둘째, 스크립트된 실행은 마을 회관을 떠날 수
+없지만(A 펄스가 펠리의 대화를 영원히 다시 연다), 키보드를 쥔 사람은 떠날 수 있다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md LONG41, <code>tap-D59</code></span></span>.</p>
+<p>키보드는 <code>ov126</code>이다. 그 터치 디스패처 <code>func_ov126_022a1228</code>은 <code>0x022a1229</code>(Thumb)를 가리키는
+<code>0x022a1ff0</code>의 ov126 재배치를 통해 함수 포인터로만 설치된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov126, docs/log/cycle40-keyboard-gate-probe.md PROBE40</span></span>. 키보드를 닫는 것은
+<code>func_ov126_022a1a54</code>이며, 이는 <code>0x022a1a58</code>에서 자신의 객체를 <code>func_020ee470</code>에 넘기고 1을 반환한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov126_022a1a54, ov126, port/shim/game/keyboardclose.c</span></span>. 준비 여부 검사
+<code>func_ov002_022081dc</code>는 <code>func_020ee550</code>에 넘기고 결과를 0 또는 1로 정규화한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov002_022081dc, ov002, port/shim/game/keyboardready.c</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_021c17c4</code></td>
+<td>main</td>
+<td>5 x <code>{enter, update}</code> 대화 테이블</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>__sinit_020c4270</code></td>
+<td>main</td>
+<td>정적 초기화 시점에 그 테이블을 채움</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_02014788</code></td>
+<td>main</td>
+<td><code>sm-&gt;f9 == 5</code>일 때 대화 요청을 수락</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_020146cc</code></td>
+<td>main</td>
+<td>요청을 래치: <code>f8 := f9</code>, <code>fa := 0</code></td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_02014060</code></td>
+<td>main</td>
+<td><code>gTbl[1].enter</code></td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_02013e68</code></td>
+<td>main</td>
+<td><code>gTbl[1].update</code>, <code>sm-&gt;fa</code>에 따라 디스패치</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_02014718</code></td>
+<td>main</td>
+<td>스크립트와 키를 바인딩하고 대화를 준비</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_020a8164</code></td>
+<td>main</td>
+<td>대화 스크립트를 붙임</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_0201b910</code></td>
+<td>main</td>
+<td>NPC 프레임당 스텝, <code>self-&gt;f561</code>로 게이트됨</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_ov051_022611e0</code></td>
+<td>ov051</td>
+<td>택시 씬 상태 0: 페이드 + 카운트다운 게이트</td>
+<td>S: port/shim/game/w1_taxitalk.c</td>
+</tr>
+<tr>
+<td><code>func_0202da38</code></td>
+<td>main</td>
+<td>아홉 인수 메뉴/대화 위젯 템플릿</td>
+<td>S: src/matched/func_0202b800.c</td>
+</tr>
+<tr>
+<td><code>func_ov080_02278c88</code></td>
+<td>ov080</td>
+<td>갑돌이의 인트로 대 평소 대사 그룹 선택</td>
+<td>S: port/shim/game/spnpc.c</td>
+</tr>
+<tr>
+<td><code>func_ov126_022a1228</code></td>
+<td>ov126</td>
+<td>키보드 터치 디스패처 (함수 포인터로만)</td>
+<td>S: docs/log/cycle40-keyboard-gate-probe.md</td>
+</tr>
+<tr>
+<td><code>func_ov126_022a1a54</code></td>
+<td>ov126</td>
+<td>키보드 닫기</td>
+<td>S: port/shim/game/keyboardclose.c</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021c17c4</code></td>
+<td>5항목 대화 테이블</td>
+<td><code>__sinit_020c4270</code></td>
+<td><code>func_020146cc</code>, <code>func_02014688</code></td>
+</tr>
+<tr>
+<td><code>sm-&gt;f9</code></td>
+<td>요청된 대화 상태; 5 = 유휴</td>
+<td><code>func_02014788</code></td>
+<td><code>func_020146cc</code></td>
+</tr>
+<tr>
+<td><code>sm-&gt;f8</code></td>
+<td>현재 대화 상태</td>
+<td><code>func_020146cc</code></td>
+<td><code>func_020146cc</code></td>
+</tr>
+<tr>
+<td><code>sm-&gt;fa</code></td>
+<td>update 하위 테이블의 하위 상태 인덱스</td>
+<td><code>func_020146cc</code></td>
+<td><code>func_02013e68</code></td>
+</tr>
+<tr>
+<td><code>npc-&gt;f634</code></td>
+<td>NPC의 대화 하위 구조 포인터</td>
+<td><code>func_ov051_02261364</code></td>
+<td><code>func_02014718</code></td>
+</tr>
+<tr>
+<td><code>npc + 0x618</code></td>
+<td>대화 머신 객체</td>
+<td>씬 초기화</td>
+<td><code>func_020147e0</code>, <code>func_02014688</code></td>
+</tr>
+<tr>
+<td><code>npc-&gt;f561</code></td>
+<td>"이 NPC는 대화 스텝을 실행해도 됨"</td>
+<td><code>func_0201bdb4</code></td>
+<td><code>func_0201b910</code></td>
+</tr>
+<tr>
+<td><code>p-&gt;f1e</code></td>
+<td>대화 키</td>
+<td><code>func_02014718</code></td>
+<td>스크립트</td>
+</tr>
+<tr>
+<td><code>p-&gt;f40-&gt;f8</code></td>
+<td>"준비됨" 바이트</td>
+<td><code>func_02014718</code></td>
+<td>스크립트 러너</td>
+</tr>
+<tr>
+<td><code>0x021c75b8</code></td>
+<td>화면 페이드: 0 유휴, 1 인, 2 완료, 3 아웃</td>
+<td>페이드 매니저</td>
+<td><code>func_ov051_022611e0</code></td>
+</tr>
+<tr>
+<td><code>ov051 self + 0x718</code></td>
+<td>41프레임(<code>0x29</code>) 씬 카운트다운</td>
+<td><code>func_ov051_0226131c</code></td>
+<td><code>func_020e8840</code></td>
+</tr>
+<tr>
+<td><code>0x022a1ff0</code> (ov126 reloc)</td>
+<td>키보드의 터치 디스패처 포인터</td>
+<td>오버레이 로드</td>
+<td>키보드 스텝</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 행은 S 등급이며, 이전 표의 파일에서 인용했다.</p>
+<h2 id="확인-방법">확인 방법</h2>
+<p><code>port/shim/game/w1_taxitalk.c</code>는 정확히 이 게이트들에 대한 읽기 전용 프로브다. <code>0x021c75b8</code>의
+페이드 상태를 네 값의 이름과 함께 출력하고, <code>0x021c17c4</code>의 다섯 <code>{enter, update}</code> 쌍 모두를 변화
+시점과 2의 거듭제곱 하트비트마다 출력하여 침묵이 결코 모호하지 않게 한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/w1_taxitalk.c</span></span>. 이로써 "테이블이 0이다"와 "테이블이 잘못되었다"를 구별할 수
+있으며, 이것이 모든 대화 조사가 출발하는 구별점이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/w1_taxitalk.c</span></span>.</p>
+<p>대화를 재현하려면 마을 레시피(<code>town.md</code> 참조)를 실행하고 9,000 / 13,500 / 16,500 / 24,000 / 40,500의
+스크린샷을 읽는다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md, <code>tap-D56</code>, <code>long-a</code></span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>
+<p>포트는 예약된 스타일러스 샘플을 같은 프레임에 <code>TP_POINT</code>로 전달하지만, 하드웨어의 ARM7 샘플링과 PXI 왕복은 1-2프레임을 더한다. port/shim/input/touch.c에서 그 지연을 모델링하면 24,600 레시피가 레퍼런스처럼 동작할 것이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">re-run <code>tap-D56</code>'s recipe after the change and compare with <code>scratchpad/oracle/tap-fullpad</code> at 25,500</span></span>.</p>
+</li>
+<li>
+<p><strong>H: 다섯 개의 대화 테이블 항목은 다섯 가지 대화 종류(일반 주민, 특수 NPC, 표지판/게시판, 편지,
+  시스템 프롬프트)이며, <code>sm-&gt;f9</code>는 그 종류를 지정한다.</strong> 관측된 요청 값은 1이고 유휴는 5이므로,
+  0..4가 실제 항목이고 5는 "없음"이다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/w1_taxitalk.c</span></span>. 실험: 마을 회관 실행과 주민 대화에 걸쳐 수락된 모든 요청에서
+  <code>sm-&gt;f9</code>를 기록하고 몇 개의 서로 다른 값이 나타나는지 본다.</p>
+</li>
+<li><strong>H: <code>sm-&gt;fa</code>는 고정된 대사 진행 시퀀스(상자 열기 -&gt; 출력 -&gt; A 대기 -&gt; 닫기)를 따라가며, 그래서
+  600프레임당 한 번의 A 펄스로 택시 대화 전체가 진행된다.</strong>
+  <code>func_02013e68</code>은 <code>fa</code>에 따라 디스패치한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/w1_taxitalk.c</span></span>
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md MENU40</span></span>. 실험: <code>tap-D59</code>에서 펠리의 대사 한 줄에 걸쳐
+  프레임당 <code>fa</code>를 기록한다.</li>
+<li><strong>H: 선택지 프롬프트는 <code>f104[0x1e]</code>가 채워진 대화 상자와 같은 위젯이며, 답은 스크립트가 재개되기
+  전에 <code>sm</code>에 다시 쓰인다.</strong> 템플릿은 공유된다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_0202b800.c</span></span>. 실험: 다섯 선택지 목적지 메뉴와 일반 대사에서 <code>func_0202da38</code>의
+  아홉 인수를 계측한다.</li>
+<li><strong>H: 대화 중의 스타일러스 접촉은 "취소/유지" 입력으로 소비되며, 그래서 반복되는 탭이 확인 메뉴를
+  얼렸다.</strong> 측정된 동작이며, 메커니즘은 읽지 않았다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TAP40/MENU40, <code>tap-D55b</code>, <code>menu-a</code></span></span>. 실험: 대사
+  도중 접촉을 유지하는 동안 <code>func_020b755c</code>의 분류와 <code>sm-&gt;fa</code>를 계측한다.</li>
+<li>(해결됨, 기록용으로 유지.) ADC 왕복은 원인이 아니었다. 222,182에서 <code>tap-D61</code>은 여전히 확정하고
+  220,180에서 <code>scratchpad/oracle/tap-220</code>은 여전히 확정하지 않는다. 프레임은 (원문 문장이 여기서 끊긴다)
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md ORACLE42</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D61</code></span></span>
+  <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-220</code></span></span>.</li>
+<li><strong>H: <code>func_020a8164</code>는 NPC의 종과 성격 및 플레이어의 이벤트 플래그에서 파생된 스크립트 id를 받으며,
+  따라서 대화의 다양성은 무작위 선택이 아니라 테이블 조회다.</strong> 갑돌이의 그룹은 이미 이벤트 플래그로
+  선택된다고 알려져 있다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>. 실험: 같은 날 서로 다른 세 주민에 대해 <code>func_020a8164</code>의 인수를
+  기록한다.</li>
+<li><strong>H: <code>q10_*</code> 라벨은 도착 설문의 일곱 단계이며, 택시 대화의 관측된 박자에 일대일로 대응된다.</strong>
+  라벨은 일곱 개이고, 관측된 대화에는 이름 프롬프트, 확인, 목적지 메뉴, 돈 질문, 마을 이름
+  프롬프트가 있다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/ov003-068.md</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D56</code></span></span>. 실험: <code>func_020a8164</code>를 계측하고 택시 대화가
+  로드하는 각 스크립트의 라벨을 출력한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>player.md</code> &ndash; 대화 선택이 읽는 이벤트 비트필드</li>
+<li><code>villagers.md</code> &ndash; 대사와 나란히 실행되는 표정 롤</li>
+<li><code>town.md</code> &ndash; 레퍼런스 실행이 끝나는 마을 회관</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/events-and-calendar.html"><small>◀ 이전</small>이벤트와 달력</a><a class="pn next" href="../systems/input-and-touch.html"><small>다음 ▶</small>입력과 터치</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

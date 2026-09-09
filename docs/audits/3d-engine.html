@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다 · ACWW 근거 위키</title>
+<meta name="description" content="포트의 소프트웨어 지오메트리 엔진(port/render/nds3d.c)과 래스터라이저 (port/render/raster3d.c), 그리고 커맨드 파서(gxfifo.c)와 텍스처 유닛(tex3d.c)을 GBATEK의 DS 3D 장(章)과 두 개의 정확한 소프트웨어 에뮬">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li class="active"><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</span></div><header class="page-head"><h1>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 4</span><span class="gchip g-E"><b>E</b> 4</span></div><div class="source-line">원문: <code>wiki/audits/3d-engine.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 포트의 소프트웨어 지오메트리 엔진(<code>port/render/nds3d.c</code>)과 래스터라이저
+(<code>port/render/raster3d.c</code>), 그리고 커맨드 파서(<code>gxfifo.c</code>)와 텍스처 유닛(<code>tex3d.c</code>)을
+GBATEK의 DS 3D 장(章)과 두 개의 정확한 소프트웨어 에뮬레이터, 즉 melonDS의 <code>GPU3D.cpp</code> /
+<code>GPU3D_Soft.cpp</code> 및 DeSmuME의 <code>gfx3d.cpp</code> / <code>rasterize.cpp</code>에 대해 주장 하나하나 대조하여
+검사했다. 61개의 주장을 검사했으며, 38개는 일치, 17개는 불일치, 4개는 공개 기록에 명시되지
+않음, 2개는 포트 자체의 측정과 에뮬레이터 사이의 명백한 모순이다. 지오메트리 단계는 양호한
+상태다 — 행렬, 행 벡터 규약, 클리핑, 뷰포트, 조명, 텍스처 행렬 모드 1 상수, 그리고 모든
+텍스처 형식이 옳으며, 그중 몇 가지는 공개 기록이 틀리기 쉽게 만드는 지점에서도 옳다.
+<strong>손상은 세 곳에 집중되어 있다: 반투명 블렌딩(포트는 후면 평면(rear plane) 위에서 폴리곤
+알파를 두 번 적용하고, 하드웨어가 최댓값을 취하는 곳에서 알파를 누적한다), W 버퍼 깊이(ACWW는
+W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규화를 건너뛴다), 그리고 포트가
+선언하지만 수행하지 않는 네 가지 효과 — 안개, 엣지 마킹, 툰, 안티에일리어싱.</strong> 열두 개의
+진단 노트 중 두 개는 과적재되어 있어 문자 그대로의 의미와 다른 것을 뜻한다.</p>
+<p><strong>방법.</strong> <code>main</code>의 워크트리 헤드(<code>6ca48706</code>)에서 읽었다. 공개 자료는 기억에 의존하지 않고
+가져왔으며, 모든 행은 페이지나 파일을 명시한다. 어떤 소스에서도 코드를 복사하지 않았다. 게임은
+실행하지 않았고 이 페이지의 어떤 측정도 새로운 것이 아니다 — 포트 쪽 수치는 <code>docs/log/</code>와 이미
+디스크에 있는 오라클 비교에서 인용했다.</p>
+<hr />
+<h2 id="1-게임이-실제로-엔진에-요구하는-것">1. 게임이 실제로 엔진에 요구하는 것</h2>
+<p>이것이 어떤 행이 중요한지를 결정한다. <code>func_02002f68</code>은 게임의 3D 초기화(bring-up)이고
+매칭된 소스이므로, 이는 등급 S다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>레지스터</th>
+<th>ROM이 쓰는 값</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DISP3DCNT</code> <code>0x04000060</code></td>
+<td>클리어 후 <code>\|0x10</code>, 다음 <code>\|0x08</code>, 다음 <code>&amp;0xcfdf</code></td>
+<td>알파 블렌딩 <strong>켬</strong>(비트 3), 안티에일리어싱 <strong>켬</strong>(비트 4), 엣지 마킹 <strong>끔</strong>(비트 5), 하이라이트 셰이딩 선택 <strong>끔</strong>(비트 1) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02002f68.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>VIEWPORT</code> <code>0x04000580</code></td>
+<td><code>0xbfff0000</code></td>
+<td>X1=0, Y1=0, X2=255, Y2=191 — 전체 화면이며, 포트가 기본값으로 쓰는 값과 같다</td>
+</tr>
+<tr>
+<td><code>SWAP_BUFFERS</code> <code>0x04000540</code></td>
+<td><code>3</code></td>
+<td>비트 0 = <strong>수동</strong> 반투명 Y 정렬, 비트 1 = <strong>W 버퍼</strong> 깊이</td>
+</tr>
+<tr>
+<td><code>G3X_SetClearColor</code> <code>0x02112304</code></td>
+<td><code>(rgb=0, alpha=0, depth=0x7fff, polygonID=0x3f, fog=TRUE)</code></td>
+<td>후면 평면 투명(그래서 2D 하늘이 보인다), 클리어 폴리곤 ID <code>0x3f</code>, <strong>후면 평면 안개 활성화</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>정리하면: ACWW는 W 버퍼, 알파 블렌딩, 안티에일리어싱, 수동 정렬, 엣지 마킹 끔 게임이며,
+후면 평면은 투명하고 안개 플래그가 켜져 있다. 안개 마스터 활성화(<code>DISP3DCNT</code> 비트 7)는 이
+함수가 설정하지 않는다. 나중에 무언가가 설정하는지는 미해결이다 — H3을 보라.</p>
+<p>재질(material) 조사 결과. ROM의 866개 모델에 대한 포트 자체 헤더 주석에서
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/raster3d.c</code> header</span></span>: 2,040개 재질 전부가 <code>GX_POLYGONMODE_MODULATE</code>다(데칼
+없음, 툰 없음, 섀도우 없음); 18,767개 프리미티브 중 17,173개가 트라이앵글 스트립이다.</p>
+<hr />
+<h2 id="2-주장-표">2. 주장 표</h2>
+<p>판정은 <strong>일치(agrees)</strong> / <strong>불일치(disagrees)</strong> / <strong>미명시(unspecified)</strong> / <strong>모순(contradiction)</strong>
+이다. "포트"는 해당 주장이 있는 파일과 함수를 가리킨다.</p>
+<h3 id="a-커맨드-스트림-행렬과-스택">A. 커맨드 스트림, 행렬과 스택</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>포트가 진술하는 주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+<th>바꿀 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td>파라미터 개수: <code>MTX_LOAD_4x4</code>=16, <code>4x3</code>=12, <code>3x3</code>=9, <code>VTX_16</code>=2, <code>SHININESS</code>=32, <code>BOX_TEST</code>=3, <code>POS_TEST</code>=2, <code>VEC_TEST</code>=1 [<code>gxfifo.c</code>, <code>param_count</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-geometry-commands.htm">DS 3D Geometry Commands</a></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>유효한 커맨드는 0x10–0x1C, 0x20–0x2B, 0x30–0x34, 0x40–0x41, 0x50, 0x60, 0x70–0x72이고, 그 밖의 것은 커맨드가 아니다 [<code>gxfifo.c</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-overview.htm">DS 3D Overview</a></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>버텍스는 행 벡터이며 <code>v' = v × M</code>, 이동(translation)은 네 번째 <strong>행</strong>에 있다; <code>MTX_MULT_*</code>는 <code>current = param × current</code>를 계산한다 [<code>nds3d.c</code> header, <code>mat_target_mult</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-matrix-types.htm">DS 3D Matrix Types</a>; melonDS <code>GPU3D.cpp</code></td>
+<td>일치</td>
+<td>없음 — 이 파일에서 거꾸로 하기 가장 쉬운 단 하나의 항목이다</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>위치/벡터 스택은 사용 가능한 레벨이 31개이고, 투영과 텍스처는 1개다 [<code>nds3d.c</code>, <code>POS_STACK_DEPTH</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-matrix-stack.htm">DS 3D Matrix Stack</a></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>A5</td>
+<td><code>MTX_POP</code>의 파라미터는 부호 있는 6비트 오프셋이며, 투영 모드에서는 무조건 한 레벨을 팝한다 [<code>nds3d.c</code> case 0x12]</td>
+<td>GBATEK, 같은 페이지: 오프셋 −30..+31, 투영은 +1로 강제</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>레벨 31에서 푸시하면 스택 오류를 설정하고 <strong>푸시하지 않는다</strong>; 범위 밖으로 팝하면 오류를 설정하고 클램프한다 [<code>nds3d.c</code> case 0x11/0x12]</td>
+<td>GBATEK, 같은 페이지: 엔트리 31은 존재하며 읽기/쓰기 접근이 가능하고, 이를 건드리면 <strong>플래그는 설정되지만 연산은 미러링된 엔트리에 대해 그대로 진행된다</strong></td>
+<td>불일치(경미)</td>
+<td>오류를 올린 뒤 클램프된 슬롯에 대해 푸시가 진행되게 하여, 과도하게 푸시하는 게임도 자기 일관적인 행렬을 돌려받게 한다</td>
+</tr>
+<tr>
+<td>A7</td>
+<td><code>MTX_STORE</code>/<code>MTX_RESTORE</code>는 5비트 슬롯 인덱스를 받는다 [<code>nds3d.c</code> case 0x13/0x14]</td>
+<td>GBATEK: 유효한 주소는 0..30이고, 주소 31은 오버플로 플래그를 설정한다</td>
+<td>불일치(경미)</td>
+<td>인덱스 31에서도 <code>GX_NOTE_MTXSTACK</code>을 올린다</td>
+</tr>
+<tr>
+<td>A8</td>
+<td><code>MTX_SCALE</code>은 모드 2에서도 위치 행렬에만 적용된다 [<code>mat_target_mult(..., 1)</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-matrix-stack.htm">DS 3D Matrix Stack</a></td>
+<td>일치</td>
+<td>없음 — 그리고 이것이 조명된 지오메트리와, 스케일하면 조명이 바뀌는 지오메트리를 가르는 한 줄이다</td>
+</tr>
+<tr>
+<td>A9</td>
+<td><code>CLIPMTX_RESULT</code>는 <code>position × projection</code>이며 모든 행렬 커맨드 후에 공개된다 [<code>mtx_readback</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-tests.htm">DS 3D Tests</a>, POS_TEST "clip coordinate matrix"</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>A10</td>
+<td><code>GXSTAT</code>은 비트 8–12에 스택 레벨, 13에 투영 레벨, 15에 오류를 담으며, 포트는 추가로 "FIFO less than half full"을 비트 25로 보고한다 [<code>gxstat_update</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-status.htm">DS 3D Status</a>: 25 = less-than-half-full, <strong>26 = FIFO empty</strong>, 27 = geometry busy, 30–31 = FIFO IRQ mode(유일하게 쓰기 가능한 필드)</td>
+<td>불일치</td>
+<td><code>gxstat_update()</code>는 매번 새 워드를 쓰며 비트 15만 보존한다. 따라서 (a) <strong>비트 26</strong>을 절대 설정하지 않으므로 "FIFO empty"를 폴링하는 SDK 루프가 끝나지 않는다; (b) <code>NNS_G3dInit</code>이 설정하는 <strong>비트 30–31</strong>을 지운다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dInit.c</code></span></span>; (c) 어떤 행렬 커맨드든 실행되는 순간 비트 1의 박스 테스트 결과를 지운다. 수정 <strong>F7</strong>을 보라</td>
+</tr>
+<tr>
+<td>A11</td>
+<td><code>BOX_TEST</code>/<code>POS_TEST</code>/<code>VEC_TEST</code>는 테스트 없이 "보임(visible)"으로 답하고, busy 비트는 클리어된다 [<code>nds3d.c</code> case 0x70–0x72]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-tests.htm">DS 3D Tests</a>: <code>POS_RESULT</code>는 <code>0x04000620</code>의 4워드, <code>VEC_RESULT</code>는 <code>0x04000630</code>의 3하프워드</td>
+<td>불일치</td>
+<td><code>BOX_TEST</code>가 "보임"으로 답하는 것은 안전한 방향이며 비용은 폴리곤뿐이다. <code>POS_TEST</code>와 <code>VEC_TEST</code>는 <strong>아무것도</strong> 쓰지 않으므로, 게임은 I/O 페이지에 들어 있던 값을 그대로 읽는다. 둘 다 기존 코드 두 줄이면 된다 — 수정 <strong>F5</strong>를 보라</td>
+</tr>
+<tr>
+<td>A12</td>
+<td><code>RAM_COUNT</code>와 <code>DISP3DCNT</code> 비트 13 오버플로 플래그는 구현되지 않았다; 오버플로는 노트만 올린다 [<code>emit_poly</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-status.htm">DS 3D Status</a>: <code>RAM_COUNT</code> <code>0x04000604</code>, 비트 0–11에 폴리곤(최대 2048), 16–28에 버텍스(최대 6144)</td>
+<td>불일치(경미)</td>
+<td>두 카운터를 쓰고 오버플로 시 <code>DISP3DCNT</code> 비트 13을 설정한다; 포트는 이미 두 수치를 모두 갖고 있다</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="b-버텍스-프리미티브-클리핑과-뷰포트">B. 버텍스, 프리미티브, 클리핑과 뷰포트</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+<th>바꿀 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td><code>VTX_16</code>은 1.3.12 원시값이고, <code>VTX_10</code>은 1.3.6이며 왼쪽으로 6 시프트한다 [<code>nds3d.c</code> case 0x23/0x24]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-polygon-definitions-by-vertices.htm">DS 3D Polygon Definitions by Vertices</a></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>B2</td>
+<td><code>VTX_DIFF</code>는 부호 확장된 10비트 필드를 시프트 없이 <strong>원시값 그대로</strong> 더한다 [<code>nds3d.c</code> case 0x28]</td>
+<td>GBATEK, 같은 페이지: 델타는 "1비트 부호 + 9비트 소수부"이며 <code>VTX_10</code> 판독값에 비해 <strong>8로 나눈</strong> 값이다. 즉 1.3.12로는 <code>&lt;&lt;3</code>이다. DeSmuME <code>gfx3d.cpp</code>는 부호 확장한 뒤 같은 순 3만큼 시프트한다</td>
+<td><strong>모순</strong></td>
+<td>포트는 <code>8a7fdb5f</code>에서 <code>&lt;&lt;3</code>을 제거했다. <code>npc/model/48/49.nsbmd</code>의 오프라인 재구성이 시프트 0에서 모델 자체가 선언한 바운딩 박스와 정확히 일치하고 시프트 3에서는 그 밖으로 벗어났기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/2026-09-02.md</code></span></span>. 둘 다 옳을 수는 없고, 오라클은 DeSmuME<strong>이다</strong>. H1을 보라 — 이 페이지에서 가장 가치 높은 미해결 질문이다</td>
+</tr>
+<tr>
+<td>B3</td>
+<td><code>VTX_XY</code>/<code>XZ</code>/<code>YZ</code>는 세 번째 성분을 이전 버텍스에서 유지한다 [<code>nds3d.c</code> case 0x25–0x27]</td>
+<td>GBATEK, 같은 페이지</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>스트립: 트라이앵글 스트립은 세 개짜리 롤링 윈도우에서 와인딩을 번갈아 바꾸고, 쿼드 스트립은 버텍스를 <code>v0,v1,v3,v2</code>로 링 구성한다 [<code>submit_vertex</code>]</td>
+<td>GBATEK, 같은 페이지, BEGIN_VTXS 0–3</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>B5</td>
+<td><code>BEGIN_VTXS</code>/<code>END_VTXS</code> 바깥의 버텍스는 무시된다 [<code>submit_vertex</code>, <code>if (!in_prim) return</code>]</td>
+<td>GBATEK: <code>END_VTXS</code>는 OpenGL과의 대응을 위한 더미다</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>B6</td>
+<td>클리핑은 여섯 평면 모두에 대한 Sutherland–Hodgman이며, 그 후 폴리곤은 최대 열 개의 버텍스를 가질 수 있다 [<code>clip_plane</code>, <code>ClipPoly</code>]</td>
+<td>GBATEK, 같은 페이지: 여섯 면 모두에 대해 클리핑되며, 클리핑된 버텍스는 새 버텍스 두 개로 대체된다</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>B7</td>
+<td>클리핑된 버텍스 색상은 채널당 8비트로 보간된다 [<code>lerp_vtx</code>]</td>
+<td>melonDS <code>GPU3D.cpp</code>: "vertex colors are kept at 5-bit during clipping. makes for shitty results", 그 후 그리기 전에 <code>(x&lt;&lt;4)+0xF</code>로 9비트로 변환되며, "the added bias affects interpolation"</td>
+<td>불일치(외관상)</td>
+<td>포트는 의도적으로 하드웨어보다 부드럽고 그렇게 밝히고 있다; 그대로 두되, 클리핑된 폴리곤을 가로지르는 그라데이션은 오라클과 바이트 단위로 일치하지 않을 것임을 기록한다</td>
+</tr>
+<tr>
+<td>B8</td>
+<td>화면 x는 12.4 형식으로 <code>x1 + (x + w) · vw / (2w)</code>이다 [<code>to_screen</code>]</td>
+<td>GBATEK, 같은 페이지: <code>screen_x = (xx + ww) × viewport_width / (2 × ww) + viewport_x1</code></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>B9</td>
+<td>화면 y는 <code>(191 − y2)·16 + (w − y)·vh·16 / (2w)</code>이며 <code>vh = y2 − y1 + 1</code>이다 [<code>to_screen</code>]</td>
+<td>GBATEK: 뷰포트 좌표는 <strong>원점이 왼쪽 아래</strong>이므로, 위에서부터의 행은 <code>191 − [(y+w)·vh/(2w) + y1]</code>이다</td>
+<td>불일치(off-by-one 의심)</td>
+<td><code>y2 = y1 + vh − 1</code>을 대입하면 포트의 식은 <code>192 − y1 − t·vh</code>가 되어 스펙의 <code>191 − y1 − t·vh</code>와 어긋난다. <strong>3D 레이어 전체가 한 행 아래에 있다.</strong> 확정하기 쉽다 — 수정 <strong>F8</strong>을 보라</td>
+</tr>
+<tr>
+<td>B10</td>
+<td>앞면은 화면 공간에서 신발끈(shoelace) 값이 음수인 와인딩이다 [<code>emit_poly</code>, <code>GX_FRONT_IS_NEGATIVE_AREA</code>]</td>
+<td>GBATEK: 버텍스는 보통 반시계 방향으로 감긴다; DeSmuME <code>rasterize.cpp</code>는 "due to a late change of a y-coord flipping, our winding order is wrong … flip the verts for every front-facing poly"라고 경고한다</td>
+<td>일치</td>
+<td>없음 — 부호는 맞으며, 파일은 이미 이것을 공식에서 유도되지 않은 유일한 부호라고 명시한다</td>
+</tr>
+<tr>
+<td>B11</td>
+<td>원근 나눗셈은 랩어라운드 대신 포화(saturate)하는 64비트 시프트-빼기 루프로 수행된다 [<code>div64</code>, <code>sdiv64</code>]</td>
+<td>melonDS <code>GPU3D.cpp</code>: "the DS performs these divisions using a 32-bit divider", W가 0xFFFF를 넘으면 아래로 시프트하여 정밀도를 잃는다</td>
+<td>불일치(포트가 더 정확)</td>
+<td>그대로 둔다; 먼 지오메트리에서 하드웨어의 버텍스 스냅이 <strong>나타나지 않을</strong> 것이며, 이는 오라클에서 차이로 드러날 것임을 기록한다</td>
+</tr>
+<tr>
+<td>B12</td>
+<td>화면 면적이 0인 폴리곤은 버려지고 <code>degenerate</code>로 집계된다 [<code>emit_poly</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-display-control.htm">DS 3D Display Control</a>: <code>DISP_1DOT_DEPTH</code> <code>0x04000610</code>; 1도트 폴리곤은 어느 버텍스의 W가 임계값 이하이고 <code>POLYGON_ATTR</code> 비트 13이 설정되어 있으면 <strong>첫 번째 버텍스의</strong> 색상, 깊이, 텍스처로 그려진다. melonDS는 같은 규칙으로 상류에서 거부한다</td>
+<td>불일치</td>
+<td>하드웨어가 단일 도트로 렌더링하는 먼 마을의 세부가 조용히 사라진다. 수정 <strong>F9</strong>를 보라</td>
+</tr>
+<tr>
+<td>B13</td>
+<td><code>POLYGON_ATTR</code>은 <code>BEGIN_VTXS</code>에서 래치되고, <code>NORMAL</code>에서의 조명은 래치된 조명 활성화 비트를 사용한다 [<code>poly_attr_live</code>, <code>light_vertex</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-polygon-attributes.htm">DS 3D Polygon Attributes</a>: 쓰기는 다음 <code>BEGIN_VTXS</code>에서 효력을 가지며, 버텍스 색상은 <code>NORMAL</code>이 실행될 때만 다시 계산된다</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="c-조명과-재질">C. 조명과 재질</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+<th>바꿀 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td><code>colour = emission + Σ (specular·shine + diffuse·diff + ambient) · lightcolour</code>이며, <code>diff = max(0, −light·normal)</code>, <code>shine = max(0, −half·normal)²</code>이다 [<code>light_vertex</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-polygon-light-parameters.htm">DS 3D Polygon Light Parameters</a></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>시선 벡터는 상수 <code>(0, 0, −1)</code>이므로 <code>half = (light + eye)/2</code>다 [<code>light_vertex</code>]</td>
+<td>GBATEK, 같은 페이지: DS는 하드웨어에서 정규화할 수 없고, 투영 곱셈을 생략하며 <code>(0,0,−1.0)</code>을 하드코딩한다; "specular reflection will not work when the projection matrix is rotated"</td>
+<td>일치</td>
+<td>없음 — 그리고 포트는 하드웨어의 버그를 물려받는데, 이것이 옳다</td>
+</tr>
+<tr>
+<td>C3</td>
+<td><code>LIGHT_VECTOR</code>는 커맨드가 실행되는 순간 벡터 행렬로 변환되어 변환된 채로 저장된다 [<code>nds3d.c</code> case 0x32]</td>
+<td>GBATEK, 같은 페이지</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>C4</td>
+<td><code>SHININESS</code>는 32워드에 128개 엔트리, 워드당 8비트 엔트리 네 개이며, 제곱된 레벨로 인덱싱된다 [<code>nds3d.c</code> case 0x34]</td>
+<td>GBATEK, 같은 페이지</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>광택(shininess) 테이블이 비활성화되면 제곱된 레벨이 직접 사용된다 [<code>spec_table_on</code>]</td>
+<td>GBATEK: 테이블이 비활성화되면 하드웨어는 테이블이 <strong>선형 램프</strong>를 담고 있는 것처럼 동작한다 — 즉 레벨 자체</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>C6</td>
+<td><code>DIF_AMB</code> 비트 15는 추가로 버텍스 색상을 설정한다 [<code>nds3d.c</code> case 0x30]</td>
+<td>GBATEK, 같은 페이지</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>C7</td>
+<td>색상은 전 과정에서 채널당 8비트로 운반된다 [<code>exp5</code>, <code>add_term</code>]</td>
+<td>GBATEK: 내부 파이프라인은 5/6비트다; melonDS는 5비트로 양자화하고 <code>+0xF</code> 바이어스로 다시 확장한다</td>
+<td>불일치(의도적, 외관상)</td>
+<td>그대로 둔다; 파일이 이미 그 논거를 제시한다. 다만 어떤 프레임도 오라클과 바이트 단위로 같아지는 일은 없을 것이라는 뜻이다</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="d-텍스처-유닛">D. 텍스처 유닛</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+<th>바꿀 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D1</td>
+<td>크기 필드는 <code>8 &lt;&lt; n</code>이므로 log2는 <code>n + 3</code>이다; S 크기는 비트 20–22, T 크기는 23–25 [<code>acww_gx_texel</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-texture-attributes.htm">DS 3D Texture Attributes</a></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>팔레트 베이스는 형식 2를 <strong>제외한</strong> 모든 형식에서 <code>PLTT_BASE &lt;&lt; 4</code>이고, 형식 2에서는 <code>&lt;&lt; 3</code>이다 [<code>pbase</code>]</td>
+<td>GBATEK, 같은 페이지: "div8 or div10h"; melonDS와 DeSmuME 모두 2bpp 형식에서 베이스를 절반으로 한다</td>
+<td>일치</td>
+<td>없음 — 실패 양상(그럴듯하지만 틀린 색상)에 대한 파일의 주석이 정확히 맞다</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>일곱 형식 모두 디코딩된다: A3I5, 4/16/256색, 4x4 압축, A5I3, 다이렉트 [<code>acww_gx_texel</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-texture-formats.htm">DS 3D Texture Formats</a></td>
+<td>일치</td>
+<td>없음. <strong>이는 "a texture format … is not decoded" 노트가 어떤 형식에 대해서도 절대 발생할 수 없다는 뜻이다</strong> — §3을 보라</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>A3I5의 3비트 알파는 <code>(a&lt;&lt;5)\|(a&lt;&lt;2)\|(a&gt;&gt;1)</code>, 즉 <code>a·255/7</code>로 확장된다 [<code>case 1</code>]</td>
+<td>GBATEK: 0..31 스케일에서 <code>Alpha = (Alpha*4) + (Alpha/2)</code> — 같은 비율</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>다이렉트 컬러: 비트 15가 설정되면 <strong>불투명</strong>을 뜻한다 [<code>default</code> case]</td>
+<td>GBATEK, 같은 페이지; melonDS <code>alpha = (c &amp; 0x8000) ? 31 : 0</code></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>4x4 블록의 인덱스 워드는 <code>0x20000 + (offset &amp; 0x1FFFF)/2 + (offset &amp; 0x40000)/4</code>에 있다 [<code>comp4x4_info_offset</code>]</td>
+<td>GBATEK: <code>slot1 = slot0/2</code>, 그리고 <code>slot1 = slot2/2 + 0x10000</code>. DeSmuME: <code>indexBase = ((offset &amp; 0xC000) == 0x8000) ? 0x30000 : 0x20000</code></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>4x4 셀렉터/모드 표: 모드 0 → {c0,c1,c2,transparent}; 모드 1 → {c0,c1,(c0+c1)/2,transparent}; 모드 2 → {c0..c3}; 모드 3 → {c0,c1,(5c0+3c1)/8,(3c0+5c1)/8} [<code>case 5</code>]</td>
+<td>GBATEK, 같은 페이지; melonDS와 DeSmuME도 일치</td>
+<td>일치</td>
+<td>없음. 포트처럼 확장 전 5비트 채널에서 보간하는 것도 옳다</td>
+</tr>
+<tr>
+<td>D8</td>
+<td>반복/플립: 플립은 반복이 켜져 있을 때만 적용되며, 타일을 번갈아 미러링한다 [<code>acww_gx_wrap</code>]</td>
+<td>GBATEK; melonDS: <code>if (s &amp; width) s = (width-1) - (s &amp; (width-1)); else s &amp;= width-1</code></td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>텍스처 좌표 모드 1은 <code>(s, t, 1, 1) × M &gt;&gt; 12</code>이며, 상수항은 <code>0x100</code>이 아니라 <strong>1</strong>이다 [<code>apply_texmtx</code>]</td>
+<td>melonDS <code>GPU3D.cpp</code>: <code>(s*m0 + t*m4 + m8 + m12) &gt;&gt; 12</code>, "both the third <em>and</em> fourth matrix rows are added". GBATEK의 "1/16.0"은 텍셀의 1/16이며, 포트의 1/16 텍셀 단위에서는 곧 <strong>1이다</strong></td>
+<td>일치</td>
+<td>없음. 포트의 2026-09-02 수정은 melonDS와 <code>NNSi_G3dSendTexSRTSi3d</code>에 의해 각각 독립적으로 확인된다</td>
+</tr>
+<tr>
+<td>D10</td>
+<td>모드 2(법선 소스)는 <code>raw + (o &gt;&gt; 8)</code>이며 <code>o = (n, 1) × M &gt;&gt; 12</code>다; 모드 3(버텍스 소스)은 위치를 써서 같은 식이다 [<code>apply_texmtx</code>]</td>
+<td>melonDS: 모드 2는 <code>raw + (nx·m0 + ny·m4 + nz·m8) &gt;&gt; 21</code>이고 모드 3은 <code>raw + (x·m0 + y·m4 + z·m8) &gt;&gt; 24</code>이며, <strong>네 번째 행 항은 없다</strong>. GBATEK은 TEXCOORD S,T가 행렬의 맨 아래 행에 있다고 말한다</td>
+<td>불일치</td>
+<td>포트의 순 시프트는 20인데 이미 <code>&lt;&lt;3</code>으로 스케일한 법선에 적용되어, 모드 2가 <strong>16배 너무 크다</strong>; 모드 3도 마찬가지로 16배 너무 크다; 그리고 둘 다 <code>raw_s</code> 위에 가짜 <code>m12/m13</code> 항을 더한다. 수정 <strong>F6</strong>을 보라</td>
+</tr>
+<tr>
+<td>D11</td>
+<td>매핑되지 않은 VRAM 뱅크나 형식 0 텍스처는 조용히 완전 투명을 반환한다 [<code>tex_addr</code>, <code>pltt_addr</code> returning 0]</td>
+<td>—</td>
+<td>미명시, 그러나 진단상의 구멍</td>
+<td>뱅크가 매핑되지 않은 텍스처는 <strong>어디에도 노트 없이</strong> 세계에 구멍을 만든다. 수정 <strong>F4</strong>를 보라</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="e-깊이-채우기와-반투명-래스터라이저">E. 깊이, 채우기와 반투명 — 래스터라이저</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+<th>바꿀 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>E1</td>
+<td>Z 버퍼 깊이는 <code>(((z · 0x4000) / w) + 0x3FFF) · 0x200</code>이며 24비트로 클램프된다 [<code>to_screen</code>]</td>
+<td>melonDS <code>GPU3D_Soft.cpp</code>, 동일한 식</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>E2</td>
+<td>W 버퍼 깊이는 클립 <code>w</code>이며 24비트로 클램프된다 [<code>to_screen</code>]</td>
+<td>melonDS <code>GPU3D.cpp</code>: "W is normalized, such that all the polygon's W values fit within 16 bits" — 더 적은 비트에 들어가면 위로 확장하고 더 크면 압축한다 — 그리고 W 버퍼링이 사용하는 것은 <strong>정규화된</strong> W다(뷰포트 변환에는 쓰지 않는다)</td>
+<td>불일치</td>
+<td><strong>ACWW는 W 버퍼 게임이다</strong>(<code>SWAP_BUFFERS = 3</code>). 폴리곤별 정규화가 없으면 폴리곤 전체의 깊이 값이 24비트 범위의 잘못된 부분에 놓인다. 수정 <strong>F2</strong>를 보라</td>
+</tr>
+<tr>
+<td>E3</td>
+<td>깊이는 두 모드 모두에서 스팬을 가로질러 선형 보간된다 [<code>attr_lerp</code> on <code>a[0]</code>]</td>
+<td>melonDS <code>GPU3D_Soft.h</code>, <code>InterpolateZ()</code>: Z 버퍼 깊이는 화면 공간에서 선형이다; <strong>W 버퍼 깊이는 원근 보간기를 거친다</strong></td>
+<td>불일치</td>
+<td>역시 ACWW의 모드가 틀린 쪽이다. 얕은 각도의 지면은 모든 폴리곤 한가운데에서 깊이가 틀린다. 수정 <strong>F2</strong>를 보라</td>
+</tr>
+<tr>
+<td>E4</td>
+<td>깊이 동일 허용 오차는 ±0x200이다 [<code>draw_poly</code>, <code>depth_equal</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-polygon-attributes.htm">DS 3D Polygon Attributes</a>: "±200h within the 24-bit range". melonDS는 이를 나눈다: <strong>Z 모드에서 ±0x200, W 모드에서 ±0xFF</strong></td>
+<td>불일치(경미)</td>
+<td><code>wbuffer_mode</code>가 설정되면 0xFF를 쓴다</td>
+</tr>
+<tr>
+<td>E5</td>
+<td>깊이 테스트는 엄격한 미만(less-than) 비교다 [<code>(gu32)a.a[0] &gt;= depth[off]</code> → reject]</td>
+<td>melonDS <code>GPU3D_Soft.cpp</code> 및 블로그 "<a href="https://melonds.kuribo64.net/comments.php?id=56">The DS GPU and its fun quirks</a>": 미만 비교는 "accepts equal depth values when drawing front-facing polygons over opaque <strong>back-facing</strong> pixels"이며, 게임들은 평면 데칼을 위해 이에 의존한다</td>
+<td>불일치</td>
+<td>포트는 픽셀별 면(facing) 비트를 저장하지 않으므로 이를 재현할 수 없다. ACWW에는 우선순위가 낮지만(데칼 재질 없음), 동일 평면 스티커가 빠지는 이유가 이것이다</td>
+</tr>
+<tr>
+<td>E6</td>
+<td>반투명 폴리곤은 <code>POLYGON_ATTR</code> 비트 11이 설정된 경우에만 깊이를 쓴다 [<code>write_depth</code>]</td>
+<td>GBATEK와 두 에뮬레이터 모두</td>
+<td>일치</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>E7</td>
+<td>이미 있는 픽셀이 <strong>같은</strong> ID의 반투명 폴리곤에 의해 쓰인 것이면 반투명 픽셀은 즉시 거부된다 [<code>tattr</code>, <code>tmark</code>]</td>
+<td>melonDS: <code>(dstattr &amp; 0x007F0000) == (attr &amp; 0x007F0000)</code> → 폐기; DeSmuME: "dont overwrite pixels on translucent polys with the same polyids"</td>
+<td>일치</td>
+<td>없음. 포트 자체 카운터에 따르면 200초 택시 실행에서 이것이 3번 발생하므로, 올바르되 여기서는 사실상 작동하지 않는다</td>
+</tr>
+<tr>
+<td>E8</td>
+<td>알파 블렌딩은 <code>dst = src·a + dst·(1−a)</code>이며, 목적지 알파는 <code>a + da·(1−a)</code>로 누적된다 [<code>draw_poly</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-toon-edge-fog-alpha-blending-anti-aliasing.htm">DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing</a>: <code>FrameBuf[X] = (Poly[X]·(Poly[A]+1) + FrameBuf[X]·(31−Poly[A]))/32</code> 그리고 <strong><code>FrameBuf[A] = max(Poly[A], FrameBuf[A])</code></strong>; melonDS와 DeSmuME도 일치</td>
+<td>불일치</td>
+<td>알파는 누적이 아니라 <strong>최댓값</strong>이어야 한다. 알파 16의 반투명 표면 두 개가 겹치면 포트는 88% 불투명, 하드웨어는 52%가 된다. 수정 <strong>F1</strong>을 보라</td>
+</tr>
+<tr>
+<td>E9</td>
+<td>반투명 픽셀은 클리어된 후면 평면을 포함해 색상 버퍼에 있는 무엇이든 그것과 블렌딩된다 [<code>draw_poly</code>]</td>
+<td>GBATEK, 같은 페이지: (a) 알파 블렌딩이 꺼져 있거나, (b) <code>Poly[A] = 31</code>이거나, (c) <strong><code>FrameBuf[A] = 0</code></strong>이면 블렌딩은 <strong>건너뛰고</strong> 픽셀은 단순히 덮어쓴다; 두 에뮬레이터 모두 일치</td>
+<td>불일치</td>
+<td>ACWW의 클리어 알파는 0이므로, 빈 후면 평면 위의 모든 반투명 폴리곤은 검은색, 알파 0인 목적지와 블렌딩된다 — RGB에 자신의 알파가 곱해진다 — 그리고 컴포지터가 3D 레이어를 2D 하늘 위에 얹을 때 알파를 <strong>또 한 번</strong> 곱한다. <strong>택시와 마을의 모든 반투명 표면이 두 번 어두워진다.</strong> 수정 <strong>F1</strong>을 보라</td>
+</tr>
+<tr>
+<td>E10</td>
+<td>알파 0은 와이어프레임을 뜻하며, 포트는 그 폴리곤을 건너뛴다 [<code>draw_poly</code>, <code>alpha5 == 0</code>]</td>
+<td>GBATEK: 알파 0은 폴리곤의 <strong>엣지만을 고정 알파 31로</strong> 그린다; melonDS는 정확히 그렇게 구현하고 끝에서 알파를 31로 강제한다. DeSmuME에는 와이어프레임 경로가 아예 없다</td>
+<td>불일치</td>
+<td>포트의 조사에 따르면 ACWW에는 와이어프레임 재질이 없으므로 오늘날 비용은 0이다. 그러나 이 건너뛰기는 <code>GX_NOTE_BADCMD</code>를 올리며, 이는 "an unknown command id reached the parser"로 보고된다 — §3을 보라</td>
+</tr>
+<tr>
+<td>E11</td>
+<td>알파 테스트는 알파가 0이 아닌 텍셀을 유지한다; <code>ALPHA_TEST_REF</code>는 읽지 않는다 [<code>draw_poly</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-display-control.htm">DS 3D Display Control</a>: 픽셀은 알파가 <code>ALPHA_TEST_REF</code><strong>보다 클</strong> 때만 그려지며, 텍스처 블렌딩 후 <strong>최종</strong> 픽셀에 적용된다; ref 0은 테스트가 비활성화된 것과 동일하다</td>
+<td>ACWW에 대해서는 일치(ref 0), 일반적으로는 불일치</td>
+<td><code>0x04000340</code>에서 <code>ALPHA_TEST_REF</code>를 읽어 텍셀 알파가 아니라 <code>fa</code>와 비교한다. 세 줄이다</td>
+</tr>
+<tr>
+<td>E12</td>
+<td>두 패스, 불투명 다음 반투명, 둘 다 제출 순서로 — <code>SWAP_BUFFERS</code> 비트 0이 수동 정렬을 요구하기 때문 [<code>acww_nds3d_raster</code>]</td>
+<td>melonDS <code>SortKey</code>: 불투명 먼저, 다음 반투명; <strong>불투명 폴리곤은 항상 Y 정렬되며</strong>, 비트 0은 반투명 폴리곤이 Y 정렬에 합류할지만 결정한다</td>
+<td>ACWW에 대해서는 일치</td>
+<td>포트는 비트 0을 전혀 읽지 않는다. 자동 정렬이 요청되면 노트를 추가하여, 나중에 그것을 원하는 씬이 조용히 잘못 정렬되지 않게 한다</td>
+</tr>
+<tr>
+<td>E13</td>
+<td>폴리곤은 <code>POLYGON_ATTR</code> 알파가 31이 아닐 때, 그리고 오직 그때만 "반투명"이다 [<code>trans</code> in <code>draw_poly</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-texture-formats.htm">DS 3D Texture Formats</a>: A3I5(형식 1)와 A5I3(형식 6)가 "반투명" 형식이다; melonDS는 블렌딩된 알파로 <strong>픽셀별로</strong> 반투명 여부를 결정하며, "translucent polygons can have opaque pixels, and those follow the same rules as opaque polygons"라고 적는다</td>
+<td>불일치</td>
+<td>A3I5 또는 A5I3 텍스처를 가진 알파 31 폴리곤은 포트에서 <strong>불투명</strong> 패스로 그려지고, 깊이를 쓰며, 동일 ID 규칙에서 면제된다. 하드웨어에서는 그 부분 투명 텍셀들이 반투명 프래그먼트다. 이것이 택시의 비와 창유리다. 수정 <strong>F3</strong>을 보라</td>
+</tr>
+<tr>
+<td>E14</td>
+<td>스팬은 픽셀 중심 <code>(px·16 + 8)</code>이 <code>[xL, xR)</code>에 있고 샘플 행이 <code>[ya, yb)</code>에 있는 곳이 채워진다 [<code>draw_poly</code>]</td>
+<td>melonDS <code>GPU3D_Soft.h</code>/<code>.cpp</code>: DS에는 명시적인 기울기 기반 채우기 규칙이 있다 — "right edge is filled if slope &gt; 1; left edge is filled if slope ≤ 1; edges with slope = 0 are always filled"; AA나 엣지 마킹이 켜져 있을 때, 픽셀이 반투명이고 블렌딩이 켜져 있을 때, 또는 폴리곤이 와이어프레임일 때 엣지는 <strong>항상</strong> 채워진다; 그리고 명시된 조건에서 "right vertical edges are pushed 1px to the left"</td>
+<td>불일치</td>
+<td>샘플 중심 규칙은 중심을 비켜가는, 한 픽셀보다 좁거나 짧은 모든 폴리곤을 버린다; 하드웨어는 최소한 엣지는 채운다. 가는 울타리, 난간, 먼 세부가 사라진다. ACWW는 AA가 켜져 있으므로 그 지오메트리에 대해 하드웨어의 <strong>엣지는 항상 채워지며</strong>, 이 때문에 포트는 체계적으로 더 가늘다. 수정 <strong>F9</strong>를 보라</td>
+</tr>
+<tr>
+<td>E15</td>
+<td>원근 보정은 <code>q = (wmin &lt;&lt; 14)/w</code>이며, <code>s·q</code>, <code>t·q</code>, <code>q</code>를 선형 보간하고 픽셀마다 나눈다 [<code>draw_poly</code>]</td>
+<td>melonDS <code>GPU3D_Soft.h</code>: DS는 두 W 값에서 <strong>하나의</strong> 원근 계수를 계산하고, 엣지를 따라 9비트, 스팬을 따라 8비트로 양자화한 뒤, 그 단일 계수를 모든 속성에 선형으로 적용한다; 하위 7비트를 마스킹한 후 두 W 값이 같으면 특별한 <strong>선형</strong> 경로가 있다</td>
+<td>효과상 일치, 정밀도는 불일치</td>
+<td>포트가 하드웨어보다 더 정확하다. 두 가지 결과: DS의 텍스처 계단 현상이 없고, 3D 엔진으로 그린 2D 쿼드가 하드웨어의 W 동일 지름길이 만드는 방식대로 픽셀 정확하지는 않을 것이다. 기록해 두되, 오라클이 요구하기 전에는 "고치지" 않는다</td>
+</tr>
+<tr>
+<td>E16</td>
+<td>클리어 깊이는 <code>(cd &lt;&lt; 9)</code>이고, <code>0x1FF</code>는 <code>0x7FFF</code>에서<strong>만</strong> 더해진다 [<code>clear_buffers</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-rear-plane.htm">DS 3D Rear-Plane</a>: <code>X = (X·200h) + ((X+1)/8000h)·1FFh</code> — 포트는 이와 정확히 일치한다. melonDS는 무조건 <code>(d &amp; 0x7FFF)·0x200 + 0x1FF</code>를 쓴다</td>
+<td>GBATEK과 일치, melonDS와 불일치</td>
+<td>변경 없음: ACWW는 <code>0x7FFF</code>에서 클리어하며, 거기서는 둘이 동일하다. 포트는 GBATEK을 따랐고 에뮬레이터는 그러지 않았다는 점은 기록할 가치가 있다</td>
+</tr>
+<tr>
+<td>E17</td>
+<td>클리어 폴리곤 ID와 클리어 안개 플래그는 픽셀별로 저장되지 않는다 [<code>clear_buffers</code>]</td>
+<td>GBATEK: <code>CLEAR_COLOR</code> 비트 24–29는 클리어 폴리곤 ID이고 비트 15는 후면 평면 안개 활성화다; melonDS는 둘 다 속성 버퍼에 쓰고, 추가로 가시 영역 <strong>바깥</strong>의 1픽셀 테두리에도 써서 테두리 엣지 마킹이 동작하게 한다</td>
+<td>불일치</td>
+<td>ACWW는 ID를 <code>0x3f</code>로, 안개를 true로 설정한다. 엣지 마킹과 후면 평면 안개를 막는다. <strong>F10</strong>과 <strong>F11</strong>의 선행 조건이다</td>
+</tr>
+<tr>
+<td>E18</td>
+<td>후면 평면 비트맵(<code>DISP3DCNT</code> 비트 14)은 구현되지 않았다; 노트가 발생한다 [<code>clear_buffers</code>]</td>
+<td>GBATEK: 텍스처 슬롯 2와 3에 있는 256×256 16비트 비트맵 두 개, <code>CLRIMAGE_OFFSET</code>으로 스크롤된다</td>
+<td>불일치, 올바르게 노트됨</td>
+<td><code>func_ov001_0222e4dc</code>가 <code>GX_SetBankForClearImage</code>를 호출하므로, 이것이 명백히 죽은 코드는 아니다. 비트 14를 로깅하여 확정한다 — <code>wiki/engine/graphics-pipeline.md</code>에 이미 미해결 질문으로 있다</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="f-포트가-선언하지만-수행하지-않는-효과">F. 포트가 선언하지만 수행하지 않는 효과</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F-fog</td>
+<td>안개는 노트되지만 렌더링되지 않는다 [<code>clear_buffers</code>, <code>GX_NOTE_FOG</code>]</td>
+<td>GBATEK은 알고리즘 전체를 제공한다: <code>FogDepthBoundary[n] = FOG_OFFSET + FOG_STEP·(n+1)</code>, <code>FOG_STEP = 0x400 &gt;&gt; FOG_SHIFT</code>, 경계 사이에서 선형 보간되는 7비트 밀도 엔트리 32개, RGB <strong>와</strong> A에 대한 블렌드 <code>(FogColor·D + FrameBuf·(128−D))/128</code>, <code>D = 127</code>은 128로 취급, <code>DISP3DCNT</code> 비트 6이 설정되면 알파에만 적용, 그리고 후면 평면은 자체 안개 플래그를 가진다. melonDS는 테이블을 17비트 소수부로 보간하며 안개를 <strong>두</strong> 프레임버퍼 레이어 모두에 적용한다</td>
+<td>불일치 — 완전히 명세되어 있으나 전적으로 부재</td>
+</tr>
+<tr>
+<td>F-edge</td>
+<td>엣지 마킹은 노트되지만 렌더링되지 않는다</td>
+<td>GBATEK: <code>EDGE_COLOR</code> <code>0x04000330</code>, <code>polygonID &gt;&gt; 3</code>으로 인덱싱되는 <strong>8</strong>개 엔트리. melonDS: 엣지란 <strong>불투명</strong> 폴리곤 ID가 네 직교 이웃 중 하나와 다르고 <strong>동시에</strong> 깊이가 그 이웃보다 작은 픽셀이다; 화면 테두리는 클리어 폴리곤 ID와 비교한다</td>
+<td>불일치, 그러나 ACWW는 엣지 마킹을 <strong>끈다</strong> — 비용은 0</td>
+</tr>
+<tr>
+<td>F-toon</td>
+<td>폴리곤 모드 2는 모듈레이션으로 그려지고 노트된다</td>
+<td>GBATEK: <code>TOON_TABLE</code> <code>0x04000380</code>, 32색, <strong>버텍스 색상의 빨간 성분</strong>으로 인덱싱; 툰은 버텍스 색상을 대체한 뒤 모듈레이션하고, 하이라이트는 추가로 툰 색상을 63에서 포화되게 <strong>더하며</strong>, <code>DISP3DCNT</code> 비트 1로 전역 선택된다. 두 에뮬레이터 모두 <code>vertexRed &gt;&gt; 1</code>로 인덱싱한다</td>
+<td>불일치; 포트의 조사에 따르면 ACWW에는 툰 재질이 0개지만, <code>G3X_SetToonTable</code>이 ROM의 SDK에 존재하며 노트가 유일한 계측 수단이다</td>
+</tr>
+<tr>
+<td>F-aa</td>
+<td>안티에일리어싱은 노트되지만 수행되지 않는다</td>
+<td>melonDS "<a href="https://melonds.kuribo64.net/comments.php?id=32">Antialiasing</a>": 커버리지는 기울기 워커가 엣지 픽셀마다 계산하여 속성 버퍼에 보관하고, <strong>엣지 마킹과 안개 이후의 별도 패스</strong>에서 적용되며, 불투명 쓰기가 아래로 밀어내는 두 번째 레이어와 최상위 프레임버퍼 레이어를 블렌딩한다. 불투명 폴리곤의 실루엣 엣지에만 적용되고, 폴리곤 내부나 교차부에는 절대 적용되지 않는다</td>
+<td>불일치, 그리고 <strong>ACWW는 AA를 켠다</strong></td>
+</tr>
+<tr>
+<td>F-shadow</td>
+<td>폴리곤 모드 3은 버려지고 노트된다</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-shadow-polygons.htm">DS 3D Shadow Polygons</a>, 그리고 melonDS의 스텐실 비트 두 개</td>
+<td>불일치; ACWW의 조사에 따르면 섀도우 재질은 0개</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="g-2d-엔진과의-합성">G. 2D 엔진과의 합성</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>주장</th>
+<th>공개 자료</th>
+<th>판정</th>
+<th>바꿀 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G1</td>
+<td>3D 출력은 엔진 A의 BG0이며, BG0 자체의 우선순위로 합성되고, 블렌드 소유자 레코드에 BG0으로 들어간다 [<code>nds2d.c</code>, <code>K_3D</code> branch]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-final-2d-output.htm">DS 3D Final 2D Output</a></td>
+<td>일치</td>
+<td>없음 — 그리고 한 프레임에 네 번 합성한다는 주석은 남겨둘 가치가 있다</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>3D 레이어는 0..255 알파로 <code>dst = c·a + d·(1−a)</code>를 써서 2D 결과 위에 블렌딩된다 [<code>acww_nds3d_compose</code>]</td>
+<td>GBATEK, 같은 페이지: 픽셀별 3D 블렌딩은 3D 픽셀 자체의 알파에서 유도한 <strong><code>EVA = A/2</code>, <code>EVB = 16 − A/2</code></strong>를 사용하며 <code>BLDALPHA</code>를 우회한다</td>
+<td>형식은 일치, 양자화는 다름</td>
+<td>하드웨어에서는 5비트 알파가 4비트 가중치가 된다. 작은 문제다; <strong>E9</strong>의 중첩이 진짜 문제다</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>3D 레이어의 <code>BG0HOFS</code> 스크롤, 그리고 모자이크가 이에 적용될 수 없다는 사실</td>
+<td>GBATEK, 같은 페이지: 512픽셀 스팬, 이미지 256 다음 투명 256, 랩어라운드; 수직 스크롤 없음, 회전 없음</td>
+<td>포트에서 미명시</td>
+<td>구현되지 않았고 노트도 없다. 우선순위 낮음; 기록해 둔다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="3-열두-개의-노트-그리고-그중-두-개가-실제로-뜻하는-것">3. 열두 개의 노트, 그리고 그중 두 개가 실제로 뜻하는 것</h2>
+<p><code>acww_nds3d_report()</code>는 열두 개의 노트 문자열을 출력한다. 두 개는 과적재되어 있어, 이를
+문자 그대로 받아들이는 독자는 엉뚱한 것을 조사하게 된다(M1).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>노트 텍스트</th>
+<th>실제로 올라가는 곳</th>
+<th>실제 의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"a texture format or blend mode that is not decoded"</td>
+<td><code>raster3d.c:354</code>, 그리고 <strong>오직</strong> 거기: <code>if (mode == 1u)</code></td>
+<td><strong>데칼 블렌딩이 요청되었다.</strong> <code>tex3d.c</code>는 일곱 형식 모두를 디코딩하며 노트를 전혀 올리지 않으므로, 이 문자열은 절대 텍스처 형식을 뜻할 수 없다</td>
+</tr>
+<tr>
+<td>"an unknown command id reached the parser"</td>
+<td><code>nds3d.c:3111</code>(default case) <strong>그리고</strong> <code>raster3d.c:182</code>, <code>alpha5 == 0</code> 분기</td>
+<td>알 수 없는 커맨드<strong>이거나 와이어프레임 폴리곤이 버려졌다</strong></td>
+</tr>
+<tr>
+<td>"fog requested, not rendered"</td>
+<td><code>clear_buffers</code>, <code>DISP3DCNT &amp; 0x0080</code></td>
+<td>올바름 — 폴리곤별 비트가 아니라 안개 <strong>마스터 활성화</strong>다</td>
+</tr>
+<tr>
+<td>"matrix stack over/underflow"</td>
+<td><code>mtx_stack_error</code></td>
+<td>올바름</td>
+</tr>
+<tr>
+<td>"BOX/POS/VEC_TEST answered without testing"</td>
+<td>세 커맨드 모두 공유</td>
+<td>올바르지만, 무해한 경우(<code>BOX_TEST</code>)와 결과를 전혀 쓰지 않는 두 경우를 구분하지 못한다</td>
+</tr>
+</tbody>
+</table></div>
+<p>수정: 데칼, 와이어프레임, <code>POS/VEC_TEST</code>에 각자의 비트를 준다. 노트 워드에는 빈 비트가 네 개
+있고 보고 루프는 리터럴 <code>12</code>다.</p>
+<hr />
+<h2 id="4-수정-목록-우선순위-순">4. 수정 목록, 우선순위 순</h2>
+<p>우선순위는 마을과 택시 씬이 정한다. 각 항목은 파일과 함수, 스펙이 말하는 것, 코드가 하는 것,
+그리고 바뀔 프레임과 영역을 명시한다. 오라클 프레임은
+<code>scratchpad/oracle/tap-town/shot_0NNNNN.bmp</code>(마을, 27,000–48,000, 1,500 간격)와
+<code>scratchpad/oracle/tap-fullpad/shot_0NNNNN.bmp</code>(택시 6,000–24,000, 마을 25,500 이후)이며;
+포트 쪽은 <code>scratchpad/cycle40/runs/tap-D56</code>으로, 이미
+<code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code>에서 비교되었다.</p>
+<p><strong>F1 — 반투명 블렌딩: 알파 0인 목적지에 대한 블렌딩을 건너뛰고, 알파의 최댓값을 취한다.</strong>
+<code>raster3d.c</code>, <code>draw_poly</code>, <code>if (fa &gt;= 255u)</code>의 <code>else</code> 분기.
+<em>스펙:</em> <code>FrameBuf[A] = 0</code>이면 블렌딩을 건너뛰고 소스가 덮어쓴다; 저장되는 알파는
+<code>max(Poly[A], FrameBuf[A])</code>다 [GBATEK, Toon/Edge/Fog/Alpha-Blending; melonDS <code>GPU3D_Soft.cpp</code>;
+DeSmuME <code>rasterize.cpp</code>].
+<em>코드:</em> 클리어된 버퍼(알파 0, RGB 0)에 대해 무조건 블렌딩하므로 색상에 자신의 알파가
+곱해지고, 그 다음 <code>acww_nds3d_compose</code>가 레이어를 2D 하늘 위에 얹을 때 그 알파를 다시
+곱한다. 저장되는 알파는 오버 컴포지트로 누적된다.
+<em>검증:</em> 택시의 비와 창유리, <code>tap-fullpad/shot_009000.bmp</code>를 <code>tap-D56</code> 프레임 9,000과
+비교, 아래 화면의 위쪽 절반. 그 영역에서 포트의 평균 휘도는 전체 프레임 NCC 0.9958에서
+이미 오라클보다 0.7 단위 낮다; 창 영역이 이중 어두워짐이 드러나는 곳이다. 또한
+<code>tap-town/shot_037500.bmp</code>, 마을의 반투명 표면을 통해 보이는 하늘.</p>
+<p><strong>F2 — W 버퍼 깊이: 폴리곤별로 W를 정규화하고 원근 보정하여 보간한다.</strong>
+<code>nds3d.c</code>, <code>to_screen</code>(<code>wbuffer_mode</code> 분기); <code>raster3d.c</code>, <code>draw_poly</code>(속성 0).
+<em>스펙:</em> "W is normalized, such that all the polygon's W values fit within 16 bits", 그리고
+W 버퍼링이 사용하는 것은 정규화된 W다 — 뷰포트 변환이 아니다; W 버퍼 깊이는 원근 보간기를
+거치는 반면 Z 버퍼 깊이는 선형이다 [melonDS <code>GPU3D.cpp</code>,
+<code>GPU3D_Soft.h</code> <code>InterpolateZ</code>].
+<em>코드:</em> <code>0x00FFFFFF</code>로 클램프한 원시 클립 <code>w</code>를 사용하고, 두 모드 모두에서 스팬을 가로질러
+선형 보간한다. ACWW는 <code>SWAP_BUFFERS = 3</code>을 쓰므로 이것이 모든 프레임이 사용하는 모드다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02002f68.c</code></span></span>.
+<em>검증:</em> 지면이 건물과 만나는 곳과 택시 대시보드가 창과 만나는 곳의 깊이 순서 —
+<code>tap-town/shot_037500.bmp</code>의 마을 회관 기초 주변, 그리고 <code>tap-fullpad</code>
+프레임 9,000–15,000. 포트는 이미 버텍스별로 <code>q</code>를 운반하므로 장치는 존재한다.</p>
+<p><strong>F3 — A3I5와 A5I3 폴리곤을 반투명으로 취급한다.</strong> <code>raster3d.c</code>, <code>draw_poly</code>, <code>trans</code>와
+<code>write_depth</code> 계산, 그리고 <code>acww_nds3d_raster</code>의 두 패스.
+<em>스펙:</em> 형식 1과 6이 반투명 텍스처 형식이다; melonDS는 블렌딩된 알파로 픽셀별로 반투명
+여부를 결정하며, 반투명 프래그먼트는 (비트 11 없이는) 깊이를 쓰지 않고 같은 폴리곤 ID에
+대해 블렌딩하지도 않는다.
+<em>코드:</em> <code>trans = alpha5 != 31u</code>뿐이다. A5I3 텍스처를 가진 알파 31 폴리곤은 불투명 패스로
+그려지고 반투명 텍셀을 통해 깊이를 쓴다.
+<em>검증:</em> 다시 택시 창과 비 — 포트 자체의 <code>nds3d tex</code> 원샷이 그 씬에서 64×64
+A5I3 재질을 명시한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/2026-09-02.md</code></span></span>. <code>tap-fullpad/shot_012000.bmp</code>.</p>
+<p><strong>F4 — 텍스처를 샘플링할 수 없을 때 노트를 올린다.</strong> <code>tex3d.c</code>, <code>acww_gx_texel</code>, null인
+<code>tex_addr</code> 또는 <code>pltt_addr</code> 뒤에 오는 모든 <code>return 0</code>.
+<em>스펙:</em> 해당 없음 — 이것은 동작의 결함이 아니라 진단의 결함이다.
+<em>코드:</em> 매핑되지 않은 VRAM 뱅크는 완전 투명을 반환하고 아무 말도 하지 않으므로, <code>VRAMCNT</code>
+오독으로 생긴 세계의 구멍은 모델이 요청한 구멍과 구별할 수 없다.
+<em>검증:</em> 아무 프레임이나; 마을 레시피에서 노트가 발생하거나 하지 않거나이며, 어느 답이든
+<code>tex_addr</code>의 뱅크 테이블에 관한 미결 질문을 닫는다.</p>
+<p><strong>F5 — <code>POS_TEST</code>와 <code>VEC_TEST</code>에 실제로 답한다.</strong> <code>nds3d.c</code>, case 0x70–0x72.
+<em>스펙:</em> <code>POS_TEST</code>는 <code>(x,y,z,1)</code>에 클립 행렬을 곱해 <code>POS_RESULT</code> <code>0x04000620</code>에 4워드를
+쓴다; <code>VEC_TEST</code>는 <code>(x,y,z,0)</code>에 방향 행렬을 곱해 <code>VEC_RESULT</code> <code>0x04000630</code>에 3하프워드를
+쓴다; 내부 버텍스 레지스터를 덮어쓴다 [GBATEK, DS 3D Tests].
+<em>코드:</em> 아무것도 쓰지 않는다; 게임은 I/O 페이지에 들어 있던 값을 그대로 읽는다. 포트에는
+이미 <code>vec_mul</code>, <code>dir_mul</code>, <code>m_clip</code>이 있으므로 각각 네 줄이면 된다.
+<em>검증:</em> 먼저 마을 레시피에서 0x71/0x72 제출을 센다 — 개수가 0이면 이것은 눈에 보이는 변화
+없는 공짜 정확성이며,
+<code>wiki/engine/graphics-pipeline.md</code>의 미결 질문이 닫힌다.</p>
+<p><strong>F6 — 텍스처 좌표 모드 2와 3.</strong> <code>nds3d.c</code>, <code>apply_texmtx</code>, 모드 2/3 꼬리 부분.
+<em>스펙:</em> 모드 2는 <strong>원시 10비트</strong> 법선에 대해 <code>raw + (nx·m0 + ny·m4 + nz·m8) &gt;&gt; 21</code>이다; 모드 3은
+<code>raw + (x·m0 + y·m4 + z·m8) &gt;&gt; 24</code>다; 어느 쪽도 행렬의 네 번째 행을 더하지 않는다 [melonDS <code>GPU3D.cpp</code>].
+<em>코드:</em> <code>v[3] = FX_ONE</code>인 <code>vec_mul</code>은 <code>m[12]</code>/<code>m[13]</code>을 포함하며, 순 시프트는 포트가 이미
+<code>&lt;&lt;3</code>으로 스케일한 법선에 대해 20이므로, 두 모드 모두 가짜 이동이 더해진 채 <strong>16배 너무 크게</strong>
+나온다.
+<em>검증:</em> 마을 레시피에서 <code>(tex_param &gt;&gt; 30) &amp; 3</code>이 {2,3}인 폴리곤을 센다 — 기존
+<code>nds3d poly-in</code> 프로브가 이미 <code>tex</code>를 출력한다. 개수가 0이 아니면, <code>tap-town</code>의 물과 모든
+환경 매핑된 표면이 해당 영역이다.</p>
+<p><strong>F7 — <code>gxstat_update()</code>가 <code>GXSTAT</code>을 덮어쓰는 것을 막는다.</strong> <code>nds3d.c</code>, <code>gxstat_update</code>.
+<em>스펙:</em> 비트 30–31이 유일하게 쓰기 가능한 필드다; 26은 FIFO-empty; 1은 박스 테스트 결과다
+[GBATEK, DS 3D Status].
+<em>코드:</em> 비트 15만 보존한 새 워드를 쓰므로, 모든 행렬 커맨드마다 비트 26과 30–31이 클리어되고
+테스트와 폴링 사이의 어떤 행렬 커맨드에 의해서도 박스 테스트 답이 파괴된다.
+<em>검증:</em> 25와 함께 비트 26을 설정하고 비트 0–1과 30–31을 보존한다; 먼저 매칭된 소스에서
+<code>0x04000600</code>을 읽는 곳을 grep한다. <code>port/shim/gfx/g3x_fifo.c</code>는 비트 27이 0인 것이 ROM의
+스핀을 끝내는 요인임을 이미 기록하고 있다 — 같은 논리로 비트 26은 <strong>1</strong>이어야 한다.</p>
+<p><strong>F8 — 의심되는 한 행짜리 뷰포트 오프셋.</strong> <code>nds3d.c</code>, <code>to_screen</code>, <code>o-&gt;y</code> 식.
+<em>스펙:</em> 뷰포트 좌표는 <strong>왼쪽 아래</strong>에서 시작하므로, 위에서부터의 행은
+<code>191 − [(y+w)·vh/(2w) + y1]</code>이다 [GBATEK, DS 3D Display Control, VIEWPORT].
+<em>코드:</em> <code>vh = y2 − y1 + 1</code>인 <code>(191 − y2)·16 + (w − y)·vh·16/(2w)</code>이며, 이는
+<code>192 − y1 − t·vh</code>로 정리된다.
+<em>검증:</em> <code>tap-town/shot_037500.bmp</code>의 지평선 행을 <code>tap-D56</code> 프레임 37,500과 비교. 한 행의
+이동은 사람 눈에는 보이지 않지만 행 차이 히스토그램에는 명백하다. 대수만으로 바꾸지 말 것 —
+오라클이 답하기 전까지 <code>wiki/STYLE.md</code> 규칙 7이 적용된다.</p>
+<p><strong>F9 — 엣지를 채우고, 1도트 폴리곤을 렌더링한다.</strong> <code>raster3d.c</code>, <code>draw_poly</code>; <code>nds3d.c</code>,
+<code>emit_poly</code>(<code>area == 0</code> 분기).
+<em>스펙:</em> DS는 기울기 규칙에 따라 엣지 픽셀을 채우며, "edges are always filled if
+antialiasing/edgemarking are enabled, if the pixels are translucent and alpha blending is
+enabled, or if the polygon is wireframe" — ACWW는 AA가 켜져 있으므로 그 엣지는 항상 채워진다
+[melonDS <code>GPU3D_Soft.cpp</code>]. 한 픽셀로 붕괴하는 폴리곤은 <code>POLYGON_ATTR</code> 비트 13이 설정되어
+있고 어느 W라도 <code>DISP_1DOT_DEPTH</code> <code>0x04000610</code> 이내이면 첫 번째 버텍스로 그려진다.
+<em>코드:</em> 픽셀 중심 샘플 규칙이므로, 중심을 비켜가는 모든 폴리곤이 사라진다; 면적 0인
+폴리곤은 <code>degenerate</code> 카운터로 버려진다.
+<em>검증:</em> 포트는 이미 <code>degenerate</code>를 <code>culled</code>와 별도로 세고 있으며, 자체 주석에 버려진
+삼각형이 정말로 납작한 것이 아니라 12.4 절삭 이후에만 납작하다고 기록되어 있다. 먼저 마을
+레시피에서 <code>degenerate</code> 수치를 읽는다; 크다면 <code>tap-town/shot_027000.bmp</code>의 먼 마을 세부가
+해당 영역이다.</p>
+<p><strong>F10 — 안개.</strong> <code>raster3d.c</code>, 합성 전 <code>colour[]</code>와 <code>depth[]</code>에 대한 후처리 패스.
+<em>스펙:</em> §2 F-fog에 완전히 문서화되어 있다; 포트는 이미 깊이 버퍼를 갖고 있으며, 픽셀별 안개
+플래그 하나가 필요하다. 이는 <code>CLEAR_COLOR</code> 비트 15(ACWW가 설정한다)로 초기화되고 불투명
+쓰기에서는 <code>POLYGON_ATTR</code> 비트 15로 대체되며, 반투명 쓰기에서는 AND된다.
+<em>코드:</em> 부재; <code>DISP3DCNT</code> 비트 7이 설정되면 노트가 발생한다.
+<em>검증:</em> 먼저 비트 7이 설정되는 일이 있는지를 확정한다 — 보고서는 이미 매 프레임 <code>DISP3DCNT</code>를
+출력한다. <code>func_02002f68</code>은 이를 설정하지 않으며, <code>G3X_SetFog</code>의 호출자는
+<code>src/matched/</code>에 없다. 절대 설정되지 않는다면 이를 닫힌 가설로 강등한다; 설정된다면 택시의
+<code>tap-fullpad/shot_009000.bmp</code>의 빗속 안개가 해당 영역이다.</p>
+<p><strong>F11 — 클리어 폴리곤 ID와 픽셀별 속성 버퍼.</strong> <code>raster3d.c</code>,
+<code>clear_buffers</code>와 <code>draw_poly</code>.
+<em>스펙:</em> 후면 평면은 색상, 알파, 깊이, 폴리곤 ID, 안개 플래그를 픽셀별로 초기화한다; 반투명
+쓰기는 <strong>불투명</strong> 폴리곤 ID를 보존하며, 이 때문에 엣지 마킹이 반투명 오버레이를 거쳐도
+살아남는다 [melonDS <code>GPU3D_Soft.cpp</code> <code>ClearBuffers</code>].
+<em>코드:</em> <code>tattr[]</code>는 반투명 ID만 운반한다. 안개(F10), 엣지 마킹, 안티에일리어싱의 선행
+조건이다; 그 자체로는 눈에 보이는 변화가 없다.</p>
+<p><strong>F12 — 과적재된 노트를 분리한다.</strong> <code>nds3d.h</code>(<code>GX_NOTE_*</code>), <code>raster3d.c</code>
+(<code>note_text[12]</code>와 <code>for (i = 0; i &lt; 12; i++)</code> 루프).
+<em>스펙:</em> 해당 없음. <em>코드:</em> §3을 보라. <em>검증:</em> 셀프 테스트가 이미 노트를 보이는 상태로 실행된다.</p>
+<p><strong>F13 — 작고, 저렴하며, 눈에 보이는 변화 없음:</strong> <code>ALPHA_TEST_REF</code>(E11); W 모드에서의 ±0xFF
+깊이 동일 허용 오차(E4); <code>RAM_COUNT</code>와 <code>DISP3DCNT</code> 비트 13 오버플로 플래그(A12);
+<code>MTX_STORE</code> 슬롯 31 오류(A7); <code>SWAP_BUFFERS</code> 비트 0이 자동 정렬을 요구할 때의 노트(E12).</p>
+<hr />
+<h2 id="5-가설">5. 가설</h2>
+<ul>
+<li><strong>H1 — <code>VTX_DIFF</code>: 포트와 오라클이 둘 다 옳을 수는 없다.</strong> GBATEK과 DeSmuME는
+  10비트 델타를 왼쪽으로 3 시프트되어 1.3.12 좌표에 들어가는 1.0.9 소수로 만든다; 포트는
+  이를 원시값 그대로 더하는데, <code>8a7fdb5f</code>에서 정확히 그 시프트를 제거했기 때문이다. 이는
+  <code>npc/model/48/49.nsbmd</code>의 오프라인 재구성이 시프트 0에서 모델이 선언한 바운딩 박스와
+  일치하고 시프트 3에서는 이를 초과했기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/2026-09-02.md</code></span></span>. 오라클은
+  DeSmuME<strong>이고</strong>, 그 주민들은 올바르다; 포트의 주민들 역시 올바르다. 두 측정 중 하나가
+  틀렸거나, 포트의 다른 무언가가 8배를 흡수하고 있다. <em>실험:</em> 같은 프레임에서
+  <code>scratchpad/oracle/tap-town/shot_037500.bmp</code>와 <code>tap-D56</code> 사이의 주민 팔다리 비율을
+  비교한 뒤, 시프트를 복원하여 포트를 다시 실행하고 어느 방향이 오라클 쪽으로 움직이는지
+  본다. 그때까지는 두 판독값이 모두 페이지에 남는다(<code>wiki/STYLE.md</code> 규칙 7).</li>
+<li><strong>H2 — 포트에서 마을의 위 화면이 프레임 25,500부터 비어 있다.</strong>
+  <code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code>는 프레임 24,000까지 <code>ncc-top</code>이
+  0.96–1.00이고 25,500부터 <strong>0.0000</strong>이라고 보고하며, 포트의 전체 프레임 평균 휘도는
+  ~130에서 ~66으로 절반이 된다. 정확히 0인 위 화면 NCC는 평탄한 이미지다. 이는 알려진
+  검은 상단 LCD <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/2026-09-04.md</code></span></span>와 부합하며, 3D가 아니라 2D/<code>POWCNT1</code> 문제다
+  — 위 화면에 내용이 생기기 전까지 <strong>이 페이지의 어떤 수정에도 이를 귀속시키지 말 것</strong>.</li>
+<li><strong>H3 — ACWW에서 안개는 절대 활성화되지 않는다.</strong> <code>func_02002f68</code>은 <code>DISP3DCNT</code> 비트 7을
+  클리어하고 <code>G3X_SetFog</code>의 호출자는 <code>src/matched/</code>에 나타나지 않지만, <code>G3X_SetClearColor</code>는
+  <code>fog = TRUE</code>로 호출되며, 이는 마스터 활성화가 켜져 있을 때만 의미가 있다. <em>실험:</em> 프레임별
+  보고서가 이미 <code>DISP3DCNT</code>를 출력한다; 마을과 택시 레시피 전반에서 비트 7을 읽는다.</li>
+<li><strong>H4 — 텍스처 좌표 변환의 모드 2와 3은 사용되지 않는다.</strong> 포트는 이들이 실행되는 것을 본
+  적이 없으며 그렇게 밝히고 있다. <em>실험:</em> 마을 레시피에서 <code>(tex_param &gt;&gt; 30) &amp; 3</code>의
+  히스토그램을 만든다. 0이라면 F6은 수정이 아니라 공짜 정확성이 된다.</li>
+<li><strong>H5 — 포트의 추가 정확성은 오라클 비교에 부담이다.</strong> 8비트 색상 채널(C7), 완전 정밀도
+  원근 보간(E15), 64비트 나눗셈(B11) 모두 포트를 DS보다 <em>더</em> 정확하게 만든다. 어떤
+  프레임도 오라클과 바이트 단위로 같아지지 않을 것이므로, 감사 방법은 정확 일치가 아니라
+  구조적(NCC, 영역 마스크)으로 남아야 한다.</li>
+</ul>
+<h2 id="6-관련-문서">6. 관련 문서</h2>
+<ul>
+<li><code>../engine/graphics-pipeline.md</code> — 리소스 경로, 레지스터와 VRAM 뱅크.</li>
+<li><code>../data/archives.md</code> — 이 텍스처들이 담겨 오는 <code>nsbmd</code>/<code>nsbtx</code> 컨테이너.</li>
+<li><code>hardware-services.md</code> — 포트의 나머지 하드웨어에 같은 방법을 적용한 것.</li>
+<li><code>port/render/selftest3d.c</code> — 기존 검사. 파라미터 개수, 패킹된 인코딩, 버텍스 형식, 행렬,
+  와인딩, 클리핑, 래핑, I4와 4x4 텍스처 디코드, 깊이 순서, 그리고 합성 사례 하나를 다룬다.
+  <strong>다음에 대한 검사는 없다:</strong> 안개, 엣지 마킹, 툰, 반투명 ID 규칙, W 버퍼 깊이, 깊이 동일
+  테스트, 와이어프레임, 1도트 폴리곤, <code>POS_TEST</code>/<code>VEC_TEST</code>, <code>GXSTAT</code> 보존, A3I5/A5I3 알파,
+  또는 다이렉트 컬러 — §4와 같은 목록이며, 수정의 회귀 테스트가 있어야 할 곳이다.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/hardware-services.html"><small>◀ 이전</small>감사(audit): 하드웨어 서비스와 공개 기록의 대조</a><a class="pn next" href="../audits/sdk-names.html"><small>다음 ▶</small>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#1-게임이-실제로-엔진에-요구하는-것">1. 게임이 실제로 엔진에 요구하는 것</a></li><li><a href="#2-주장-표">2. 주장 표</a><ul><li><a href="#a-커맨드-스트림-행렬과-스택">A. 커맨드 스트림, 행렬과 스택</a></li><li><a href="#b-버텍스-프리미티브-클리핑과-뷰포트">B. 버텍스, 프리미티브, 클리핑과 뷰포트</a></li><li><a href="#c-조명과-재질">C. 조명과 재질</a></li><li><a href="#d-텍스처-유닛">D. 텍스처 유닛</a></li><li><a href="#e-깊이-채우기와-반투명-래스터라이저">E. 깊이, 채우기와 반투명 — 래스터라이저</a></li><li><a href="#f-포트가-선언하지만-수행하지-않는-효과">F. 포트가 선언하지만 수행하지 않는 효과</a></li><li><a href="#g-2d-엔진과의-합성">G. 2D 엔진과의 합성</a></li></ul></li><li><a href="#3-열두-개의-노트-그리고-그중-두-개가-실제로-뜻하는-것">3. 열두 개의 노트, 그리고 그중 두 개가 실제로 뜻하는 것</a></li><li><a href="#4-수정-목록-우선순위-순">4. 수정 목록, 우선순위 순</a></li><li><a href="#5-가설">5. 가설</a></li><li><a href="#6-관련-문서">6. 관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

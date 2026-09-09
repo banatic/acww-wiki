@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>감사(audit): 게임 시스템을 공개 지식과 대조하다 · ACWW 근거 위키</title>
+<meta name="description" content="위키 문서 13개를 공개된 리버스 엔지니어링 및 팬 레퍼런스와 대조 검사했다. 가장 가치 있는 단일 출처는 ACWW 세이브 에디터 코퍼스(WildEdit-Core 및 ACWW_Research 위키)로, **한국 지역** 세이브 레이아웃을 공개하고 있다. 이 코퍼스는 이">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li class="active"><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 게임 시스템을 공개 지식과 대조하다</span></div><header class="page-head"><h1>감사(audit): 게임 시스템을 공개 지식과 대조하다</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span></div><div class="source-line">원문: <code>wiki/audits/game-systems.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 위키 문서 13개를 공개된 리버스 엔지니어링 및 팬 레퍼런스와 대조 검사했다. 가장 가치 있는
+단일 출처는 ACWW 세이브 에디터 코퍼스(WildEdit-Core 및 <code>ACWW_Research</code> 위키)로, <strong>한국 지역</strong>
+세이브 레이아웃을 공개하고 있다. 이 코퍼스는 이 저장소가 ROM에서 측정한 네 개의 숫자(세이브 사본
+크기 <code>0x173fc</code>, 플레이어 스트라이드 <code>0x249c</code>, 주민 스트라이드 <code>0x7ec</code>, 주민 배열 <code>+0x9284</code>)를
+독립적으로 재현하고, 그 위에 위키에 없는 열두 개 남짓의 숫자 &ndash; 체크섬 알고리즘과 그 오프셋, 마을
+이름 필드, 지갑과 은행 필드, 에이커 및 아이템 배열의 베이스와 그 <strong>개수</strong>, 그리고 완전한 아이템 id
+카테고리 맵 &ndash; 를 제공한다. 팬 레퍼런스는 두 번째 층을 더한다: 봄의 첫날과 위키가 파일 트리에서
+도출한 세 개의 개수(주민 150, 물고기 56, 곤충 56)에 대해서는 ROM과 정확히 일치하고, 나머지 세
+계절 경계에 대해서는 ROM과 불일치하며, 11개 항목의 우선순위 테이블을 이해하게 해 주는 방문객
+순번표(rota)를 제공한다. 위키 편집 16건과 실험 13건이 뒤따른다. <strong>열린 질문 하나 &ndash; <code>save-data.md</code>의
+"체크섬은 발견되지 않았다" &ndash; 는 완전히 답이 나왔고</strong>, 두 개의 주장은 쓰인 그대로는 틀렸다.</p>
+<h2 id="방법과-p-등급">방법과 P 등급</h2>
+<p>아래의 모든 행은 <strong>공개</strong> 출처를 인용한다. 공개 출처는 등급 <strong>P</strong>이며 S, E, O가 아니다: P 출처는
+"이 프로젝트 바깥의 누군가가 이렇게 주장한다"는 뜻일 뿐, 그 이상은 아니다. 판정 열에서는 두 종류의
+P를 구분한다:</p>
+<ul>
+<li><strong>P-code</strong> &ndash; 출처 자체가 코드이거나, 독자가 실행하거나 diff할 수 있는 데이터마이닝된 테이블인 경우
+  (WildEdit-Core, <code>ACWW_Research</code> 구조 테이블). 강력한 단서이지만 이 ROM의 디스어셈블리가 아니라
+  소매판 EUR/USA/JPN/KOR 세이브에서 도출된 것이다.</li>
+<li><strong>P-fan</strong> &ndash; 눈에 보이는 도출 과정 없이 게임 동작 숫자를 주장하는 팬 위키.</li>
+</ul>
+<p><strong>P 출처는 위키 문서에서 S/E/O 출처를 절대 대체하지 않는다.</strong> 공개 숫자가 측정된 숫자와 일치하는
+경우, 문서는 측정 출처를 유지하고 "(P와 일치)"를 덧붙일 수 있다. 공개 숫자가 빈 곳을 채우는 경우,
+그것은 사실이 아니라 <strong>이름 붙은 실험을 가진 H</strong>가 된다.</p>
+<p>판정: <strong>AGREES</strong>(공개 자료가 측정된 주장과 일치), <strong>ADDS</strong>(공개 자료가 문서에 없는 숫자를 제공),
+<strong>DISAGREES</strong>(공개 자료가 문서와 모순), <strong>SILENT</strong>(공개 자료에서 아무것도 찾지 못함).</p>
+<h3 id="사용한-공개-출처">사용한 공개 출처</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>id</th>
+<th>출처</th>
+<th>무엇인가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Offset_Sizes">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Offset_Sizes</a> "Offsets and Sizes"</td>
+<td>지역별 세이브 크기와 오프셋, KOR 포함</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Main-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Main-Structure</a></td>
+<td>세이브 헤더 레이아웃</td>
+</tr>
+<tr>
+<td>P3</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Player-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Player-Structure</a></td>
+<td>플레이어 레코드, KOR 열</td>
+</tr>
+<tr>
+<td>P4</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Villager-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Villager-Structure</a></td>
+<td>주민 레코드, KOR 열</td>
+</tr>
+<tr>
+<td>P5</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/utils/checksum.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/utils/checksum.cpp</a></td>
+<td>세이브 체크섬, 코드로</td>
+</tr>
+<tr>
+<td>P6</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Sav.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Sav.cpp</a></td>
+<td>플레이어/주민/집/편지 베이스, 두 번째 세이브 사본</td>
+</tr>
+<tr>
+<td>P7</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Town.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Town.cpp</a></td>
+<td>마을 이름, 에이커, 맵 아이템, 무 가격, 매장 비트</td>
+</tr>
+<tr>
+<td>P8</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Item.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Item.cpp</a> <code>Item::itemtype</code></td>
+<td>아이템 id 카테고리 맵</td>
+</tr>
+<tr>
+<td>P9</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Villager.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Villager.cpp</a></td>
+<td>주민 id와 성격 바이트</td>
+</tr>
+<tr>
+<td>P10</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Room.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Room.cpp</a></td>
+<td>실내 가구 그리드, 두 레이어</td>
+</tr>
+<tr>
+<td>P11</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Player.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Player.cpp</a></td>
+<td>지갑과 은행 접근자</td>
+</tr>
+<tr>
+<td>P12</td>
+<td><a href="https://nookipedia.com/wiki/Villager/Wild_World">https://nookipedia.com/wiki/Villager/Wild_World</a></td>
+<td>Wild World의 주민 150명</td>
+</tr>
+<tr>
+<td>P13</td>
+<td><a href="https://nookipedia.com/wiki/Fish/Wild_World">https://nookipedia.com/wiki/Fish/Wild_World</a></td>
+<td>물고기 56종</td>
+</tr>
+<tr>
+<td>P14</td>
+<td><a href="https://nookipedia.com/wiki/Bug/Wild_World">https://nookipedia.com/wiki/Bug/Wild_World</a></td>
+<td>곤충 56종</td>
+</tr>
+<tr>
+<td>P15</td>
+<td><a href="https://animalcrossing.fandom.com/wiki/Acres">https://animalcrossing.fandom.com/wiki/Acres</a> / <a href="https://nookipedia.com/wiki/Acre">https://nookipedia.com/wiki/Acre</a></td>
+<td>마을은 4x4 격자의 16 에이커; 에이커 하나는 16x16 칸</td>
+</tr>
+<tr>
+<td>P16</td>
+<td><a href="https://github.com/Universal-Team/WildEdit">https://github.com/Universal-Team/WildEdit</a> <code>graphics/acres/</code></td>
+<td>에이커 id 이미지 131개, id 0..130</td>
+</tr>
+<tr>
+<td>P17</td>
+<td><a href="https://tcrf.net/Animal_Crossing:_Wild_World">https://tcrf.net/Animal_Crossing:_Wild_World</a></td>
+<td>미사용 <code>sky/</code> "weather test" 구름; TV 테스트 패턴의 지역별 변경</td>
+</tr>
+<tr>
+<td>P18</td>
+<td><a href="https://nookipedia.com/wiki/Species">https://nookipedia.com/wiki/Species</a></td>
+<td>시리즈 전체에 걸친 주민 종 35개</td>
+</tr>
+<tr>
+<td>P19</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/strings/en/items.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/strings/en/items.js</a></td>
+<td>이름이 붙은 id-아이템 데이터베이스, 약 3,260개 항목, 모든 <code>0x5xxx</code> 건물 포함</td>
+</tr>
+<tr>
+<td>P20</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/arm9/source/screens/acresEditor.cpp">https://github.com/Universal-Team/WildEdit/blob/master/arm9/source/screens/acresEditor.cpp</a> 및 <code>townMapEditor.cpp</code></td>
+<td>에이커 격자는 너비 6(커서가 0..35 위에서 6씩 이동); 플레이 가능한 에이커는 인덱스 7-10, 13-16, 19-22, 25-28; 맵 아이템은 에이커 우선(acre-major) 순서로 에이커당 256개</td>
+</tr>
+<tr>
+<td>P21</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/player.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/player.js</a></td>
+<td>에디터는 지갑을 99,999로, 은행을 999,999,999로 클램프한다</td>
+</tr>
+<tr>
+<td>P22</td>
+<td><a href="https://nookipedia.com/wiki/Stalk_Market">https://nookipedia.com/wiki/Stalk_Market</a> 및 <a href="https://www.thonky.com/acww/stalk-market-guide">https://www.thonky.com/acww/stalk-market-guide</a></td>
+<td>조안은 일요일 아침에 약 90-110 벨에 판다; Wild World는 월요일부터 토요일까지 하루에 두 개의 가격이 있다</td>
+</tr>
+<tr>
+<td>P23</td>
+<td><a href="https://nookipedia.com/wiki/Savings">https://nookipedia.com/wiki/Savings</a> , <a href="https://nookipedia.com/wiki/Bells">https://nookipedia.com/wiki/Bells</a></td>
+<td>저축 이자는 1일에 0.5%, 이자 상한 99,999; 지갑 상한 99,999</td>
+</tr>
+<tr>
+<td>P24</td>
+<td><a href="https://nookipedia.com/wiki/Furniture/Wild_World">https://nookipedia.com/wiki/Furniture/Wild_World</a></td>
+<td>카탈로그에 등록된 가구 562개와 카탈로그 외 DLC 14개</td>
+</tr>
+<tr>
+<td>P25</td>
+<td><a href="https://nookipedia.com/wiki/Spring">https://nookipedia.com/wiki/Spring</a> , <code>/Summer</code>, <code>/Autumn</code>, <code>/Winter</code> (도입부)</td>
+<td>팬 레퍼런스가 서술하는 계절 날짜 범위</td>
+</tr>
+<tr>
+<td>P26</td>
+<td><a href="https://nookipedia.com/wiki/Special_character">https://nookipedia.com/wiki/Special_character</a> "Special visitor schedules -&gt; In Wild World"</td>
+<td>주간 방문객 순번표와 한 번에 한 방문객 규칙</td>
+</tr>
+<tr>
+<td>P27</td>
+<td><a href="https://nookipedia.com/wiki/Animal_Crossing:_Wild_World/Characters">https://nookipedia.com/wiki/Animal_Crossing:_Wild_World/Characters</a> "Special characters" / "Villagers"</td>
+<td>32명의 특수 캐릭터 목록; 생일이 포함된 주민 150명 표</td>
+</tr>
+<tr>
+<td>P28</td>
+<td><a href="https://nookipedia.com/wiki/Event/Wild_World">https://nookipedia.com/wiki/Event/Wild_World</a> 및 이벤트별 "Recurrence" 표 (<code>Fireworks_Show</code>, <code>Flea_Market</code>, <code>Bug-Off</code>, <code>Fishing_Tourney</code>, <code>Bright_Nights</code>, <code>Flower_Fest</code>, <code>Acorn_Festival</code>, <code>La-Di-Day</code>, <code>Yay_Day</code>, <code>Countdown</code>)</td>
+<td>요일 상대 규칙으로 서술된 Wild World 이벤트 달력</td>
+</tr>
+<tr>
+<td>P29</td>
+<td><a href="https://nookipedia.com/wiki/Moving">https://nookipedia.com/wiki/Moving</a> "In Wild World"</td>
+<td>마을은 주민 세 명으로 시작하고 여덟 명이 상한이며 교체는 무작위</td>
+</tr>
+<tr>
+<td>P30</td>
+<td><a href="https://nookipedia.com/wiki/Time_travel">https://nookipedia.com/wiki/Time_travel</a> "In Wild World" ; <a href="https://nookipedia.com/wiki/Mr._Resetti">https://nookipedia.com/wiki/Mr._Resetti</a> "In Wild World"</td>
+<td>날짜는 2099년까지 가다가 2000년으로 되돌아간다; 리셋 씨는 시계가 아니라 저장하지 않은 것에 반응한다</td>
+</tr>
+<tr>
+<td>P31</td>
+<td><a href="https://nookipedia.com/wiki/Nook%27s_Cranny">https://nookipedia.com/wiki/Nook%27s_Cranny</a> , <code>/Nook_'n'_Go</code>, <code>/Nookway</code>, <code>/Nookington's</code> ("In Wild World")</td>
+<td>4단계 상점 업그레이드 체인</td>
+</tr>
+<tr>
+<td>P32</td>
+<td><a href="https://nookipedia.com/wiki/Weather">https://nookipedia.com/wiki/Weather</a> "Snow" ; <a href="https://nookipedia.com/wiki/Winter">https://nookipedia.com/wiki/Winter</a></td>
+<td>눈은 대략 12월 11일부터 땅에 쌓인다</td>
+</tr>
+</tbody>
+</table></div>
+<p>P1-P11 전체에 적용되는 주의 사항: 이들은 <strong>플래시 위의 소매판 세이브 이미지</strong>를 서술한다. 이
+위키의 주소는 <strong>RAM <code>0x021dc7a8</code>에 있는 작업 사본</strong>이다. 둘은 같은 바이트다 &ndash; <code>func_020b5724</code>가
+둘 사이에서 <code>0x173fc</code> 바이트를 복사한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_020b5724.c</span></span> &ndash; 따라서 세이브 오프셋
+<code>+X</code>는 RAM 주소 <code>0x021dc7a8 + X</code>이며, 아래 내용을 신뢰하기 전에 이 동일성 자체를 한 번 값싸게
+확인해 둘 가치가 있다(ACTION A1).</p>
+<hr />
+<h2 id="systemssave-datamd">systems/save-data.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>문서의 주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>256 KB 플래시에 각각 <code>0x173fc</code> 바이트인 세이브 뱅크 두 개</td>
+<td>P1 "Save Copy Size / KOR = 0x173FC"</td>
+<td>AGREES (P-code)</td>
+<td>"(P1과 일치)"를 추가; S 출처 유지</td>
+</tr>
+<tr>
+<td>두 번째 뱅크는 주/백업 쌍이다 &ndash; <strong>열린 가설</strong></td>
+<td>P6 <code>Sav::Finish</code>는 매 쓰기 후 첫 번째 사본 전체를 <code>savePointer() + 0x173FC</code>로 복사한다</td>
+<td>ADDS</td>
+<td>두 뱅크는 <strong>인접하고 동일하다</strong>: 뱅크 1은 <code>0x00000</code>, 뱅크 2는 <code>0x173fc</code>. 가설을 "미러, 무조건 기록됨"으로 승격; 실험은 이제 한 파일의 두 범위를 diff하는 것이다</td>
+</tr>
+<tr>
+<td><strong>"세이브 레코드에는 체크섬이 있지만 아직 발견되지 않았다"</strong></td>
+<td>P5 <code>Checksum::Calculate</code> + <code>UpdateChecksum</code></td>
+<td>DISAGREES / ADDS</td>
+<td><strong>해결됨</strong>. 체크섬은 사본을 <code>u16</code> 워드로 읽어 체크섬 워드 자체는 건너뛰고 합산한 뒤 부호를 반전(<code>-sum</code>)한 16비트 합이다. KOR은 바이트 오프셋 <code>0x173F8</code>, 워드 인덱스 <code>0xB9FC</code>에 저장하며, <code>0x173FC/2</code> 워드에 걸쳐 계산한다</td>
+</tr>
+<tr>
+<td>"유효성 레코드는 <code>+0x173f8</code>에 있다; <code>func_0209f180</code>은 그 <code>+2</code> 바이트가 2일 것을 요구한다" (<code>town.md</code>)</td>
+<td>P1 "Main Checksumoffset / KOR = 0x173F8"</td>
+<td>DISAGREES</td>
+<td><code>+0x173f8</code>은 유효성 레코드가 아니라 CHECKSUM이다. <code>func_0209f180</code>이 검사하는 바이트는 <code>+0x173fa</code>, 즉 그 뒤의 두 바이트로, 사본 마지막 네 바이트 안의 별도 플래그다</td>
+</tr>
+<tr>
+<td>"이미지의 바이트 0은 <code>0x32</code>여야 한다"</td>
+<td>P2 메인 구조: <code>0x0-0x1</code>은 16비트 "Gamecode"</td>
+<td>ADDS</td>
+<td><code>0x32</code>는 매직 상수가 아니라 지역/게임 코드 워드의 하위 절반이다</td>
+</tr>
+<tr>
+<td><code>src/matched</code>에서 ACWW 측 CRC 헬퍼를 찾지 못함</td>
+<td>P5 (알고리즘은 CRC가 아니라 단순한 부호 반전 16비트 합)</td>
+<td>AGREES</td>
+<td>부재는 옳았다: 찾을 CRC가 없다. "<code>MATH_CalcCRC*</code>로부터의 호출 간선 없음" 줄을 <em>누락된</em> 발견의 근거로 두는 것을 삭제하고 실제 알고리즘을 기록</td>
+</tr>
+<tr>
+<td>지워진 플래시는 <code>0xFF</code>로 읽힌다; 0으로 채워진 저장소는 다른 게임이다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>변경 없음; 다만 0으로 채워진 저장소는 이제 <em>예측 가능한</em> 체크섬(0의 합을 반전하면 0)을 가지므로, 전부 0인 이미지는 "체크섬은 유효, 게임코드는 무효"임을 기록</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>함수 수준 단서.</strong> <code>func_020b5724</code>는 뱅크 선택기이고 <code>func_0209f180</code>은 유효성 검사다. 둘 중 하나가
+부호 반전 16비트 합을 계산한다면 그 루프는 이제 한눈에 식별할 수 있다: 인덱스 하나를 건너뛰는
+<code>0xb9fe</code>회 반복의 워드 스트라이드 누산. <code>src/matched/func_020b5724.c</code>와
+<code>port/shim/game/newgameprobe.c</code>에 인용된 <code>func_0209f180</code>을 읽고 그것을 찾아라(ACTION A2).</p>
+<hr />
+<h2 id="systemstownmd">systems/town.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>세이브 이미지 <code>0x021dc7a8</code>, 길이 <code>0x173fc</code></td>
+<td>P1</td>
+<td>AGREES</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>세이브 <code>+0xd304</code>의 에이커 맵 오브젝트</td>
+<td>P7 <code>Town::acre</code>, KOR 베이스 <code>0xD304</code></td>
+<td>AGREES + ADDS</td>
+<td>이 오브젝트는 <strong>1바이트 에이커 id 36개</strong>의 배열이며 인덱스 0..35 &ndash; 6x6 에이커 프레임이다</td>
+</tr>
+<tr>
+<td>"마을은 <strong>96x96 타일 격자</strong>다"</td>
+<td>P7 <code>Town::item</code>은 인덱스 0..4095, 스트라이드 2, KOR 베이스 <code>0xD328</code>를 허용; P15 에이커 하나는 16x16 칸이고 ACWW 마을은 4x4의 16 에이커</td>
+<td><strong>DISAGREES</strong></td>
+<td>아이템 레이어는 <strong>4,096 셀 = 64x64 타일 = 4x4 에이커</strong>다. 96x96은 아이템 격자가 아니라 6x6 에이커 프레임을 타일로 잰 범위다. 요약을 정정</td>
+</tr>
+<tr>
+<td>아이템 베이스는 에이커 바로 뒤에 온다</td>
+<td>P7: <code>0xD304 + 36 = 0xD328</code> 정확히</td>
+<td>AGREES</td>
+<td>에이커 배열이 정확히 36바이트라는 강력한 내부 확증</td>
+</tr>
+<tr>
+<td>&ndash; (문서에 에이커 기하가 없음)</td>
+<td>P20: 에이커 에디터의 커서는 인덱스 0..35 위에서 상하로 <strong>6</strong>씩 이동하고, 플레이 가능한 에이커는 인덱스 <strong>7-10, 13-16, 19-22, 25-28</strong></td>
+<td>ADDS</td>
+<td>에이커 프레임은 6x6이고 플레이 가능한 마을은 안쪽 4x4다; 바깥 고리에는 <strong>아이템 슬롯이 전혀 없다</strong>. 맵 아이템은 <strong>에이커 우선(acre-major)</strong> 순서로, 에이커당 256 타일로 저장된다</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P20: 매장 상태는 세이브 <code>+0xf328</code>(KOR)에 있는 셀당 1비트의 별도 필드</td>
+<td>ADDS</td>
+<td>4,096비트 = 512바이트가 아이템 레이어 바로 뒤에 온다(<code>0xd328 + 8192 = 0xf328</code>, 정확). 4,096 개수에 대한 또 하나의 산술적 확증</td>
+</tr>
+<tr>
+<td>아이템은 에이커 바이트 옆 레이어의 16비트 id다</td>
+<td>P7, P8</td>
+<td>AGREES</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>0xfff1</code>은 빈 아이템 id다</td>
+<td>P8 <code>ID == 0xFFF1 -&gt; ItemType::Empty</code></td>
+<td>AGREES (P-code)</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>생성된 마을에서 <code>0x500d</code> 상점, <code>0x5001..0x5008</code> 주민 집, <code>0x5014</code>가 관측됨</td>
+<td>P19가 대역 전체에 이름을 붙인다: <code>0x5000</code> 마을 회관, <code>0x5001</code>-<code>0x5008</code> <strong>이웃 집 1-8</strong>, <code>0x500b</code> 문지기 초소, <code>0x500c</code> 양복점, <code>0x500d</code>-<code>0x5010</code> <strong>네 단계의 상점</strong>, <code>0x5011</code> 박물관, <code>0x5012</code>/<code>0x5013</code> 두 텐트, <code>0x5014</code> <strong>플레이어의 집(소형)</strong>, <code>0x5015</code>-<code>0x501a</code> 그 업그레이드, <code>0x501c</code> 게시판, <code>0x501d</code> 보이지 않는 우편함, <code>0x501e</code> 카운트다운 표지판, <code>0x5020</code>/<code>0x5021</code> 두 방문객 탈것</td>
+<td><strong>AGREES, 모든 것에 이름을 붙임</strong></td>
+<td>집 id 여덟 개, 상점, 플레이어의 집 모두 이름으로 확인된다. 이 대역을 H 등급 id 표로 <code>town.md</code>에 채택</td>
+</tr>
+<tr>
+<td><code>0x500e</code>/<code>0x500f</code>/<code>0x5010</code>은 "플라이스루 카메라가 상점에 닿기 전에 순환하는 키"</td>
+<td>P19: 이들은 <strong>Nook 'n' Go, Nookway, Nookington's</strong>다; P31: 상점은 Nook's Cranny(<code>0x500d</code>)에서 정확히 그 세 단계를 거쳐 업그레이드된다</td>
+<td><strong>해결됨</strong></td>
+<td>카메라는 임의의 키를 순환한 것이 아니라 상점 단계 id 네 개를 순서대로 밟고 있었다. <code>town.md</code>와 <code>economy.md</code>의 해당 문장을 다시 쓸 것</td>
+</tr>
+<tr>
+<td><code>0x500a</code>는 배치기가 주민 집으로 변환하는 집터다</td>
+<td>P19는 <code>0x500a</code>를 "<strong>Sign</strong>"이라고 부른다</td>
+<td><strong>DISAGREES &ndash; 그리고 이 프로젝트가 아마 옳다</strong></td>
+<td><code>port/shim/game/houseplace.c</code>는 ROM 자체의 코드를 담고 있다: <code>0x500a</code>와 같은 셀을 스캔하고 선택된 셀을 <code>func_0204bbbc(j)</code>로 덮어쓰며, 이는 <code>0x5001</code>..<code>0x5008</code>을 낳는다. 아이템 목록에서 할당된 커뮤니티 이름은 배치기를 읽은 것보다 약하다. A-P1의 실행이 지점 수를 출력하면 <strong>불일치를 기록하고 정정을 업스트림에 제안할 것</strong></td>
+</tr>
+<tr>
+<td><strong>H: 마을 이름은 유효성 레코드 근처의 고정 길이 UTF-16 필드다</strong></td>
+<td>P7 <code>Town::name</code>, KOR: 세이브 <code>+0x0004</code>에 UTF-16 문자 6개; P2 마을 이름은 게임코드와 마을 id 뒤에 온다</td>
+<td><strong>위치는 DISAGREES, 형태는 확정</strong></td>
+<td>이 필드는 이미지의 <strong>시작부</strong>, <code>0x021dc7ac</code>에 있으며 UTF-16 유닛 6개(12바이트)다. 한 번의 실행 검사로 승격: 두 번째 키보드 이후 그곳의 12바이트를 읽을 것</td>
+</tr>
+<tr>
+<td><strong>H: <code>0x86</code>은 실제 에이커가 아니라 "미설정" 에이커다</strong></td>
+<td>P16: 에디터는 id 0..130에 대해서만 에이커 이미지를 제공</td>
+<td>ADDS (약함)</td>
+<td><code>0x86</code> = 134는 공개 코퍼스가 아는 모든 에이커 id 바깥이며, 이는 센티널과 부합한다. 측정된 개수는 여전히 필요</td>
+</tr>
+<tr>
+<td><code>func_0207bbb8</code>은 "96x96 스캔"을 실행한다</td>
+<td>P7/P15는 64x64를 시사</td>
+<td>DISAGREES (아마도)</td>
+<td><code>port/shim/game/houseplace.c</code>는 맵 오브젝트 자체의 <code>f0c</code>/<code>f10</code>에서 루프 경계를 도출하며 <strong>이미 출력한다</strong>(<code>acww houseplace: w .. h ..</code>). 그 줄을 기록한 실행은 아직 한 번도 없다. 이 문서에서 가장 값싼 측정</td>
+</tr>
+<tr>
+<td>타일은 <code>(x&gt;&gt;4, y&gt;&gt;4)</code> 더하기 <code>(x&amp;15, y&amp;15)</code>로 에이커에 대응한다</td>
+<td>P15 에이커 하나는 16x16 칸</td>
+<td>AGREES</td>
+<td><code>houseplace.c</code> 자체의 주소 산술이 S 출처다; P15가 확증</td>
+</tr>
+<tr>
+<td>세계는 실린더로 그려지며 에이커 스트라이드 32.0 유닛, 타일 2.0</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>포트 전용; S+E로 유지</td>
+</tr>
+<tr>
+<td><code>0xf030</code>은 문서 어디에도 나오지 않음</td>
+<td>P8: <code>0xF030</code>은 <code>ItemType::Occupied</code>, 다중 칸 가구가 덮는 셀의 표식</td>
+<td>ADDS</td>
+<td>이것은 거의 확실히 <code>func_0204ef74</code>(다중 타일 배치기)가 덮인 셀에 쓰는 값이다. 그 함수에서 <code>0xf030</code> 리터럴을 읽을 것</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="systemsvillagersmd">systems/villagers.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>세이브 <code>+0x9284</code>에 스트라이드 <code>0x7ec</code>의 주민 레코드 여덟 개</td>
+<td>P1, P6 (<code>0x9284 + villager * 0x7EC</code>, 인덱스 상한 7)</td>
+<td>AGREES (P-code, 정확)</td>
+<td>위키에서 가장 강력한 단일 확증: 독립적인 숫자 세 개가 일치한다</td>
+</tr>
+<tr>
+<td>주민과 그 집은 하나의 레코드다</td>
+<td>P4: 레코드는 가구 슬롯, 벽지, 카펫, 셔츠, 우산을 담는다</td>
+<td>AGREES</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>"주민 서브 레코드는 <code>+0x7a0</code>에 있다"</td>
+<td>P4: 성격 <code>+0x7ae</code>, id/종 <code>+0x7af</code>, 가구 슬롯 열 개 <code>+0x78c</code>, 셔츠 <code>+0x7d2</code>, 벽지 <code>+0x7d4</code>, 카펫 <code>+0x7d5</code>, 우산 <code>+0x7da</code></td>
+<td>ADDS</td>
+<td><code>+0x7a0</code>은 이제 내용에 이름이 붙은 작은 신원 블록의 시작이다. 여섯 개 필드 오프셋을 세이브 diff 실험과 함께 H로 추가</td>
+</tr>
+<tr>
+<td><strong>성격 클래스 여섯 개</strong> (<code>func_0207c818</code>의 인덱스 상한 6)</td>
+<td>P4: <code>+0x7ae</code>의 전용 1바이트 "Personality" 필드; 여섯 개의 메시지 디렉터리 <code>bo/ta/ge/fu/ko/ha</code> (<code>data/villagers.md</code>)</td>
+<td>AGREES</td>
+<td><strong>H: 여섯 클래스는 여섯 성격이다</strong>를 거의 확정으로 승격: 레코드는 id 한 바이트 앞에 성격 바이트를 가지고, 선택기는 클래스 인덱스를 6으로 제한한다. 남은 일은 어느 인덱스가 어느 것인지 이름을 붙이는 것뿐</td>
+</tr>
+<tr>
+<td>레코드 <code>+0x7af</code>는 "얼굴/테이블 인덱스 바이트", 테이블 <code>data_020cd884</code>는 "33개 항목으로 제한"</td>
+<td>P9: <code>+0x7af</code>는 <strong>주민 id</strong>(<code>0xFF</code> = 슬롯 비어 있음); P12: 주민 150명</td>
+<td><strong>DISAGREES, 그리고 문서 자체의 심이 이를 증명한다</strong></td>
+<td>아래 참조 &ndash; 이것이 발견 사항 #2다</td>
+</tr>
+<tr>
+<td>생성된 마을에서 여덟 번 루프 중 <code>0x65</code>, <code>0x78</code>, <code>0x27</code> 값으로 <strong>세 번</strong>의 선택이 관측됨</td>
+<td>P29: "마을은 주민 <strong>세 명</strong>으로 시작"하고 최대 여덟 명까지 늘어난다; P12: id는 0..149</td>
+<td><strong>AGREES, 그리고 그 숫자를 설명한다</strong></td>
+<td>세 값 모두 유효한 주민 id이고, 셋은 새 마을이 가져야 할 바로 그 수다. 세 슬롯만 채우는 여덟 번 반복 루프는 <strong>잘린 실행이 아니라 올바른 동작</strong>이다 &ndash; 이를 관측에서 주장으로 승격하고 나머지 다섯을 누락으로 취급하지 말 것</td>
+</tr>
+<tr>
+<td>이사 오기는 달력에 묶여 있다; 이사 가기는 읽지 않음</td>
+<td>P29: 여덟 명에 도달하면 <strong>무작위</strong> 주민이 짐을 싼다; 플레이어는 머물러 달라고 할 수 있다; 다음 날 떠난다. 떠난 주민의 터는 <strong>7일 이내에</strong> 다시 채워진다. Wild World는 교체를 <strong>무작위로</strong> 고르고 <strong>성격 균형을 맞추지 않는다</strong>(후속작은 맞춘다)</td>
+<td>ADDS</td>
+<td>구체적인 규칙 둘: 7일 재충원 타이머, 그리고 교체 시 성격 균형 <em>없음</em>. 마지막 점이 중요하다 &ndash; 여섯 클래스 선택기 <code>func_0207c76c</code>는 <strong>초기</strong> 선택기이며, 이후의 이사 오기는 이를 사용하지 않을 수 있다. 날짜 넘김 실험과 함께 가설로 추가</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P29: 누가 이사 가는지의 선택 조건은 공개적으로 "취미 사이에 있는 주민"이라고만 서술되어 있으며, 명확화가 필요하다고 명시적으로 표시됨</td>
+<td>ADDS (공백)</td>
+<td>좋은 오라클 대상이다: 공개 코퍼스는 규칙을 모르므로 여기서 측정하면 진정으로 새로운 결과가 된다</td>
+</tr>
+<tr>
+<td><strong>H: 열일곱 개의 종 슬롯은 종별 상한을 가진 종 그룹이다</strong></td>
+<td>P18: 시리즈 전체에 주민 종 35개; 얼굴 체인의 두 번째 테이블은 33으로 제한</td>
+<td>ADDS</td>
+<td>17은 이 시리즈의 종 개수가 아니다. 루프가 34/35 종 위의 17 x 2이거나, 두 번째 축이 다른 무엇이다. <code>func_0209bcd4</code>를 디컴파일하기 전에 <code>func_0207b594</code>의 루프 경계를 다시 읽을 것</td>
+</tr>
+<tr>
+<td>주민 최대 여덟 명</td>
+<td>P6 (<code>villager &gt; 7</code>은 null을 반환); P4</td>
+<td>AGREES</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>발견 사항: 얼굴 체인은 주민 id를 읽으며, 33개 항목 제한은 두 번째 테이블의 것이다.</strong>
+<code>port/shim/game/villagerface.c</code>가 체인을 정확히 기록한다: <code>func_0208150c</code>는
+<code>record + 0x7a0</code>을 반환하고, <code>func_02003648</code>은 <code>[that + 15]</code> = <code>record + 0x7af</code>를 읽으며,
+<code>func_02082500</code>은 그 바이트 곱하기 <code>0x4e</code>로 <code>data_020cd884</code>를 인덱싱한다. P9는 <code>+0x7af</code>가
+주민 id, 0..149라고 한다. 따라서 <strong><code>data_020cd884</code>는 <code>0x4e</code>바이트 행을 가진 약 150행의 주민
+테이블</strong>이지 33개 항목 테이블이 아니다. 33 제한은 <code>func_020808d0</code>의 <em>두 번째</em> 조회
+<code>data_020cd4dc[index]</code>의 것이며, 그 인덱스는 <code>row + 0x4c</code>의 바이트다. P18의 35개 종을 감안하면
+<code>data_020cd4dc</code>는 약 33개 항목을 가진 종별 바이트일 가능성이 높다. 이는 <code>villagers.md</code>의 두 행과
+<code>data/villagers.md</code>의 가설 하나를 다시 쓰게 하며, <strong>정적으로</strong> 검사할 수 있다: <code>arm9.bin</code>에서
+<code>data_020cd884</code>의 <code>150 * 0x4e = 0x7350</code> 바이트를 읽고 <code>+0x4c</code>의 행 바이트가 <code>0x20</code>을 넘지 않는지
+확인할 것(ACTION A3).</p>
+<hr />
+<h2 id="systemsplayermd">systems/player.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>세이브 <code>+0x14</code>에서 시작하는 <code>0x249c</code> 바이트의 플레이어 슬롯 네 개</td>
+<td>P1, P3, P6 (<code>0x0014 + player * 0x249C</code>, 상한 3)</td>
+<td>AGREES (P-code, 정확)</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>슬롯 <code>+0x23f8</code>의 64비트 이벤트 비트필드</td>
+<td>P3는 <code>+0x23f8</code>에 아무것도 나열하지 않음; 가장 가까운 이름 붙은 필드는 <code>+0x23e0</code>의 은행 잔액과 <code>+0x2421</code>의 도토리 수</td>
+<td>ADDS (배제에 의해)</td>
+<td>비트필드는 공개 코퍼스가 이름 붙이지 않은 65바이트 공백 안에 있다. 위키가 여기서는 <strong>공개 지식보다 앞서 있다</strong> &ndash; 문서에 그렇게 밝힐 가치가 있다</td>
+</tr>
+<tr>
+<td><strong>H: 슬롯은 주머니, 편지, 카탈로그를 연속 블록으로 담는다</strong></td>
+<td>P3, KOR: <code>+0x0</code>부터 <code>0x234</code>의 패턴 여덟 개; <code>+0x11a8</code>부터 <code>0x100</code>의 편지 열 통; <strong><code>+0x1bf2</code>부터 <code>u16</code>으로 주머니 아이템 열다섯 개</strong>; 지갑 <code>u32</code> <code>+0x1c10</code>; 은행 <code>u32</code> <code>+0x23e0</code>; 얼굴/머리 <code>+0x243c</code>; 마을 id <code>+0x247e</code>, 마을 이름 UTF-16 6개 <code>+0x2480</code>, 플레이어 id <code>+0x248c</code>, 플레이어 이름 UTF-16 6개 <code>+0x248e</code>, 성별 <code>+0x249a</code></td>
+<td><strong>대부분 확정</strong></td>
+<td><strong>이름 붙은</strong> 예상 오프셋을 가진 세이브 diff 실험으로 승격. 주머니는 알 수 없는 개수가 아니라 15 슬롯이다. 카탈로그는 공개 코퍼스에도 없다</td>
+</tr>
+<tr>
+<td><strong>H: 플레이어 이름은 슬롯 시작부 근처의 고정 오프셋에 있는 UTF-16이다</strong></td>
+<td>P3: <strong>끝부분</strong> 근처인 <code>+0x248e</code>에 UTF-16 유닛 6개</td>
+<td>위치는 DISAGREES</td>
+<td>가설을 정정하고 두 실행 diff로 유지</td>
+</tr>
+<tr>
+<td><strong>H: 네 슬롯은 마을이 가질 수 있는 네 거주자다</strong></td>
+<td>P6은 플레이어 인덱스를 3으로 제한; P3는 각 슬롯에 고유 플레이어 id와 마을 이름 사본을 준다</td>
+<td>AGREES</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>self+0x134..0x170</code>의 이동 의도 블록</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>포트 전용, S 유지</td>
+</tr>
+<tr>
+<td>DS 펌웨어 생일을 읽는다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="systemseconomymd">systems/economy.md</h2>
+<p>이 문서가 가장 큰 단일 수혜자다: "벨, 가격, 무 시장, 카탈로그는 아직 ROM에서 읽어내지 못했다"고
+말하는데, 공개 연구가 넷 중 셋의 주소를 제공한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장 / 가설</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H: 벨은 <code>0x249c</code> 슬롯 안의 32비트 필드다; 지갑과 은행은 그런 필드 둘이다</strong></td>
+<td>P3/P11: 지갑 <code>u32</code>는 플레이어 <code>+0x1c10</code>, 은행 <code>u32</code>는 플레이어 <code>+0x23e0</code></td>
+<td><strong>P로 확정, 측정 한 번 필요</strong></td>
+<td>플레이어 0의 경우 <code>0x021de3cc</code>와 <code>0x021deb9c</code>다. 돈을 쓰는 실행 중 둘 중 하나에 <code>ACWW_WATCH</code>를 걸면 한 번의 실행으로 확정된다</td>
+</tr>
+<tr>
+<td><strong>H: 무 시장은 날짜 변경 루틴이 매일 다시 계산하는 가격이며, 다섯 블록 복사 중 하나가 어제 가격을 이력으로 밀어 넣는다</strong></td>
+<td>P7: 공개적으로 문서화된 무 상태 전체는 세이브 <code>+0x17370</code>의 <strong>단일 <code>u8</code></strong>이다. P22: Wild World는 월요일부터 토요일까지 하루 <strong>두 개의 가격</strong>(오전, 오후) &ndash; 주당 열두 슬롯 &ndash; 을 가지며, Wild World의 가격 알고리즘을 다루는 공개 출처는 전혀 없다(온라인에 도는 패턴 모델은 시리즈의 다른 게임 것이다)</td>
+<td><strong>ADDS, 그리고 가설의 절반을 반박</strong></td>
+<td>한 바이트는 벨 가격일 수 없고 열두 슬롯일 수도 없다. 따라서 가격은 테이블로 저장되지 않고 <strong>다시 계산</strong>되며, 저장된 바이트는 기껏해야 인덱스나 시드다. <strong>다섯 사본 추측에서 "무 가격"을 삭제할 것.</strong> <code>ACWW_RTC_*</code> 넘김과 정오 경계에 걸쳐 <code>0x021f3b18</code>(= <code>0x021dc7a8 + 0x17370</code>)을 관찰할 것: 하루 두 번의 쓰기는 두 가격 규칙을 뒷받침한다</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P22: 일요일 판매자의 가격은 약 90-110 벨; P23: 저축은 매달 1일에 0.5% 이자를 주며 이자 상한은 99,999; P21/P23: 지갑 상한 99,999, 은행 상한 999,999,999</td>
+<td>ADDS</td>
+<td><code>economy.md</code>에 현재 하나도 없는 숫자 넷. 모두 H이며, 모두 월 넘김에 걸쳐 두 32비트 필드를 관찰하면 확정 가능</td>
+</tr>
+<tr>
+<td><strong>H: 아이템 id의 상위 니블이 카테고리다; 3과 4는 배치 가능, 5는 마을 고정물</strong></td>
+<td>P8 <code>Item::itemtype</code>, 완전한 범위 맵</td>
+<td><strong>개요는 AGREES, 세부는 정정</strong></td>
+<td>아래의 대역 요약 참조</td>
+</tr>
+<tr>
+<td>배치 게이트는 니블 3 또는 4를 받는다</td>
+<td>P8: <code>0x3000</code>-<code>0x45d8</code>과 <code>0x47d8</code>-<code>0x4ba0</code>은 가구, <code>0x45dc</code>-<code>0x47d4</code>는 토용(gyroid)</td>
+<td>AGREES + 이름 확인</td>
+<td>니블 3과 4는 <strong>가구와 토용</strong>이다 &ndash; 정확히 방이 받는 두 가지. 문서에 그렇게 밝힐 것</td>
+</tr>
+<tr>
+<td>손대지 않은 실내는 256 셀 전부를 거부한다</td>
+<td>P10 <code>Room</code>: 가구는 <code>slot * 2</code>이며 <strong><code>+0x200</code>에 두 번째 레이어</strong>, 즉 256 항목 <code>u16</code> 격자 둘, 더하기 카펫 <code>+0x448</code>, 벽지 <code>+0x44a</code>, 노래 <code>+0x44c</code></td>
+<td>AGREES + ADDS</td>
+<td>256 셀은 16x16 방이고, <strong>두 레이어</strong>(바닥과 위)가 있다. 위키에는 하나뿐이다</td>
+</tr>
+<tr>
+<td>하위 바이트 상수 <code>0x06</code>-<code>0xa5</code>에 대한 8방향 <code>ov003</code> 아이템 분류기</td>
+<td>P8의 하위 대역: 꽃 <code>&lt;=0x1c</code>, 잡초 <code>0x1d</code>-<code>0x24</code>, 나무 <code>0x25</code>-<code>0x6d</code>와 <code>0xc7</code>-<code>0xd3</code>, 시든 꽃 <code>0x6e</code>-<code>0x89</code>, 물 준 꽃 <code>0x8a</code>-<code>0xa5</code>, 패턴 <code>0xa7</code>-<code>0xc6</code>, 바위와 돈 바위 <code>0xe3</code>-<code>0xfb</code></td>
+<td><strong>ADDS, 그리고 같은 분류 체계다</strong></td>
+<td>분류기의 상수 체인과 공개 하위 대역 경계는 같은 숫자 공간을 차지한다. <code>0x8a</code>-<code>0xa5</code> 블록이 양쪽에 나타난다. <code>func_ov003_02220e20</code>의 체인을 공개 대역과 다시 대조할 것 &ndash; 맞아떨어지면 여덟 플래그의 이름이 공짜로 붙는다</td>
+</tr>
+<tr>
+<td>벨, 카탈로그 &ndash; 읽지 않음</td>
+<td>P3/P11이 지갑과 은행을 준다; 어느 지역에서도 <strong>카탈로그를 문서화한 공개 출처는 없다</strong>. 공개 플레이어 레이아웃은 <code>0x481</code>바이트의 이름 없는 블록(EUR/USA <code>+0x1d63</code>..<code>+0x21e3</code>)을 남기는데, 이는 단연 가장 큰 공백이자 명백한 후보다</td>
+<td>일부 ADDS, 일부 SILENT</td>
+<td>카탈로그는 <strong>양쪽</strong> 코퍼스 모두의 구멍이므로 여기서 측정하면 새로운 공개 결과가 된다. 그 블록의 KOR 대응은 대략 플레이어 <code>+0x1f8f</code>..<code>+0x23df</code>, 은행 필드 바로 앞이다 &ndash; <code>0x249c</code> 건초 더미가 아니라 경계가 정해진 영역을 diff하면 된다</td>
+</tr>
+<tr>
+<td>필드 아이템으로서의 무</td>
+<td>P8: <code>0x1531</code>-<code>0x1541</code>은 <code>ItemType::Turnip</code> &ndash; 17개 id</td>
+<td>ADDS</td>
+<td>무는 <code>0x1xxx</code> 대역의 인벤토리 id이므로, <code>/fg/grass/redTurnip</code>이 필드 모델이라는 것만으로 무가 맵 아이템이 되지는 않는다</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>한 문단으로 정리한 아이템 id 맵</strong> (P8, 내 표현으로). id 공간은 니블 균일이 아니라 대역으로
+나뉜다. 대역 <code>0x0xxx</code>-<code>0x0fff</code>는 마을 맵이 배치하는 지면 내용물이다: 꽃, 잡초, 나무, 시든 꽃과
+물 준 꽃, 깔아 놓은 패턴, 바위와 돈 바위. 대역 <code>0x1xxx</code>는 인벤토리다: 종이, 벽지와 카펫, 옷과
+모자, <strong>잡은 생물, 노래, 도구, 돈주머니, 무, 화석, 조개</strong>. 대역 <code>0x3xxx</code>-<code>0x4xxx</code>는 가구와
+토용이며, id의 하위 두 비트가 가구의 <strong>회전</strong>을 담는다. 대역 <code>0x5xxx</code>는 건물이다.
+<code>0xf030</code>/<code>0xf031</code>은 다중 칸 오브젝트가 점유한 셀을 표시하고, <code>0xfff1</code>은 비어 있음이다.
+<code>data/items.md</code>로 옮길 가치가 있는 산술적 사실 하나는 다음 절에 있다.</p>
+<hr />
+<h2 id="systemsrngmd">systems/rng.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LCG 세 개(SDK <code>MATH_Rand16/32</code>, SPL 파티클, <code>AOSS_Rand</code>), 나열된 상수</td>
+<td>NitroSDK는 공개되어 있으나 상수는 여기서 매칭된 소스로부터 읽었다</td>
+<td>SILENT (P가 더하는 것 없음)</td>
+<td>S 단독으로 유지</td>
+</tr>
+<tr>
+<td><strong>게임플레이 RNG는 발견되지 않았다</strong></td>
+<td>ACWW 게임플레이 RNG, 마을 시드, 물고기/곤충 스폰 생성기를 문서화한 공개 출처는 없다</td>
+<td>SILENT &ndash; 그리고 그것 자체가 내용이다</td>
+<td>공개 리버스 엔지니어링도 찾지 못했다고 문서에 밝힐 것; 따라서 이는 이 프로젝트의 읽기 공백이 아니라 진정한 최전선이다</td>
+</tr>
+<tr>
+<td><strong>H: 마을 레이아웃은 세이브에 저장된 시드로부터 생성된다</strong></td>
+<td>P1/P2/P7은 KOR 세이브의 모든 큰 블록에 이름을 붙이며 그중 시드는 없다; P7은 에이커 배열과 아이템 격자가 <strong>명시적으로</strong> 저장됨을 보여준다</td>
+<td>ADDS (반대 방향)</td>
+<td>마을은 재도출되지 않고 저장된다 &ndash; 문서의 요약이 이미 그렇게 말한다. 시드 가설을 강등: 저장되는 것은 레이아웃이 아니라 <em>향후</em> 추첨을 위한 시드일 것이다</td>
+</tr>
+<tr>
+<td>세이브 체크섬의 근거 없음</td>
+<td>P5</td>
+<td>DISAGREES</td>
+<td>위의 <code>save-data.md</code> 참조. 이 문서에서 체크섬 문단을 제거하고 <code>save-data.md</code>로 링크할 것</td>
+</tr>
+<tr>
+<td><code>OS_GetLowEntropyData</code>는 죽은 코드일 수 있다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="systemstime-and-rtcmd">systems/time-and-rtc.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x0211e7c0</code>의 <code>RTC_SetDateTime</code>은 이름이 잘못되었으며 실제로는 <code>RTC_GetDateTime</code>이다</td>
+<td>NitroSDK 순서는 공개되어 있다; 구체적 정정은 이 프로젝트의 것</td>
+<td>SILENT</td>
+<td>S 유지 (D12)</td>
+</tr>
+<tr>
+<td>날짜 넘김은 놓친 모든 날을 재생하는 따라잡기 루프다(<code>func_0207b05c</code>)</td>
+<td>팬 출처는 전진 시간 여행을 놓친 각 날을 실행하는 것(잡초, 바퀴벌레, 떠난 주민)으로 서술</td>
+<td>AGREES (P-fan)</td>
+<td>"(P-fan과 일치)" 추가; 메커니즘 출처는 S 유지</td>
+</tr>
+<tr>
+<td>세이브는 마지막으로 기록된 날짜를 세이브 <code>+0x4046</code>에 저장한다</td>
+<td>P1/P2/P3는 이를 이름 붙이지 않음; <code>+0x4046</code>은 플레이어 1의 슬롯(<code>0x14 + 0x249c = 0x24b0</code> .. <code>0x494b</code>) 안, 플레이어 1 오프셋 <code>+0x1b96</code>에 해당</td>
+<td><strong>표시(flag)</strong></td>
+<td><code>func_0207b05c</code>의 <code>self</code>가 세이브 베이스가 아니거나, 오프셋이 다른 오브젝트의 것이다. <code>+0x1b96</code>은 <code>+0x1bf2</code>의 주머니 아이템 바로 앞에 있는데, 세이브 날짜가 있을 법한 자리가 아니다. <strong><code>func_0207b05c</code>에서 <code>self</code>가 무엇인지 다시 도출할 것</strong>(ACTION A6)</td>
+</tr>
+<tr>
+<td><strong>H: <code>func_0207b05c</code>의 시계 조작 분기는 리셋 씨 또는 그에 준하는 꾸지람이다</strong></td>
+<td>P30: Wild World에서 두더지는 플레이어가 <strong>저장하지 않고 종료</strong>할 때 나타나며 "리셋"이 아니라 "게임을 저장하라"고 말한다; <strong>시계를 앞뒤로 움직이는 것에 대한 반응을 서술한 공개 출처는 없다</strong></td>
+<td><strong>DISAGREES &ndash; 가설 이름을 바꿀 것</strong></td>
+<td>이 분기는 꾸지람이 아니라 "델타가 전진 정수 일수가 아니므로 날을 재생하지 않는다"는 <em>건너뛰기</em>일 가능성이 높다. 그 목적지 <code>func_0209a654</code> / <code>func_0209a77c</code>는 여전히 읽어야 할 대상이다. 또한 이 분기의 <em>정상</em> 갈래가 만들어내야 할 전진 여행의 공개된 결과도 기록할 것: 잡초 성장, 우편 넘침, 예고 없이 떠나는 주민, 심지어 Wild World 특유의 <strong>상점 강등</strong></td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P30: 시계는 2099년 12월 31일까지의 날짜를 받아들이고 2000년 1월 1일로 되돌아간다</td>
+<td>ADDS</td>
+<td>게임 자체가 지원하는 범위는 정확히 <code>RTC_ConvertDateToDay</code>의 <code>!(year &amp; 3)</code> 윤년 규칙이 올바른 그 세기다. 문서의 기존 괄호 부분에 대한 P 확증으로 추가</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P22: 무는 앞이든 뒤든 <strong>어떤</strong> 시계 이동에도 썩는다</td>
+<td>ADDS</td>
+<td>세이브가 유지되기만 하면 시계 조작 분기에 대한 구체적이고 값싼 오라클 테스트: 주머니 슬롯에 무 id를 넣고 시계를 옮긴 뒤 썩은 무 대역(<code>0x154a</code>-<code>0x1553</code>)을 관찰</td>
+</tr>
+<tr>
+<td>포트는 2005-06-15 10:00:00으로 고정한다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="systemsweather-and-seasonsmd">systems/weather-and-seasons.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>봄은 2월 25일에 시작한다</strong> (<code>func_02063bb4</code>: 월 2, <code>day &lt;= 24</code>는 겨울)</td>
+<td>P25 Spring: "봄은 2월 25일부터 5월 31일까지"</td>
+<td><strong>정확히 AGREES</strong></td>
+<td>이 문서에서 가장 강력한 단일 일치다. 2월 25일은 아무도 추측으로 맞힐 수 없는 독특한 날짜이며, S 읽기와 P-fan 읽기가 같은 날에 떨어진다</td>
+</tr>
+<tr>
+<td><strong>여름은 5월 27일에 시작한다</strong> (월 5, <code>day &lt;= 26</code>은 봄)</td>
+<td>P25: 여름은 <strong>6월 1일</strong>에 시작</td>
+<td><strong>5일 차이로 DISAGREES</strong></td>
+<td>아래 노트 참조</td>
+</tr>
+<tr>
+<td><strong>가을은 8월 27일에 시작한다</strong> (월 8, <code>day &lt;= 26</code>은 여름)</td>
+<td>P25: 가을은 <strong>9월 1일</strong>에 시작</td>
+<td><strong>5일 차이로 DISAGREES</strong></td>
+<td>같은 노트</td>
+</tr>
+<tr>
+<td><strong>겨울은 11월 27일에 시작한다</strong> (월 11, <code>day &lt;= 26</code>은 가을)</td>
+<td>P25: 겨울은 <strong>11월 26일</strong>에 시작</td>
+<td><strong>1일 차이로 DISAGREES</strong></td>
+<td>같은 노트</td>
+</tr>
+<tr>
+<td>계절 코드 넷: 3 겨울, 0 봄, 1 여름, 2 가을</td>
+<td>P25는 네 계절을 같은 순서로 배열</td>
+<td>순서는 AGREES</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>func_0204fa8c</code>는 열두 달을 열네 인덱스에 대응시키며 <strong>8월과 9월</strong>을 나눈다</td>
+<td>P28: <strong>8월은 주간 반복 이벤트가 있는 유일한 달</strong>(매주 토요일 불꽃놀이)이자 월간 벼룩시장에서 제외되는 유일한 달; 9월은 곤충 대회가 끝나고 연중 낚시 대회 절반이 재개되는 달; 팬 보고는 Wild World의 가을 단풍 변화를 <strong>9월 중순</strong>에, 날씨 성격의 변화를 8월 중순에 둔다</td>
+<td><strong>읽기를 ADDS</strong></td>
+<td>문서의 가설을 더 나은 이야기로 승격: 분할은 "두 개의 불꽃놀이 창"이 아니라 "그 달에 두 개의 행동 반쪽이 있다"는 것이다. 8월 = 중순 날씨 변화 전/후, 9월 = 중순 단풍 변화 전/후. 실험은 그대로: 365개 날짜 전부에 대해 <code>func_0204fafc(func_0209df94())</code>를 평가</td>
+</tr>
+<tr>
+<td>눈은 고유 모델을 가진 하나의 채널(189)이다</td>
+<td>P32: 눈은 <strong>대략 12월 11일부터 땅에 쌓이고</strong> 2월 말에 걷히는데, 이는 끊기지 않은 단일 겨울 계절 코드 안에 있다</td>
+<td><strong>ADDS</strong></td>
+<td>계절 함수는 12월에 날짜 검사가 없으므로, 눈 쌓임을 제어하는 것은 위키가 찾지 못한 <strong>두 번째</strong> 날짜 검사다. 가설로 추가: 겨울 경로에서 11에 대한 <code>day</code> 비교(또는 연중 일수 임계값)를 찾을 것</td>
+</tr>
+<tr>
+<td><code>w</code>/<code>s</code>/<code>f</code> 텍스처 접미사는 겨울/여름/가을이고 봄은 접미사 없음</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>문서의 파일 트리 검사가 올바른 방법이며 공개 자료의 도움이 필요 없다</td>
+</tr>
+<tr>
+<td><code>func_020baa28</code>이 로드하는 네 개의 <code>/sky/*_bg_ncl.bin</code> 팔레트</td>
+<td>P17: TCRF는 <strong><code>sky/</code> 디렉터리에 "weather test"라고 표시된 미사용 구름 그래픽</strong>을 기록</td>
+<td>ADDS</td>
+<td>sky 디렉터리는 게임이 로드하는 넷보다 많은 것을 담고 있다. 문서에 한 줄과 <code>/sky/</code> 조사를 넣을 가치가 있다</td>
+</tr>
+<tr>
+<td>채널 189는 눈사람이다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>비는 별도 에셋이 아니라 <code>obj_taxi</code> 안의 모델 노드다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>네 경계 날짜에 관하여.</strong> 넷 중 셋이 불일치하며, 한 방향으로 불일치한다: ROM의 경계는 항상 팬
+위키보다 <em>이르며</em>, 5일, 5일, 1일씩이다. 가장 경제적인 설명은 둘이 서로 다른 것을 재고 있다는
+것이다 &ndash; <code>func_02063bb4</code>의 4값 코드는 엔진이 분기하는 기준이고, 팬 위키는 플레이어가 <em>보는</em>
+변화(잔디 색, 나무 단풍, 곤충 목록)를 서술하는데, 게임은 계절 코드가 27일에 바뀌었더라도 그것을
+1일에 바꿀 수 있다. 그렇다면 팬 달력과 맞는 맵은 <code>func_02063bb4</code>가 아니라 <code>func_0204fa8c</code>의 14값
+인덱스가 된다. <strong>실험은 값싸고 정적이다</strong>: 디스어셈블리로부터 두 함수를 365개 날짜 전부에 대해
+평가하고 어느 쪽이 경계를 6월 1일, 9월 1일, 11월 26일에 두는지 보라(ACTION A-P10). 그때까지는
+S 읽기를 유지하고 STYLE 규칙 7에 따라 팬 날짜를 불일치로 기록한다.</p>
+<hr />
+<h2 id="systemsevents-and-calendarmd">systems/events-and-calendar.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장 / 가설</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H: <code>0x020e1d8c</code>의 23행은 게임의 특수 방문객 전체 명단이다</strong></td>
+<td>P27은 Wild World의 특수 캐릭터를 <strong>32</strong>명 나열(상점 조카 둘을 별도 행으로 치면 33, 도토리 축제 페르소나까지 34); 이 저장소 자체의 파일 조사는 <code>npc_sp</code> 모델 스템 <strong>37</strong>개를 찾음</td>
+<td><strong>DISAGREES</strong></td>
+<td>23은 32도 37도 아니다. 가설을 다시 쓸 것: 이 테이블은 특수 캐릭터가 아니라 <strong>무대에 올릴 수 있는 예정 방문객</strong>의 명단이다. 상주 캐릭터(상점 주인, 박물관, 마을 회관의 두 사람, 양복점)는 스테이징 행이 필요 없다</td>
+</tr>
+<tr>
+<td><strong>H: 열한 개의 조건은 우선순위 순서의 열한 개 스케줄링 규칙이다</strong></td>
+<td>P26이 Wild World 순번표를 직접 서술: 월요일부터 금요일까지 요일당 예정 방문객 한 명; 그중 <strong>두</strong> 요일은 일곱 명의 풀에서 <strong>무작위</strong> 방문객을 뽑음; <strong>한</strong> 요일은 텐트 방문객용으로 예약되며 그 날은 토요일 조사원에게 말을 걸어 설정 가능; 예정된 것이 없는 날에는 09:00 또는 17:00에 새가 날아감; 더하여 토요일 조사원, 토요일 음악가, 일요일 무 판매자의 고정 주간 슬롯</td>
+<td><strong>AGREES, 규칙에 이름을 붙임</strong></td>
+<td>열한 개의 조건은 그 순번표에 딱 맞는 규모다. 가설을 승격하고 계측에 목표 목록을 줄 것: "예약일 방문객", "무작위 풀 방문객", "고정 주간", "날아가기 폴백", "이벤트 잠금"에 대해 서로 다른 조건을 기대</td>
+</tr>
+<tr>
+<td><strong>H: 세 번째 게이트 항인 <code>func_02084ad0</code>은 "특수 NPC가 이미 있음"이다</strong></td>
+<td>P26: "<strong>Wild World에서는 한 번에 한 특수 방문객만 나타날 수 있다</strong>"</td>
+<td><strong>AGREES &ndash; 승격</strong></td>
+<td>게임에는 명시적인 배타 규칙이 있고, 게이트에는 0이어야 하는 명시적인 무인자 항이 있다. 이 문서에서 가장 값싼 승격</td>
+</tr>
+<tr>
+<td>이벤트 플래그 1이 설정된 동안 스케줄 전체가 침묵한다</td>
+<td>P26은 비슷한 전역 잠금을 서술: 일주일짜리 축제 세 번 동안 마을 회관 장로가 일주일 내내 바깥에 서서 <strong>다른 모든 특수 방문객을 막는다</strong></td>
+<td>종류상 AGREES</td>
+<td>도착 잠금은 "막는 존재 하나가 순번표를 억제한다"는 일반 설계의 한 사례이며, 이는 <code>func_02084ad0</code>을 존재 검사로 읽는 것을 뒷받침한다</td>
+</tr>
+<tr>
+<td><strong>H: 휴일은 <code>func_0204fa8c</code>의 14값 인덱스로 선택되는 날짜 테이블의 행이다</strong></td>
+<td>P28: Wild World의 모든 이벤트는 고정 날짜가 아니라 <strong>요일 상대 규칙</strong>(n번째 토요일, n번째 일요일, 둘째 주 월요일)이다</td>
+<td><strong>형태에서 DISAGREES</strong></td>
+<td>14행 월 테이블은 "1월, 3월, 5월, 11월, 12월의 셋째 일요일; 2월, 4월, 10월의 넷째 일요일"을 표현할 수 없다. 대신 월내 요일을 계산하는 루틴을 찾고, 이벤트 테이블이 (월, 서수, 요일)로 인덱싱되기를 기대할 것. 이 가설에서 <code>func_0204fa8c</code> 연결을 제거</td>
+</tr>
+<tr>
+<td>날짜 변경 루틴 <code>func_02040c90</code>에는 <code>MI_CpuCopy8</code> 블록 다섯 개가 있으며 날씨 / 상점 재고 / 방문객 / 무 가격 / 우편으로 추측됨</td>
+<td>P7: 무 가격은 세이브의 <strong>단일 바이트</strong>이므로 일주일치 무 이력은 저장되지 않는다; P26: 방문객 순번표는 <strong>일주일 안에</strong> 반복을 금지하는데, 이는 이력이 필요하다</td>
+<td>ADDS, 추측 하나를 재조정</td>
+<td>다섯 사본 추측에서 "무 가격"을 삭제하고 "이번 주에 사용된 방문객 집합"을 추가. 1바이트 무 가격은 밀어 넣어지는 대상일 수 없다</td>
+</tr>
+<tr>
+<td>플레이어 <code>+0x23f8</code>의 64비트 이벤트 비트필드가 진행 기록이다; 플래그 1이 모든 조건을 게이트한다</td>
+<td>P3는 그 근처 어디에도 필드를 이름 붙이지 않음</td>
+<td>ADDS (이 프로젝트가 공개 지식보다 <strong>앞서 있음</strong>)</td>
+<td>문서에 그렇게 밝힐 것; 또한 공개 레이아웃에 따르면 같은 필드가 EUR/USA 세이브에서는 플레이어 <code>+0x21fc</code>, 공개 연구가 미상으로 표시한 영역 안에 떨어진다는 점도 기록 &ndash; 검증 가능한 지역 간 예측이다</td>
+</tr>
+<tr>
+<td>펌웨어 생일 필드를 읽는다</td>
+<td>P27은 <strong>주민 150명 전원의 생일</strong>을 공개</td>
+<td>ADDS</td>
+<td>그 표는 준비된 픽스처다: RTC를 나열된 주민의 생일로 맞추고 그 주민이 포함된 마을을 생성한 뒤 날짜 변경 경로를 검사. 표를 복사하지 말고 인용할 것</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P30: 게임 내 시계는 2099년 12월 31일까지의 날짜를 받아들이고 2000년 1월 1일로 되돌아간다</td>
+<td>ADDS</td>
+<td><code>time-and-rtc.md</code>의 <code>RTC_ConvertDateToDay</code>의 <code>!(year &amp; 3)</code> 윤년 검사가 "2000-2099 안에서는 충분하다"는 노트를 확증 &ndash; 게임 자체의 범위가 정확히 그 세기다</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td>P31: 상점은 4단계로 업그레이드된다</td>
+<td>ADDS</td>
+<td>연속된 건물 id 넷과 맞는다; economy 절 참조</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="systemsdialoguemd">systems/dialogue.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x020d72a4</code>의 접두사 테이블을 통해 선택되는 여섯 성격 메시지 디렉터리 <code>bo/ta/ge/fu/ko/ha</code></td>
+<td>P4: 주민 레코드의 1바이트 성격 필드; P18</td>
+<td>AGREES</td>
+<td>여섯 디렉터리, 6으로 제한된 클래스 인덱스, 성격 바이트는 "여섯 성격"에 대한 세 개의 독립적인 증인이다</td>
+</tr>
+<tr>
+<td>5항목 대화 테이블, 요청/현재/서브 상태 바이트, 페이드 게이트</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>포트와 소스 전용; S 유지</td>
+</tr>
+<tr>
+<td>포트와 DeSmuME는 프레임 25,500에서 스타일러스 지연 1~2프레임 차이로 갈라진다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>O 유지</td>
+</tr>
+<tr>
+<td>주민 노래는 주민마다 선택된다</td>
+<td>P9: KOR용 <code>song()</code> 접근자가 레코드 <code>+0x7a4</code>에 존재하지만 <strong>미조사로 에디터에서 비활성화됨</strong></td>
+<td>ADDS (약함)</td>
+<td>같은 <code>+0x7a0</code> 신원 블록 안에 있는 "주민의 K.K. 노래" 후보 오프셋. 세이브 diff에 포함하기 쉽다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="dataitemsmd">data/items.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>가구 에셋 1,769개, 파일 id <code>0x0000</code>-<code>0x06e8</code>, 각각 <code>.arc</code> 하나 + <code>.nsbtx</code> 하나</td>
+<td>P8: 가구 id <code>0x3000</code>-<code>0x45d8</code>과 <code>0x47d8</code>-<code>0x4ba0</code>, 토용 <code>0x45dc</code>-<code>0x47d4</code>, 모두 하위 두 비트가 회전이므로 <strong>스트라이드 4</strong></td>
+<td><strong>AGREES, 그리고 매핑을 확정</strong></td>
+<td>아래 발견 사항 #1 참조</td>
+</tr>
+<tr>
+<td><strong>H: 아이템 id와 가구 id는 서로 다른 id 공간이다</strong></td>
+<td>P8</td>
+<td><strong>DISAGREES / 확정</strong></td>
+<td>하나의 공간이다: <code>item_id = 0x3000 + (file_id &lt;&lt; 2) + rotation</code>. 검산: <code>0x3000 + (0x6e8 &lt;&lt; 2) = 0x4ba0</code>, P8이 아는 마지막 가구 id와 정확히 일치</td>
+</tr>
+<tr>
+<td><code>ftr_info/</code>는 8/32/4바이트의 슬롯 2,048개; <code>item_info/</code>는 12/24/4/2의 슬롯 1,536개</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>산술 가설은 유지된다; 다만 실제 가구 id 1,769개는 2,048에 넉넉히 들어가고, P8의 <code>0x1xxx</code> 인벤토리 대역은 약 1,500 id 너비여서 아이템 슬롯 1,536개를 <strong>약하게 뒷받침</strong>한다</td>
+</tr>
+<tr>
+<td>아이템당 2바이트인 <code>item_info/series.bin</code>은 세트 id다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>wall/wall_%d.nsbtx</code> 파일 68개</td>
+<td>P19: 벽지 id <code>0x1100</code>-<code>0x1143</code> = <strong>68</strong></td>
+<td><strong>정확히 AGREES</strong></td>
+<td>얻을 수 있는 가장 깔끔한 파일 조사 대 id 테이블 일치 중 하나. 확증으로 추가</td>
+</tr>
+<tr>
+<td><code>carpet/floor_%d.nsbtx</code> 파일 68개</td>
+<td>P19: 카펫 id <code>0x1144</code>-<code>0x11a7</code> = <strong>100</strong></td>
+<td><strong>DISAGREES</strong></td>
+<td>카펫 텍스처 68개에 대해 카펫 id 100개. 32개의 카펫이 텍스처를 재사용하거나(패턴? 계절 변형?), 두 개수 중 하나가 틀렸다. 값싼 정적 검사: <code>carpet/</code>을 다시 세고 <code>Item::itemtype</code>에서 대역 끝을 다시 도출할 것 &ndash; 그 벽지/카펫 범위는 <code>0x1187</code>에서 멈추는데 id 데이터베이스는 <code>0x11a7</code>까지 이어진다. <strong>두 공개 출처가 여기서 이미 서로 불일치한다</strong></td>
+</tr>
+<tr>
+<td><code>cloth/%d/cloth%03d.nsbtx</code> 셔츠 텍스처 256개</td>
+<td>P19: 셔츠 id <code>0x11a8</code>-<code>0x12af</code> = <strong>264</strong></td>
+<td><strong>8 차이로 DISAGREES</strong></td>
+<td>텍스처 파일 없는 셔츠 id 여덟 개는 정확히 플레이어의 패턴 슬롯 여덟 개를 입을 수 있다는 형태다. 1분짜리 정적 검사의 가치가 있다</td>
+</tr>
+<tr>
+<td>가구 에셋 1,769개</td>
+<td>P24: 카탈로그 등록 가구 <strong>562</strong>개</td>
+<td>모순 아님</td>
+<td>카탈로그는 판매 가능한 품목을 세고, 파일 트리는 모든 변형, 색상, 카탈로그 외 오브젝트를 센다. 독자가 1,769와 562가 충돌한다고 생각하지 않도록 한 문장을 넣을 가치가 있다</td>
+</tr>
+<tr>
+<td>이름은 테이블이 아니라 <code>script/KOR/string/*.bmg</code>에서 온다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>ftr/tv/prog/tv_program%d.nsbtp</code></td>
+<td>P17: TV 테스트 패턴은 NA와 PAL 빌드 사이에 다르다</td>
+<td>ADDS</td>
+<td>정확히 이 디렉터리에 사는, 이름과 시기가 붙은 지역 차이</td>
+</tr>
+<tr>
+<td><strong>H: <code>PItm/Uki0/</code>는 낚시 찌다</strong></td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>발견 사항 #1, 전문.</strong> P8의 가구 대역을 <code>(id - 0x3000) &gt;&gt; 2</code>로 읽으면 조밀한 인덱스
+<code>0x000</code>..<code>0x6e8</code>이 된다 &ndash; <code>data/items.md</code>의 <code>ftr/</code> 파일 조사와 같은 1,769개 값이고, 마지막 값도
+같다. 토용은 별도 공간이 아니다: 같은 연속 범위의 인덱스 <code>0x577</code>..<code>0x5f5</code>를 차지한다. 따라서
+주머니, 방, 상점의 아이템 id는 <code>(id - 0x3000) &gt;&gt; 2</code>와 문서의 기존 <code>/ftr/&lt;hi&gt;/&lt;mid&gt;/&lt;id&gt;.arc</code>
+규칙으로 파일 시스템 경로로 변환된다. 이는 <strong>아무것도 실행하지 않고</strong> 검사할 수 있다: P8이 나열한
+모든 id에 대해 변환이 존재하는 파일에 떨어져야 한다(ACTION A4).</p>
+<hr />
+<h2 id="datavillagersmd">data/villagers.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>주민 모델 150개, id 0-149</strong></td>
+<td>P12: "Wild World에는 총 150명의 주민이 있으며, 시리즈 중 가장 적다"</td>
+<td><strong>정확히 AGREES</strong></td>
+<td>파일 트리 조사와 팬 위키가 독립적으로 150을 낸다. "(P12와 일치)" 추가</td>
+</tr>
+<tr>
+<td><code>npc_sp/model/</code> 아래의 특수 캐릭터 모델 스템 37개, 각각 오버레이 하나</td>
+<td>&ndash;</td>
+<td>개수에 대해 SILENT</td>
+<td>오버레이-스템 표는 이 프로젝트 고유의 것이며 공개된 대응물이 없다</td>
+</tr>
+<tr>
+<td>여섯 성격 메시지 디렉터리</td>
+<td>P4, P18</td>
+<td>AGREES</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><strong>H: 주민 id와 성격은 세이브 레코드에서 독립된 필드다</strong></td>
+<td>P4/P9: 성격 <code>+0x7ae</code>, id <code>+0x7af</code> &ndash; 인접한 독립 바이트</td>
+<td><strong>P로 확정</strong></td>
+<td>한 번의 실행 검사로 승격: 여덟 레코드 모두의 두 바이트를 출력</td>
+</tr>
+<tr>
+<td><strong>H: 세 글자 스템은 종 또는 캐릭터 약어다</strong></td>
+<td>P18: 32개 종은 특수 캐릭터에만 쓰인다</td>
+<td>ADDS (약함)</td>
+<td>스템은 종별이 아니라 캐릭터별이다 &ndash; <code>rcn/rcc/rcs/rcd</code>가 너구리 넷이라는 것이 개수가 뒷받침하는 읽기다</td>
+</tr>
+<tr>
+<td><code>anm/</code>의 애니메이션 324개는 모든 주민이 공유한다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>33개 항목 테이블 제한 (<code>systems/villagers.md</code> 경유)</td>
+<td>P12 (150개 id)</td>
+<td>DISAGREES</td>
+<td>위의 발견 사항 #2 참조; <code>data_020cd884</code>는 약 150행의 주민 테이블이다</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="datafish-and-bugsmd">data/fish-and-bugs.md</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주장</th>
+<th>공개 출처</th>
+<th>판정</th>
+<th>조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>H: 56이 각 계열의 실제 생물 수다; 남는 모델 슬롯은 변형이다</strong></td>
+<td>P13 "Wild World의 물고기 총수는 56"; P14 "곤충 총수는 56"; P8: <code>ItemType::Catchable</code>은 <code>0x12b0</code>-<code>0x131f</code> = <strong>112 id = 56 + 56</strong></td>
+<td><strong>세 방향에서 확정</strong></td>
+<td>계열당 도감 그림 56장(S, 파일 조사), 계열당 56(P-fan), 112 id의 포획 가능 대역(P-code). 가설을 승격; 파일 조사를 S 출처로 유지</td>
+</tr>
+<tr>
+<td>물고기 모델 슬롯 59개(0-58), 곤충 모델 슬롯 63개(0-62)</td>
+<td>P13/P14</td>
+<td>물고기 3개와 곤충 7개 모델이 생물이 아니라는 읽기와 AGREES</td>
+<td>잉여는 3과 7이다; <code>fish56/57/58</code>이 포획 불가라는 문서의 추측은 정확히 물고기 잉여의 크기다</td>
+</tr>
+<tr>
+<td><code>m_fish</code> 들고 있는 모델 56개가 id 0-55를 덮는다</td>
+<td>P13</td>
+<td>AGREES</td>
+<td>물고기 56종에 들고 있는 모델 56개는 일대일 대응 &ndash; <code>m_fish</code>가 잡아서 든 모델이라는 지금까지 가장 강력한 근거</td>
+</tr>
+<tr>
+<td>곤충 애니메이션 포맷은 행동 클래스를 인코딩한다</td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>fish_hire</code></td>
+<td>&ndash;</td>
+<td>SILENT</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<p>P19는 한 걸음 더 나아가 포획 가능 대역을 둘로 나눈다: 앞의 56개 id는 <strong>곤충</strong>, 뒤의 56개는
+<strong>물고기</strong>, 곤충이 먼저다. 이는 각 계열에 대해 아이템 id와 이 문서 자체의 그림 인덱스(0-55) 사이,
+그리고 아이템 id와 모델 번호 사이에 고정 오프셋이 있음을 예측한다. 주머니 슬롯에 <code>ACWW_WATCH</code>를
+걸고 생물 하나를 잡으면 두 계열의 번호 매김 전체가 한 번에 확정되며(ACTION A-P11), 또한
+<code>data/fish-and-bugs.md</code>에 어느 물고기 모델 셋과 곤충 모델 일곱이 생물이 아닌 잉여인지도 알려 준다.</p>
+<hr />
+<h2 id="우선순위가-매겨진-조치">우선순위가 매겨진 조치</h2>
+<p>(포트 또는 위키에 대한 가치) / (비용)으로 순위를 매겼다. "값싸다"는 빌드가 필요 없다는 뜻이다.</p>
+<h3 id="위키를-위해-지금-할-수-있는-정정">위키를 위해 &ndash; 지금 할 수 있는 정정</h3>
+<ol>
+<li><strong>A-W1 (삭제).</strong> <code>save-data.md</code>: "세이브 레코드에는 체크섬이 있지만 아직 발견되지 않았다"는
+   가설은 거짓이다. P5의 알고리즘으로 대체하되 H 등급(공개 코드, 이 ROM에 대해서는 아직 미확인)을
+   매기고 실험을 명명할 것: <code>func_020b5724</code> 또는 <code>func_0209f180</code>에서 부호 반전 16비트 합 루프를
+   찾는다.</li>
+<li><strong>A-W2 (정정).</strong> <code>town.md</code> 요약: 아이템 격자는 64x64(4,096 셀), 에이커 프레임은 6x6(36바이트).
+   근거: P7 자체의 경계와 정확한 인접성 <code>0xD304 + 36 = 0xD328</code>. <code>houseplace.c</code>에서 측정된
+   <code>w</code>/<code>h</code>가 그렇게 말하는 경우에만 "96x96"을 유지(A-P1).</li>
+<li><strong>A-W3 (정정).</strong> <code>town.md</code>: <code>+0x173f8</code>은 체크섬이다; <code>func_0209f180</code>이 검사하는 바이트는
+   <code>+0x173fa</code>에 있다. <code>+0x0</code>은 매직 <code>0x32</code>가 아니라 게임코드 워드다.</li>
+<li><strong>A-W4 (정정 + 승격).</strong> <code>villagers.md</code>와 <code>data/villagers.md</code>: <code>record + 0x7af</code>는
+   <strong>주민 id</strong>, <code>+0x7ae</code>는 <strong>성격</strong>, <code>data_020cd884</code>는 <code>0x4e</code>바이트 행의 약 150행 테이블이다;
+   33개 항목 제한은 <code>data_020cd4dc</code>의 것이다. 필요한 근거: A-P2의 정적 읽기.</li>
+<li><strong>A-W5 (재배치).</strong> <code>town.md</code>: 마을 이름은 유효성 레코드 근처가 아니라 세이브 <code>+0x4</code>
+   (<code>0x021dc7ac</code>)의 UTF-16 유닛 6개다. <code>player.md</code>: 플레이어 이름은 슬롯 시작부 근처가 아니라
+   슬롯 <code>+0x248e</code>에 있다.</li>
+<li><strong>A-W6 (승격).</strong> <code>data/fish-and-bugs.md</code>: "계열당 56"은 이제 세 개의 독립 계열이 뒷받침한다;
+   S(그림 조사) + P13/P14 + P8을 가진 주장으로 만들고, 잉여 모델 질문은 별도 가설로 옮길 것.</li>
+<li><strong>A-W7 (승격).</strong> <code>data/items.md</code>: "아이템 id와 가구 id는 서로 다른 id 공간"을 삭제; A-P3 대기
+   중인 H로 변환 <code>file_id = (item_id - 0x3000) &gt;&gt; 2</code>를 기술.</li>
+<li><strong>A-W8 (추가).</strong> <code>economy.md</code>: 지갑은 플레이어 <code>+0x1c10</code>, 은행은 <code>+0x23e0</code>, 주머니는
+   <code>+0x1bf2</code>의 <code>u16</code> 슬롯 15개, 무 가격은 세이브 <code>+0x17370</code>의 단일 바이트, 방에는 256 셀 가구
+   레이어가 <strong>둘</strong> 있다. 모두 H, 모두 이름 붙은 diff 실험과 함께.</li>
+<li><strong>A-W9 (추가).</strong> <code>rng.md</code>: 공개 리버스 엔지니어링 역시 ACWW의 게임플레이 RNG를 찾지 못했음을
+   기록 &ndash; 구멍은 이 프로젝트가 아니라 분야 전체의 것이다 &ndash; 하고 체크섬 문단을 삭제하고 링크로
+   대체.</li>
+<li><strong>A-W10 (표시).</strong> <code>time-and-rtc.md</code>: 세이브 <code>+0x4046</code>은 공개 레이아웃에서 플레이어 1의 슬롯
+    안에 떨어지며, 이는 "세이브가 기록된 날짜"로서는 있을 법하지 않다. <code>func_0207b05c</code>의 <code>self</code>가
+    무엇을 가리키는지 다시 도출할 것.</li>
+<li><strong>A-W11 (승격).</strong> <code>villagers.md</code>: "세 번의 선택이 관측됨"은 부분 결과가 아니다 &ndash; 새로운
+    Wild World 마을은 주민 <strong>세 명</strong>으로 시작하게 되어 있다(P29). 주장으로 다시 기술할 것.</li>
+<li><strong>A-W12 (승격).</strong> <code>events-and-calendar.md</code>: <code>func_02084ad0</code>은 "특수 방문객이 이미 있음"
+    검사다. 게임에 명시적인 한 번에 한 방문객 규칙이 있기 때문이다(P26).</li>
+<li><strong>A-W13 (다시 쓰기).</strong> <code>events-and-calendar.md</code>: 23행 테이블은 특수 캐릭터 명단(공개 32,
+    여기의 모델 스템 37)이 아니라 <strong>무대에 올릴 수 있는 방문객</strong> 명단이다. 그리고 휴일은 요일
+    상대 규칙이므로 <code>func_0204fa8c</code>의 월 인덱스가 휴일 선택기일 수 없다 &ndash; 가설에서 그 연결을
+    제거할 것.</li>
+<li><strong>A-W14 (불일치 기록).</strong> <code>weather-and-seasons.md</code>: ROM은 봄을 2월 25일에 두어 공개
+    레퍼런스와 <strong>정확히</strong> 일치하고, 나머지 세 경계는 공개 레퍼런스보다 1~5일 이르게 둔다. 둘 다
+    문서에 올린다(STYLE 규칙 7).</li>
+<li><strong>A-W15 (다시 쓰기).</strong> <code>town.md</code>와 <code>economy.md</code>: <code>0x500d</code>-<code>0x5010</code>은 임의의 카메라 키가
+    아니라 업그레이드 순서의 <strong>상점 네 단계</strong>다; <code>0x5014</code>는 플레이어 자신의 집이다.</li>
+<li><strong>A-W16 (내보낼 가치가 있는 불일치 추가).</strong> <code>town.md</code>: 공개 id 데이터베이스는 <code>0x500a</code>를
+    표지판이라 부른다; ROM의 집 배치기는 이를 주민 집으로 변환하는 집터로 취급한다. 우리 쪽을 더
+    강한 읽기로 기록할 것.</li>
+</ol>
+<h3 id="포트를-위해-실험-값싼-것부터">포트를 위해 &ndash; 실험, 값싼 것부터</h3>
+<ul>
+<li><strong>A-P1 (무료, 빌드 없음).</strong> 아무것도 다시 실행하지 않는다: 다음 마을 레시피에
+  <code>ACWW_TRACE_STATE=1</code>을 추가하고 <code>port/shim/game/houseplace.c</code>가 이미 출력하는
+  <code>acww houseplace: w &lt;w&gt; h &lt;h&gt; spots &lt;n&gt;</code> 줄을 읽는다. 마을 격자 크기, 집터 수(관측 11, 슬롯
+  30 사용 가능), A-W2가 한 줄로 확정된다.</li>
+<li><strong>A-P2 (무료, 정적).</strong> <code>arm9.bin</code>에서 <code>data_020cd884</code>의 <code>150 * 0x4e = 0x7350</code> 바이트와
+  <code>data_020cd4dc</code>의 <code>0x21</code> 바이트를 읽는다. 기대: 구조화된 150행, 그리고 <code>row + 0x4c</code>의 바이트가
+  <code>0x20</code>을 넘지 않음. A-W4를 확정하고 <code>data/villagers.md</code>를 위한 주민 테이블을 식별한다.</li>
+<li><strong>A-P3 (무료, 정적).</strong> P8이 나열한 모든 가구 id에 대해 <code>(id - 0x3000) &gt;&gt; 2</code>를 계산하고
+  <code>extract/adm-kr/files/ftr/&lt;hi&gt;/&lt;mid&gt;/&lt;file_id&gt;.arc</code>가 존재하는지 확인한다. 100% 적중이면
+  A-W7이 확정되고 포트에 실제 아이템 id-에셋 경로가 생긴다.</li>
+<li><strong>A-P4 (무료, 정적).</strong> 포트가 만든 아무 세이브 이미지의 첫 <code>0x173fc</code> 바이트에 대해 워드
+  <code>0xb9fc</code>를 건너뛰고 부호 반전 16비트 합을 계산하여 그곳에 저장된 하프워드와 비교한다. 또한
+  <code>+0x173fc</code>의 두 번째 사본이 바이트 단위로 동일한지 확인한다. <code>ACWW_SAVE</code>가 한 번은 유지되어야
+  한다 &ndash; <code>save-data.md</code>가 이미 첫 번째 미실행 실험으로 나열한 것이다.</li>
+<li><strong>A-P5 (실행 한 번).</strong> 기존 마을 레시피에 걸쳐 <code>0x021dc7ac</code>(마을 이름), <code>0x021de3cc</code>(플레이어
+  0 지갑), <code>0x021deb9c</code>(플레이어 0 은행)에 <code>ACWW_WATCH</code>. <code>economy.md</code>와 <code>town.md</code>의 가설 셋이
+  함께 해결되며, 택시 전에 지갑이 0이 아니라면 택시 요금 질문도 확정된다.</li>
+<li><strong>A-P6 (실행 한 번).</strong> 생성 후 여덟 레코드 모두에 대해 <code>record + 0x7ae</code>와 <code>record + 0x7af</code>를
+  <code>villpick.c</code>가 이미 로그하는 값 옆에 출력한다. id/성격 분리를 확인하고 포트가 만든 첫 실제 주민
+  명단을 준다.</li>
+<li><strong>A-P7 (실행 한 번, 날짜 넘김).</strong> <code>ACWW_RTC_*</code> 자정에 걸쳐 <code>0x021f3b18</code>(세이브 <code>+0x17370</code>, 무
+  바이트)과 에이커 배열 베이스 <code>0x021e9aac</code>를 관찰한다. 넘김당 한 번의 쓰기는 <code>economy.md</code>의
+  일별 가설을 뒷받침하고 <code>events-and-calendar.md</code>에 <code>func_02040c90</code>이 그것을 건드리는지 알려
+  준다.</li>
+<li><strong>A-P8 (읽기, 실행 없음).</strong> <code>func_0204ef74</code>에서 <code>0xf030</code> 리터럴을 읽는다. 다중 타일 오브젝트가
+  덮는 셀에 그것을 쓴다면 다중 타일 배치기가 완전히 설명되고 <code>town.md</code>는 두 번째 특수 id를 얻는다.</li>
+<li><strong>A-P9 (읽기, 실행 없음).</strong> <code>func_ov003_02220e20</code>의 8방향 상수 체인을 P8의 하위 대역 경계와
+  비교한다. 경계 둘만 맞아도 분류기 전체의 이름이 붙는다.</li>
+<li><strong>A-P10 (무료, 정적).</strong> 디스어셈블리에서 직접 <code>func_02063bb4</code>와 <code>func_0204fa8c</code>를 365개 날짜
+  전부에 대해 평가하고 둘 다 표로 만든다. 질문은 둘 중 어느 것이 경계를 6월 1일, 9월 1일, 11월
+  26일에 두는가이다. 팬 달력이 서술하는 것이 그쪽이기 때문이다. A-W14와
+  <code>weather-and-seasons.md</code>의 열린 가설 대부분을 한 번에 확정한다.</li>
+<li><strong>A-P11 (실행 한 번, 잡은 생물 필요).</strong> 곤충 하나와 물고기 하나를 잡는 동안 플레이어 <code>+0x1bf2</code>의
+  주머니 슬롯에 <code>ACWW_WATCH</code>. 포획 가능 대역은 112 id이며 곤충 다음 물고기다; 관측된 id 하나로
+  두 계열 모두의 모델 번호와 그림 인덱스로부터의 오프셋이 고정된다.</li>
+<li><strong>A-P12 (실행 한 번, 날짜 넘김).</strong> 시뮬레이션한 7일에 걸쳐 <code>0x020e1d08</code>의 열한 개 조건을
+  계측하고, 무엇이 발화하는지 공개 순번표와 대조한다: 요일당 예정 방문객 하나, 무작위 풀 이틀,
+  예약일 하루, 나머지 날의 날아가기, 고정 토요일과 일요일 슬롯. 매주 같은 요일에 발화하는 조건은
+  고정 슬롯 중 하나이며 즉시 식별된다.</li>
+<li><strong>A-P13 (읽기, 실행 없음).</strong> <code>func_02040c90</code>의 다섯 블록 복사를 읽고 수정된 추측과 대조한다:
+  날씨, 상점 재고, 우편, 그리고 <strong>이번 주에 사용된 방문객 집합</strong>(순번표는 일주일 안의 반복을
+  금지하므로 무언가가 기억해야 한다). 무 가격은 아니다.</li>
+</ul>
+<h3 id="막다른-길-아무도-반복하지-않도록">막다른 길, 아무도 반복하지 않도록</h3>
+<ul>
+<li><strong>ACSE(<code>github.com/Cuyler36/ACSE</code>)는 Wild World를 지원하지 않는다.</strong> 그 리소스 테이블은
+  GameCube 타이틀과 City Folk만 다룬다. "Animal Crossing save editor"의 첫 검색 결과이지만 이
+  게임에는 잘못된 트리다.</li>
+<li><strong><code>ACWW_Research</code> 위키에는 마을이나 에이커 페이지가 없다.</strong> 구조 페이지는 메인 헤더, 플레이어,
+  주민, 편지, 패턴에서 멈춘다. 에이커, 맵 아이템, 매장 상태, 무 바이트에 관한 모든 것은
+  WildEdit의 <code>core/</code>와 웹 에디터의 <code>js/core/</code>에 있다.</li>
+<li><strong>TCRF, Nookipedia, GameFAQs, Fandom은 자동화된 가져오기를 거부한다</strong>(403 또는 JavaScript
+  전용). Nookipedia는 브라우저 사용자 에이전트에는 응답한다; Cloudflare 앞단의 포럼은 응답하지
+  않는다.</li>
+<li><strong>공개된 Wild World 무 알고리즘, 공개된 게임플레이 RNG, 공개된 카탈로그 오프셋은 없다.</strong>
+  <code>economy.md</code>와 <code>rng.md</code>의 구멍 셋은 분야 전체의 구멍이며, 여기서 그중 무엇을 측정하든
+  따라잡기가 아니라 새로운 결과가 된다.</li>
+</ul>
+<h3 id="의도적으로-하지-않은-것">의도적으로 하지 않은 것</h3>
+<ul>
+<li>팬 위키의 숫자는 어느 것도 systems나 data 페이지에 복사하지 않았다. 위의 모든 P는 실험을
+  동반한 H로, 또는 기존 S/E/O 출처 옆의 확증으로 제안된다.</li>
+<li>여기의 어떤 주장도 포트 자체의 관측을 격상시키지 않는다. 위키가 공개 지식보다 <strong>앞서 있는</strong>
+  곳 &ndash; 플레이어 <code>+0x23f8</code>의 이벤트 비트필드, 특수 NPC 테이블, 대화 머신, 계절 점프 테이블,
+  낮/밤 블렌드 &ndash; 는 얼버무리지 않고 그렇다고 밝혔다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../systems/save-data.md</code>, <code>../systems/town.md</code>, <code>../systems/villagers.md</code>,
+  <code>../systems/economy.md</code>, <code>../data/items.md</code>, <code>../data/fish-and-bugs.md</code> &ndash; 조치 대상이 되는
+  문서들.</li>
+<li><code>../README.md</code> &ndash; 이 문서가 따르는 근거 등급 규칙.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/consistency.html"><small>◀ 이전</small>일관성 감사</a><a class="pn next" href="../audits/data-formats.html"><small>다음 ▶</small>감사(audit): 공개 사양 대비 데이터 포맷</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#방법과-p-등급">방법과 P 등급</a><ul><li><a href="#사용한-공개-출처">사용한 공개 출처</a></li></ul></li><li><a href="#systemssave-datamd">systems/save-data.md</a></li><li><a href="#systemstownmd">systems/town.md</a></li><li><a href="#systemsvillagersmd">systems/villagers.md</a></li><li><a href="#systemsplayermd">systems/player.md</a></li><li><a href="#systemseconomymd">systems/economy.md</a></li><li><a href="#systemsrngmd">systems/rng.md</a></li><li><a href="#systemstime-and-rtcmd">systems/time-and-rtc.md</a></li><li><a href="#systemsweather-and-seasonsmd">systems/weather-and-seasons.md</a></li><li><a href="#systemsevents-and-calendarmd">systems/events-and-calendar.md</a></li><li><a href="#systemsdialoguemd">systems/dialogue.md</a></li><li><a href="#dataitemsmd">data/items.md</a></li><li><a href="#datavillagersmd">data/villagers.md</a></li><li><a href="#datafish-and-bugsmd">data/fish-and-bugs.md</a></li><li><a href="#우선순위가-매겨진-조치">우선순위가 매겨진 조치</a><ul><li><a href="#위키를-위해-지금-할-수-있는-정정">위키를 위해 &ndash; 지금 할 수 있는 정정</a></li><li><a href="#포트를-위해-실험-값싼-것부터">포트를 위해 &ndash; 실험, 값싼 것부터</a></li><li><a href="#막다른-길-아무도-반복하지-않도록">막다른 길, 아무도 반복하지 않도록</a></li><li><a href="#의도적으로-하지-않은-것">의도적으로 하지 않은 것</a></li></ul></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

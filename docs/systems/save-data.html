@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세이브 데이터 · ACWW 근거 위키</title>
+<meta name="description" content="놀러오세요 동물의 숲은 마을을 카트리지의 백업 저장소, 즉 DS의 ARM7 프로세서가 소유하고 게임의 ARM9 코드는 요청을 통해서만 접근할 수 있는 256 KB 플래시 칩에 보관한다. 게임은 그 칩 안에 각각 0x173fc바이트인 두 개의 세이브 뱅크를 두고 부팅 시">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li class="active"><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>세이브 데이터</span></div><header class="page-head"><h1>세이브 데이터</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 40</span><span class="gchip g-E"><b>E</b> 9</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/save-data.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 놀러오세요 동물의 숲은 마을을 카트리지의 백업 저장소, 즉 DS의 ARM7 프로세서가
+소유하고 게임의 ARM9 코드는 요청을 통해서만 접근할 수 있는 256 KB 플래시 칩에 보관한다.
+게임은 그 칩 안에 각각 0x173fc바이트인 두 개의 세이브 뱅크를 두고 부팅 시 둘 중 하나를
+선택한다. 플레이어가 하는 모든 것 &ndash; 마을, 집, 주민, 편지 &ndash; 이 거기에 있다; 기기 안의 다른
+어떤 것도 전원이 꺼지면 살아남지 못한다. PC 포트는 플래시 자체를 호스트 파일로 공급하되,
+요청했을 때에만 그렇게 한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>ARM9는 백업 칩을 결코 직접 건드리지 않는다. 명령 블록을 채우고, 프로세서 간 FIFO의 태그
+11(<code>PXI_FIFO_TAG_FS</code>)에 요청 워드를 게시하고, 공유 카드 구조체의 <code>CARD_STAT_REQ</code> 비트를
+설정한 뒤 호출 스레드를 재운다; ARM7이 전송을 수행하고 같은 태그로 응답하며, 그 응답이
+비트를 해제하고 스레드를 깨운다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_Request</code>, card_common, <code>src/matched/CARDi_Request.c</code></span></span>.
+<code>CARDi_OnFifoRecv</code>는 CARD 서브시스템이 기동 시 그 태그에 설치하는 ARM9 측 콜백이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_OnFifoRecv</code> / <code>CARDi_InitCommon</code>, card_common, <code>src/matched/CARDi_InitCommon.c</code></span></span>.</p>
+<p>요청 워드는 작은 enum이며 그 멤버 중 셋이 세이브 경로의 전부다: <code>CARD_REQ_READ_BACKUP</code>은 6,
+<code>CARD_REQ_WRITE_BACKUP</code>은 7, <code>CARD_REQ_VERIFY_BACKUP</code>은 9다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDRequest</code>, card_backup, <code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span>. 전송 모드는 두
+번째 enum &ndash; RECV 0, SEND 1, SEND_VERIFY 2 &ndash; 이며, 명령 블록의 <code>src</code>와 <code>dst</code> 워드 중 어느 것이
+플래시 오프셋이고 어느 것이 스테이징 버퍼인지를 결정한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDRequestMode</code>, card_backup, <code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span>.</p>
+<p>어떤 전송도 256바이트 페이지 하나보다 크지 않다. <code>CARDi_RequestStreamCommandCore</code>는
+호출자의 전체 요청을 페이지 크기 조각으로 자르고, 각 조각을 공유 카드 구조체 안의 256바이트
+<code>backup_cache_page_buf</code>를 통해 옮기며, 그 전후로 데이터 캐시를 무효화하거나 플러시하고,
+조각마다 하나의 <code>CARDi_Request</code>를 발행한다; 플래시 오프셋은 요청이 아니라 루프 안에서
+누적된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_RequestStreamCommandCore</code>, card_backup, <code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span>. SEND_VERIFY 모드에서는 각 쓰기 뒤에
+<em>변경되지 않은</em> 명령 블록으로 요청 9를 이어 보내므로, 검증은 방금 쓴 것과 같은 페이지 버퍼를
+같은 플래시 오프셋과 비교한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_RequestStreamCommandCore</code>, card_backup, <code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span>.</p>
+<p>그 기계 장치로 들어가는 게임의 두 진입점은 짝을 이룬다. 비동기 읽기는 요청 타입 6과 모드
+0(RECV)으로 스트림 명령을 호출한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020509a8</code>, main, <code>src/matched/func_020509a8.c</code></span></span>; 비동기 쓰기는 요청 타입 7, 재시도 횟수
+10, 모드 2(SEND_VERIFY)로 호출한다 &ndash; 그래서 게임이 쓰는 모든 세이브는 호출이 반환되기 전에
+다시 읽혀 검사된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02050a84</code>, main, <code>src/matched/func_02050a84.c</code></span></span>.</p>
+<p>매체는 추측이 아니라 ROM에 명시되어 있다. <code>func_02050b78</code>은 리터럴 4610, 즉 0x1202를
+식별-및-크기 짝에 넘기고, <code>CARDi_IdentifyBackupCore</code>는 그 패킹된 워드를 장치 클래스
+2(FLASH)와 크기 시프트 0x12로 디코드한다. 즉 1 &lt;&lt; 0x12 = 0x40000바이트 = 256 KB다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02050b78</code> / <code>func_02050b94</code>, main, <code>src/matched/func_02050b78.c</code>; <code>CARDi_IdentifyBackupCore</code>, card_backup, <code>src/matched/CARDi_IdentifyBackupCore.c</code></span></span>. 디코드는
+테이블 조회가 아니라 계산이다: <code>CARDi_IdentifyBackupCore</code>는 디코드된 장치 클래스와 크기로
+switch하여 여덟 개의 case 분기에서 열 필드짜리 <code>spec</code> 구조체(전체 크기, 섹터 크기, 페이지
+크기, 주소 폭, 여섯 개의 타이밍 값)를 채운다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_IdentifyBackupCore</code>, card_backup, <code>src/matched/CARDi_IdentifyBackupCore.c</code></span></span>.</p>
+<p>그 256 KB 안에 게임은 <strong>0x173fc바이트(각 95,228)짜리 뱅크 두 개</strong>를 둔다.
+<code>func_020b5724</code>는 두 플래그 바이트를 보고 둘 중 하나를 고르고, 고정된 작업 주소에서 뱅크
+하나 분량의 데이터를 복사하며, 같은 함수가 부팅이 택시 인트로로 갈지 기존 마을로 곧장
+들어갈지를 결정하는 분기이기도 하다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020b5724</code>, main, <code>src/matched/func_020b5724.c</code></span></span>.</p>
+<p>접근은 하나의 락으로 직렬화되며, 이는 용도별 락이 아니라 카트리지 전체에 대한 하나의 락이다:
+<code>CARDi_LockResource</code>는 소유자 id와 NONE, ROM 또는 BACKUP의 대상 모드를 받으며, ROM 파일 읽기와
+세이브 쓰기가 같은 <code>lock_owner</code>와 <code>lock_ref</code>를 놓고 경합한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_LockResource</code>, card_common, <code>src/matched/CARDi_LockResource.c</code></span></span>. 비동기 요청은 기동
+시 생성된 전용 카드 스레드에 넘겨지며, 이 스레드는 <code>CARD_STAT_TASK</code> 비트를 기다린다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>CARDi_TaskThread</code> / <code>CARDi_SetTask</code>, card_common, <code>src/matched/CARDi_TaskThread.c</code></span></span>.</p>
+<h3 id="포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</h3>
+<p>포트에는 ARM7이 없으므로 카드 프로토콜은 FIFO 수준이 아니라 요청 수준에서 응답된다:
+<code>acww_card_arm7</code>이 명령 블록에 대해 작업을 수행하고, 응답에는 <code>err = TRUE</code>가 실리는데, 이는
+ROM 자신의 <code>CARDi_OnFifoRecv</code>가 <code>CARD_STAT_REQ</code>를 해제하기 전에 검사하는 값이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>, <code>port/shim/os/pxisend.c</code>; <code>scratchpad/cycle40/runs/tap-D56</code>, frames 0..48000</span></span>. 작업은 <strong>요청이 게시된 한 프레임 뒤, 전달
+시점에</strong> 일어나므로, 게시 직후의 폴링은 하드웨어에서처럼 여전히 BUSY를 본다; 동기적으로
+응답했더니 부팅의 카드 읽기가 Nintendo 로고에서 영원히 재시작했다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40, <code>port/shim/os/pxisend.c</code></span></span>.</p>
+<p>백업 저장소는 기본적으로 꺼져 있다. <code>ACWW_SAVE</code>가 설정되지 않으면 읽기는 대상 버퍼를
+건드리지 않은 채로 둔다; <code>ACWW_SAVE=&lt;path&gt;</code>가 설정되면 포트는 그 파일을 256 KB 이미지로
+메모리 매핑하고, 짧은 파일은 확장하며, 확장된 부분을 0xFF로 채운다. 지워진 플래시를 읽으면
+그 값이 나오기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>; <code>docs/kb/hybrid/hardware-services.md</code> section 1</span></span>.
+쓰기는 매핑에 복사되고 횟수가 세어지며, 검증은 페이지 버퍼를 매핑과 비교해 무조건 동의하는
+대신 실제 불일치를 보고한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>; <code>scratchpad/cycle40/runs/tap-D56</code></span></span>.</p>
+<p>그 심(shim)의 두 상수가 기록할 만한 방식으로 틀려 있었는데, 두 실패 모두 조용했기 때문이다.
+<code>CARD_STAT_INIT_CMD</code>로 적힌 상태 비트가 0x40, 즉 <code>CARD_STAT_CANCEL</code>로 쓰여 있어서 응답된
+모든 요청이 취소 비트도 함께 올렸고, 정확히 그 비트를 먼저 검사하는
+<code>CARDi_RequestStreamCommandCore</code>는 CARD_RESULT_CANCELED를 반환했다; 모든 세이브 읽기가
+"세이브가 없다"가 아니라 "읽기가 실패했다"로 돌아왔다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>; the correct values are <code>src/matched/CARD_CancelBackupAsync.c</code>'s INIT 1, INIT_CMD 2, BUSY 4, TASK 8, RECV 16, REQ 32, CANCEL 64</span></span>. 그리고 읽기 요청 번호가 5로 쓰여 있었는데 게임은 6을 발행하므로, 0xFF 소거
+채우기는 한 번도 실행되지 않았다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>, settled against <code>src/matched/func_020509a8.c</code></span></span>.</p>
+<p><strong>지워진 저장소는 0xFF이고, 0으로 채워진 저장소는 다른 게임이다.</strong> 0 블록은 세이브의 부재가
+아니다; 헤더와 체크섬이 0인 세이브이며, 게임은 이를 손상된 것으로 읽는다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">inferred from <code>func_020b5724</code>'s bank validity test; settled by running with <code>ACWW_SAVE</code> pointed at an all-zero file and looking for the damaged-save path</span></span>. 읽기 채우기를 0xFF로
+정정하자 키 입력 START 실행은 프레임 10 부근에서 <code>unimplemented: func_02225a90</code>에 멈췄다 —
+포트의 정지 라인은 맨 주소를 인용하며, 심볼 테이블은 그 함수를
+<code>func_ov003_02225a90</code>으로 명명한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/ov003/symbols.txt</code></span></span> — 채우기를
+끈 같은 빌드는 깨끗하게 실행되므로, 정직한 답은 부팅을 포트가 아직 따라갈 수 없는 경로로
+옮긴다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>, keyed START, frame ~10</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CARDi_Request</code></td>
+<td>autoload_2 (card_common)</td>
+<td>PXI 태그 11에 요청 워드를 게시하고, <code>CARD_STAT_REQ</code>를 기다리며 잠들고, 타임아웃 시 재시도</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_Request.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARDi_RequestStreamCommand</code></td>
+<td>autoload_2 (card_backup)</td>
+<td>공개 진입점: src/dst/len/콜백을 저장하고, BUSY를 설정하고, 코어를 직접 실행하거나 태스크로 게시</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_RequestStreamCommand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARDi_RequestStreamCommandCore</code></td>
+<td>autoload_2 (card_backup)</td>
+<td>256바이트 페이지 루프, 취소 검사, SEND_VERIFY 후속 처리</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARDi_IdentifyBackupCore</code></td>
+<td>autoload_2 (card_backup)</td>
+<td>패킹된 <code>CARDBackupType</code>을 열 필드 장치 spec으로 디코드</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_IdentifyBackupCore.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARD_GetBackupTotalSize</code></td>
+<td>autoload_2 (card_backup)</td>
+<td>디코드된 전체 크기를 반환</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARD_GetBackupTotalSize.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARD_CancelBackupAsync</code></td>
+<td>autoload_2 (card_backup)</td>
+<td>인터럽트를 비활성화한 채 <code>CARD_STAT_CANCEL</code>을 올림</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARD_CancelBackupAsync.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARDi_LockResource</code></td>
+<td>autoload_2 (card_common)</td>
+<td>ROM과 BACKUP 모두에 대한 하나의 락, 소유자 id와 대상 모드로</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_LockResource.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARDi_TaskThread</code> / <code>CARDi_SetTask</code></td>
+<td>autoload_2 (card_common)</td>
+<td>전용 카드 스레드와 작업이 거기에 게시되는 방식</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_TaskThread.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARDi_OnFifoRecv</code></td>
+<td>autoload_2 (card_common)</td>
+<td><code>PXI_FIFO_TAG_FS</code>에 대한 ARM9의 응답 콜백</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_OnFifoRecv.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARD_GetResultCode</code></td>
+<td>autoload_2 (card_common)</td>
+<td>명령 블록의 <code>result</code> 워드를 반환</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARD_GetResultCode.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020509a8</code></td>
+<td>main</td>
+<td>게임의 비동기 백업 읽기 (타입 6, RECV)</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020509a8.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_02050a84</code></td>
+<td>main</td>
+<td>게임의 비동기 백업 쓰기 (타입 7, 재시도 10, SEND_VERIFY)</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02050a84.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_02050b78</code> / <code>func_02050b94</code></td>
+<td>main</td>
+<td>FLASH 2 Mbit(0x1202)로 식별하고 전체 크기를 읽어 옴</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02050b78.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020b5724</code></td>
+<td>main</td>
+<td>두 0x173fc바이트 뱅크 중 선택; 새 마을 / 기존 마을 분기</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b5724.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020a1a40</code>, <code>func_020b5898</code></td>
+<td>main</td>
+<td>읽기 상태 머신을 구동하는 부팅 시 폴러들 (3 = 아직 바쁨)</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a1a40.c</code>, <code>src/matched/func_020b5898.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>CARD_GetCurrentBackupType</code></td>
+<td>&ndash;</td>
+<td><strong>트리에서 잘못 식별됨</strong>: 이 주소는 CARD 함수가 아니라 <code>DWC_Netcheck_GetReturnCode</code>다</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">header comment, <code>src/matched/CARD_GetCurrentBackupType.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>명령 블록 <code>+0x00</code> <code>result</code></td>
+<td>마지막 요청의 <code>CARDResult</code></td>
+<td>ARM7 (포트의 <code>acww_card_arm7</code>)</td>
+<td><code>CARD_GetResultCode</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARD_GetResultCode.c</code></span></span></td>
+</tr>
+<tr>
+<td>명령 블록 <code>+0x10</code> <code>src</code></td>
+<td>읽기에서는 플래시 오프셋; 쓰기에서는 페이지 버퍼</td>
+<td><code>CARDi_RequestStreamCommandCore</code></td>
+<td>ARM7 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span></td>
+</tr>
+<tr>
+<td>명령 블록 <code>+0x14</code> <code>dst</code></td>
+<td>읽기에서는 페이지 버퍼; 쓰기에서는 플래시 오프셋</td>
+<td><code>CARDi_RequestStreamCommandCore</code></td>
+<td>ARM7 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span></td>
+</tr>
+<tr>
+<td>명령 블록 <code>+0x18</code> <code>len</code></td>
+<td>이 요청이 옮기는 바이트 수, 256을 넘지 않음</td>
+<td><code>CARDi_RequestStreamCommandCore</code></td>
+<td>ARM7 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span></td>
+</tr>
+<tr>
+<td><code>spec</code> 하위 블록</td>
+<td>전체 크기, 섹터 크기, 페이지 크기, 주소 폭, 여섯 개의 타이밍</td>
+<td><code>CARDi_IdentifyBackupCore</code></td>
+<td><code>CARD_GetBackupTotalSize</code>, <code>CARD_GetBackupPageSize</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_IdentifyBackupCore.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>cardi_common.flag</code></td>
+<td>INIT 1, INIT_CMD 2, BUSY 4, TASK 8, RECV 16, REQ 32, CANCEL 64</td>
+<td><code>CARDi_Request</code>, <code>CARD_CancelBackupAsync</code>, 응답 경로</td>
+<td>코어 루프와 대기자들 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARD_CancelBackupAsync.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>cardi_common.backup_cache_page_buf</code></td>
+<td>모든 전송이 거치는 256바이트 DMA 안전 스테이징 페이지</td>
+<td><code>CARDi_RequestStreamCommandCore</code></td>
+<td>ARM7 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CARDi_RequestStreamCommandCore.c</code></span></span></td>
+</tr>
+<tr>
+<td>플래시 <code>0x00000</code>..<code>0x3ffff</code></td>
+<td>256 KB 저장소; 0x173fc바이트 뱅크 두 개</td>
+<td>요청 7에서 ARM7</td>
+<td>요청 6에서 ARM7 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b5724.c</code>, <code>src/matched/func_02050b78.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x021dc7a8</code></td>
+<td><code>func_020b5724</code>가 0x173fc바이트를 복사해 오는 작업 사본</td>
+<td>게임</td>
+<td><code>func_020b5724</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b5724.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>지금까지 측정된 어떤 레시피에서도 포트는 세이브를 쓰지 않으므로, 첫 번째 검사는 부정적이고
+저렴하다: 마을 레시피(<code>../experiments/two-tap-town-recipe.md</code> 참고)를 <code>ACWW_SAVE</code>를 새 경로로
+지정한 채 실행하고, 이후 파일이 여전히 256 KB의 0xFF이며 로그에 <code>acww card: request type 6</code>은
+있지만 <code>acww save: persisted N bytes</code> 줄은 없음을 확인한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>'s instruments; no such run is recorded yet, so this is the experiment <code>../experiments/save-store-probe.md</code> describes</span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>세이브 레코드는 체크섬을 갖지만 아직 발견된 것은 없다. <code>src/matched</code>의 모든 <code>crc</code>/<code>checksum</code>
+  심볼은 무선, 소켓 또는 PPP/TCP 스택에 속하며(<code>MATH_CalcCRC8/16/32</code>,
+  <code>MBi_calc_cksum</code>, <code>check_tcpudpsum</code>), 그중 어느 것에서도 <code>func_020509a8</code> / <code>func_02050a84</code>로
+  이어지는 호출 간선이 없다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence in <code>src/matched</code></span></span>. <code>func_020b5724</code>의 뱅크 유효성 검사를
+  디스어셈블하여 그것이 뱅크에 대해 무엇을 계산하는지 명명함으로써 확정한다.</li>
+<li>두 뱅크는 독립적인 두 슬롯이 아니라 주/백업 쌍이다. 포트가 세이브를 지속하게 만든 뒤(위
+  참고), 게임 내 세이브 한 번 후와 두 번 후의 결과 파일에서 두 뱅크 범위를 diff하여 확정한다.</li>
+<li>0xFF는 사용되지 않은 ACWW 세이브 영역을 읽었을 때의 값이며, 게임은 0xFF 소거 상태와 0
+  상태를 구별한다. <code>ACWW_SAVE</code>를 모두 0xFF인 파일과 모두 0인 파일로 두고 같은 레시피를 두 번
+  실행하여 각각이 타는 부팅 분기를 비교해 확정한다.</li>
+<li>정직한 0xFF 읽기 뒤에 따라오는 <code>unimplemented: func_02225a90</code> 정지는 기존 세이브 로드
+  경로이지, 채우기의 결함이 아니다. <code>ACWW_EXPLORE=1</code>로 실행하여 어느 호출자가 그 주소에
+  도달하는지 읽어 확정한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>, keyed START</span></span>.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../experiments/save-store-probe.md</code> &ndash; 위 검사들의 레시피 (아직 미실행).</li>
+<li><code>../experiments/two-tap-town-recipe.md</code> &ndash; 모든 세이브 관측이 이루어지는 실행.</li>
+<li><code>time-and-rtc.md</code> &ndash; 게임이 부팅 시 읽는 또 하나의 영속 상태.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/time-and-rtc.html"><small>◀ 이전</small>시간과 실시간 시계</a><a class="pn next" href="../systems/town.html"><small>다음 ▶</small>마을</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

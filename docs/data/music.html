@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>음악과 사운드 · ACWW 근거 위키</title>
+<meta name="description" content="게임의 모든 오디오는 파일 시스템 루트에 있는 10.7 MB 크기의 SDAT 아카이브 하나, sound_data.sdat이다. 심볼 블록이 출시 전에 제거되었으므로 내부의 어떤 것도 이름이 없다: 게임은 시퀀스, 뱅크, 스트림을 오직 숫자 인덱스로만 지정한다. 아카이브">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li class="active"><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>음악과 사운드</span></div><header class="page-head"><h1>음악과 사운드</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 33</span><span class="gchip g-E"><b>E</b> 1</span><span class="gchip g-H"><b>H</b> 4</span></div><div class="source-line">원문: <code>wiki/data/music.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 게임의 모든 오디오는 파일 시스템 루트에 있는 10.7 MB 크기의 <code>SDAT</code> 아카이브 하나,
+<code>sound_data.sdat</code>이다. 심볼 블록이 출시 전에 제거되었으므로 내부의 어떤 것도 이름이 없다: 게임은
+시퀀스, 뱅크, 스트림을 오직 숫자 인덱스로만 지정한다. 아카이브는 376개의 시퀀스 슬롯(342개 정의됨),
+216개의 시퀀스 아카이브 항목, 943개의 뱅크, 14개의 웨이브 아카이브, 21개의 플레이어, 30개의 그룹,
+2개의 스트림을 1,511개의 패킹된 파일에 걸쳐 선언한다. 이를 읽는 NitroSystem 사운드 라이브러리는
+<code>autoload_2</code>에 있는 78개의 매칭된 함수이다.</p>
+<p>등급 주석: 이 페이지의 <strong>S</strong>는 심볼 테이블, 매칭된 소스, 그리고 추출된 ROM 이미지에서 직접 읽어낸
+바이트(경로와 필드를 항상 명시)를 포함한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p><code>sound_data.sdat</code>은 10,704,768바이트이며 <code>BUILDTIME</code> 옆의 파일 시스템 루트에 있다; ROM에서 가장 큰
+단일 파일이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/sound_data.sdat</code>, size; <code>extract/adm-kr/files/</code>, root listing</span></span>. ARM9 이미지에 컴파일된 리터럴 경로 <code>/sound_data.sdat</code>으로
+열린다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code>, path string literal</span></span>.</p>
+<p>컨테이너는 표준 NitroSDK 것이다: 매직 <code>SDAT</code>, 바이트 순서 표식 <code>0xFEFF</code>, 파일과 정확히 일치하는 파일
+크기 필드, 헤더 크기 64, 그리고 네 개의 블록 디스크립터
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/sound_data.sdat</code>, bytes 0..48</span></span>. <strong><code>SYMB</code> 블록은 없다</strong> — 오프셋과 크기가 모두
+0이다 — 따라서 출시된 아카이브는 어떤 항목에 대해서도 이름을 가지지 않는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, the first block descriptor at offset 16</span></span>. 나머지 셋은 <code>0x40</code>의 <code>INFO</code>(24,712바이트),
+<code>0x60c8</code>의 <code>FAT</code>(24,188바이트), <code>0xbf44</code>의 <code>FILE</code>(10,655,804바이트)이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, block descriptors at offsets 24, 32 and 40</span></span>.</p>
+<p><code>FAT</code>는 총 10,631,196바이트의 1,511개 패킹된 파일을 선언하며, 그중 가장 큰 것은 3,233,800바이트이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, <code>FAT</code> entry count at +8 and the 16-byte entry array</span></span>. 다음으로 큰 범주가 시퀀스 데이터인
+아카이브에서 3.2 MB의 단일 파일은 거의 확실히 두 스트림 중 하나이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">see Hypotheses</span></span>.</p>
+<p><code>INFO</code>는 여덟 개의 레코드 테이블을 담으며, 각각은 개수 뒤에 그 개수만큼의 오프셋이 오고, 레코드
+본체는 오프셋 배열 뒤에 패킹되어 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, the eight table offsets at <code>INFO</code>+8, and the span arithmetic between consecutive tables</span></span>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>레코드 테이블</th>
+<th>슬롯</th>
+<th>정의됨 (0이 아닌 오프셋)</th>
+<th>스팬이 암시하는 본체 크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEQ (시퀀스)</td>
+<td>376</td>
+<td>342</td>
+<td>각 12바이트</td>
+</tr>
+<tr>
+<td>SEQARC (시퀀스 아카이브)</td>
+<td>216</td>
+<td>216</td>
+<td>각 4바이트</td>
+</tr>
+<tr>
+<td>BANK (악기 뱅크)</td>
+<td>943</td>
+<td>943</td>
+<td>각 12바이트</td>
+</tr>
+<tr>
+<td>WAVEARC (웨이브 아카이브)</td>
+<td>14</td>
+<td>14</td>
+<td>각 4바이트</td>
+</tr>
+<tr>
+<td>PLAYER</td>
+<td>21</td>
+<td>21</td>
+<td>각 8바이트</td>
+</tr>
+<tr>
+<td>GROUP</td>
+<td>30</td>
+<td>30</td>
+<td>가변</td>
+</tr>
+<tr>
+<td>PLAYER2</td>
+<td>1</td>
+<td>1</td>
+<td>—</td>
+</tr>
+<tr>
+<td>STRM (스트림)</td>
+<td>2</td>
+<td>2</td>
+<td>—</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/sound_data.sdat</code>, counts read from each table's first word; body sizes from <code>(span - 4 - 4*count) / defined</code>.</span></span></p>
+<p>정의되지 않은 34개의 시퀀스 슬롯은 id 공간의 구멍이다 — 게임이 이름 붙일 수는 있지만 데이터를 담지
+않는 인덱스이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, 34 of the 376 SEQ offsets are zero</span></span>. 다른 모든 테이블은 완전히 빽빽하다.</p>
+<h3 id="이를-읽는-라이브러리">이를 읽는 라이브러리</h3>
+<p>78개의 <code>NNS_Snd*</code> 함수가 바이트 단위로 매칭되어 있으며, 모두 <code>autoload_2</code>에 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_Snd*.c</code>, 78 files; <code>config/adm-kr/arm9/autoload_2/symbols.txt</code></span></span>. 이는 공개된
+절반이다: 심볼 테이블은 <code>autoload_2</code>에서 105개의 <code>NNS_Snd*</code>/<code>NNSi_Snd*</code>와 65개의 <code>SND_*</code>/<code>SNDi_*</code>
+함수를 이름 붙이고, <code>src/matched/</code>는 각각 78개, 27개, 65개를 매칭한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>, prefix counts; <code>src/matched/</code>, file-name counts</span></span>. 사운드 스택 전체는 <code>main</code>이 아니라 <code>autoload_2</code>이다 — <code>../systems/audio.md</code> 참조. 이들은 네
+그룹으로 나뉜다. 아카이브 접근자는 인덱스를 레코드나 파일로 바꾼다:
+<code>NNS_SndArcGetSeqInfo</code>, <code>GetSeqArcInfo</code>, <code>GetBankInfo</code>, <code>GetWaveArcInfo</code>, <code>GetPlayerInfo</code>,
+<code>GetGroupInfo</code>, <code>GetStrmInfo</code>, <code>GetStrmPlayerInfo</code>, 그리고 <code>NNS_SndArcGetFileID</code>,
+<code>GetFileAddress</code>, <code>GetFileOffset</code>, <code>GetFileSize</code>, <code>NNS_SndArcReadFile</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGetSeqInfo.c</code> and siblings</span></span>. 설정 쌍은 <code>NNS_SndArcInit</code>과
+<code>NNS_SndArcInitOnMemory</code>이며, <code>NNS_SndArcSetup</code>과 <code>NNS_SndArcSetCurrent</code>/<code>GetCurrent</code>가 함께한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcInit.c</code>, <code>NNS_SndArcSetup.c</code>, <code>NNS_SndArcSetCurrent.c</code></span></span>. 재생은
+<code>NNS_SndArcPlayerStartSeq</code>, <code>StartSeqArc</code>, <code>StartSeqArcEx</code>, <code>NNS_SndPlayerSetSeqNo</code>,
+<code>SetSeqArcNo</code>, <code>StopSeq</code>, <code>StopSeqByPlayerNo</code>, <code>StopSeqBySeqArcIdx</code>, 그리고 트랙별 설정자
+<code>SetTrackVolume</code>과 <code>SetTrackPitch</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcPlayerStartSeq.c</code> and siblings</span></span>. 스트리밍은 별도의 집합이다:
+<code>NNS_SndStrmInit</code>, <code>Setup</code>, <code>Start</code>, <code>Stop</code>, <code>AllocChannel</code>, <code>FreeChannel</code>, <code>SetVolume</code>,
+<code>SetChannelPan</code>, <code>HandleRelease</code>와, <code>NNS_SndArcStrmPrepare</code>, <code>StartPrepared</code>,
+<code>GetTimeLength</code>, <code>GetCurrentPlayingPos</code>, <code>MoveVolume</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndStrmInit.c</code> and siblings</span></span>. 이 모든 것의 메모리는 전용 힙에서 나온다:
+<code>NNS_SndHeapCreate</code>, <code>Alloc</code>, <code>Clear</code>, <code>Destroy</code>, <code>SaveState</code>, <code>LoadState</code>,
+<code>GetCurrentLevel</code>, 그리고 <code>NNS_SndPlayerCreateHeap</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndHeapCreate.c</code> and siblings</span></span>. <code>NNS_SndArcLoadGroup</code>은 한 번의 호출로 그룹 전체를
+끌어오는 일괄 로더이며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcLoadGroup.c</code></span></span>, 30개의 GROUP 레코드는 이를 위한
+것이다.</p>
+<p>캡처/이펙트 집합도 있다 — <code>NNS_SndCaptureCreateThread</code>, <code>StartEffect</code>,
+<code>StartOutputEffect</code>, <code>ChangeOutputEffect</code>, <code>StopEffect</code>, <code>NNS_SndLockCapture</code>, <code>UnlockCapture</code> —
+따라서 하드웨어 사운드 캡처 유닛이 연결되어 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndCaptureCreateThread.c</code> and siblings</span></span>.</p>
+<h3 id="ui에서-음악이-나타나는-곳">UI에서 음악이 나타나는 곳</h3>
+<p>두 오버레이가 음악 화면을 소유한다. <code>ov144</code>는 <code>menu/music/</code>, 일곱 개의 파일을 가진다 — 수집한 곡을
+재생하는 스테레오 화면이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov144.bin</code>, seven path literals; <code>extract/adm-kr/files/menu/music/</code>, 7 files</span></span>. <code>ov143</code>은 <code>menu/melody/</code>, 일곱 개의 파일을 가진다 —
+마을 멜로디 편집기이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov143.bin</code>, path literals; <code>extract/adm-kr/files/menu/melody/</code>, 7 files</span></span>. 곡 이름은 메시지 뱅크 하나,
+<code>script/KOR/string/st_music.bmg</code>, 386바이트에서 나온다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/string/</code>, file name and size</span></span>.</p>
+<h3 id="포트에서의-사운드">포트에서의 사운드</h3>
+<p>포트에는 오디오가 없다. ROM의 사운드 스택은 인터프리터 경로에서 실행되기는 하며, 이를 실행한 것이
+GX40에서 수정된 지오메트리 결함을 드러냈다: 사운드 스택이 활성화된 상태에서 지오메트리 엔진이
+프레임당 약 1,400개의 버텍스를 받고도 아무것도 그리지 않아 위 화면이 검은 채로 남아 있었다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> GX40</span></span>. <code>func_0205401c</code>는 또한 재구성이 <code>gSoundFlag</code>라
+부르는 전역 변수로부터 <code>0x04000304</code>의 <code>POWCNT1</code> 비트 15를 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0205401c.cpp</code></span></span>.
+<strong>그 이름은 추론된 것이지 원래 것이 아니며, 그 비트는 사운드 비트가 아니다</strong>: <code>POWCNT1</code> 비트 15는
+어느 2D 엔진이 위 화면을 구동하는지 선택하며, <code>func_020540e4</code>가 이를 그 용도로 사용한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0205401c.cpp</code> header, "names are inferred, not original"; <code>src/matched/func_020540e4.c</code>; <code>../engine/graphics-pipeline.md</code></span></span>. 그 전역 변수가 실제로 무엇을 담는지는
+미결이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by watching that word and the top/bottom screen contents together across a run</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>위치</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>아카이브</td>
+<td><code>/sound_data.sdat</code>, 10,704,768 B</td>
+<td>S: <code>extract/adm-kr/files/sound_data.sdat</code></td>
+</tr>
+<tr>
+<td><code>INFO</code> 블록</td>
+<td>오프셋 <code>0x40</code>, 24,712 B</td>
+<td>S: same, block descriptor</td>
+</tr>
+<tr>
+<td><code>FAT</code> 블록</td>
+<td>오프셋 <code>0x60c8</code>, 24,188 B, 1,511개 항목</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td><code>FILE</code> 블록</td>
+<td>오프셋 <code>0xbf44</code>, 10,655,804 B</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td><code>SYMB</code> 블록</td>
+<td>없음 (오프셋 0, 크기 0)</td>
+<td>S: same</td>
+</tr>
+<tr>
+<td><code>NNS_SndArcInit</code>와 77개의 형제 함수</td>
+<td><code>autoload_2</code></td>
+<td>S: <code>src/matched/NNS_Snd*.c</code></td>
+</tr>
+<tr>
+<td>스테레오 화면</td>
+<td><code>ov144</code>, <code>menu/music/</code></td>
+<td>S: <code>extract/adm-kr/arm9_overlays/ov144.bin</code></td>
+</tr>
+<tr>
+<td>멜로디 편집기</td>
+<td><code>ov143</code>, <code>menu/melody/</code></td>
+<td>S: <code>extract/adm-kr/arm9_overlays/ov143.bin</code></td>
+</tr>
+<tr>
+<td>곡 이름</td>
+<td><code>script/KOR/string/st_music.bmg</code></td>
+<td>S: <code>extract/adm-kr/files/script/KOR/string/</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SEQ 인덱스 (0-375)</td>
+<td>시퀀스 레코드를 고른다</td>
+<td>게임의 음악 상태</td>
+<td><code>NNS_SndArcGetSeqInfo</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGetSeqInfo.c</code></span></span></td>
+</tr>
+<tr>
+<td>SEQARC 인덱스 (0-215) + 하위 인덱스</td>
+<td>아카이브 안의 시퀀스 하나를 고른다</td>
+<td>동일</td>
+<td><code>NNS_SndArcPlayerStartSeqArc</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcPlayerStartSeqArc.c</code></span></span></td>
+</tr>
+<tr>
+<td>BANK 인덱스 (0-942)</td>
+<td>악기 뱅크를 고른다; 각 레코드는 최대 네 개의 웨이브 아카이브를 이름 붙인다</td>
+<td>패커</td>
+<td><code>NNS_SndArcGetBankInfo</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGetBankInfo.c</code></span></span></td>
+</tr>
+<tr>
+<td>GROUP 인덱스 (0-29)</td>
+<td>일괄 로드 집합</td>
+<td>패커</td>
+<td><code>NNS_SndArcLoadGroup</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcLoadGroup.c</code></span></span></td>
+</tr>
+<tr>
+<td>STRM 인덱스 (0-1)</td>
+<td>스트리밍 트랙</td>
+<td>게임</td>
+<td><code>NNS_SndArcStrmPrepare</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcStrmPrepare.c</code></span></span></td>
+</tr>
+<tr>
+<td>FAT 항목 (16 B)</td>
+<td><code>FILE</code> 안의 파일 오프셋과 크기</td>
+<td>패커</td>
+<td><code>NNS_SndArcGetFileOffset</code>/<code>GetFileSize</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGetFileOffset.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>정적이며, 실행이 필요 없다:</p>
+<pre><code class="language-bash">python - &lt;&lt;'PY'
+import struct
+d = open(r&quot;extract/adm-kr/files/sound_data.sdat&quot;, 'rb').read()
+print(d[:4], struct.unpack('&lt;IHH', d[8:16]))
+for i, nm in enumerate(('SYMB', 'INFO', 'FAT ', 'FILE')):
+    o, s = struct.unpack('&lt;II', d[16 + 8 * i:24 + 8 * i])
+    print(nm, hex(o), s, d[o:o + 4] if s else b'-')
+io = 0x40
+offs = struct.unpack('&lt;8I', d[io + 8:io + 40])
+for nm, ro in zip(('SEQ SEQARC BANK WAVEARC PLAYER GROUP PLAYER2 STRM').split(), offs):
+    c = struct.unpack('&lt;I', d[io + ro:io + ro + 4])[0]
+    e = struct.unpack('&lt;%dI' % c, d[io + ro + 4:io + ro + 4 + 4 * c])
+    print(nm, c, sum(1 for x in e if x))
+PY
+</code></pre>
+<p>예상 출력: <code>b'SDAT' (10704768, 64, 3)</code>, <code>SYMB 0x0 0 -</code>, <code>INFO 0x40 24712 b'INFO'</code>,
+<code>FAT  0x60c8 24188 b'FAT '</code>, <code>FILE 0xbf44 10655804 b'FILE'</code>, 그리고 위 표의 여덟 개 개수.</p>
+<p>아직 실제 실행 확인은 없다: 포트는 오디오를 출력하지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code>, which the router lists as "why there is no sound yet"</span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>943개의 악기 뱅크는 14개의 웨이브 아카이브에 비해 이례적으로 많은 수이다.</strong> 개수와 12바이트
+  레코드 크기는 모두 측정된 것이며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">the span arithmetic above</span></span>, 12바이트는 정확히 NitroSDK 뱅크
+  레코드(파일 id, 패딩, 네 개의 웨이브 아카이브 id)이다. 943개의 레코드를 모두 디코딩하여 서로 다른
+  웨이브 아카이브 튜플이 몇 개 나타나는지 세어 결정한다 — 대부분의 뱅크가 같은 아카이브를 이름
+  붙인다면, 이들은 서로 다른 샘플 세트가 아니라 곡별 악기 선택이다.</li>
+<li><strong><code>FAT</code>의 3,233,800바이트 파일은 두 스트림 중 하나이다.</strong> 아카이브의 30%를 차지하며 어떤
+  시퀀스가 될 수 있는 것보다 훨씬 크다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">size</span></span>. 두 STRM 레코드의 파일 id를 해석하고 둘 중 하나가 그
+  항목을 가리키는지 확인하여 결정한다.</li>
+<li><strong>정의되지 않은 34개의 SEQ 슬롯은 잘려 나갔거나 자리 표시용 음악이다.</strong> 아카이브 전체에서 유일한
+  구멍이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">the SEQ offset scan</span></span>. 그 인덱스를 나열하고 어떤 GROUP 레코드가 이들을 참조하는지
+  확인하여 결정한다.</li>
+<li><strong>386바이트의 <code>st_music.bmg</code>는 시퀀스 수보다 훨씬 적은 이름을 담는다</strong>, 이는 배경 음악 전체가 아닌
+  수집 가능한 곡만 이름 붙인다는 것을 시사한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">size against 342 defined sequences</span></span>. 압축 해제 후 <code>INF1</code> 항목 수를 읽어 결정한다.</li>
+<li><strong>제거된 <code>SYMB</code> 블록은 런타임에 이름 기반 조회가 동작할 수 없음을 의미한다</strong>, 따라서 모든 호출
+  지점은 숫자 상수를 가져야 한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SYMB</code> size 0</span></span>. 심볼 테이블에 <code>NNS_SndArc*ByName</code> 스타일의 함수가
+  없음을 확인하여 결정한다 — 위에 나열된 78개의 매칭된 함수에는 그런 것이 하나도 없다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>archives.md</code> — 다른 포맷들과 나란히 놓인 <code>SDAT</code> 컨테이너.</li>
+<li><code>rom-layout.md</code> — 트리에서 <code>sound_data.sdat</code>이 위치하는 곳.</li>
+<li><code>../engine/file-system.md</code> — 아카이브가 열리는 방법.</li>
+<li><code>docs/kb/port/input-save-audio.md</code> — 포트의 오디오 상태.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../data/fish-and-bugs.html"><small>◀ 이전</small>물고기와 곤충</a><a class="pn next" href="../data/archives.html"><small>다음 ▶</small>아카이브와 컨테이너 포맷</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#이를-읽는-라이브러리">이를 읽는 라이브러리</a></li><li><a href="#ui에서-음악이-나타나는-곳">UI에서 음악이 나타나는 곳</a></li><li><a href="#포트에서의-사운드">포트에서의 사운드</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

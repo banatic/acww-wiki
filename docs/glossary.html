@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>용어집 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="./assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="./index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="./assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="./systems/index.html">시스템</a></summary><ul>
+<li><a href="./systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="./systems/save-data.html">세이브 데이터</a></li>
+<li><a href="./systems/town.html">마을</a></li>
+<li><a href="./systems/villagers.html">주민</a></li>
+<li><a href="./systems/player.html">플레이어</a></li>
+<li><a href="./systems/economy.html">경제</a></li>
+<li><a href="./systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="./systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="./systems/dialogue.html">대화</a></li>
+<li><a href="./systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="./systems/rng.html">난수</a></li>
+<li><a href="./systems/network.html">네트워크</a></li>
+<li><a href="./systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="./data/index.html">데이터</a></summary><ul>
+<li><a href="./data/items.html">아이템과 가구</a></li>
+<li><a href="./data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="./data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="./data/music.html">음악과 사운드</a></li>
+<li><a href="./data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="./data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="./engine/index.html">엔진</a></summary><ul>
+<li><a href="./engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="./engine/overlays.html">오버레이</a></li>
+<li><a href="./engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="./engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="./engine/memory-map.html">메모리 맵</a></li>
+<li><a href="./engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="./engine/file-system.html">파일 시스템</a></li>
+<li><a href="./engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="./engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="./experiments/index.html">실험</a></summary><ul>
+<li><a href="./experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="./experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="./experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="./experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="./experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="./experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="./experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="./audits/index.html">감사</a></summary><ul>
+<li><a href="./audits/consistency.html">일관성 감사</a></li>
+<li><a href="./audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="./audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="./audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="./audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="./audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li class="active"><a href="./glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="./about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="./style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>용어집</span></div><header class="page-head"><h1>용어집</h1><div class="source-line">원문: <code>wiki/glossary.md</code> (영문, 기록 문서)</div></header><div class="md"><p>위키 전반에서 사용되는 용어로, 각각 그것을 정의하는 함수나 주소를 함께 적는다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>용어</th>
+<th>의미</th>
+<th>defined by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>에이커 (acre)</td>
+<td>마을 격자의 32.0 단위 셀 하나; 에이커 오브젝트는 <code>Translate(col*32,0,0)</code>에 <code>RotX(row*0x2999)</code>를 합성한 위치에 놓인다</td>
+<td><code>func_ov003_0221f270</code> (ov003); <code>data_020ca0ec</code></td>
+</tr>
+<tr>
+<td>에이커 맵 (acre map)</td>
+<td>세이브 이미지 안의 에이커 바이트 블록</td>
+<td>save <code>+0xd304</code> = <code>0x021e9aac</code></td>
+</tr>
+<tr>
+<td>액터 매니저 (actor manager)</td>
+<td>현재 화면에 있는 주민 액터를 담는 여덟 개의 <code>{actor, id}</code> 슬롯</td>
+<td><code>0x021d1d4c</code>; registered by <code>func_0202e1fc</code></td>
+</tr>
+<tr>
+<td>도착 플래그 (arrival flag)</td>
+<td>플레이어 이벤트 플래그 1: 오프닝 시퀀스 전체 동안 세팅되어 있고, 시퀀스가 끝나면 클리어된다</td>
+<td><code>func_02084af0</code>; cleared by <code>func_ov050_02262628</code>, <code>func_ov068_0226e948</code></td>
+</tr>
+<tr>
+<td>카테고리 니블 (category nibble)</td>
+<td>16비트 아이템 id의 상위 4비트; 배치 게이트는 3과 4를 받아들인다</td>
+<td><code>func_0204bcdc</code> (main)</td>
+</tr>
+<tr>
+<td>채널 (channel)</td>
+<td>게임의 살아 있는 오브젝트 단위: 핸들러 테이블에서 디스패치되는 번호 붙은 핸들러. 두 개의 정문이 여기에 도달한다 &ndash; 씬의 채널 목록을 위한 <code>func_0202f134</code>와 특수 NPC 스케줄러의 준비된 방문객을 위한 <code>func_02003348</code> &ndash; 둘 다 <code>func_020edc58</code>에서 끝난다</td>
+<td><code>func_020edc58</code>; table pointer <code>0x021fd044</code>; <code>wiki/engine/scenes-and-channels.md</code>, <code>wiki/systems/events-and-calendar.md</code></td>
+</tr>
+<tr>
+<td>날짜 변경 루틴 (day-change routine)</td>
+<td>날짜가 넘어갈 때 한 번 실행되는 달력 갱신: 하나의 전역에 대한 열일곱 번의 호출과 다섯 개의 <code>MI_CpuCopy8</code> 블록</td>
+<td><code>func_02040c90</code> (main); <code>0x021c7584</code></td>
+</tr>
+<tr>
+<td>빈 아이템 id (empty item id)</td>
+<td><code>0xfff1</code>, 리셋이 맵 전체에 찍는 "아이템 없음 / 타일 없음" 센티널</td>
+<td><code>func_020a13e8</code> (main)</td>
+</tr>
+<tr>
+<td>이벤트 비트필드 (event bitfield)</td>
+<td>플레이어의 64개 진행 비트</td>
+<td><code>player + 0x23f8</code>; <code>func_02099020</code> / <code>func_02098ff8</code></td>
+</tr>
+<tr>
+<td>페이드 상태 (fade state)</td>
+<td><code>0</code> 대기, <code>1</code> 페이드 인, <code>2</code> 완료, <code>3</code> 페이드 아웃 &ndash; 씬 진행의 게이트</td>
+<td><code>0x021c75b8</code>; read by <code>func_ov051_022611e0</code></td>
+</tr>
+<tr>
+<td>필드 오브젝트 (field object)</td>
+<td>야외 씬의 루트; 그 <code>+0x50</code>이 필드 데이터 포인터로 공개되고, 날씨는 <code>+0x2d0</code>에 매달려 있다</td>
+<td><code>func_02034d14</code> (vtable <code>0x020da334</code>); <code>0x021c526c</code></td>
+</tr>
+<tr>
+<td>집 레코드 (house record)</td>
+<td>주민과 그 집을 담는 <code>0x7ec</code> 바이트 세이브 레코드 여덟 개 중 하나; 주민 서브 레코드는 <code>+0x7a0</code>에 있다</td>
+<td>save <code>+0x9284</code> = <code>0x021e5a2c</code></td>
+</tr>
+<tr>
+<td>집터 (house plot)</td>
+<td>아이템 id <code>0x500a</code>, 배치기가 <code>0x5001</code>..<code>0x5008</code>로 변환하는 지점</td>
+<td><code>func_0207bbb8</code> (main)</td>
+</tr>
+<tr>
+<td>실내/실외 바이트 (indoor/outdoor byte)</td>
+<td>0이 아니면 실내 분기를 탄다; 특수 NPC 준비를 막는다</td>
+<td><code>data_020e54a8</code>; <code>func_02085558</code></td>
+</tr>
+<tr>
+<td>인터프리터 경로 (interpreter path)</td>
+<td>ROM 자체의 ARM/Thumb 코드를 프로세스 내에서 실행하는 하이브리드 런타임 (<code>ACWW_INTERP=1</code>)</td>
+<td><code>port/interp/interp_cpu.c</code>; <code>docs/HYBRID-PLAN.md</code></td>
+</tr>
+<tr>
+<td>키보드 (keyboard)</td>
+<td><code>ov126</code> 이름 입력 화면; 그 터치 디스패처는 함수 포인터 워드로만 존재한다</td>
+<td><code>func_ov126_022a1228</code> (ov126); reloc <code>0x022a1ff0</code></td>
+</tr>
+<tr>
+<td>조명 테이블 (light table)</td>
+<td>조명을 받는 모든 버텍스가 궁극적으로 샘플링하는 낮/밤 색상 테이블</td>
+<td><code>0x021f6cf0</code>; filled by <code>func_020bbf0c</code></td>
+</tr>
+<tr>
+<td>오라클 (oracle)</td>
+<td>같은 레시피 아래에서 포트와 비교되는 DeSmuME 레퍼런스</td>
+<td><code>port/tools/oracle/</code></td>
+</tr>
+<tr>
+<td>멤버 함수 포인터 (PMF)</td>
+<td>CodeWarrior의 멤버 함수 포인터로, 8바이트 <code>{lo, hi}</code> 쌍으로 저장된다</td>
+<td><code>port/shim/game/memptr.c</code>; e.g. villager draw at <code>obj + 0x8b0</code></td>
+</tr>
+<tr>
+<td>플레이어 슬롯 (player slot)</td>
+<td>세이브 이미지 안의 <code>0x249c</code> 바이트 플레이어 레코드 네 개 중 하나</td>
+<td>save <code>+0x14</code> = <code>0x021dc7bc</code>; stride from <code>func_02098844</code></td>
+</tr>
+<tr>
+<td>세이브 이미지 (save image)</td>
+<td>세이브의 <code>0x173fc</code> 바이트 RAM 내 복사본</td>
+<td><code>0x021dc7a8</code>; written by <code>func_020b5724</code></td>
+</tr>
+<tr>
+<td>씬 (scene)</td>
+<td>씬 기구를 통해 요청되는, 부팅/게임 시퀀스의 번호 붙은 단계</td>
+<td><code>func_020a53ec</code>; pending word <code>0x020e3c80</code></td>
+</tr>
+<tr>
+<td>계절 (season)</td>
+<td>0 봄, 1 여름, 2 가을, 3 겨울, 월과 일로부터 결정</td>
+<td><code>func_02063bb4</code> (main)</td>
+</tr>
+<tr>
+<td>계절/이벤트 인덱스 (season/event index)</td>
+<td>8월과 9월이 각각 둘로 나뉘는 열네 값의 월 맵</td>
+<td><code>func_0204fa8c</code> (main)</td>
+</tr>
+<tr>
+<td>하늘 행 (sky row)</td>
+<td>계절과 날씨로 선택되는 낮/밤 테이블의 행</td>
+<td><code>0x021f8ad4</code> -&gt; <code>table_020d2364</code>; used by <code>func_020bba14</code></td>
+</tr>
+<tr>
+<td>특수 NPC 테이블 (special-NPC table)</td>
+<td>예약된 방문객당 하나씩, <code>{channel, actor, overlay, pmf, flag}</code>의 스물세 행</td>
+<td><code>data_020e1d8c</code> (main)</td>
+</tr>
+<tr>
+<td>대화 머신 (talk machine)</td>
+<td>대화를 구동하는 다섯 항목의 <code>{enter, update}</code> 테이블과 <code>f8</code>/<code>f9</code>/<code>fa</code> 상태 바이트</td>
+<td><code>data_021c17c4</code>; <code>func_020146cc</code></td>
+</tr>
+<tr>
+<td>타일 (tile)</td>
+<td>2.0 월드 단위; 타일 워드의 그룹/인덱스 분할을 통해 찾는 3바이트 레코드</td>
+<td><code>func_ov003_022273f8</code> (ov003); descriptors at <code>0x02236b0c</code></td>
+</tr>
+<tr>
+<td>마을 디스패처 (town dispatcher)</td>
+<td>마을을 생성하고, 리셋하고, 동기화하는 핸들러 집합</td>
+<td><code>func_0209e6ec</code> (main)</td>
+</tr>
+<tr>
+<td>주민 클래스 (villager class)</td>
+<td>초기 선택이 뽑아 오는 여섯 개의 성격 그룹 중 하나</td>
+<td><code>func_0207c818</code> (main); bound at 6 in <code>func_0207c76c</code></td>
+</tr>
+<tr>
+<td>아레나 (arena)</td>
+<td>OS의 자유 메인 RAM 구간, <code>OS_GetArenaLo(0)</code>..<code>OS_GetArenaHi(0)</code>; 게임 힙은 그 아래쪽 끝에서 잘라낸다</td>
+<td><code>func_020ea48c</code>; ceiling <code>0x023e0000</code>, the port raises it to <code>0x023f0000</code> (<code>port/shim/os/arenahi.c</code>)</td>
+</tr>
+<tr>
+<td>BMG</td>
+<td><code>MESGbmg1</code>, 메시지 컨테이너: <code>INF1</code> 레코드와 <code>DAT1</code> UTF-16 페이로드; <code>script/KOR/</code> 아래에 1,791개의 낱개 <code>.bmg</code> 파일</td>
+<td><code>extract/adm-kr/files/script/KOR/message/Other/test_.bmg</code>; <code>wiki/data/archives.md</code></td>
+</tr>
+<tr>
+<td>거부 목록 (deny list)</td>
+<td><code>interp_registry.py</code>가 등록을 거부하는 49개의 심 basename으로, 인터프리터 경로에서는 이들에 대해 ROM 자체의 본체가 실행된다</td>
+<td><code>port/tools/interp_registry.py</code>, <code>DENY_FILES</code> (plus <code>DENY_FUNCS = {func_020b1b84}</code>)</td>
+</tr>
+<tr>
+<td>디스플레이 오브젝트 (display object)</td>
+<td>두 개의 리스트 노드를 소유하는 C++ 오브젝트로, 네 개의 전역 리스트에 연결되어 vtable 슬롯을 통해 프레임당 한 번 스텝된다</td>
+<td><code>func_020ee834</code>; heads <code>0x021fd004</code>/<code>14</code>/<code>24</code>/<code>34</code>; <code>wiki/engine/display-objects.md</code></td>
+</tr>
+<tr>
+<td>게임 힙 (game heap)</td>
+<td>아레나 블록 + 0x30에 만들어지는 NNS 확장 힙으로, 모든 게임 오브젝트가 여기서 할당된다</td>
+<td><code>func_020ea50c</code>; pool words <code>0x021fbe78</code>/<code>8c</code>/<code>94</code></td>
+</tr>
+<tr>
+<td>NARC</td>
+<td>게임이 <code>FSArchive</code>로 마운트하고 <code>archive:path</code>로 멤버를 읽는 <code>BTAF</code>/<code>BTNF</code>/<code>GMIF</code> 아카이브</td>
+<td><code>NNS_FndMountArchive</code> (autoload_2 <code>0x0210288c</code>); <code>src/matched/NNS_FndMountArchive.c</code></td>
+</tr>
+<tr>
+<td>OFF 레시피 (OFF recipe)</td>
+<td>대조 실행: 스타일러스를 비활성화한 키 입력 START(프레임 300부터 <code>ACWW_KEYS=9</code>), 프레임 9,000까지의 스크린샷 31장을 SHA-256으로 비교</td>
+<td><code>wiki/experiments/off-recipe.md</code>; <code>docs/kb/hybrid/recipes.md</code> section 2</td>
+</tr>
+<tr>
+<td>PXI 태그 (PXI tag)</td>
+<td>ARM9-ARM7 FIFO의 번호 붙은 채널: 4 NVRAM, 5 RTC, 6 터치, 7 사운드, 8 전원, 10 무선, 11/14 카드</td>
+<td>callback table <code>0x027e0394 + tag*4</code>; <code>PXI_SetFifoRecvCallback</code> (autoload_2)</td>
+</tr>
+<tr>
+<td>스텝 게이트 (step gate)</td>
+<td>프레임당 모든 디스플레이 오브젝트 스텝이 통과해야 하는 여섯 명령어짜리 테스트: <code>+0x0f</code> 클리어 AND <code>+0x13</code>의 비트 1 클리어</td>
+<td><code>func_01ffd41c</code> (itcm); <code>port/shim/gfx/dispgate.c</code></td>
+</tr>
+<tr>
+<td>마을 레시피 (town recipe)</td>
+<td>타이틀 화면에서 마을 회관까지의 두 번 탭 실행, 48,000 프레임; 모든 마을, 하늘, 키보드 관측이 이 실행 아래에서 얻어진다</td>
+<td><code>wiki/experiments/two-tap-town-recipe.md</code>; <code>docs/kb/hybrid/recipes.md</code> section 3</td>
+</tr>
+<tr>
+<td>TP_POINT</td>
+<td>ROM 자체가 공개하는 터치 포인트, <code>{x, y, touch, validity}</code>; <code>0xffff, 0xffff</code>는 터치 없음</td>
+<td><code>0x021fbde8</code>, written by <code>func_020e9314</code> (autoload_2), read by <code>func_020b9280</code></td>
+</tr>
+<tr>
+<td>VBlank 태스크 리스트 (VBlank task list)</td>
+<td>ROM이 수직 블랭크 안에서 순회하는 두 번째의 별도 리스트로, 각 태스크는 vtable 슬롯 0을 통해 실행된다</td>
+<td>head <code>0x021f6ca0</code>; walked by <code>func_020b98ec</code> (main)</td>
+</tr>
+<tr>
+<td>워크 모드 (walk mode)</td>
+<td>어느 디스플레이 리스트가 순회 중인지 말하는 전역; 모드 3은 커밋을 업데이트 리스트로 미룬다</td>
+<td><code>0x0213e7fc</code>; read by <code>func_020ee59c</code></td>
+</tr>
+</tbody>
+</table></div></div>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "./";</script>
+<script src="./assets/site.js" defer></script>
+</body>
+</html>

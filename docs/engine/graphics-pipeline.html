@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>그래픽스 파이프라인 · ACWW 근거 위키</title>
+<meta name="description" content="ACWW는 DS의 3D 지오메트리 엔진으로 월드를 그리고, 그 주변의 모든 것 — 하늘, 메시지 상자, 메뉴, HUD — 은 두 개의 2D 엔진으로 그린다. 모델은 NitroSystem G3D 리소스로 도착하고, 이름으로 텍스처에 바인딩되며, 미리 패킹된 디스플레이 리">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li class="active"><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>그래픽스 파이프라인</span></div><header class="page-head"><h1>그래픽스 파이프라인</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 49</span><span class="gchip g-E"><b>E</b> 6</span></div><div class="source-line">원문: <code>wiki/engine/graphics-pipeline.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ACWW는 DS의 3D 지오메트리 엔진으로 월드를 그리고, 그 주변의 모든 것 —
+하늘, 메시지 상자, 메뉴, HUD — 은 두 개의 2D 엔진으로 그린다. 모델은 NitroSystem G3D
+리소스로 도착하고, 이름으로 텍스처에 바인딩되며, 미리 패킹된 디스플레이 리스트로
+<code>0x04000400</code>의 지오메트리 FIFO에 곧바로 제출된다. 2D 쪽은 평범한 NDS이다: 우선순위에 따라
+합성되는 텍스트 및 어파인 배경, OAM의 스프라이트, 그 위의 색상 특수 효과. 어느 엔진이
+어느 물리 화면을 소유하는지는 <code>POWCNT1</code>에 기록되는 런타임 결정이다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<h3 id="리소스-입력">리소스 입력</h3>
+<p>모델은 <code>nsbmd</code>(<code>BMD0</code>)이고 그 텍스처는 <code>nsbtx</code>(<code>BTX0</code>)이다; 애니메이션은 <code>nsbca</code>,
+<code>nsbtp</code>, <code>nsbta</code>, <code>nsbva</code>, <code>nsbma</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, magic census — see <code>../data/archives.md</code></span></span>. <code>0x021079ac</code>의 <code>NNS_G3dGetResDataByName</code>은 리소스 안에서 이름 붙은
+블록을 찾는 딕셔너리 조회이고 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGetResDataByName.c</code></span></span>,
+<code>0x02104f38</code>의 <code>NNS_G3dBindMdlTex</code>는 모델의 텍스처-머티리얼 딕셔너리를 순회하며 이름 붙은
+각 텍스처를 바인딩하고, <code>nsbtx</code>에 없는 이름이 하나라도 있으면 FALSE를 반환한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dBindMdlTex.c</code></span></span>. 팔레트 쪽 쌍둥이는 <code>NNS_G3dBindMdlPltt</code> <code>0x02104d7c</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code></span></span>. 텍스처 바이트는
+<code>NNS_G3dTexLoad</code> <code>0x0210518c</code>를 통해 VRAM으로 가는데, 이 함수는 <code>GX_BeginLoadTex</code> / <code>GX_LoadTex</code> /
+<code>GX_EndLoadTex</code>로 감싸고 4x4 압축 쌍을 두 번의 쓰기로 처리한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dTexLoad.c</code></span></span>. 그 텍스처들을 위한 공간은 그래픽스
+파운데이션 할당자 <code>NNS_GfdAllocFrmTexVram</code> <code>0x02102a54</code>가 나눠 주며, 패킹된 텍스처 키를 반환한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_GfdAllocFrmTexVram.c</code></span></span>.</p>
+<p>애니메이션 세트는 한 번에 한 종류씩 가져온다: <code>NNS_G3dGetJntAnmSet</code> <code>0x02107b28</code>,
+<code>NNS_G3dGetMatCAnmSet</code> <code>0x02107b64</code>, <code>NNS_G3dGetTexSRTAnmSet</code> <code>0x02107ba0</code>,
+<code>NNS_G3dGetTexPatAnmSet</code> <code>0x02107bdc</code>, <code>NNS_G3dGetVisAnmSet</code> <code>0x02107cd4</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code></span></span>.</p>
+<h3 id="지오메트리-출력">지오메트리 출력</h3>
+<p>셰이프 하나를 그리는 것은 <code>NNS_G3dDraw1Mat1Shp</code> <code>0x02107088</code>이다: 머티리얼과
+텍스처 행렬 애니메이션 결과를 적용하고, 셰이프의 미리 패킹된 디스플레이 리스트를
+<code>NNS_G3dGeSendDL((u8*)shp + shp-&gt;ofsDL, shp-&gt;sizeDL)</code>로 제출하고, 역 위치 스케일을 다시 적용한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dDraw1Mat1Shp.c</code></span></span>. 제출 경로는 네 개의 ITCM 루틴이다:
+<code>NNS_G3dGeSendDL</code> <code>0x01ff8d4c</code>는 256바이트 미만의 리스트는 버퍼를 통해, 더 큰 것은
+DMA로 보낸다; <code>NNS_G3dGeBufferOP_N</code> <code>0x01ff8bd0</code>은 op 워드와 N개의 인수를
+0xc0워드 명령 버퍼에 버퍼링하거나, op를 <code>0x04000400</code>의 FIFO에 곧바로 쓰고
+인수를 <code>MI_CpuSend32</code>로 스트리밍한다; <code>NNS_G3dGeFlushBuffer</code> <code>0x01ff8ccc</code>는 진행 중인 DMA를 기다린 뒤
+버퍼 전체를 보낸다; <code>NNS_G3dGeWaitSendDL</code> <code>0x01ff8e18</code>은 비동기 DMA가 완료될 때까지 스핀한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGeSendDL.c</code>, <code>NNS_G3dGeBufferOP_N.c</code>, <code>NNS_G3dGeFlushBuffer.c</code>, <code>NNS_G3dGeWaitSendDL.c</code>; <code>config/adm-kr/arm9/itcm/symbols.txt</code></span></span>. 이 넷은 ITCM의 G3D
+제출 멤버이지 ITCM 전체가 아니다: <code>itcm</code>은 158개의 함수 심볼을 담고 있고 그중 114개가
+이름이 있으며, 여기에는 열세 개의 <code>NNSi_G3dFuncSbc_*</code> 씬 그래프 opcode, <code>MTX_*</code>/<code>VEC_*</code>
+/<code>FX_*</code> 고정소수점 라이브러리 전체, <code>OS_IrqHandler</code>, <code>OS_Halt</code>, <code>OS_SaveContext</code>/<code>OS_LoadContext</code>,
+<code>OS_GetTick</code>, 디스플레이 오브젝트 스테퍼가 포함된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/itcm/symbols.txt</code>, counted over <code>kind:function</code> lines; see <code>memory-map.md</code> and <code>display-objects.md</code></span></span>.</p>
+<p>전역 3D 상태 — 조명, 머티리얼 기본값, 스케일 계수 — 는 하나의 블록에 있으며,
+<code>NNS_G3dGlbInit</code> <code>0x02105884</code>가 초기값을 채우고 <code>NNS_G3dGlbFlushP</code> <code>0x02105844</code>가 0x3e워드로
+엔진에 보내며 +0xFC의 더티 비트 둘을 클리어한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGlbInit.c</code>, <code>src/matched/NNS_G3dGlbFlushP.c</code></span></span>. 조명 방향은
+세 개의 10비트 필드와 비트 30-31의 조명 id로 하나의 <code>LIGHT_VECTOR</code> 워드에 패킹된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGlbLightVector.c</code></span></span>. <code>NNS_G3dInit</code> <code>0x021072e4</code>는 <code>G3X_Init</code>, 그 다음
+<code>NNS_G3dGlbInit</code>을 호출하고, 그 다음 <code>0x04000600</code>의 GXSTAT FIFO-IRQ 필드를 설정한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dInit.c</code></span></span>.</p>
+<p>NNS 아래에는 SDK 자체의 지오메트리 계층이 있다. <code>G3X_Init</code> <code>0x0211265c</code>는 파이프라인이 사용하는 레지스터
+집합 전체를 명시한다: <code>DISP3DCNT</code> <code>0x04000060</code>, <code>EDGE_COLOR</code> <code>0x04000330</code>, <code>CLEAR_COLOR</code>
+<code>0x04000350</code>, <code>CLEAR_DEPTH</code> <code>0x04000354</code>, <code>CLRIMAGE_OFFSET</code> <code>0x04000356</code>, <code>FOG_COLOR</code>
+<code>0x04000358</code>, <code>FOG_OFFSET</code> <code>0x0400035c</code>, <code>FOG_TABLE</code> <code>0x04000360</code>, <code>TOON_TABLE</code> <code>0x04000380</code>,
+<code>POLYGON_ATTR</code> <code>0x040004a4</code>, <code>TEXIMAGE_PARAM</code> <code>0x040004a8</code>, <code>TEXPLTT_BASE</code> <code>0x040004ac</code>,
+<code>END_VTXS</code> <code>0x04000504</code>, <code>GXSTAT</code> <code>0x04000600</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_Init.c</code></span></span>. 행렬 결과는
+GXSTAT busy 비트 <code>0x08000000</code>을 기다린 뒤 <code>CLIPMTX_RESULT</code> <code>0x04000640</code>과 <code>VECMTX_RESULT</code> <code>0x04000680</code>에서
+읽어 낸다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_GetClipMtx.c</code>, <code>src/matched/G3X_GetVectorMtx.c</code></span></span>. 행렬 스택 레벨은 GXSTAT 비트 <code>0x1f00</code>(위치)과
+<code>0x2000</code>(투영)이고, 오류 비트는 <code>0x4000</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_GetMtxStackLevelPV.c</code>, <code>G3X_GetMtxStackLevelPJ.c</code></span></span>.
+<code>NNS_G3dGetCurrentMtx</code> <code>0x021073a8</code>은 그 읽기 경로를 사용한다: 플러시하고, 포트
+<code>0x04000440</code>/<code>0x04000444</code>/<code>0x04000454</code>/<code>0x04000448</code>을 통해 단위 투영을 밀어 넣고,
+결과 레지스터를 폴링한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGetCurrentMtx.c</code></span></span>.</p>
+<h3 id="vram">VRAM</h3>
+<p>아홉 개의 VRAM 뱅크는 <code>autoload_2</code>의 <code>GX_SetBankFor*</code> 계열이 할당하며, 모두
+<code>0x04000240</code>-<code>0x04000249</code>의 <code>VRAMCNT</code> 바이트에 쓴다(인덱스 7은 <code>WRAMCNT</code>이며 건너뛴다):
+<code>GX_SetBankForBG</code> <code>0x02111740</code>, <code>ForOBJ</code> <code>0x021115d4</code>, <code>ForSubBG</code> <code>0x02110e4c</code>, <code>ForSubOBJ</code>
+<code>0x02110dd0</code>, <code>ForTex</code> <code>0x02111204</code>, <code>ForTexPltt</code> <code>0x02111110</code>, <code>ForBGExtPltt</code> <code>0x021114c0</code>,
+<code>ForOBJExtPltt</code> <code>0x02111408</code>, <code>ForClearImage</code> <code>0x02110fd0</code>, <code>ForLCDC</code> <code>0x02110ef8</code>, <code>ForARM7</code>
+<code>0x02110f18</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>src/matched/GX_SetBankForBG.c</code> and siblings</span></span>. <code>GX_VRAMCNT_SetLCDC_</code> <code>0x021119f8</code>은
+뱅크를 LCDC 모드에 두는 루틴이며, 그 상수가 각 뱅크의 LCDC 별칭을 알려 준다:
+<code>0x06800000</code>, <code>0x06820000</code>, <code>0x06840000</code>, <code>0x06860000</code>, <code>0x06880000</code>, <code>0x06890000</code>, <code>0x06894000</code>,
+<code>0x06898000</code>, <code>0x068A0000</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_VRAMCNT_SetLCDC_.c</code></span></span>.</p>
+<p>대량 업로드는 고정 목적지로의 DMA 복사이다: OAM은 <code>0x07000000</code>(엔진 A)과
+<code>0x07000400</code>(엔진 B); BG 팔레트는 <code>0x05000000</code> / <code>0x05000400</code>; OBJ 팔레트는 <code>0x05000200</code>
+/ <code>0x05000600</code>; OBJ 타일은 <code>0x06400000</code> / <code>0x06600000</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_LoadOAM.c</code>, <code>GXS_LoadOAM.c</code>, <code>GX_LoadBGPltt.c</code>, <code>GX_LoadOBJPltt.c</code>, <code>GXS_LoadBGPltt.c</code>, <code>GXS_LoadOBJPltt.c</code>, <code>GX_LoadOBJ.c</code>, <code>GXS_LoadOBJ.c</code></span></span>.</p>
+<h3 id="2d">2D</h3>
+<p>디스플레이 모드는 <code>DISPCNT</code> <code>0x04000000</code>에 대한 <code>GX_SetGraphicsMode</code> <code>0x0211062c</code>와
+<code>DISPCNT_B</code> <code>0x04001000</code>에 대한 <code>GXS_SetGraphicsMode</code> <code>0x02110610</code>으로 설정된다; 서브 엔진에는
+<code>bg0_2d3d</code>나 디스플레이 모드 필드가 없으므로 그 마스크는 세 개의 BG 모드 비트뿐이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_SetGraphicsMode.c</code>, <code>src/matched/GXS_SetGraphicsMode.c</code></span></span>. <code>GX_DispOn</code>과
+<code>GX_DispOff</code>는 <code>DISPCNT</code> 비트 16-17을 토글한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_DispOn.c</code>, <code>GX_DispOff.c</code></span></span>.
+각 BG 레이어의 캐릭터 및 스크린 베이스 포인터는 <code>0x02111b00</code>-<code>0x02111f68</code>의 <code>G2_GetBGnCharPtr</code> /
+<code>G2_GetBGnScrPtr</code> 쌍과 그 <code>G2S_</code> 서브 엔진 쌍둥이에서 온다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code></span></span>.</p>
+<p>어느 엔진이 어느 물리 화면을 구동하는지는 <code>0x04000304</code>의 <code>POWCNT1</code> 비트 15이다: <code>POWCNT1 =
+0x020f</code>이면 엔진 A가 <strong>아래</strong> 화면을 구동하고, <code>0x820f</code>이면 위 화면을 구동한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/render.md</code>, screen ownership; the value is logged between PAD samples 6723 and 6726 on the custom START9000 recipe</span></span>. <code>func_020540e4</code>가 게임 쪽 쓰기자로,
+<code>(POWCNT1 &amp; 0xfffffdf1) | 0x20e</code>를 계산한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020540e4.c</code></span></span>.</p>
+<p>게임이 실제로 사용하는 2D 레이어는 인터프리터 경로에서 측정되었다. 마을의 위
+화면은 BG 모드 1의 엔진 B이고 BG3는 어파인 레이어, <code>BG3CNT = 0x6f02</code>이다 — 그 레이어가
+하늘이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> SKY40, <code>tap-D57</code></span></span>. 어파인 배경은
+바이트 스크린 엔트리를 가진 8bpp이고, 크기는 128에서 1024 정사각형, 랩 비트는 13, PA..PD는 8.8이며
+20.8 기준점은 BG2는 <code>+0x20</code>, BG3는 <code>+0x30</code>에 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds2d.c</code>, <code>draw_affine_bg</code>, written to GBATEK; E: same run</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NNS_G3dGeBufferOP_N</code> <code>0x01ff8bd0</code></td>
+<td><code>itcm</code></td>
+<td>GX op 하나를 버퍼링하거나 쓰기</td>
+<td>S: <code>src/matched/NNS_G3dGeBufferOP_N.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dGeFlushBuffer</code> <code>0x01ff8ccc</code></td>
+<td><code>itcm</code></td>
+<td>명령 버퍼 전송</td>
+<td>S: <code>src/matched/NNS_G3dGeFlushBuffer.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dGeSendDL</code> <code>0x01ff8d4c</code></td>
+<td><code>itcm</code></td>
+<td>패킹된 디스플레이 리스트 제출</td>
+<td>S: <code>src/matched/NNS_G3dGeSendDL.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dGeWaitSendDL</code> <code>0x01ff8e18</code></td>
+<td><code>itcm</code></td>
+<td>비동기 GX DMA 대기</td>
+<td>S: <code>src/matched/NNS_G3dGeWaitSendDL.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dDraw1Mat1Shp</code> <code>0x02107088</code></td>
+<td><code>autoload_2</code></td>
+<td>셰이프 하나 그리기</td>
+<td>S: <code>src/matched/NNS_G3dDraw1Mat1Shp.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dInit</code> <code>0x021072e4</code></td>
+<td><code>autoload_2</code></td>
+<td>G3D 기동</td>
+<td>S: <code>src/matched/NNS_G3dInit.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dGlbInit</code> <code>0x02105884</code> / <code>NNS_G3dGlbFlushP</code> <code>0x02105844</code></td>
+<td><code>autoload_2</code></td>
+<td>전역 3D 상태</td>
+<td>S: <code>src/matched/NNS_G3dGlbInit.c</code>, <code>NNS_G3dGlbFlushP.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dTexLoad</code> <code>0x0210518c</code></td>
+<td><code>autoload_2</code></td>
+<td><code>nsbtx</code> 블록 업로드</td>
+<td>S: <code>src/matched/NNS_G3dTexLoad.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dBindMdlTex</code> <code>0x02104f38</code> / <code>BindMdlPltt</code> <code>0x02104d7c</code></td>
+<td><code>autoload_2</code></td>
+<td>이름으로 바인딩</td>
+<td>S: <code>src/matched/NNS_G3dBindMdlTex.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G3dGetResDataByName</code> <code>0x021079ac</code></td>
+<td><code>autoload_2</code></td>
+<td>리소스 딕셔너리 조회</td>
+<td>S: <code>src/matched/NNS_G3dGetResDataByName.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_GfdAllocFrmTexVram</code> <code>0x02102a54</code></td>
+<td><code>autoload_2</code></td>
+<td>텍스처 VRAM 할당</td>
+<td>S: <code>src/matched/NNS_GfdAllocFrmTexVram.c</code></td>
+</tr>
+<tr>
+<td><code>G3X_Init</code> <code>0x0211265c</code></td>
+<td><code>autoload_2</code></td>
+<td>모든 3D 레지스터를 명시하고 클리어</td>
+<td>S: <code>src/matched/G3X_Init.c</code></td>
+</tr>
+<tr>
+<td><code>G3X_GetClipMtx</code> <code>0x021123a8</code> / <code>G3X_GetVectorMtx</code> <code>0x02112360</code></td>
+<td><code>autoload_2</code></td>
+<td>행렬 읽기</td>
+<td>S: <code>src/matched/G3X_GetClipMtx.c</code></td>
+</tr>
+<tr>
+<td><code>G3_LoadMtx43</code> <code>0x02112134</code>, <code>G3_MultMtx43</code> <code>0x02112118</code>, <code>G3_MultMtx33</code> <code>0x021120fc</code></td>
+<td><code>autoload_2</code></td>
+<td>FIFO로의 행렬 연산</td>
+<td>S: <code>src/matched/G3_LoadMtx43.c</code> and siblings</td>
+</tr>
+<tr>
+<td><code>GX_SetGraphicsMode</code> <code>0x0211062c</code> / <code>GXS_</code> <code>0x02110610</code></td>
+<td><code>autoload_2</code></td>
+<td><code>DISPCNT</code> / <code>DISPCNT_B</code></td>
+<td>S: <code>src/matched/GX_SetGraphicsMode.c</code></td>
+</tr>
+<tr>
+<td><code>GX_SetBankFor*</code> <code>0x02110dd0</code>..<code>0x02111740</code></td>
+<td><code>autoload_2</code></td>
+<td><code>VRAMCNT</code> 할당</td>
+<td>S: <code>src/matched/GX_SetBankForBG.c</code> etc.</td>
+</tr>
+<tr>
+<td><code>GX_VRAMCNT_SetLCDC_</code> <code>0x021119f8</code></td>
+<td><code>autoload_2</code></td>
+<td>LCDC 별칭 테이블</td>
+<td>S: <code>src/matched/GX_VRAMCNT_SetLCDC_.c</code></td>
+</tr>
+<tr>
+<td><code>GX_LoadOAM</code> <code>0x02113280</code> / <code>GXS_LoadOAM</code> <code>0x02113218</code></td>
+<td><code>autoload_2</code></td>
+<td>OAM DMA</td>
+<td>S: <code>src/matched/GX_LoadOAM.c</code></td>
+</tr>
+<tr>
+<td><code>func_020540e4</code></td>
+<td><code>main</code></td>
+<td><code>POWCNT1</code> 쓰기</td>
+<td>S: <code>src/matched/func_020540e4.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G2dMapScrToCharText</code> <code>0x02103734</code></td>
+<td><code>autoload_2</code></td>
+<td>32타일 블록 접기로 텍스트 BG 스크린 맵을 채움</td>
+<td>S: <code>src/matched/NNS_G2dMapScrToCharText.c</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x04000000</code> / <code>0x04001000</code></td>
+<td><code>DISPCNT</code> A / B</td>
+<td><code>GX_SetGraphicsMode</code>, <code>GX_DispOn/Off</code></td>
+<td>LCD <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_SetGraphicsMode.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000008</code>+2n</td>
+<td><code>BGnCNT</code></td>
+<td>게임의 레이어 설정</td>
+<td>2D 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds2d.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000050</code> / <code>0x52</code> / <code>0x54</code></td>
+<td><code>BLDCNT</code> / <code>BLDALPHA</code> / <code>BLDY</code></td>
+<td>게임</td>
+<td>색상 특수 효과 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds2d.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000060</code></td>
+<td><code>DISP3DCNT</code></td>
+<td><code>G3X_Init</code>, <code>G3X_SetFog</code></td>
+<td>3D 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_Init.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000240</code>-<code>0x04000249</code></td>
+<td><code>VRAMCNT</code> (인덱스 7 = <code>WRAMCNT</code>)</td>
+<td><code>GX_SetBankFor*</code></td>
+<td>메모리 컨트롤러 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_VRAMCNT_SetLCDC_.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000280</code>-<code>0x040002bf</code></td>
+<td>하드웨어 나눗셈 / 제곱근</td>
+<td><code>FX_Div</code>, <code>FX_Sqrt</code></td>
+<td>동일 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/...</code> GX40</span></span></td>
+</tr>
+<tr>
+<td><code>0x04000304</code></td>
+<td><code>POWCNT1</code>; 비트 15가 어느 엔진이 위인지 바꿈</td>
+<td><code>func_020540e4</code></td>
+<td>LCD들 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020540e4.c</code>; E: <code>docs/kb/port/render.md</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000330</code>/<code>0x350</code>/<code>0x354</code>/<code>0x356</code>/<code>0x358</code>/<code>0x35c</code>/<code>0x360</code>/<code>0x380</code></td>
+<td>엣지, 클리어 색상, 클리어 깊이, 클리어 이미지 오프셋, 안개 색상, 안개 오프셋, 안개 테이블, 툰 테이블</td>
+<td><code>G3X_*</code> 설정자</td>
+<td>3D 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_Init.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000400</code>-<code>0x0400043f</code></td>
+<td>패킹된 지오메트리 FIFO(64바이트 전부가 같은 포트)</td>
+<td><code>NNS_G3dGeBufferOP_N</code>, <code>GX_SendFifo48B</code></td>
+<td>지오메트리 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGeBufferOP_N.c</code>; <code>port/render/gxfifo.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000440</code>-<code>0x040005c8</code></td>
+<td>45개의 개별 명령 포트, <code>0x04000440 + (op-0x10)*4</code></td>
+<td><code>G3_*</code>, <code>G3X_*</code></td>
+<td>동일 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3_LoadMtx43.c</code>; <code>port/render/gxfifo.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000600</code></td>
+<td><code>GXSTAT</code>: busy <code>0x08000000</code>, 스택 오류 <code>0x8000</code>, 스택 레벨 <code>0x1f00</code>/<code>0x2000</code>, FIFO IRQ <code>0xc0000000</code></td>
+<td><code>G3X_Init</code>, <code>G3X_ResetMtxStack</code></td>
+<td><code>G3X_GetClipMtx</code>, 대기 루프들 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_Init.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x04000640</code> / <code>0x04000680</code></td>
+<td><code>CLIPMTX_RESULT</code> (16 fx32) / <code>VECMTX_RESULT</code> (9 fx32)</td>
+<td>지오메트리 엔진</td>
+<td><code>G3X_GetClipMtx</code> / <code>GetVectorMtx</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/G3X_GetClipMtx.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x05000000</code>/<code>0x200</code>/<code>0x400</code>/<code>0x600</code></td>
+<td>BG-A, OBJ-A, BG-B, OBJ-B 팔레트</td>
+<td><code>GX_LoadBGPltt</code> 계열</td>
+<td>2D 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_LoadBGPltt.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x06400000</code> / <code>0x06600000</code></td>
+<td>OBJ 타일 공간 A / B</td>
+<td><code>GX_LoadOBJ</code>, <code>GXS_LoadOBJ</code></td>
+<td>2D 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_LoadOBJ.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x06800000</code>+</td>
+<td>LCDC 뱅크 별칭</td>
+<td><code>GX_VRAMCNT_SetLCDC_</code>, <code>GX_LoadTex</code></td>
+<td>텍스처 유닛 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_VRAMCNT_SetLCDC_.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x07000000</code> / <code>0x07000400</code></td>
+<td>OAM A / B, 각 128 엔트리</td>
+<td><code>GX_LoadOAM</code>, <code>GXS_LoadOAM</code></td>
+<td>2D 엔진 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GX_LoadOAM.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>포트는 이 모든 것의 하드웨어 쪽을 구현하므로, 어떤 주장을 가장 빠르게 확인하는 방법은
+ROM 자체의 코드를 그 위에서 실행하는 것이다. 마을과 그 하늘에 도달하는 레시피:</p>
+<pre><code>ACWW_INTERP=1
+ACWW_KEYS_AT / _FOR / _EVERY   # the custom START9000 keys -- the short forms are not read (B1)
+ACWW_TOUCH_ENABLE=1 ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181 ACWW_TOUCH_AT=6900 ACWW_TOUCH_EVERY=60
+ACWW_STOP_FRAME=48000
+python port/tools/run.py --frontier start
+</code></pre>
+<p>예상: 프레임 4,500에 이름 키보드 위로 택시 내부 — 카파(Kapp'n), 비, 창문 — 가
+프레임당 대략 291 폴리곤과 99,000 합성 픽셀로 나타난다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> GX40, run <code>off-D51</code>; O: <code>scratchpad/oracle/off</code>, the same scene in DeSmuME</span></span>. 프레임 37,800에는 마을 회관 위의 파란
+하늘에 구름이 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same log, SKY40, run <code>tap-D57</code></span></span>. 프레임 37,500에는 오버레이
+5, 36, 54, 120, 117이 로드된 마을이 있고, 48,000프레임이 811초에 실행된다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code>, per the same log, TOWN40</span></span>.</p>
+<p>이 페이지에 특화된 계측이 둘 있다. <code>ACWW_TEXTRACE_FRAME</code>을 십진수
+<code>ACWW_TEXTRACE_INDEX</code>와 함께 쓰면 2,048 폴리곤 리스트 범위 안에서 한 폴리곤의 텍스처 출처를 덤프한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/render.md</code>, texture provenance</span></span>. <code>ACWW_OAMDUMP=&lt;frame&gt;</code>은 두 OAM 테이블을 모두
+덤프하며 <code>ACWW_TRACE_STATE</code>에 게이트되지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/render.md</code>, OAM cursor table</span></span>.
+<code>ACWW_NOBLEND=1</code>은 색상 특수 효과를 비활성화하여 블렌드를 분리할 수 있게 한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds2d.c</code></span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>클리어 이미지(후면 평면 비트맵) 경로는 이 게임에서 절대 사용되지 않는다.</strong> <code>DISP3DCNT</code> 비트 14는
+  포트에서 기록만 되고 구현되지 않았지만, <code>func_ov001_0222e4dc</code>는
+  <code>GX_SetBankForClearImage</code>를 호출한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/raster3d.c</code>; <code>src/matched/GX_SetBankForClearImage.c</code></span></span>.
+  긴 마을 실행과 WFC 화면 실행에 걸쳐 <code>DISP3DCNT</code> 비트 14를 로깅하여 해결한다.</li>
+<li><strong>확장 회전/확대 및 대형 비트맵 배경(BG 모드 3-6)은 사용되지 않는다.</strong> 포트는 이를 건너뛰며
+  지금까지 어떤 씬도 필요로 하지 않았다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds2d.c</code>, K_EXT / K_LARGE notes</span></span>.
+  인터프리터 레시피들에 걸쳐 이를 선택하는 <code>BGnCNT</code> 값에 대해 assert하여 해결한다.</li>
+<li><strong>윈도잉(<code>WIN0</code>/<code>WIN1</code>/<code>OBJWIN</code>), 모자이크, 확장 팔레트는 사용되지 않는다.</strong> 같은 상황이다:
+  기록됨, 미구현, 어떤 씬도 필요로 하지 않음 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds2d.c</code></span></span>.
+  <code>DISPCNT &amp; 0xE000</code>과 <code>DISPCNT &amp; 0xC0000000</code>에 대해 assert하여 해결한다.</li>
+<li><strong><code>BOX_TEST</code>, <code>POS_TEST</code>, <code>VEC_TEST</code>(GX 명령 0x70-0x72)는 게임의 컬링에 중요하다.</strong>
+  포트는 셋 모두를 스텁 처리하여 GXSTAT test-busy 비트를 클리어하고 "보임"으로 보고한다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/render/nds3d.c</code></span></span>. 게임이 <code>BOX_TEST</code>로 컬링한다면, 항상 "보임"으로 답하는 것은
+  폴리곤을 낭비하지만 보이는 것은 아무것도 바꾸지 않는다; <code>POS_TEST</code> 결과로 컬링한다면,
+  틀릴 수 있다. 마을 레시피에서 프레임당 0x70/0x71/0x72 제출을 세어 해결한다.</li>
+<li><strong>포트의 <code>POWCNT1</code> 해석은 <code>0x020f</code>에서 엔진 A가 아래라는 것이다.</strong> 이는 포트 실행에 대한
+  실험적 해석이며 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/port/render.md</code></span></span>, 하드웨어 타이밍에서 같은 스왑을
+  확인하는 데 오라클이 사용되지 않았다. 같은 프레임에서 <code>scratchpad/oracle/*</code>과 포트 실행 사이의
+  두 화면 내용을 비교하여 해결한다.</li>
+<li><strong><code>NNS_G3dGeSendDL</code>의 256바이트 임계값은 대부분의 셰이프가 DMA가 아니라 버퍼를 거친다는 뜻이다.</strong>
+  임계값은 소스에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGeSendDL.c</code></span></span>; 실제 분포는
+  측정되지 않았다. <code>NNS_G3dDraw1Mat1Shp</code>에서 <code>shp-&gt;sizeDL</code>을 히스토그램으로 만들어 해결한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../data/archives.md</code> — <code>nsb*</code> 리소스 컨테이너.</li>
+<li><code>../data/rom-layout.md</code> — 모델, 텍스처, 메뉴 에셋이 있는 곳.</li>
+<li><code>text-and-messages.md</code> — 같은 2D 엔진으로 그려지는 글리프.</li>
+<li><code>display-objects.md</code>, <code>memory-map.md</code> — 이 파이프라인을 둘러싼 프레임워크와 아레나.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../engine/file-system.html"><small>◀ 이전</small>파일 시스템</a><a class="pn next" href="../engine/text-and-messages.html"><small>다음 ▶</small>텍스트와 메시지</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#리소스-입력">리소스 입력</a></li><li><a href="#지오메트리-출력">지오메트리 출력</a></li><li><a href="#vram">VRAM</a></li><li><a href="#2d">2D</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

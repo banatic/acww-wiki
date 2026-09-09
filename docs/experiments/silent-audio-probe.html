@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가? · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li class="active"><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</span></div><header class="page-head"><h1>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 4</span><span class="gchip g-E"><b>E</b> 7</span></div><div class="source-line">원문: <code>wiki/experiments/silent-audio-probe.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 설계만 됨, 아직 미실행.</strong></p>
+<h2 id="목적">목적</h2>
+<p>포트의 ARM7 사운드 프로세서 전체는 ARM9의 명령 목록을 순회하며 모든 명령을 조용히
+완료하고 완료 태그를 올리는 함수 하나이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span>. 이 함수는 보는 각 명령의 id를 출력한다 &ndash; 그러나 출력이
+<code>said &lt; 12</code>로 제한되어 있어 처음 열두 개만 출력한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span>.</p>
+<p>그 제한 때문에 현재 상태로는 가장 유용한 질문에 답할 수 없다. 첫 가청 슬라이스는 id 2
+(<code>PREPARE_SEQ</code>), 9 (<code>ALLOCATABLE_CHANNEL</code>), 6 (<code>PLAYER_PARAM</code>), 3 (<code>START_PREPARED_SEQ</code>)을
+지원해야 할 것이고 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code></span></span>, 게임이 마을 회관으로 가는 길에
+그중 어느 것을 실제로 내보내는지는 아무도 모른다. 프레임 0부터의 열두 줄은 모두 부팅
+트래픽일 것이다.</p>
+<p>따라서 이 실험은 두 부분이다: 제한을 올리고, 그 다음 센다.</p>
+<h2 id="레시피">레시피</h2>
+<p><strong>1단계, 한 줄짜리 도구 변경.</strong> <code>port/shim/os/pxisend.c</code>의 <code>snd_arm7</code>에서 출력은 12로
+제한된 정적 카운터로 게이트되어 있다. 이를 id별 "seen" 테이블로 교체한다. <code>acww_card_arm7</code>이
+요청 타입에 대해 이미 사용하는 것과 정확히 같은 모양이다 &ndash; 서로 다른 명령 id마다 한 줄,
+게이트 없음 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>, <code>static unsigned char seen[16</span></span></code>]. 이는 출력 홍수
+없이 "어떤 id가 발생하는가"에 답한다; id별 두 번째 카운터가 "몇 번인가"에 답하며, 덤프
+시점에 한 번 출력한다.</p>
+<p>근거이며, 이 저장소의 상시 경고가 상수 하나의 형태로 도착한 것이다: 발화할 수 없는
+도구는 발화하되 아무것도 바꾸지 않는 도구와 구별할 수 없다. 카드 심은 정확히 이
+이유로 잘못된 상수 두 개를 내보낸 적이 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code></span></span>.</p>
+<p><strong>2단계, 대조.</strong> <code>off-recipe.md</code>를 실행하고 31 중 31 동일을 확인한다. 출력만 바꾸는
+변경은 픽셀 하나도 움직여서는 안 된다; 움직인다면 그 변경은 출력만 바꾸는 것이 아니다 (M15).</p>
+<p><strong>3단계, 측정.</strong> <code>two-tap-town-recipe.md</code>의 마을 레시피를 그대로 48,000 프레임까지.
+그 다음 Python으로 로그에서 카운트를 뽑아낸다 &ndash; <strong>셸 <code>grep</code> 대안(alternation)으로
+하지 말 것</strong>: 여기의 셸은 ripgrep이며 그 대안 기호는 <code>\|</code>가 아니라 <code>|</code>이고, 옛 패턴은
+한 사이클 안에서 두 번이나 조용히 아무것도 매치하지 않았다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 8; <code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40</span></span>.</p>
+<h2 id="예상-관측">예상 관측</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>줄</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>acww snd7: command id 1d completed silently</code></td>
+<td>id 29, <code>SHARED_WORK</code>: ARM7이 블록의 주소를 알게 되는 것. 초기에, 그리고 최소 한 번은 예상됨</td>
+</tr>
+<tr>
+<td><code>acww snd7: command id 2</code></td>
+<td><code>PREPARE_SEQ</code> &ndash; 시퀀스가 실제로 요청되었다</td>
+</tr>
+<tr>
+<td><code>acww snd7: command id 9</code></td>
+<td><code>ALLOCATABLE_CHANNEL</code>, 플레이어의 할당 마스크가 0이 아닐 때에만 prepare 뒤에 따라온다</td>
+</tr>
+<tr>
+<td><code>acww snd7: command id 6</code></td>
+<td><code>PLAYER_PARAM</code>, 계산된 페이더나 볼륨이 다를 때에만 플레이어 메인 스텝에서 내보내진다</td>
+</tr>
+<tr>
+<td><code>acww snd7: command id 3</code></td>
+<td><code>START_PREPARED_SEQ</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>예측:</p>
+<ul>
+<li>id 29가 발생한다. 프로토콜은 그렇게 시작하며 포트는 <code>finishCommandTag</code>를 찾기 위해
+  이에 의존한다.</li>
+<li>id 2와 3이 프레임 6,000 전에 발생한다. 원본에서는 타이틀과 택시에 음악이 있기 때문이다.</li>
+<li>id 6이 대량으로 발생한다. 페이더 램프는 서로 다른 스텝마다 하나씩 내보내기 때문이다.</li>
+</ul>
+<p>id 2, 3, 6, 9가 48,000 프레임에 걸쳐 모두 없다면, 이 빌드에서 게임 자체의 사운드 경로가
+드라이버에 도달하지 않거나, 아카이브 로드가 조용히 실패한 것이다 &ndash; 그리고 후자는 알려진
+실패 시그니처가 있다: 호스트 사운드 파사드가 한 번 "아카이브 없음"이라고 답했고,
+<code>NNS_SndArcGetSeqArcParam</code>이 <code>func_020f4b1c</code>에 NULL을 반환했으며, 이것이 ROM의 치명적
+경로 <code>func_0206e3ec</code>를 호출했고, ROM의 크래시 화면이 프레임 ~830부터 두 화면 모두 검은
+채로 루프했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40..SND40</span></span>. 그 실행은
+마을에 도달하므로 그 특정 실패는 배제된다 &ndash; 따라서 전부 없음이라는 결과는 진정으로
+놀라운 것이며 추적할 가치가 있다.</p>
+<p>같은 로그에서 공짜로 얻는 두 번째 관측: ARM9가 <em>기다린</em> 적이 있는가. <code>SND_WaitForCommandProc</code>는
+태그가 완료될 때까지 스핀한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_WaitForCommandProc.c</code></span></span>. 끝까지 도달한
+실행은 그런 대기가 데드락되지 않았음을 증명하며, 이것이 무음 ARM7이 충분하다는 상시
+근거이다 &ndash; ROM의 치명적 경로에 다시 들어가지 않은 90,000 프레임
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D59</code>, LONG41</span></span>.</p>
+<h2 id="이-실험이-검증하는-가설의-반증-조건">이 실험이 검증하는 가설의 반증 조건</h2>
+<p>가설은 무음 ARM7이 게임의 로직에 무기한으로 충분하다는 것이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/hardware-services.md</code> section 7</span></span>. 대기 함수가 <code>SND_*</code> 또는 <code>NNS_Snd*</code>
+심볼인 정체(stall)가 있으면 반증된다 &ndash; ROM의 사운드 스택은 실제 플레이어 상태를 결코
+보고하지 않는 소비자를 상대로 돌아가므로, 게임이 진행을 기다리는 시퀀스는 멈출 것이다.
+이 프로브는 그것을 만들어 낼 수 없다; 어떤 명령이 사용 중인지만 알려 줄 수 있으며, 이는
+음악 기반 타이밍이 있는 씬에 대한 오라클 비교를 설계할 때 필요한 정보이다.</p>
+<p><strong>이 실험은 소리를 내지 않으며 그쪽으로 가는 단계도 아니다.</strong> 전송만으로는 시퀀스를
+해석하거나, 뱅크나 웨이브 아카이브를 해석하거나, 채널을 할당하거나, 엔벨로프와 타이머를
+전진시키거나, PCM을 만들어 낼 수 없다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code></span></span>.</p>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../systems/audio.md</code></li>
+<li><code>two-tap-town-recipe.md</code>, <code>off-recipe.md</code></li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/rng-determinism.html"><small>◀ 이전</small>RNG 결정성</a><span class="pn"></span></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#목적">목적</a></li><li><a href="#레시피">레시피</a></li><li><a href="#예상-관측">예상 관측</a></li><li><a href="#이-실험이-검증하는-가설의-반증-조건">이 실험이 검증하는 가설의 반증 조건</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

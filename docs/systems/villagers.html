@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주민 · ACWW 근거 위키</title>
+<meta name="description" content="마을에는 최대 여덟 명의 주민이 산다. 각 주민은 세이브 이미지 안에서 고정 스트라이드 레코드 하나를 차지하며, 각 레코드는 집 하위 레코드를 품고 있다: 저장소 안에서 주민과 집은 하나의 객체이다. 누가 이사 오는지는 생성 시점에 단 한 번, 여섯 클래스를 순회하며 ">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li class="active"><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>주민</span></div><header class="page-head"><h1>주민</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 34</span><span class="gchip g-E"><b>E</b> 3</span></div><div class="source-line">원문: <code>wiki/systems/villagers.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 마을에는 최대 여덟 명의 주민이 산다. 각 주민은 세이브 이미지 안에서 고정 스트라이드 레코드 하나를 차지하며, 각 레코드는 집 하위 레코드를 품고 있다: 저장소 안에서 주민과 집은 하나의 객체이다. 누가 이사 오는지는 생성 시점에 단 한 번, 여섯 클래스를 순회하며 중복을 거부하는 선택기(picker)가 결정한다; 누가 화면에 있는지는 매 프레임, 현재 있는 주민마다 액터 채널 하나를 여는 스포너(spawner)가 결정한다. 성격은 두 번 나타난다: 선택기가 어느 클래스에서 뽑았는가, 그리고 주민이 반응할 때마다 표정과 애니메이션을 고르는 가중치 테이블에서.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>여덟 개의 주민 레코드는 세이브 이미지 안 <code>0x021dc7a8 + 0x9284</code> = <code>0x021e5a2c</code>에 스트라이드 <code>0x7ec</code>로 놓이며, 각 레코드의 <code>+0x7a0</code>에 주민 하위 레코드가 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02085a30, main, port/shim/game/villspawn.c</span></span>. 이 단일 스트라이드가 이 게임에서 집과 거주자가 분리 불가능한 이유이다: 집 배치기가 같은 배열을 인덱싱한다
+(<code>for (j = 0; j &lt; 8; self += 0x7ec, j++)</code>)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207bbb8, main, port/shim/game/houseplace.c</span></span>.</p>
+<p>새 마을에 누가 사는지는 <code>func_0207b594</code>가 결정하는데, 이는 매칭된 소스가 없는 <code>main</code>의 <code>0x1d0</code>바이트짜리 함수이다: 다섯 겹의 중첩 루프가 주민 슬롯 여덟 개와 종(species) 슬롯 열일곱 개를 순회하며, 각각이 허용되는지 <code>func_0209bcd4</code>와 <code>func_0209c380</code>에 묻고, <code>func_020644cc</code>로 뽑고, 결과를 <code>func_0209bd30</code>을 통해 쓴다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207b594, main, port/shim/game/villagers.c</span></span>. 두 호출자 모두 이를 <code>void</code>로 선언하고 어느 쪽도 결과를 읽지 않으므로, 그 유일한 산출물은 주민 테이블이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207b57c / func_0209e828, main, port/shim/game/villagers.c</span></span>.</p>
+<p>초기 선택 루프는 <code>func_0207c76c</code>이며 구조가 읽기 쉽다. 여덟 번 반복한다. 각 반복은 <code>func_0207c818(self, mask)</code>에 클래스 인덱스를 묻는다; 6 이상인 인덱스는 건너뛰므로 클래스는 여섯(SIX) 개이다 &ndash; 게임의 성격 그룹이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207c76c, main, src/matched/func_0207c76c.c</span></span>. 그 다음 <code>func_0207c8c8(self, idx, 1)</code>이 그 클래스에서 주민 하나를 뽑고, 결과가 <code>~local2</code>(중복 방지 장치)와 같으면 거부되며, 성공하면 <code>func_02081518</code>이 이를 <code>self + 0x7ec * i</code> &ndash; i번째 집 레코드 &ndash; 에 쓰고 <code>func_0207ca74</code>가 <code>self + 0x4060</code>에 기록한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207c76c, main, src/matched/func_0207c76c.c</span></span>. 생성된 마을에서 값 <code>0x65</code>, <code>0x78</code>, <code>0x27</code>의 선택 세 건이 관측되었다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass 2026-08-27</span></span>.</p>
+<p>이사 오기는 생성만이 아니라 달력에 묶여 있다: 마을 디스패처의 생성 핸들러 다음에 "주민을 이사시키는 RTC 전진"이 오고, 그 다음 생성 후 동기화가 온다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209e6ec, main, port/shim/gfx/pmflist.c</span></span>.</p>
+<p>주민을 화면에 올리는 것은 매 세션 실행되는 별개의 체인이다. 모드 <code>0x2c</code>의 부팅 스크립트가 채널 <code>0xd0</code>를 연다; 그 init <code>func_02085558</code>은 야외 분기를 타고 스포너 <code>func_02085a30</code>을 호출하며, 스포너는 집 레코드 여덟 개를 순회하면서 현재 있는 각 주민마다 id <code>(i | 0xe000)</code>으로 채널(CHANNEL) <code>0x84</code>를 연다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02085558 / func_02085a30, main, port/shim/game/villspawn.c</span></span>. 채널 <code>0x84</code>의 생성자 <code>func_ov068_0226da64</code>(ov068 데이터의 레코드 <code>0x022771a0</code>)가 <code>0xa10</code>바이트 주민 액터를 만들고, 그 init <code>func_0202e1fc</code>가 이를 <code>0x021d1d4c</code>의 매니저에 등록한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov068_0226da64 / func_0202e1fc, ov068/main, port/shim/game/villspawn.c</span></span>. 매니저는 <code>{actor, id}</code> 쌍 여덟 슬롯이며 종류(kind)는 <code>0xe</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villspawn.c, port/shim/game/campos.c</span></span>.</p>
+<p>주민의 드로우 진입점은 정적 테이블이 아니라 객체 안에 보관된 멤버 함수 포인터(POINTER-TO-MEMBER)이다: <code>func_ov068_0226d770</code>은 <code>obj + 0x8b0</code>에서 8바이트 mwcc <code>{lo, hi}</code> 쌍을 읽어 이를 통해 호출하며, 그것이 null이면 <code>+0x5c</code>의 <code>Vec3</code>를 <code>+0x478</code>, <code>+0x484</code>, <code>+0x490</code>의 세 슬롯으로 복사하는 것으로 대체한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov068_0226d770, ov068, port/shim/game/villdraw.c</span></span>. 이 쌍은 파생 init <code>func_ov068_0226d850</code>에서 <code>data_ov068_02276eb0</code>으로부터의 8바이트 복사로 바인딩되며, 그 ROM 내용은 <code>{0x0226d809, 0}</code> &ndash; 즉 <code>func_ov068_0226d808</code>, Thumb &ndash; 이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov068_0226d850, ov068, port/shim/game/villbind.c</span></span>. 바인딩은 상태 기반이다: 상태 0의 진입이 바인딩하고 상태 1의 진입이 바인딩을 해제한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villdraw.c, observed rebinds</span></span>.</p>
+<p>주민 자체의 드로우 슬롯은 서비스 쪽의 id별 슬롯에 SRT를 밀어 넣을 뿐이며(<code>func_02012214 -&gt; func_0205e954</code>); 모델 지오메트리는 NPC 모델 서비스 자체의 드로우 슬롯 <code>func_020500d8</code>(vtable <code>0x020dce48</code> 슬롯 9, <code>data_021c8184</code>의 객체)가 상태 3에서 요청 슬롯당 <code>func_0205510c</code> 한 번씩 제출한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020500d8 / func_02012214, main, port/shim/game/villmodel.c</span></span>. 따라서 주민이 자기 슬롯에서 GX 워드를 0개 내보내는 것은 정상이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villmodel.c</span></span>. 광원 매니저가 수리된 뒤 주민 드로우는 프레임당 <code>0x8c8</code>-<code>0xa20</code> 워드를 내보내는 것으로 측정되었다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, "Villagers were never missing"</span></span>.</p>
+<p>주민의 얼굴은 모델 id가 아니라 테이블 인덱스이다. <code>func_020808ec</code>는 <code>record + 0x7af</code>의 바이트를 읽어 <code>func_02082500</code>에 넘기고, 이는 <code>data_020cd884</code>를 <code>param * 0x4e</code>로 인덱싱한다; <code>func_020808d0</code>의 <code>&gt;= 0x21</code>에 대한 대체값이 0이므로 테이블은 33항목으로 한정된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020808ec / func_02082500, main, port/shim/game/villagerface.c</span></span>.</p>
+<p>표정과 애니메이션은 가중치 추첨이다. <code>func_0204fb80</code>은 <code>0x020dc8b4</code>의 테이블의 테이블을 받아 <code>table[a3 - 1][a5]</code>를 선택하고, <code>a2 * 8</code>을 더해 <code>[0]</code>이 항목 배열이고 <code>[4]</code>가 개수인 8바이트 레코드에 도달한 뒤, 3바이트 항목들 &ndash; <code>+0</code>과 <code>+1</code>이 두 출력, <code>+2</code>가 가중치 &ndash; 을 순회하며 가중치를 누적해 추첨값을 넘는 항목을 찾는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204fb80, main, port/shim/game/exprpick.c</span></span>. 추첨값은 <code>func_020e92d0(&amp;0x021cb5a0, bound)</code>에서 오며, 상한은 <code>func_02073d90(*0x020ccf94)</code>에 따라 <code>0x60</code> 또는 <code>0x64</code>이다 &ndash; 이 모드 검사는 통과할 때 마지막 세 항목도 건너뛴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204fb80, main, port/shim/game/exprpick.c</span></span>. 실패 시에는 아무것도 쓰지 않고 함수가 0을 돌려주므로, 0을 돌려주는 스텁은 모든 주민이 호출자가 그 두 워드에 남겨 둔 값을 그대로 쓰게 만든다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/exprpick.c</span></span>.</p>
+<p>근접 반응을 위한 주민 접근 스캔이 있다: <code>func_ov068_02266bac</code>은 <code>0x0222f458</code>의 ov003 슬롯 위치 getter를 호출하고, 이는 <code>p = 0x022617bc + (idx &amp; 0xf) * 0x25c</code>를 읽어 <code>p + 0x204</code>의 <code>Vec3</code>를 복사하고 <code>p + 0x24d</code>의 부호 있는 바이트 &ndash; 슬롯 점유자 id, 비어 있으면 <code>-1</code> &ndash; 를 돌려주며, 그런 다음 <code>func_020ea990(pos, out) &gt;= threshold</code>이면 슬롯을 거부한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov068_02266bac / func_ov003_0222f458, ov068/ov003, port/shim/game/genfix.c</span></span>. <code>0x0225f76c</code>에 스트라이드 <code>0x24c</code>의 병렬 6슬롯 NPC 테이블이 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">sub_02227638, ov003, port/shim/game/genfix.c</span></span>.</p>
+<p>이 모든 것을 구동하는 ov003 슬롯 기구는 <code>__sinit_ov003_02237af4</code>가 <code>0x0225f76c</code>에 <code>0x24c</code> 슬롯 레코드 여섯 개를 구성한 뒤에야 실행된다; 그 초기화기가 건너뛰어졌을 때는 프레임별 슬롯 패스 전체가 죽어 있었다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">__sinit_ov003_02237af4, ov003, port/shim/game/exprpick.c</span></span>.</p>
+<p>주민 집은 텍스처 세트 넷과 애니메이션 둘을 쓰며, ov003 자체 풀에 이름이 있다:
+<code>/str/npcHsTex/%c/house_%c%d%c.nsbtx</code>, <code>/str/npcHsTex/%c/light_%c%d.nsbtx</code>,
+<code>/str/obj_house_i.nsbca</code>, <code>/str/obj_house_o.nsbca</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 image at 0x02239bf8, 0x02239c1c, 0x02239c40 and 0x02239c58, port/shim/game/townhouses.c; the same four addresses <code>town.md</code> cites</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_0207b594</code></td>
+<td>main</td>
+<td>새 마을에 누가 사는지 결정(8 슬롯 x 17 종)</td>
+<td>S: port/shim/game/villagers.c</td>
+</tr>
+<tr>
+<td><code>func_0207c76c</code></td>
+<td>main</td>
+<td>초기 선택 루프, 8회 반복, 6 클래스</td>
+<td>S: src/matched/func_0207c76c.c</td>
+</tr>
+<tr>
+<td><code>func_0207c818</code> / <code>func_0207c8c8</code></td>
+<td>main</td>
+<td>클래스 인덱스 / 클래스 안에서의 주민 추첨</td>
+<td>S: src/matched/func_0207c76c.c</td>
+</tr>
+<tr>
+<td><code>func_02081518</code></td>
+<td>main</td>
+<td>선택된 주민을 집 레코드에 씀</td>
+<td>S: src/matched/func_0207c76c.c</td>
+</tr>
+<tr>
+<td><code>func_02085a30</code></td>
+<td>main</td>
+<td>세션별 스포너: 주민마다 채널 <code>0x84</code>를 엶</td>
+<td>S: port/shim/game/villspawn.c</td>
+</tr>
+<tr>
+<td><code>func_ov068_0226da64</code></td>
+<td>ov068</td>
+<td>채널 <code>0x84</code> 생성자, <code>0xa10</code>바이트 주민 액터</td>
+<td>S: port/shim/game/villspawn.c</td>
+</tr>
+<tr>
+<td><code>func_0202e1fc</code></td>
+<td>main</td>
+<td>액터를 매니저에 등록</td>
+<td>S: port/shim/game/villspawn.c</td>
+</tr>
+<tr>
+<td><code>func_ov068_0226d770</code></td>
+<td>ov068</td>
+<td>주민 드로우 슬롯(<code>obj+0x8b0</code>의 PMF)</td>
+<td>S: port/shim/game/villdraw.c</td>
+</tr>
+<tr>
+<td><code>func_ov068_0226d850</code></td>
+<td>ov068</td>
+<td>파생 init, 드로우 PMF를 바인딩</td>
+<td>S: port/shim/game/villbind.c</td>
+</tr>
+<tr>
+<td><code>func_020500d8</code></td>
+<td>main</td>
+<td>NPC 모델 서비스 드로우 슬롯: 지오메트리 제출</td>
+<td>S: port/shim/game/villmodel.c</td>
+</tr>
+<tr>
+<td><code>func_020808ec</code> / <code>func_02082500</code></td>
+<td>main</td>
+<td>얼굴 바이트 -&gt; <code>data_020cd884</code> 인덱스</td>
+<td>S: port/shim/game/villagerface.c</td>
+</tr>
+<tr>
+<td><code>func_0204fb80</code></td>
+<td>main</td>
+<td>가중치 기반 표정/애니메이션 선택</td>
+<td>S: port/shim/game/exprpick.c</td>
+</tr>
+<tr>
+<td><code>func_ov068_02266bac</code></td>
+<td>ov068</td>
+<td>주민 접근 슬롯 스캔</td>
+<td>S: port/shim/game/genfix.c</td>
+</tr>
+<tr>
+<td><code>func_0202e0c8</code></td>
+<td>main</td>
+<td>주민 집/레코드 스텝</td>
+<td>S: port/shim/game/villhouse.c</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021e5a2c</code></td>
+<td>집 레코드 8개, 스트라이드 <code>0x7ec</code></td>
+<td><code>func_02081518</code>, <code>func_0207bbb8</code></td>
+<td><code>func_02085a30</code></td>
+</tr>
+<tr>
+<td>레코드 <code>+0x7a0</code></td>
+<td>주민 하위 레코드</td>
+<td>새 게임 선택</td>
+<td><code>func_0207c72c</code>, <code>func_0208150c</code></td>
+</tr>
+<tr>
+<td>레코드 <code>+0x7af</code></td>
+<td>얼굴/테이블 인덱스 바이트</td>
+<td>선택</td>
+<td><code>func_02003648</code> -&gt; <code>func_02082500</code></td>
+</tr>
+<tr>
+<td><code>0x021d1d4c</code></td>
+<td>주민 매니저, <code>{actor, id}</code> 슬롯 8개</td>
+<td><code>func_02082ab0</code></td>
+<td>카메라 선택 <code>func_0203c794</code> case <code>0x2c</code></td>
+</tr>
+<tr>
+<td><code>obj + 0x8b0</code></td>
+<td>드로우 PMF <code>{lo, hi}</code> 쌍</td>
+<td><code>func_ov068_0226d850</code></td>
+<td><code>func_ov068_0226d770</code></td>
+</tr>
+<tr>
+<td><code>data_ov068_02276eb0</code></td>
+<td>PMF 원본 쌍 <code>{0x0226d809, 0}</code></td>
+<td>정적</td>
+<td><code>func_ov068_0226d850</code></td>
+</tr>
+<tr>
+<td><code>0x020dc8b4</code></td>
+<td>8바이트 표정 레코드의 테이블의 테이블</td>
+<td>정적</td>
+<td><code>func_0204fb80</code></td>
+</tr>
+<tr>
+<td><code>0x021cb5a0</code></td>
+<td>표정 추첨에 쓰이는 RNG 상태</td>
+<td><code>func_020e92d0</code></td>
+<td><code>func_0204fb80</code></td>
+</tr>
+<tr>
+<td><code>0x0225f76c</code></td>
+<td>NPC 슬롯 6개, 스트라이드 <code>0x24c</code></td>
+<td><code>__sinit_ov003_02237af4</code></td>
+<td><code>sub_02227638</code></td>
+</tr>
+<tr>
+<td><code>0x022617bc</code></td>
+<td>주민 접근 슬롯, 스트라이드 <code>0x25c</code></td>
+<td>ov003 정적 init</td>
+<td><code>func_ov003_0222f458</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>위 모든 행은 S 등급이며, 앞 표에 명시된 심 헤더에서 인용했다.</p>
+<h2 id="확인-방법">확인 방법</h2>
+<p>매니저 점유 프로브가 가장 저렴한 확인 방법이다: <code>port/shim/game/villspawn.c</code>는 모드가 바뀔 때마다 그리고 각 스폰 패스 뒤에 <code>0x021d1d4c</code>의 <code>{actor, id}</code> 슬롯 여덟 개를 출력하고, <code>port/shim/game/villpick.c</code>는 선택마다 한 줄(슬롯, 클래스, 주민 id)을 출력한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villspawn.c, villpick.c</span></span>. 둘 다 <code>ACWW_TRACE_STATE=1</code>로 게이트된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villspawn.c</span></span>.</p>
+<p>포트 한정 주의 사항에 유의한다: 네이티브(NATIVE) 경로에서 <code>func_0207b594</code>는 의도적으로 no-op이며 <code>villager placement SKIPPED</code>를 출력하므로, 네이티브 실행의 빈 주민 테이블은 게임이 아니라 포트의 결정이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villagers.c</span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md LONG40, "villager placement SKIPPED" at frame 19335</span></span>. 인터프리터(INTERPRETER) 경로에서는 ROM 자체의 <code>func_0207b594</code>가 실행된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/hybrid/runtime.md via docs/log/cycle40-keyboard-gate-probe.md REG40</span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>H: <code>func_0207c818</code>이 돌려주는 여섯 클래스는 여섯 성격(느긋함, 운동광, 무뚝뚝, 활발함, 보통, 도도함)이다.</strong> 인덱스는 6으로 한정되고 각 클래스에는 고유한 추첨 함수 인자가 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_0207c76c.c</span></span>. 실험: 생성된 마을 100개에 대해 클래스 인덱스와 뽑힌 주민 id를 기록하고, id가 서로소인 여섯 집합으로 분할되는지 확인한다.</li>
+<li><strong>H: <code>func_0207b594</code>의 "종 슬롯 열일곱 개"는 종 그룹(고양이, 개, 새 ...)이며, <code>func_0209bcd4</code> / <code>func_0209c380</code>은 종별 상한을 강제한다.</strong> 루프 중첩은 8 x 17이고 허가 술어가 둘이다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villagers.c</span></span>. 실험: <code>func_0209bcd4</code>와 <code>func_0209c380</code>을 디컴파일한 뒤 마을 50개를 생성하고 종 반복 횟수를 센다.</li>
+<li><strong>H: 이사 오기와 이사 가기는 주민 코드가 아니라 날짜 변경 루틴 <code>func_02040c90</code>가 구동한다.</strong> 생성기 자체의 순서는 "생성, 그 다음 주민을 이사시키는 RTC 전진"이며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/gfx/pmflist.c</span></span>, <code>func_02040c90</code>는 날짜 변경 / 달력 갱신으로 식별되어 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/known_callees.txt</span></span>. 실험: <code>ACWW_RTC_*</code> 날짜 롤오버에 걸쳐 <code>0x021e5a2c</code>의 레코드 여덟 개를 지켜보고 무엇이든 바뀌는지 본다.</li>
+<li><strong>H: 친밀도는 <code>0x7ec</code> 레코드 안의 바이트이며, 표정 선택의 <code>a2</code> 인자는 그로부터 유도된다.</strong> <code>func_0204fb80</code>은 클래스별 테이블 안에서 <code>a2 * 8</code>로 여러 8바이트 레코드 중 하나를 선택한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/exprpick.c</span></span>. 실험: 긴 마을 실행 동안 <code>func_0204fb80</code>의 인자를 계측하고, <code>a2</code>를 말하는 주민 레코드 안에서 단조 변화하는 바이트와 상관시켜 본다.</li>
+<li><strong>H: <code>param * 0x4e</code>로 인덱싱되는 <code>data_020cd884</code>는 <code>0x4e</code>바이트 행(이름, 모델, 텍스처, 목소리)을 가진 주민 종 테이블이다.</strong> 스트라이드와 33항목 한계는 측정되었다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villagerface.c</span></span>. 실험: 행 33개를 덤프하고 반복되는 내부 구조가 있는지 확인한다; 행 수를 <code>func_0207b594</code>의 열일곱 슬롯에 있는 종 수와 교차 확인한다.</li>
+<li><strong>H: 주민 이동(걷기, 경로 탐색)은 가상 슬롯 25를 통해 <code>func_0202e0c8</code>의 프레임별 스텝 안에서 실행된다.</strong> 그 슬롯은 레코드 접근자 <code>func_0208150c</code>가 적용되는 객체를 돌려준다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villhouse.c</span></span>. 실험: <code>tap-D59</code> 마을 회관 실행에서 슬롯 25의 반환값과 <code>func_0207945c</code>의 두 번째 인자를 계측한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>town.md</code> &ndash; 집 레코드는 마을 세이브 이미지의 일부이다</li>
+<li><code>dialogue.md</code> &ndash; 대화 머신이 주민에게 도달했을 때 주민이 하는 말</li>
+<li><code>events-and-calendar.md</code> &ndash; 생일과 날짜 변경 루틴</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/town.html"><small>◀ 이전</small>마을</a><a class="pn next" href="../systems/player.html"><small>다음 ▶</small>플레이어</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

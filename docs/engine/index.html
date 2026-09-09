@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>엔진 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>엔진</span></div><header class="page-head"><h1>엔진</h1><div class="source-line">원문: <code>wiki/engine/README.md</code> (영문, 기록 문서)</div></header><div class="cards"><a class="card" href="../engine/boot-and-entry.html"><h3>부팅과 진입점</h3><p>전원이 켜지면 ARM9는 NitroSDK의 손으로 작성된 스타트업을 실행한 뒤, 세 가지를 고정된 순서로 수행한다: 하드웨어/무선/파일시스템 초기 기동 루틴, C++ 정적 초기화자, 그리고 게임 자…</p></a><a class="card" href="../engine/overlays.html"><h3>오버레이</h3><p>상주하는 main, itcm, autoload_2 이미지 외에도, ACWW의 코드는 필요할 때 메인 RAM에 페이징되어 들어오는 148개의 오버레이(overlay) 슬롯에 들어 있다. 대부분이 서로…</p></a><a class="card" href="../engine/scenes-and-channels.html"><h3>씬과 채널</h3><p>디스플레이 오브젝트 프레임워크 위에는 씬(scene) 머신이 있다 — 각 씬이 &quot;채널&quot;의 목록을 소유하는 번호가 매겨진 상태 머신이다. 채널(channel)은 번호가 매겨진 기능(지면, 필드 렌더러…</p></a><a class="card" href="../engine/display-objects.html"><h3>디스플레이 오브젝트</h3><p>게임이 그리거나 스텝하는 모든 것은 &quot;디스플레이 오브젝트(display object)&quot;이다: 두 개의 리스트 노드를 소유하고 네 개의 전역 리스트 — 초기화, 업데이트, 그리기, 파괴 — 중 하나에…</p></a><a class="card" href="../engine/memory-map.html"><h3>메모리 맵</h3><p>ACWW는 0x02000000에 있는 4 MB 메인 RAM에서 실행되며, 그 양옆에 두 개의 밀결합 메모리(tightly-coupled memory) — 아래쪽 0x01ff8000의 명령 TCM과 …</p></a><a class="card" href="../engine/threads-and-interrupts.html"><h3>스레드와 인터럽트</h3><p>ACWW는 NitroSDK의 협력적(cooperative) 스레드 모델을 사용한다: 소수의 OSThread가 각각 0x64바이트짜리 저장된 ARM 레지스터 파일을 가지며, 코드가 스케줄러를 호출하는…</p></a><a class="card" href="../engine/file-system.html"><h3>파일 시스템</h3><p>ACWW는 필요한 모든 것을 표준 NitroSDK 파일 시스템을 통해 경로 문자열로 읽는다. 경로는 파일 이름 테이블에 대조되어 파일 id로 해석되고, 파일 id는 파일 할당 테이블에서 조회되어 카…</p></a><a class="card" href="../engine/graphics-pipeline.html"><h3>그래픽스 파이프라인</h3><p>ACWW는 DS의 3D 지오메트리 엔진으로 월드를 그리고, 그 주변의 모든 것 — 하늘, 메시지 상자, 메뉴, HUD — 은 두 개의 2D 엔진으로 그린다. 모델은 NitroSystem G3D 리소…</p></a><a class="card" href="../engine/text-and-messages.html"><h3>텍스트와 메시지</h3><p>한국어판의 모든 대화 한 줄 한 줄은 script/KOR/ 아래 1,791개의 개별 .bmg 파일 중 하나에 들어 있는 UTF-16 문자열이다. 게임은 화자의 성격과 메시지 레이블로 경로를 만들고,…</p></a></div><div class="md"><p>프로그램이 어떻게 조립되어 있는지를 다룬다. 각 페이지는 <code>../STYLE.md</code>에 맞춰 작성되어 있다.</p>
+<p>작성됨:</p>
+<ul>
+<li><a href="boot-and-entry.html"><code>boot-and-entry.md</code></a> &ndash; 진입점, 하드웨어 초기 기동, 정적 초기화자,
+  NitroMain, 메인 루프, 프레임이란 무엇인가</li>
+<li><a href="overlays.html"><code>overlays.md</code></a> &ndash; 148개의 오버레이 슬롯: 어떤 오버레이가 어떤 기능을 담당하는지,
+  로드와 언로드, 상주 여부, 주소가 모호한 이유</li>
+<li><a href="scenes-and-channels.html"><code>scenes-and-channels.md</code></a> &ndash; 씬 머신, 씬 6의 6단계
+  로더, 채널 열기, 이중 간접 핸들러 테이블, 메일박스와 모드 바이트</li>
+<li><a href="display-objects.html"><code>display-objects.md</code></a> &ndash; 디스플레이 오브젝트 프레임워크: 네 개의 리스트,
+  네 개의 스테퍼와 그 3슬롯 패턴, join/commit/step, VBlank 태스크</li>
+<li><a href="memory-map.html"><code>memory-map.md</code></a> &ndash; 메인 RAM, ITCM/DTCM, 모듈 대역, 아레나,
+  게임 힙, 전역 주소 대역</li>
+<li>
+<p><a href="threads-and-interrupts.html"><code>threads-and-interrupts.md</code></a> &ndash; OSContext와 협조적
+  스케줄러, 존재하는 스레드들, 인터럽트 테이블, PXI 태그</p>
+</li>
+<li>
+<p><a href="file-system.html"><code>file-system.md</code></a> &ndash; ROM 파일 시스템, 오버레이 테이블, 아카이브,
+  파일을 여는 방법</p>
+</li>
+<li><a href="text-and-messages.html"><code>text-and-messages.md</code></a> &ndash; 메시지 시스템(bmg), 폰트,
+  키보드 화면</li>
+<li><a href="graphics-pipeline.html"><code>graphics-pipeline.md</code></a> &ndash; 2D 엔진, 3D 지오메트리 제출, VRAM
+  뱅크, 디스플레이 리스트</li>
+</ul></div>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>두 번 탭 마을 레시피 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li class="active"><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>두 번 탭 마을 레시피</span></div><header class="page-head"><h1>두 번 탭 마을 레시피</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span><span class="gchip g-E"><b>E</b> 16</span><span class="gchip g-O"><b>O</b> 6</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/experiments/two-tap-town-recipe.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 실행됨, 영수증 있음.</strong> 이것은 게임을 타이틀 화면에서 마을 회관 안의 대화까지
+진행시키는 레시피이며, 택시, 두 개의 키보드, 마을, 하늘에 관한 모든 관측은 이 레시피
+아래에서 얻어진다.</p>
+<h2 id="목적">목적</h2>
+<p>스크립트된 패드 펄스와 네 번의 예약된 스타일러스 접촉으로 마을이 보일 만큼 게임을
+진행시켜, 포트와 원본을 48,000 프레임에 걸쳐 비교할 수 있게 한다.</p>
+<p><strong>왜 한 번이 아니라 두 번 탭인가.</strong> 한 번 탭 레시피에서는 ROM 자체의 키보드 로직도 이름을
+확정하지 않는다 &ndash; 인터프리터 실행과 네이티브 실행이 9 프레임 중 9 프레임 일치했다 &ndash; 즉
+그 경로에서 포트는 결코 틀리지 않았고, 틀린 것은 레시피였다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> H4 RESULT and TAP40; <code>scratchpad/cycle40/runs/tap-native</code>, <code>tap-interp</code></span></span>. 첫 번째 탭은 키보드를 패드 모드에서
+스타일러스 모드로 전환하고, 그에 반응할 상태는 눌림 에지가 사라진 다음 프레임부터만
+실행된다; 스타일러스 모드 창 안의 두 번째 탭이 확인 버튼이 볼 수 있는 것이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/input/touch.c</code></span></span>.</p>
+<p><strong>왜 탭이 멈춰야 하는가.</strong> 탭을 반복하면 예/아니오 메뉴가 유지되어 대화가 정체되는데,
+대화 중의 접촉은 대화를 진행시키지 않기 때문이다. <code>ACWW_TOUCH_REPEAT=2</code>가 스크립트된
+A 펄스에게 나머지를 맡길 수 있게 하는 설정이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TAP40, MENU40, OVL40; <code>scratchpad/cycle40/runs/tap-D55b</code></span></span>.</p>
+<h2 id="레시피">레시피</h2>
+<pre><code>python -B scratchpad/cycle40/run_town.py &lt;name&gt; \
+  ACWW_INTERP=1 ACWW_INTERP_STEPS=4000000000 \
+  ACWW_TOUCH_AT=6900 ACWW_TOUCH_EVERY=60 ACWW_TOUCH_REPEAT=2 \
+  ACWW_TOUCH2_X=221 ACWW_TOUCH2_Y=181 ACWW_TOUCH2_AT=24700 ACWW_TOUCH2_FOR=10 \
+  ACWW_TOUCH2_EVERY=60 ACWW_TOUCH2_REPEAT=2 \
+  ACWW_STOP_FRAME=48000 ACWW_SHOT_AFTER=6000 ACWW_SHOT_EVERY=1500 ACWW_PAD_SAMPLE=0
+</code></pre>
+<p><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 3; <code>docs/state/port-frontier.md</code>, verified-at <code>6ca48706</code></span></span>.</p>
+<p>나머지는 스크립트 자체의 기본값이 공급한다: 커스텀 START 패드 페이즈 &ndash; 프레임 300에서
+1차 마스크 9, <code>FOR</code> 10, <code>EVERY</code> 30; 1,800에서 페이즈 2 마스크 8, <code>RELEASE_FOR</code> 60; 2,400에서
+페이즈 3 마스크 1, <code>EVERY</code> 600 &ndash; 그리고 <code>ACWW_RTC_DATE=20050615</code>, <code>ACWW_RTC_TIME=100000</code>,
+<code>ACWW_NOPACE=1</code>, <code>ACWW_TRAMP_CONTINUE=1</code>, <code>ACWW_ASSERT_CONTINUE=1</code>, 그리고 첫 접촉
+<code>ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181 ACWW_TOUCH_FOR=10</code>. 또한 오라클, 세이브, 탐색,
+키보드 프로브 변수를 해제하여 오래된 export가 새어 들어오지 못하게 한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/run_town.py</code>, <code>BASE</code>; <code>docs/kb/hybrid/recipes.md</code> section 3</span></span>.</p>
+<p><code>ACWW_INTERP_STEPS</code>는 더 이상 필요하지 않다: 기본값은 0으로 무제한을 뜻하며, 게임 실행은
+대신 <code>ACWW_STOP_FRAME</code>으로 제한된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> LONG41, <code>scratchpad/cycle40/runs/tap-D58</code>, which stopped at ~61,000 frames with <code>STOP status=STEP BUDGET</code></span></span>.</p>
+<p>오라클 조건은 패드 페이즈 소유권 규칙과 터치 창 규칙을 포함해 이 변수들 하나하나를
+그대로 반영하며, <code>observer.lua</code>가 두 계약을 매 프레임 강제한다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/README.md</code>; <code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE41</span></span>.</p>
+<h2 id="예상-관측">예상 관측</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>프레임</th>
+<th>화면에 보이는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4,500..7,500</td>
+<td>플레이어 이름 키보드가 있는 택시 내부</td>
+</tr>
+<tr>
+<td>~7,500</td>
+<td>플레이어 이름 확정</td>
+</tr>
+<tr>
+<td>9,000..13,500</td>
+<td>주행 구간; <strong>위 화면은 포트와 원본 모두에서 검은색</strong>이므로 이는 게임의 동작이지 포트 결함이 아니다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code>, ncc-top 1.0000 at 9000..13500</span></span></td>
+</tr>
+<tr>
+<td>15,000..24,000</td>
+<td>대화, 그 다음 마을 이름 키보드</td>
+</tr>
+<tr>
+<td>~24,700</td>
+<td>포트와 원본 모두에서 마을 이름 확정 (24,600은 포트에서만 확정된다 &ndash; ORACLE42)</td>
+</tr>
+<tr>
+<td>37,500</td>
+<td>마을 회관 앞의 플레이어; 오버레이 5, 36, 54, 120, 117 로드됨</td>
+</tr>
+<tr>
+<td>37,800</td>
+<td>어파인 배경이 그려진 뒤 파란 하늘 위의 구름 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D57</code>, SKY40</span></span></td>
+</tr>
+<tr>
+<td>39,000</td>
+<td>전환 장면</td>
+</tr>
+<tr>
+<td>40,500..48,000</td>
+<td>마을 회관 내부, 펠리와 대화 중, 화면에 선택지 프롬프트</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40, SKY40; <code>scratchpad/cycle40/runs/tap-D56</code></span></span>.</p>
+<p>종료점: 48,000 프레임, 자식 종료 코드 100, 폴트 없음, STOP 없음, HUNG 없음, 페이싱 없이
+초당 약 59 프레임, 811초, 스크린샷 31장, 59,808줄의 로그
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56/receipt.json</code>, <code>exit 100</code>, <code>seconds 811.1</code></span></span>.</p>
+<h2 id="이-관측을-만들어-낸-실행">이 관측을 만들어 낸 실행</h2>
+<ul>
+<li><code>scratchpad/cycle40/runs/tap-D56</code> &ndash; TOWN40이 보고하는 진단 실행, 48,000 프레임
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">its <code>receipt.json</code> carries <code>diagnostic: true</code></span></span>.</li>
+<li><code>scratchpad/cycle40/runs/tap-D57</code> &ndash; 어파인 배경을 그린 동일 실행 (SKY40).</li>
+<li><code>scratchpad/cycle40/runs/town-R1</code> &ndash; <strong>영수증이 있는 실행</strong>이며, 인터프리터 경로의 첫
+  영수증 실행: 런처 종료 코드 0, 48,000에서 자식 종료 코드 100, 801초, 스크린샷 29장, 폴트
+  마커 없음 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> RECEIPT41, commit <code>6ca48706</code></span></span>.</li>
+<li><code>scratchpad/cycle40/runs/tap-D59</code> &ndash; 90,000 프레임; 펠리가 60,000에서 작별 인사를 하고 A
+  펄스가 90,000까지 다시 그녀에게 말을 건다. 이 레시피로는 마을 회관 밖으로 나갈 수 없다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">LONG41</span></span>.</li>
+<li><code>scratchpad/oracle/tap-fullpad</code> &ndash; 오라클 조건과 그 비교 표.</li>
+</ul>
+<p><strong>영수증과 진단은 같은 주장이 아니다.</strong> 영수증은 READY 파이프라인 아티팩트에 대해
+<code>port/tools/run.py --receipt</code>를 통해 실행하고 봉인된 로그를 그 옆에 복사·해시한 실행이다;
+진단은 직접 <code>acww.exe</code>를 띄운 것이다. 어느 쪽인지, 그리고 런처, 아티팩트 출처, 경로,
+종료점을 말해야 한다 (B1, B8, B32)
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 5</span></span>.</p>
+<h2 id="비교가-말해-주는-것">비교가 말해 주는 것</h2>
+<p>오프셋 0에서 오라클과 비교한 전체 프레임 정규화 상호상관
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code></span></span>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>프레임</th>
+<th>ncc</th>
+<th>ncc-top</th>
+<th>해석</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6,000..24,000</td>
+<td>0.9920..0.9959</td>
+<td>0.9249..1.0000</td>
+<td>같은 화면, 단계마다 일치</td>
+</tr>
+<tr>
+<td>25,500..36,000</td>
+<td>0.6957..0.7046</td>
+<td>0.0000</td>
+<td>갈라짐</td>
+</tr>
+<tr>
+<td>39,000</td>
+<td>0.0000</td>
+<td>0.0000</td>
+<td>한쪽에서만 전환 장면</td>
+</tr>
+<tr>
+<td>40,500..48,000</td>
+<td>0.6661..0.6761</td>
+<td>0.0000</td>
+<td>여전히 갈라짐</td>
+</tr>
+</tbody>
+</table></div>
+<p>29 프레임 비교, RGB 정확 일치 0, 평균 ncc 0.8008 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same</span></span>. 두 쪽은 <code>TOUCH2</code> 창 안인
+25,500에서 갈라진다: 포트의 두 탭은 마을 이름을 확정하지만 원본의 동일한 탭은 그러지
+않으며, 원본은 48,000까지 마을 이름 키보드에 머문다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE41</span></span>. <strong>결론 (ORACLE42): 키보드에 관해
+어느 쪽도 틀리지 않았다; 틀린 것은 레시피였다.</strong> 24,600은 KEYS3 A 누름 프레임(2400 + 37 x 600)이고
+원본의 스타일러스 샘플은 포트보다 1~2 프레임 늦게 도착하므로, 누름과 탭의 순서가 두 쪽에서
+다르게 잡힌다. <code>ACWW_TOUCH2_AT=24700</code>으로 하면 양쪽 모두 확정하고 일치한다 &ndash; 24,000..27,000의
+11 프레임에서 평균 ncc 0.9955, 위 화면 1.0000
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42; E: <code>tap-D62</code>; O: <code>scratchpad/oracle/tap-24700</code></span></span>. <strong>따라서 공식 레시피는 24,700을 사용하며</strong>, 위의 표는
+기록을 위해 남겨 둔 24,600 실행이다. 오라클은 아직 마을을 보여 주지 못하므로, 하늘과
+마을 회관은 아직 점수가 매겨지지 않았다.</p>
+<h2 id="반증-조건">반증 조건</h2>
+<ul>
+<li>폴트 마커, STOP 줄, 또는 <code>unimplemented:</code> 줄을 가진 채 48,000에 도달하는 실행.</li>
+<li>탭이 도착하지 않는 것: 로그에 <code>acww touch: DOWN x=221 y=181</code>이 네 번(6,900과 6,960에서
+  두 번의 접촉, 24,700과 24,760에서 두 번) 그리고 짝이 되는 <code>up</code> 줄이 있어야 한다. 세어야
+  하며, 가정하지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D60/tap-D60-run.log</code>, 9 <code>acww touch:</code> lines</span></span>.</li>
+<li>프레임 수나 벽시계 시간을 결과로 읽는 것 (B12). 종료점, 정확한 실패 정체, 그리고
+  이미지로 판단한다.</li>
+<li>트리를 git 기준으로만 동결하는 것: 파이프라인 스냅샷은 추적되지 않는 파일도 포함하며,
+  한 빌드는 빌드 도중 운영자의 새 파일이 나타나 게시 시점에 거부되었다 (S10)
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 8</span></span>.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>off-recipe.md</code> &ndash; 대조 실행.</li>
+<li><code>touch-calibration.md</code> &ndash; 이 레시피가 부딪히는 1픽셀, 2프레임 차이와, ORACLE42가 그것을
+  어떻게 결론지었는가.</li>
+<li><code>../systems/input-and-touch.md</code>, <code>../systems/time-and-rtc.md</code></li>
+</ul>
+<h2 id="레퍼런스-대비-결과-oracle43">레퍼런스 대비 결과 (ORACLE43)</h2>
+<p><code>ACWW_TOUCH2_AT=24700</code>으로 DeSmuME 레퍼런스는 같은 경로를 따른다: 37,500에서 마을,
+40,500부터 마을 회관, 27000..48000의 15 프레임에서 평균 ncc 0.8967, 마을 회관 프레임은
+0.98-0.998이며 위 화면은 동일하다(마을 회관 안에서는 양쪽 모두 검은색)
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-town</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D63</code></span></span>. 두 전환 프레임(39,000과 46,500)은 페이드의
+서로 반대편에 떨어진다. 37,500에서 원본의 하늘은 지평선을 향해 원근 스케일링되어 있고
+포트의 하늘은 평평하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">the HBlank handler <code>func_01ffcc30</code> updates the affine parameters per scanline; capture BG3 P*/X/Y per line and compare <code>tap-D63</code> 37,500 again</span></span>.</p></div><nav class="prevnext"><a class="pn prev" href="../experiments/off-recipe.html"><small>◀ 이전</small>OFF 레시피</a><a class="pn next" href="../experiments/touch-calibration.html"><small>다음 ▶</small>터치 보정: 탭했을 때 게임이 보는 것</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#목적">목적</a></li><li><a href="#레시피">레시피</a></li><li><a href="#예상-관측">예상 관측</a></li><li><a href="#이-관측을-만들어-낸-실행">이 관측을 만들어 낸 실행</a></li><li><a href="#비교가-말해-주는-것">비교가 말해 주는 것</a></li><li><a href="#반증-조건">반증 조건</a></li><li><a href="#관련-문서">관련 문서</a></li><li><a href="#레퍼런스-대비-결과-oracle43">레퍼런스 대비 결과 (ORACLE43)</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

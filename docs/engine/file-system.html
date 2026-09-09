@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>파일 시스템 · ACWW 근거 위키</title>
+<meta name="description" content="ACWW는 필요한 모든 것을 표준 NitroSDK 파일 시스템을 통해 경로 문자열로 읽는다. 경로는 파일 이름 테이블에 대조되어 파일 id로 해석되고, 파일 id는 파일 할당 테이블에서 조회되어 카트리지 상의 바이트 범위(span)가 되며, 그 범위는 카드에서 DMA로">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li class="active"><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>파일 시스템</span></div><header class="page-head"><h1>파일 시스템</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 49</span><span class="gchip g-E"><b>E</b> 1</span></div><div class="source-line">원문: <code>wiki/engine/file-system.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ACWW는 필요한 모든 것을 표준 NitroSDK 파일
+시스템을 통해 경로 문자열로 읽는다. 경로는 파일 이름 테이블에 대조되어 파일 id로 해석되고, 파일 id는
+파일 할당 테이블에서 조회되어 카트리지 상의 바이트 범위(span)가 되며, 그 범위는 카드에서 DMA로
+읽힌다. 이 모든 것은 <code>rom</code>이라는 하나의 아카이브 앞에 놓인 명령 큐이며, 모든
+명령은 같은 코드에 대해 동기적으로도 비동기적으로도 실행될 수 있다. 오버레이도
+같은 장치를 거친다: 오버레이는 어디에 놓을지를 알려 주는 32바이트 헤더가 붙은 파일일 뿐이다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>파일 시스템 전체는 <code>autoload_2</code>에, <code>0x021195e0</code>부터
+<code>0x0211bcfc</code>까지 하나의 연속 구간에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>, <code>FSi_TranslateCommand</code> addr <code>0x021195e0</code> through <code>FSi_GetOverlayBinarySize</code> addr <code>0x0211bce0</code></span></span>. 66개의 <code>FS_*</code> 및 <code>FSi_*</code>
+함수가 NitroSDK 2.2a의 <code>fs_file.c</code>, <code>fs_archive.c</code>, <code>fs_command.c</code>,
+<code>fs_overlay.c</code>에 대해 바이트 매칭되었다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_*.c</code>, <code>src/matched/FSi_*.c</code>, file header comments</span></span>. 한
+멤버는 ROM의 심볼 테이블에서 완전히 빠져 있다: <code>FSi_CloseFileCommand</code>, <code>0x021197c0</code>의
+8바이트로, 본체는 <code>mov r0,#0; bx lr</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/fscmd.c</code>, header</span></span>.</p>
+<p>부팅은 <code>FS_Init(dma)</code>를 정확히 한 번 호출한다; 이 함수는 <code>is_init</code> 플래그로 보호하고
+<code>FSi_InitRom</code>에 위임한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_Init</code>, <code>autoload_2</code>, <code>src/matched/FS_Init.c</code></span></span>. <code>FSi_InitRom</code>은 카트리지용 잠금
+id를 얻고, 두 오버레이 테이블 디스크립터를 0으로 만들고, <code>CARD_Init</code>을 호출하고,
+단일 ROM 아카이브를 초기화하고, 세 글자 이름 <code>rom</code>으로 등록하고,
+<code>WRITEFILE</code>, <code>ACTIVATE</code>, <code>IDLE</code> 명령에 대해 <code>FSi_RomArchiveProc</code>을 설치하고, ROM 헤더 이미지에서
+가져온 FAT와 FNT 영역과 <code>FSi_ReadRomCallback</code> 읽기 콜백으로 아카이브를
+로드한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_InitRom</code>, <code>autoload_2</code>, <code>src/matched/FSi_InitRom.c</code></span></span>. FAT,
+FNT, 오버레이 테이블 영역은 펌웨어가 <code>0x027FFE00</code>에 남겨 두는 헤더 이미지의
+고정 오프셋에서 온다: FNT는 +0x40, FAT는 +0x48, ARM9 오버레이 테이블은 +0x50, ARM7 오버레이 테이블은
++0x58이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_InitRom.c</code>, <code>src/matched/FS_LoadOverlayInfo.c</code>, the inline region accessors</span></span>.</p>
+<p>이름으로 파일을 여는 것은 두 단계이다. <code>FS_OpenFile</code>은 <code>FS_ConvertPathToFileID</code>를 호출한 다음
+<code>FS_OpenFileFast</code>를 호출한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_OpenFile</code>, <code>autoload_2</code>, <code>src/matched/FS_OpenFile.c</code></span></span>.
+<code>FS_ConvertPathToFileID</code>는 스택 로컬 <code>FSFile</code>을 설정하고 경로를 <code>FSi_FindPath</code>에 넘기며
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_ConvertPathToFileID</code>, <code>autoload_2</code>, <code>src/matched/FS_ConvertPathToFileID.c</code></span></span>, 이 함수는
+선행 <code>/</code> 또는 최대 세 글자의 <code>name:</code> 아카이브 접두사를 파싱한 다음
+<code>FINDPATH</code> 명령을 발행한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_FindPath</code>, <code>autoload_2</code>, <code>src/matched/FSi_FindPath.c</code></span></span>. 명령
+핸들러는 파일 이름 테이블을 한 번에 한 구성 요소씩 순회하며, <code>.</code>과 <code>..</code>을 처리하고,
+127자보다 긴 이름을 거부하고, <code>FSi_StrNICmp</code>로 대소문자 구분 없이 비교한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_FindPathCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_FindPathCommand.c</code>; <code>src/matched/FSi_StrNICmp.c</code></span></span>. FNT의 디렉터리 엔트리는 최상위 비트가 디렉터리를
+표시하는 길이 바이트, 그 뒤의 이름, 그리고 디렉터리의 경우 <code>0xFFF</code>로 마스킹된 16비트 id로 되어 있다;
+파일의 id는 후위 증가되는 누적 인덱스이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_ReadDirCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_ReadDirCommand.c</code></span></span>.</p>
+<p><code>FS_OpenFileFast</code>는 그 다음 id를 범위로 바꾼다: 인덱스를 FAT
+크기에 대해 경계 검사하고, 8바이트 FAT 엔트리를 읽고, 그 <code>top</code>과 <code>bottom</code>을 직접 열기 인수
+블록에 복사한 뒤, <code>OPENFILEDIRECT</code>로 명령 번역기에 다시 진입한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_OpenFileFastCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_OpenFileFastCommand.c</code></span></span>. 이 명령은
+단순히 <code>top</code>, <code>bottom</code>, 초기 위치(= <code>top</code>), 파일 id를 <code>FSFile</code>에 저장한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_OpenFileDirectCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_OpenFileDirectCommand.c</code></span></span>.</p>
+<p>읽기는 요청 길이를 남은 범위에 맞춰 클램프하고, 요청을 기록하고, 비동기 읽기가 아니면
+파일을 동기로 표시한 뒤 <code>READFILE</code>을 발행한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_ReadFileCore</code>, <code>autoload_2</code>, <code>src/matched/FSi_ReadFileCore.c</code></span></span>. <code>FS_ReadFile</code>은
+그것으로의 한 줄짜리 꼬리 호출이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_ReadFile</code>, <code>autoload_2</code>, <code>src/matched/FS_ReadFile.c</code></span></span>.
+<code>FS_SeekFile</code>은 명령을 전혀 발행하지 않는다 — <code>FSFile</code> 안의 <code>pos</code>를 조정하고 범위 안으로
+클램프한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_SeekFile</code>, <code>autoload_2</code>, <code>src/matched/FS_SeekFile.c</code></span></span>.</p>
+<p>모든 명령은 아카이브당 하나의 큐를 거친다. <code>FSi_SendCommand</code>는 파일을 사용 중으로 표시하고,
+아카이브의 리스트에 추가하고, — 아카이브가 유휴 상태였다면 — 실행 전에 실행 중 플래그를 올리고
+아카이브의 proc을 통해 <code>ACTIVATE</code>를 발행한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_SendCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_SendCommand.c</code></span></span>. <code>FSi_TranslateCommand</code>는
+명령을 아카이브 자체의 proc에 먼저 제안하고 기본 핸들러 테이블로 폴백한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_TranslateCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_TranslateCommand.c</code></span></span>.
+<code>FSi_NextCommand</code>는 취소된 파일을 비우고, 동기 대기자를 깨우고, 큐가 비면
+임시 <code>FSFile</code>을 통해 <code>IDLE</code>을 발행한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_NextCommand</code>, <code>autoload_2</code>, <code>src/matched/FSi_NextCommand.c</code></span></span>. ROM 아카이브에서 <code>ACTIVATE</code>와 <code>IDLE</code>은 카트리지
+잠금과 해제이고 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_RomArchiveProc</code>, <code>autoload_2</code>, <code>src/matched/FSi_RomArchiveProc.c</code></span></span>,
+실제 전송은 <code>FSi_OnRomReadDone</code>을 완료 콜백으로 하는 <code>CARD_ReadRomAsync</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSi_ReadRomCallback</code>, <code>autoload_2</code>, <code>src/matched/FSi_ReadRomCallback.c</code></span></span>.</p>
+<p>ROM 아카이브에 쓰기는 거부된다: <code>FSi_RomArchiveProc</code>은 <code>WRITEFILE</code>에
+<code>FS_RESULT_UNSUPPORTED</code>로 응답한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_RomArchiveProc.c</code></span></span>. 게임의 세이브 데이터는
+파일 시스템을 전혀 거치지 않는다 — CARD 백업 요청을 통해 백업 플래시로 간다
+(가설 참고).</p>
+<h3 id="오버레이">오버레이</h3>
+<p><code>FS_LoadOverlay</code>는 세 호출이다: 오버레이의 정보 헤더 읽기, 이미지 읽기, 시작
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_LoadOverlay</code>, <code>autoload_2</code>, <code>src/matched/FS_LoadOverlay.c</code></span></span>. 정보 헤더는 32
+바이트이다: id, RAM 주소, RAM 크기, BSS 크기, 정적 초기화자 시작과 끝, 파일 id, 그리고
+패킹된 24비트 압축 크기와 8비트 플래그 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_LoadOverlayInfo.c</code>, <code>FSOverlayInfoHeader</code> as the matched sources declare it</span></span>. <code>FS_ClearOverlayImage</code>는 영역 전체에 걸쳐
+명령어 캐시와 데이터 캐시를 무효화하고 BSS 꼬리를 0으로 만든다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_ClearOverlayImage</code>, <code>autoload_2</code>, <code>src/matched/FS_ClearOverlayImage.c</code></span></span>.
+<code>FS_StartOverlay</code>는 선택적으로 HMAC-SHA1 다이제스트로 이미지를 인증하고, 압축 플래그가 설정되어 있으면
+뒤에서부터 압축을 풀고, 데이터 캐시를 플러시한 다음,
+<code>sinit_init</code>..<code>sinit_init_end</code> 테이블을 순회하며 null이 아닌 모든 생성자를 호출한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_StartOverlay</code>, <code>autoload_2</code>, <code>src/matched/FS_StartOverlay.c</code>; <code>FSi_CompareDigest</code>, <code>src/matched/FSi_CompareDigest.c</code></span></span>. 오버레이를 해체하는 것은 그 거울상이다: <code>FS_EndOverlay</code>는
+<code>__global_destructor_chain</code>을 순회하며, 오브젝트나 소멸자가 오버레이의 주소 범위 안에 있는
+모든 노드를 언링크하고, 수집된 소멸자들을 실행한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_EndOverlay</code>, <code>autoload_2</code>, <code>src/matched/FS_EndOverlay.c</code></span></span>.</p>
+<p>이 ROM의 148개 오버레이 전부가 압축 저장되어 있고 어느 것도 서명되어 있지 않으므로, 압축 해제 분기는
+항상 실행되고 다이제스트 분기는 절대 실행되지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/overlays.yaml</code>, <code>compressed: true</code> / <code>signed: false</code> on all 148 entries</span></span>. 역방향 압축 해제기는
+<code>MIi_UncompressBackward</code>로, ROM이 이름 짓지 않은 어셈블리 본체이다; 두 개의 독립적인 매칭된 호출자로부터
+<code>func_02000934</code>로 식별되었다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/arena_uncompback.c</code>, header, citing <code>tools/.../recovered_callees.txt</code></span></span>.</p>
+<h3 id="파일-시스템으로-마운트되는-narc-아카이브">파일 시스템으로 마운트되는 NARC 아카이브</h3>
+<p>같은 <code>FSArchive</code> 오브젝트가 메모리 내 아카이브에도 쓰인다. <code>NNS_FndMountArchive</code>는 <code>NARC</code>
+이미지를 검증하고, <code>FATB</code>, <code>FNTB</code>, <code>FIMG</code> 블록을 찾고, <code>FIMG</code> 헤더 다음 첫 바이트를 기준(base)으로 하며
+FAT와 FNT 위치가 그 기준에 상대적으로 표현되는 <code>FSArchive</code>로
+마운트한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>NNS_FndMountArchive</code>, <code>autoload_2</code> <code>0x0210288c</code>, <code>src/matched/NNS_FndMountArchive.c</code></span></span>.
+null 읽기 및 쓰기 콜백을 넘기므로, <code>FS_LoadArchive</code>가 메모리 콜백으로 대체하고
+아카이브는 RAM에서 직접 제공된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_LoadArchive</code>, <code>autoload_2</code>, <code>src/matched/FS_LoadArchive.c</code>; <code>src/matched/FSi_ReadMemCallback.c</code></span></span>. 검증은 매직
+<code>NARC</code>, 바이트 순서 표식 <code>0xFFFE</code>, 버전 <code>0x0100</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>IsValidArchiveBinary</code>, <code>autoload_2</code> <code>0x021029e8</code>, <code>src/matched/IsValidArchiveBinary.c</code></span></span>.
+마운트되고 나면 멤버는 일반 <code>FS_OpenFile</code>을 통해 <code>archive:path</code>로 가져온다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>NNS_FndGetArchiveFileByName</code>, <code>autoload_2</code> <code>0x02102808</code>, <code>src/matched/NNS_FndGetArchiveFileByName.c</code></span></span>. 게임은 마을 에이커에 대해 이렇게 한다:
+<code>/bg/aN/NNNN.arc</code>를 아카이브 이름 <code>BG</code>로 마운트하고 여섯 멤버 — <code>BG:a/bmd/bmd0</code>과 그
+동반자 <code>bcl0</code>, <code>bsd0</code>, <code>bca0</code>, <code>bma0</code>, <code>bta0</code> — 를 끌어온다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/arcmember.c</code>, header</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FS_Init</code> <code>0x0211b35c</code></td>
+<td><code>autoload_2</code></td>
+<td>1회성 초기화 가드</td>
+<td>S: <code>src/matched/FS_Init.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_InitRom</code> <code>0x0211b398</code></td>
+<td><code>autoload_2</code></td>
+<td>헤더 이미지로부터 <code>rom</code> 아카이브 등록</td>
+<td>S: <code>src/matched/FSi_InitRom.c</code></td>
+</tr>
+<tr>
+<td><code>FS_OpenFile</code> <code>0x0211afdc</code></td>
+<td><code>autoload_2</code></td>
+<td>경로 → 열린 파일</td>
+<td>S: <code>src/matched/FS_OpenFile.c</code></td>
+</tr>
+<tr>
+<td><code>FS_ConvertPathToFileID</code> <code>0x0211b100</code></td>
+<td><code>autoload_2</code></td>
+<td>경로 → 파일 id</td>
+<td>S: <code>src/matched/FS_ConvertPathToFileID.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_FindPath</code> <code>0x0211b1cc</code></td>
+<td><code>autoload_2</code></td>
+<td><code>/</code>와 <code>name:</code> 접두사 파싱</td>
+<td>S: <code>src/matched/FSi_FindPath.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_FindPathCommand</code> <code>0x02119c2c</code></td>
+<td><code>autoload_2</code></td>
+<td>FNT 순회</td>
+<td>S: <code>src/matched/FSi_FindPathCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_ReadDirCommand</code> <code>0x02119e48</code></td>
+<td><code>autoload_2</code></td>
+<td>FNT 엔트리 하나</td>
+<td>S: <code>src/matched/FSi_ReadDirCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_SeekDirCommand</code> <code>0x02119f58</code></td>
+<td><code>autoload_2</code></td>
+<td>디렉터리에 위치시킴</td>
+<td>S: <code>src/matched/FSi_SeekDirCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FS_OpenFileFast</code> <code>0x0211b02c</code></td>
+<td><code>autoload_2</code></td>
+<td>파일 id → 열린 파일</td>
+<td>S: <code>src/matched/FS_OpenFileFast.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_OpenFileFastCommand</code> <code>0x021197f0</code></td>
+<td><code>autoload_2</code></td>
+<td>FAT 조회</td>
+<td>S: <code>src/matched/FSi_OpenFileFastCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FS_ReadFile</code> <code>0x0211ae68</code> / <code>FSi_ReadFileCore</code> <code>0x0211b144</code></td>
+<td><code>autoload_2</code></td>
+<td>클램프된 읽기</td>
+<td>S: <code>src/matched/FS_ReadFile.c</code>, <code>FSi_ReadFileCore.c</code></td>
+</tr>
+<tr>
+<td><code>FS_SeekFile</code> <code>0x0211adfc</code></td>
+<td><code>autoload_2</code></td>
+<td>로컬 탐색, 명령 없음</td>
+<td>S: <code>src/matched/FS_SeekFile.c</code></td>
+</tr>
+<tr>
+<td><code>FS_CloseFile</code> <code>0x0211af94</code></td>
+<td><code>autoload_2</code></td>
+<td>닫고 file/dir 비트를 클리어</td>
+<td>S: <code>src/matched/FS_CloseFile.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_SendCommand</code> <code>0x0211a82c</code></td>
+<td><code>autoload_2</code></td>
+<td>큐 삽입 + 활성화</td>
+<td>S: <code>src/matched/FSi_SendCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_TranslateCommand</code> <code>0x021195e0</code></td>
+<td><code>autoload_2</code></td>
+<td>proc 우선 디스패치</td>
+<td>S: <code>src/matched/FSi_TranslateCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_NextCommand</code> <code>0x0211aad4</code></td>
+<td><code>autoload_2</code></td>
+<td>큐 펌프, 유휴</td>
+<td>S: <code>src/matched/FSi_NextCommand.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_RomArchiveProc</code> <code>0x0211b548</code></td>
+<td><code>autoload_2</code></td>
+<td>카트리지 잠금/해제, 쓰기 거부</td>
+<td>S: <code>src/matched/FSi_RomArchiveProc.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_ReadRomCallback</code> <code>0x0211b5e0</code></td>
+<td><code>autoload_2</code></td>
+<td><code>CARD_ReadRomAsync</code></td>
+<td>S: <code>src/matched/FSi_ReadRomCallback.c</code></td>
+</tr>
+<tr>
+<td><code>FS_LoadArchive</code> <code>0x0211a5d4</code> / <code>FS_LoadArchiveTables</code> <code>0x0211a3e0</code></td>
+<td><code>autoload_2</code></td>
+<td>아카이브 설정, 테이블 캐싱</td>
+<td>S: <code>src/matched/FS_LoadArchive.c</code>, <code>FS_LoadArchiveTables.c</code></td>
+</tr>
+<tr>
+<td><code>FS_LoadOverlay</code> <code>0x0211b690</code></td>
+<td><code>autoload_2</code></td>
+<td>정보 → 이미지 → 시작</td>
+<td>S: <code>src/matched/FS_LoadOverlay.c</code></td>
+</tr>
+<tr>
+<td><code>FS_StartOverlay</code> <code>0x0211b80c</code></td>
+<td><code>autoload_2</code></td>
+<td>압축 해제 + 생성자 실행</td>
+<td>S: <code>src/matched/FS_StartOverlay.c</code></td>
+</tr>
+<tr>
+<td><code>FS_EndOverlay</code> <code>0x0211b708</code></td>
+<td><code>autoload_2</code></td>
+<td>소멸자 스윕</td>
+<td>S: <code>src/matched/FS_EndOverlay.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_FndMountArchive</code> <code>0x0210288c</code></td>
+<td><code>autoload_2</code></td>
+<td>NARC → <code>FSArchive</code></td>
+<td>S: <code>src/matched/NNS_FndMountArchive.c</code></td>
+</tr>
+<tr>
+<td><code>FSi_CloseFileCommand</code> <code>0x021197c0</code></td>
+<td><code>autoload_2</code></td>
+<td>ROM에 이름 없음; 성공 반환</td>
+<td>S: <code>port/shim/fs/fscmd.c</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x027FFE00</code> +0x40 / +0x48</td>
+<td>FNT와 FAT 영역</td>
+<td>펌웨어의 헤더 사본</td>
+<td><code>FSi_InitRom</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_InitRom.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x027FFE00</code> +0x50 / +0x58</td>
+<td>ARM9 / ARM7 오버레이 테이블</td>
+<td>펌웨어의 헤더 사본</td>
+<td><code>FS_LoadOverlayInfo</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_LoadOverlayInfo.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x027FFC40</code></td>
+<td>멀티부트 부팅 버퍼; 0이 아니면 "자식"을 뜻함</td>
+<td>펌웨어</td>
+<td><code>FSi_InitRom</code>의 멀티부트 분기 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_InitRom.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>FSArchiveFAT {u32 top; u32 bottom;}</code></td>
+<td>파일당 8바이트, 바이트 범위</td>
+<td>패커</td>
+<td><code>FSi_OpenFileFastCommand</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_OpenFileFastCommand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>FSArchiveFNT {u32 start; u16 index; u16 parent;}</code></td>
+<td>디렉터리당 8바이트</td>
+<td>패커</td>
+<td><code>FSi_SeekDirCommand</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_SeekDirCommand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>FSFile.stat</code> 비트 <code>0x01/0x02/0x04/0x08/0x10/0x20/0x40</code></td>
+<td>busy, cancel, sync, async, is-file, is-dir, operating</td>
+<td><code>FSi_SendCommand</code>, <code>FS_OpenFileFast</code></td>
+<td><code>FSi_ExecuteAsyncCommand</code>, <code>FS_CloseFile</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_SendCommand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>FSArchive.flag</code> 비트 <code>0x01</code>..<code>0x200</code></td>
+<td>registered, loaded, table-loaded, suspend, running, cancelling, suspending, unloading, is-async, is-sync</td>
+<td><code>FS_RegisterArchiveName</code>, <code>FS_LoadArchive</code>, <code>FSi_TranslateCommand</code></td>
+<td>큐 펌프 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_TranslateCommand.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>FSOverlayInfoHeader</code> (32 B)</td>
+<td>id, RAM 주소, RAM 크기, BSS 크기, sinit 범위, 파일 id, compressed:24 + flag:8</td>
+<td>패커</td>
+<td><code>FS_LoadOverlayInfo</code>, <code>FS_StartOverlay</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_LoadOverlayInfo.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>이 구조체들을 읽는 사람이라면 누구에게나 중요한 세부 사항: 이 ROM은
+<code>SDK_THREAD_INFINITY</code>로 빌드되었으므로, <code>OSThreadQueue</code>는 패킹된 4바이트 필드가 아니라 실제 8바이트
+<code>{head, tail}</code> 쌍이다. 따라서 <code>FSFile</code>을 내장하는 모든 구조체는 기본 SDK 헤더가
+암시하는 것보다 4바이트 더 크다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/sdk-nns.md</code>, the <code>SDK_THREAD_INFINITY</code> section</span></span>. 이 계열의 오버레이 쪽 절반은 추가로 <code>SDK_TS</code>가 필요하며, 이것이
+<code>fs_overlay.c</code>가 컴파일되는지 여부를 결정한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/sdk-nns.md</code>, the <code>SDK_TS</code> section</span></span>.</p>
+<h2 id="확인-방법">확인 방법</h2>
+<p>포트는 API가 아니라 카트리지를 대체한다: <code>port/shim/fs/romfs.c</code>는 추출된 파일
+시스템을 평탄한 가상 ROM 주소 공간으로 제시하고 <code>port/shim/fs/card.c</code>는 그로부터 <code>CARDi_ReadRom</code>에
+응답하므로, 위의 모든 <code>FS_*</code> 함수는 ROM 자체의 코드가 수정 없이 실행되는 것이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/card.c</code>, header; <code>port/shim/fs/romfs.c</code>, header</span></span>. 인덱스 블롭은
+<code>port/tools/fsimage.py</code>가 매직 <code>ACWWFSI1</code>로 작성하며, ROM 헤더, 오버레이 테이블, FNT, FAT는
+가상 ROM의 앞부분에 원본 그대로 저장된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/romfs.c</code>, <code>struct Index</code></span></span>.</p>
+<p>파일 시스템이 동작하는 것을 보려면, 마을에 쓰인 인터프리터 레시피를 실행하고 오버레이
+집합을 관찰한다:</p>
+<pre><code>ACWW_INTERP=1  ACWW_KEYS_AT/_FOR/_EVERY = the custom START9000 keys
+ACWW_TOUCH_ENABLE=1 ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181 ACWW_TOUCH_AT=6900 ACWW_TOUCH_EVERY=60
+ACWW_STOP_FRAME=48000
+python port/tools/run.py --frontier start
+</code></pre>
+<p>예상: 프레임 37,500에 오버레이 5, 36, 54, 120, 117이 로드된 채 마을이 화면에 있다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code> frame 37500, per <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40</span></span>. 그것이 파일 시스템이 제 일을 온전히 해내는 모습이다 — 경로가 해석되고, 오버레이가 읽히고,
+재배치되고, 생성되고, 그려진다.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>포트의 오버레이 재배치는 ROM 동작이 아니라 호스트 쪽 우회책이다: 오버레이들이 겹치기 때문에
+  <code>relocs.py</code>는 오버레이 포인터를 정적으로 다시 쓸 수 없으므로, 오버레이별 테이블이
+  <code>FS_StartOverlay</code> 안에서 적용되며, 인터프리터 경로는 의도적으로 재배치
+  패스를 전혀 실행하지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code>, header</span></span>. 이제 인터프리터 경로가
+  유일하게 올바른 경로인지는 같은 레시피를 두 경로에서 실행하고
+  로드된 오버레이 추적을 diff하면 해결될 것이다.</li>
+<li><code>FS_EndOverlay</code>의 ROM 구현은 네이티브 포트를 멈추게 하므로(오버레이 65가 로드되고, 어떤 프레임도
+  완료되지 않음) 포트는 대신 한정된 스윕을 실행한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/endoverlay.c</code>, header</span></span>.
+  그 멈춤이 포트의 소멸자 체인의 결함인지 포트의 힙 위에서 실행되는 ROM 자체
+  해체의 결함인지는 알려져 있지 않다. <code>ACWW_INTERP=1</code>로 ROM의 <code>FS_EndOverlay</code>를 실행하고
+  스윕이 어디서 멈추는지 기록하여 해결한다.</li>
+<li>세이브 데이터가 파일 시스템을 완전히 우회한다는 주장은 여기서 CARD
+  백업 요청 번호(READ_BACKUP 6, WRITE_BACKUP 7, VERIFY_BACKUP 9)와 <code>0x1202</code>에서 식별된 256 KB 플래시
+  장치를 근거로 한 것이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>, header</span></span>. 이는
+  <code>../systems/save-data.md</code>에 정리되어 있으며, 세이브 중에 <code>FS_*</code> 명령이 하나라도
+  발행되는지 관찰하여 거기서 확인해야 한다.</li>
+<li><code>BUILDTIME</code>과 <code>path_order.txt</code>의 순서는 트리가 특정 순서로 패킹되었음을 시사한다.
+  FAT 범위를 <code>path_order.txt</code>와 비교하여 해결한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../data/rom-layout.md</code> — 파일 id가 인덱스하는 모듈과 디렉터리 레이아웃.</li>
+<li><code>../data/archives.md</code> — 각 파일 안에 들어 있는 컨테이너 형식.</li>
+<li><code>overlays.md</code> — 148개 오버레이 각각의 용도.</li>
+<li><code>../data/music.md</code> — 사운드 라이브러리가 아카이브로 읽는 유일한 파일 <code>sound_data.sdat</code>.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../engine/threads-and-interrupts.html"><small>◀ 이전</small>스레드와 인터럽트</a><a class="pn next" href="../engine/graphics-pipeline.html"><small>다음 ▶</small>그래픽스 파이프라인</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#오버레이">오버레이</a></li><li><a href="#파일-시스템으로-마운트되는-narc-아카이브">파일 시스템으로 마운트되는 NARC 아카이브</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

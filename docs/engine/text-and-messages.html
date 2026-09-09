@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>텍스트와 메시지 · ACWW 근거 위키</title>
+<meta name="description" content="한국어판의 모든 대화 한 줄 한 줄은 script/KOR/ 아래 1,791개의 개별 .bmg 파일 중 하나에 들어 있는 UTF-16 문자열이다. 게임은 화자의 성격과 메시지 레이블로 경로를 만들고, 그 파일 하나를 열어, 텍스트를 글리프 하나씩 그리는 타자기(typew">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li class="active"><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>텍스트와 메시지</span></div><header class="page-head"><h1>텍스트와 메시지</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 55</span><span class="gchip g-E"><b>E</b> 6</span><span class="gchip g-H"><b>H</b> 3</span></div><div class="source-line">원문: <code>wiki/engine/text-and-messages.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 한국어판의 모든 대화 한 줄 한 줄은 <code>script/KOR/</code> 아래 1,791개의 개별 <code>.bmg</code> 파일 중 하나에
+들어 있는 UTF-16 문자열이다. 게임은 화자의 성격과 메시지 레이블로 경로를 만들고, 그 파일 하나를 열어,
+텍스트를 글리프 하나씩 그리는 타자기(typewriter)에 넘긴다. 글리프는 닌텐도 폰트 라이브러리에서
+오지 않는다: 네 개의 자체 <code>font/font{A,B,C,D}</code> 비트맵 뱅크에서 오며, ROM에 함께 실린 라이브러리
+폰트 스택은 Wi-Fi UI에만 쓰이는 것으로 보인다. 패킹된 메시지 뱅크도, 컴파일된 문자열 테이블도 없다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>메시지 시스템은 오버레이에 있지 않다. 대화 창 클래스, 그 상태 테이블, 입력
+처리, BMG 리더, 문자열 객체는 모두 항상 상주하는 ARM9 정적
+모듈에 있다; 오버레이는 메시지를 <em>요청</em>할 뿐이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code>, "The message system is not in an overlay"</span></span>. 창은 <code>main</code>의 두 구간 <code>0x02066bd0</code>-<code>0x02068e00</code>과
+<code>0x020a8100</code>-<code>0x020a9d60</code>을 차지한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code>, subsystem table</span></span>.</p>
+<p>메시지는 레이블과 화자의 성격으로 지정된다. <code>func_0200366c</code>는 <code>bo_</code>, <code>ta_</code>,
+<code>ge_</code>, <code>fu_</code>, <code>ko_</code>, <code>ha_</code>를 담은 <code>0x020d72a4</code>의 여섯 포인터 접두어 테이블로부터 키
+<code>&lt;personality&gt;_&lt;label&gt;</code>을 만든다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0200366c</code>, <code>main</code>, <code>src/matched/func_0200366c.c</code>; <code>port/TAXI-ROAD.md</code>, the message path trace</span></span>. <code>func_02067344</code>는 그 키를
+<code>/script/KOR/message/&lt;personality&gt;/&lt;group&gt;/&lt;name&gt;_.bmg</code> 형식의 경로로 바꾼다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02067344</code>, <code>main</code>, <code>src/matched/func_02067344.c</code></span></span>. <code>func_0206726c</code>는 <code>self+0xb14</code>에 있는
+BMG 리더를 통해 그것을 열고 결과 텍스트를 <code>self+0x14ac</code>의 문자열 객체에
+넘긴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0206726c</code>, <code>main</code>, <code>src/matched/func_0206726c.c</code></span></span>. 그 후 창은
+여섯 상태의 멤버 함수 포인터 테이블로 구동된다; 상태 2의 업데이트가 버튼 누름이
+한 줄을 넘기는 곳이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02066dc4</code>, <code>main</code>, <code>src/matched/func_02066dc4.c</code></span></span>.</p>
+<p>경로 템플릿은 ARM9 이미지에 컴파일되어 있으며, 다섯 개가 있고, 모두 같은 두세 개의
+<code>%s</code> 구성 요소 위에 만들어져 있다: <code>%s/%s.bmg</code>, <code>%s/%s/%s.bmg</code>, <code>%s/%s/%s/%s_.bmg</code>,
+<code>%s/%s/Other/%s_.bmg</code>, <code>%s/Other/%s_.bmg</code>, 그리고 선택 목록용의 별도 <code>/script/%s/select/%s.bmg</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code>, path-format string literals</span></span>. 언어를 담는 <code>%s</code>는
+<code>KOR</code>이며, 이것이 실린 유일한 언어 디렉터리다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/</code>, one subdirectory</span></span>.</p>
+<h3 id="메시지-트리">메시지 트리</h3>
+<p><code>script/KOR/</code>는 일곱 그룹에 총 1,581,466바이트의 <code>.bmg</code> 파일 1,791개를 담고 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/</code>, recursive census</span></span>. <code>message/</code>가 그중 1,526개이며,
+아홉 개의 성격 디렉터리로 나뉜다: <code>bo</code>, <code>ta</code>, <code>ge</code>, <code>fu</code>, <code>ha</code>, <code>ko</code>, 그리고 <code>sp</code>, <code>obj</code>,
+<code>Other</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/</code>, subdirectory listing</span></span>. <code>bo</code>와 <code>ta</code>는
+같은 이름의 열여덟 개 하위 디렉터리 — <code>3p</code>, <code>ai</code>, <code>ap</code>, <code>etc</code>,
+<code>ev</code>, <code>q</code>, <code>q01</code>..<code>q07</code>, <code>q09</code>..<code>q12</code>, <code>tsu</code> — 에 각각 242개의 파일을 담고 있으며, 이것이 네 구성 요소
+템플릿의 두 번째 <code>%s</code>다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/bo/</code>, <code>extract/adm-kr/files/script/KOR/message/ta/</code>, subdirectory listings and counts</span></span>. 나머지
+그룹은 <code>mail/</code> (<code>msg</code>, <code>ps</code>, <code>super</code>에 168개), <code>mailz/</code> (<code>msga</code>, <code>msgb</code>, <code>psz</code>,
+<code>superz</code>에 48개), <code>string/</code> (개별 파일 36개), <code>bbs/</code> (10개), <code>select/</code> (2개), <code>2d/</code> (1개)이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/</code>, per-directory census</span></span>. <code>string/</code>은 <code>obj_etc_fish.bmg</code>와
+<code>obj_etc_insect.bmg</code>를 포함한 아이템과 생물 이름 뱅크가 있는 곳이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/string/</code>, file names</span></span>.</p>
+<h3 id="bmg-컨테이너">BMG 컨테이너</h3>
+<p>1,791개 중 1,790개의 파일은 ROM의 <code>LZ77</code> 래퍼 뒤에 압축되어 있다; 유일하게 압축되지 않은
+<code>script/KOR/message/Other/test_.bmg</code>가 나머지가 압축 해제되었을 때의 형식을 보여 준다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, first-four-bytes census</span></span>. 그 헤더는 <code>MESGbmg1</code>, 정확히 일치하는 파일 크기
+필드, 블록 수 2, 그리고 인코딩 바이트 2 — UTF-16의 BMG 코드 — 이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/Other/test_.bmg</code>, bytes 0..17</span></span>. 두
+블록은 <code>INF1</code> (12바이트짜리 항목 16개)과 <code>DAT1</code> (800바이트)이며, <code>DAT1</code>의 페이로드는
+첫 null 항목 뒤에 오는 UTF-16LE 텍스트다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file, <code>INF1</code> +8, <code>DAT1</code> payload</span></span>. 모든
+<code>.bmg</code>는 ROM의 다른 6,330개 압축 파일이 쓰는 <code>0x10</code> 대신 압축 타입 <code>0xf7</code>을 가지므로,
+메시지 파일은 자체 압축 경로를 가진 유일한 에셋 부류다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, byte-4 histogram over all <code>LZ77</code>-wrapped files</span></span>.</p>
+<p>게임 자체의 BMG 리더는 ROM에서 이름이 없다: 테이블 어디의 어떤 심볼도
+<code>bmg</code>, <code>msg</code>, <code>mes</code> 또는 다른 텍스트 시스템 단어를 포함하지 않으며, <code>src/matched/</code>에 대한
+<code>BMG</code>, <code>MESG</code>, <code>INF1</code>, <code>DAT1</code>, <code>MID1</code>, <code>STR1</code> 내용 검색은 아무것도 반환하지 않는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/**/symbols.txt</code>, name sweep; <code>src/matched/</code>, content search; <code>port/TAXI-ROAD.md</code>, "This ROM names things by asset path"</span></span>. 게임 쪽 텍스트 함수는 모두
+<code>func_02xxxxxx</code>다.</p>
+<h3 id="문자-코드">문자 코드</h3>
+<p>텍스트는 16비트 코드로 글리프 계층에 도달한다. 문자열 순회는 이를 <strong>빅 엔디언</strong>으로 —
+바이트 쌍에 대해 <code>(p[1] &lt;&lt; 8) | p[0]</code> — 읽고 각각을 가상 메서드에 넘긴다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020a9368</code>, <code>main</code>, transcribed in <code>port/shim/game/glyphcode.c</code>, header</span></span>. 코드는
+유니코드다: 포트의 라이브 프로브가 <code>0xC548</code>, <code>0xB155</code>, <code>0xD558</code>을 기록했는데, 이는 한글
+음절 안, 녕, 하이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code>, header, recorded probe output</span></span>. 코드에
+글리프가 없으면 조회는 <code>0xFF20</code>, FULLWIDTH COMMERCIAL AT으로 폴백한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020512d4</code>, <code>main</code>, <code>src/matched/func_020512d4.c</code>; <code>port/shim/game/glyphcode.c</code>, header</span></span>. SDK 자체의 UTF-16 분리기 <code>NNSi_G2dSplitCharUTF16</code>은 <code>0x02104cec</code>에 존재하지만
+게임 자체의 경로가 아니라 라이브러리 스택에 속한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>src/matched/NNSi_G2dSplitCharUTF16.c</code></span></span>.</p>
+<p>실제 이름을 가진 유일한 문자열 프리미티브는 <code>autoload_2</code>의 NitroSDK 말단 함수 넷이다:
+<code>STD_ConcatenateString</code> <code>0x02128d58</code>, <code>STD_GetStringLength</code> <code>0x02128d88</code>, <code>STD_CopyLString</code>
+<code>0x02128db0</code>, <code>STD_CopyString</code> <code>0x02128dec</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>src/matched/STD_CopyString.c</code> and siblings</span></span>.
+게임 자체의 16비트 인식 길이 루틴은 실제 이름이 없다 — 테이블은 이를
+<code>func_02051c8c_unk</code>와 <code>func_020b4950_unk</code>라 부르며, 각각 이름 있는 두 심볼 사이의 작은
+틈에 있는 크기 0의 <code>unknown</code> 항목이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code>, both rows <code>kind:function(thumb,size=0x0,unknown)</code>; <code>port/shim/game/u16len.c</code>, <code>port/shim/game/textlen.c</code>, headers</span></span>.</p>
+<h3 id="폰트">폰트</h3>
+<p>게임의 폰트는 네 서체로, 각각 <code>font/</code> 아래 <code>head</code>, <code>attr</code>, <code>img</code> 파일의 고정된 삼중쌍이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/font/</code>, 12 files</span></span>. 각 <code>head</code>는 정확히 8바이트이며
+32비트 글리프 수 뒤에 두 개의 16비트 치수가 오는 것으로 읽힌다: fontA는 9x16에 3,314 글리프, fontB는
+7x8에 3,891, fontC는 16x16에 19, fontD는 8x8에 15
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/font/font{A,B,C,D}_head.bin</code>, all 8 bytes</span></span>. <code>img</code> 크기는
+픽셀당 1비트 비트맵임을 확인해 준다: fontC의 16x16 글리프 19개는 정확히 608바이트이고 fontD의 8x8 15개는
+정확히 120바이트로, 둘 다 <code>count * w * h / 8</code>에 남는 것이 없다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/font/fontC_img.bin</code> 608 bytes, <code>fontD_img.bin</code> 120 bytes</span></span>. fontA의 3,314라는
+수는 라이브로도 확인된다: 포트의 프로브가 <code>font 0x021c8230 glyphs 3314</code>를 출력했다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code>, header, recorded probe output</span></span>.</p>
+<p><code>func_02051794</code>가 그 네 삼중쌍의 로더다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02051794</code>, <code>main</code>, <code>src/matched/func_02051794.c</code>; <code>port/TAXI-ROAD.md</code>, ACWW font loader row</span></span>. <code>func_020516b8</code>은
+속성 테이블에 대한 코드-글리프 인덱스 조회로 실패 시 -1을 반환하고
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020516b8</code>, <code>main</code>, <code>src/matched/func_020516b8.c</code></span></span>, <code>func_0205171c</code>는 글리프 하나의
+너비 레코드를 가져오며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0205171c</code>, <code>main</code>, <code>src/matched/func_0205171c.c</code></span></span>, <code>func_020512d4</code>와
+<code>func_0205156c</code>는 조회를 <code>0xFF20</code> 폴백으로 감싼다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020512d4.c</code>, <code>src/matched/func_0205156c.c</code></span></span>. <code>func_020a8e8c</code>는
+<code>self+0x7c</code>의 플래그에 따라 두 래퍼 사이를 디스패치한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020a8e8c</code>, <code>main</code>, <code>src/matched/func_020a8e8c.c</code></span></span>. fontA의 속성 테이블은 LZ77로 압축되어 있으며
+<code>{u16 code, u8 width, u8}</code> 항목 3,314개를 담고 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/glyphcode.c</code>, header</span></span>.</p>
+<p>NitroSystem G2D 폰트 스택도 ROM에 있다 — <code>0x02102f1c</code>부터 <code>0x02104d00</code>까지 33개의
+함수로, 모두 바이트 매칭되었으며, <code>NNS_G2dFontFindGlyphIndex</code> <code>0x021031b8</code>,
+<code>NNS_G2dCharCanvasDrawChar</code> <code>0x021038d4</code>, <code>DrawGlyph1D</code> <code>0x02103e2c</code>, <code>DrawGlyphLine</code>
+<code>0x02104050</code>, <code>LetterChar</code> <code>0x02104208</code>, <code>0x02104710</code>-<code>0x02104978</code>의 네 <code>NNSi_G2dTextCanvasDraw*</code> 진입점,
+그리고 <code>NNSi_G2dUnpackNFT</code> <code>0x02104a28</code>을 포함한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>src/matched/NNS_G2dCharCanvasDrawChar.c</code> and siblings</span></span>. 이는 게임 본체에는 죽은 무게로 보인다: 이 무리에서 0x224바이트로 가장 큰 렌더러인
+<code>DrawGlyph1D</code>는 ROM 어디에도 호출 지점이 없고,
+<code>NNS_G2dFontFindGlyphIndex</code>와 <code>NNS_G2dCharCanvasDrawChar</code>는 <code>autoload_2</code>
+자체와 Wi-Fi 유틸리티 오버레이인 <code>ov001</code>에서만 호출된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code>, marked INFERENCE there; the supporting negative is that <code>NFTR</code>, the format <code>NNSi_G2dUnpackNFT</code> reads, appears in exactly one file in the whole ROM — <code>dwc/utility.bin</code></span></span>. 이를 확정하려면 일반 대화 상자가 화면에 있는 동안
+<code>ACWW_INTERP=1</code>로 호출 지점 트레이스를 해야 한다.</p>
+<h3 id="메시지-박스-아트워크">메시지 박스 아트워크</h3>
+<p>창 자체의 그래픽은 <code>a_mes/</code>의 열여덟 개 개별 파일로,
+<code>a_mes[&lt;variant&gt;]_&lt;layer&gt;_&lt;kind&gt;.bin</code> 패턴에 <code>_ncg</code> 타일, <code>_ncl</code> 팔레트, <code>_nsc</code>
+스크린 맵으로 이름 지어져 있으며, 박스 스킨마다 한 세트에 네 개의 "ten" 포인터 스프라이트 변형과 타이틀 플레이트가 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/a_mes/</code>, file names and sizes; <code>extract/adm-kr/arm9/arm9.bin</code>, the 14 <code>/a_mes/...</code> path literals</span></span>. 타이틀 플레이트 멤버는 <code>ov147</code>이 요청한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov147.bin</code>, four <code>/a_mes/a_mes_ttl_*</code> path literals</span></span>.</p>
+<h3 id="키보드">키보드</h3>
+<p>텍스트 <em>입력</em>은 세 오버레이 <code>ov095</code>, <code>ov124</code>, <code>ov126</code>에 있는 별개의 시스템으로, 합쳐서 265개의 함수다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code>, keyboard trio row</span></span>. 한글 입력 방식 자체는 라이브러리가 아니라
+게임 자체의 코드다: <code>autoload_2</code>의 <code>func_020efc74</code>는 0x7d0바이트짜리 화면
+키보드 상태 머신으로, 이에 해당하는 라이브러리 소스는 어디에도 없다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020efc74</code>, <code>autoload_2</code>, <code>src/matched/func_020efc74.c</code>, header</span></span>. 키보드 아트워크는
+<code>menu/han/</code> (한글 페이지 16개)과 <code>menu/chat2/</code> (키 페이지 11개)다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/menu/han/</code> 34 files, <code>extract/adm-kr/files/menu/chat2/</code>; <code>extract/adm-kr/arm9_overlays/ov124.bin</code> and <code>ov095.bin</code>, path literals</span></span>. 텍스트 시스템의
+다른 모든 것과 마찬가지로, 어느 것도 이름이 없다: ROM 전체에서 <code>kbd</code>, <code>keyboard</code>, <code>namein</code>,
+<code>hangul</code>, <code>ime</code>, <code>moji</code>, <code>kana</code>, <code>yomi</code>를 검색하면 심볼이 0개 반환되며, 키보드는
+그 에셋으로 찾아냈다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code>, "This ROM names things by asset path"</span></span>.</p>
+<p>마을 이름 키보드의 스타일러스 디스패처는 <code>func_ov126_022a1228</code>로, <code>ov126</code> 재배치
+<code>0x022a1ff0 -&gt; 0x022a1229</code>를 통해 함수 포인터로만 설치된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/ui/w40_ov126_022a1228_gateprobe.c</code>, header</span></span>. 그 게이트는 현재 터치
+좌표를 <code>autoload_3</code>의 두 워드 <code>0x021f6c58</code> (X)과 <code>0x021f6c54</code> (Y)에서 읽는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/ov126/relocs.txt</code>, resolving the pool words at <code>0x022a0848</code> and <code>0x022a084c</code>; <code>port/shim/ui/w90_ov126_022a07e8_touchwords.c</code>, header</span></span>. 히트 테스트는
+<code>sub_229c54c</code>이고 인덱스-키 id 조회는 <code>sub_229c448</code>로, 둘 다 측정된 경로에서 상주 여부로
+<code>ov095</code>로 해석되며, 키 id <code>0x100</code>이 확인 키다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov126_022a04e8.c</code>; <code>port/shim/ui/w90_kbd_hittest_dispatch.c</code>, header</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_0200366c</code></td>
+<td><code>main</code></td>
+<td><code>&lt;personality&gt;_&lt;label&gt;</code>을 만든다</td>
+<td>S: <code>src/matched/func_0200366c.c</code></td>
+</tr>
+<tr>
+<td><code>func_02067344</code></td>
+<td><code>main</code></td>
+<td>키 → <code>.bmg</code> 경로</td>
+<td>S: <code>src/matched/func_02067344.c</code></td>
+</tr>
+<tr>
+<td><code>func_0206726c</code></td>
+<td><code>main</code></td>
+<td>파일을 열고 문자열 객체에 넘긴다</td>
+<td>S: <code>src/matched/func_0206726c.c</code></td>
+</tr>
+<tr>
+<td><code>func_02066dc4</code></td>
+<td><code>main</code></td>
+<td>대화 상태 2: 버튼으로 진행</td>
+<td>S: <code>src/matched/func_02066dc4.c</code></td>
+</tr>
+<tr>
+<td><code>func_02051794</code></td>
+<td><code>main</code></td>
+<td><code>font{A..D}_{head,attr,img}</code>를 로드한다</td>
+<td>S: <code>src/matched/func_02051794.c</code></td>
+</tr>
+<tr>
+<td><code>func_020516b8</code></td>
+<td><code>main</code></td>
+<td>코드 → 글리프 인덱스, 실패 시 -1</td>
+<td>S: <code>src/matched/func_020516b8.c</code></td>
+</tr>
+<tr>
+<td><code>func_020512d4</code> / <code>func_0205156c</code></td>
+<td><code>main</code></td>
+<td><code>0xFF20</code> 폴백이 있는 조회</td>
+<td>S: <code>src/matched/func_020512d4.c</code></td>
+</tr>
+<tr>
+<td><code>func_020a8e8c</code></td>
+<td><code>main</code></td>
+<td>두 조회 중 하나를 고른다</td>
+<td>S: <code>src/matched/func_020a8e8c.c</code></td>
+</tr>
+<tr>
+<td><code>func_020efc74</code></td>
+<td><code>autoload_2</code></td>
+<td>한국어 IME 상태 머신</td>
+<td>S: <code>src/matched/func_020efc74.c</code></td>
+</tr>
+<tr>
+<td><code>NNSi_G2dSplitCharUTF16</code> <code>0x02104cec</code></td>
+<td><code>autoload_2</code></td>
+<td>SDK UTF-16 커서 스텝</td>
+<td>S: <code>src/matched/NNSi_G2dSplitCharUTF16.c</code></td>
+</tr>
+<tr>
+<td><code>NNS_G2dFontFindGlyphIndex</code> <code>0x021031b8</code>, <code>GetGlyphIndex</code> <code>0x0210325c</code></td>
+<td><code>autoload_2</code></td>
+<td>SDK 코드 맵 (DIRECT/TABLE/SCAN)</td>
+<td>S: <code>src/matched/NNS_G2dFontFindGlyphIndex.c</code>, <code>GetGlyphIndex.c</code></td>
+</tr>
+<tr>
+<td><code>NNSi_G2dUnpackNFT</code> <code>0x02104a28</code></td>
+<td><code>autoload_2</code></td>
+<td><code>NFTR</code> 폰트를 언팩한다</td>
+<td>S: <code>src/matched/NNSi_G2dUnpackNFT.c</code></td>
+</tr>
+<tr>
+<td><code>STD_CopyString</code> <code>0x02128dec</code>와 형제 셋</td>
+<td><code>autoload_2</code></td>
+<td>8비트 문자열 말단 함수</td>
+<td>S: <code>src/matched/STD_CopyString.c</code></td>
+</tr>
+<tr>
+<td><code>func_ov126_022a1228</code></td>
+<td><code>ov126</code></td>
+<td>마을 이름 키보드 터치 디스패치</td>
+<td>S: <code>port/shim/ui/w40_ov126_022a1228_gateprobe.c</code></td>
+</tr>
+<tr>
+<td><code>sub_229c54c</code> / <code>sub_229c448</code></td>
+<td><code>ov095</code> (상주 여부로)</td>
+<td>키 히트 테스트 / 키 id</td>
+<td>S: <code>src/matched/func_ov126_022a04e8.c</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x020d72a4</code></td>
+<td>성격 접두어의 여섯 포인터 테이블</td>
+<td>ROM 데이터</td>
+<td><code>func_0200366c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code></span></span></td>
+</tr>
+<tr>
+<td><code>self+0xb14</code></td>
+<td>창의 BMG 리더</td>
+<td>창 생성</td>
+<td><code>func_0206726c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0206726c.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>self+0x14ac</code></td>
+<td>창의 문자열 객체</td>
+<td><code>func_0206726c</code></td>
+<td>타자기 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0206726c.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>self+0x7c</code></td>
+<td>어느 글리프 조회가 실행될지 선택</td>
+<td>창 설정</td>
+<td><code>func_020a8e8c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a8e8c.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x021c8230</code></td>
+<td>로드된 fontA 레코드</td>
+<td><code>func_02051794</code></td>
+<td>글리프 조회들 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x020d1df4</code></td>
+<td>각 8바이트짜리 세 항목 글리프 집합 테이블</td>
+<td>ROM 데이터</td>
+<td><code>func_020ad4fc</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/fontsetup.c</code>, header</span></span></td>
+</tr>
+<tr>
+<td><code>0x021f49a0</code></td>
+<td>0x18바이트짜리 글리프 표면 서술자 셋</td>
+<td><code>func_020ad4fc</code></td>
+<td>캔버스 등록 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/fontsetup.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x021f6c58</code> / <code>0x021f6c54</code></td>
+<td>현재 스타일러스 X / Y</td>
+<td><code>port/shim/input/touch.c</code>; 하드웨어에서는 터치 샘플러</td>
+<td>키보드 게이트 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/.../ov126/relocs.txt</code></span></span></td>
+</tr>
+<tr>
+<td>BMG <code>INF1</code> 항목, 12바이트</td>
+<td>메시지 레코드 하나</td>
+<td>패커</td>
+<td>BMG 리더 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>.../Other/test_.bmg</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>전체 체인을 실행해 보는 알려진, 재현 가능한 결함이 있다. 수정 전에는 메뉴 박스와
+말풍선이 올바른 위치, 색, 커서, 줄바꿈, 박스 크기로 렌더링되었지만
+모든 글리프가 동일했다; 그 비트맵을 네 폰트의 전체 7,239개 글리프와 대조했더니
+정확히 하나에 맞았다 — fontA 글리프 383, 즉 <code>0xFF20</code>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/VISIBLE-STATE.md</code>, the glyph observation</span></span>. 원인은 <code>func_020a8e8c</code>가 호출자가 <code>r1</code>에
+넘긴 문자 코드를 떨어뜨려서, 모든 코드가 실패하고 모든 코드가 폴백한 것이었다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/glyphcode.c</code>, header; <code>port/tools/overrides.txt</code>, the <code>func_020a8e8c</code> row</span></span>.
+수리 후 프로브는 <code>0xC548 -&gt; 2313</code>, <code>0xB155 -&gt; 1306</code>, <code>0xD558 -&gt; 3167</code>을 출력했다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code>, header</span></span>.</p>
+<p>그 검사를 다시 실행하려면, <code>port/shim/game/glyphprobe.c</code>의 비활성화된 프로브를 활성화하고(<code>#if 0</code>이며
+<code>port/tools/overrides.txt</code>에 없다), <code>python port/tools/pipeline.py</code>로 다시 빌드한 다음,
+대화 상자에 도달하는 아무 레시피나 실행한다. 예상: 하나의 쌍이 반복되는 것이 아니라 서로 다른
+<code>code in -&gt; index out</code> 쌍의 흐름.</p>
+<p>아무것도 실행하지 않고 BMG 컨테이너를 검증하려면,
+<code>extract/adm-kr/files/script/KOR/message/Other/test_.bmg</code>의 첫 48바이트를 읽는다: <code>MESGbmg1</code>, 파일 크기 1,056, 블록
+수 2, 인코딩 2, 그다음 <code>INF1</code> (224바이트, 12바이트짜리 항목 16개)과 <code>DAT1</code> (800바이트).</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>NNS G2D 폰트 스택은 게임 본체에서는 죽어 있고 Wi-Fi UI에만 쓰인다.</strong> 근거는
+  호출 지점 스캔과 <code>NFTR</code>이 <code>dwc/utility.bin</code>에만 등장한다는 것이다
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code>, marked INFERENCE</span></span>. 대화 상자를 여는 레시피와 WFC 화면(<code>ov146</code>)을 여는
+  레시피에서 <code>ACWW_INTERP=1</code>로 <code>NNS_G2dCharCanvasDrawChar</code> <code>0x021038d4</code>에 대한 호출을
+  추적하고 비교하여 확정한다.</li>
+<li><strong><code>0xf7</code> 압축 타입은 <code>.bmg</code>에 특유하다.</strong> 1,790개의 압축된 메시지 파일 모두가 이를
+  가지며 다른 파일은 어느 것도 갖지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/</code>, byte-4 histogram</span></span>. 이것이
+  다른 알고리즘인지 난독화인지는 알 수 없다. 메시지 열기 시점에 압축 해제된
+  버퍼를 캡처해 <code>MESGbmg1</code>로 시작하는지 확인하여 확정한다.</li>
+<li><strong>문자열 순회는 빅 엔디언인데 BMG 페이로드는 UTF-16LE다.</strong> <code>func_020a9368</code>은
+  <code>(p[1] &lt;&lt; 8) | p[0]</code>을 조합하지만 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/glyphcode.c</code></span></span>, <code>test_.bmg</code>의 <code>DAT1</code> 페이로드는
+  리틀 엔디언으로 읽힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same file</span></span>. 리더가 로드 시 바이트를 스왑하거나, 두
+  읽기 중 하나가 다른 버퍼에 대한 것이다. <code>func_0206726c</code>가 반환한 직후 <code>self+0x14ac</code>의 문자열
+  객체 버퍼의 첫 여덟 바이트를 덤프하여 확정한다.</li>
+<li><strong>프레임별 대화 드라이버 <code>func_02068144</code>와 문자열 순회 <code>func_020a9368</code>은 매칭된 소스가
+  없다.</strong> 이들은 산문에서만 이름이 언급된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>port/TAXI-ROAD.md</code></span></span>. 차분 검사 큐에
+  추가하여 확정한다.</li>
+<li><strong>각 성격 아래의 열여덟 개 <code>q*</code> 하위 디렉터리는 대화 주제이고,
+  <code>3p</code>/<code>ai</code>/<code>ap</code>/<code>etc</code>/<code>ev</code>/<code>tsu</code> 형제들은 범주다.</strong> 이는 이름만으로 추론한 것이다
+  [H]. 긴 마을 실행에 걸쳐 <code>func_02067344</code>에서 조합된 경로를 기록하고
+  각 디렉터리를 화면 상황과 연관 지어 확정한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../data/archives.md</code> — <code>MESGbmg1</code>과 <code>LZ77</code> 컨테이너의 상세.</li>
+<li><code>../data/rom-layout.md</code> — <code>script/</code>, <code>font/</code>, <code>a_mes/</code>, <code>menu/han/</code>이 있는 곳.</li>
+<li><code>graphics-pipeline.md</code> — 글리프 비트맵이 픽셀이 되는 방법.</li>
+<li><code>file-system.md</code> — <code>/script/KOR/.../x_.bmg</code>가 바이트가 되는 방법.</li>
+</ul>
+<h2 id="확정됨-청크-방식0xf7-메시지-파일의-압축을-누가-푸는가">확정됨: 청크 방식(0xf7) 메시지 파일의 압축을 누가 푸는가</h2>
+<p>범용 로더(<code>func_02064b2c</code>, <code>func_020649ac</code>)는 콘솔에서도 포트에서도 타입 바이트로
+디스패치하지 않는다; 이들은 <code>.bmg</code>를 결코 보지 않는다. 메시지 창의 리더들
+(<code>func_020a9540</code>..<code>func_020a982c</code>)은 <code>func_02064658</code> (main, Thumb, 0x194바이트)을 거치는데, 이는
+<code>(type &amp; 0xf0) == 0xf0</code>을 검사하고, 청크 크기를 <code>0x20 &lt;&lt; (type &amp; 0xf)</code>로 잡으며(0xf7이면 4,096),
+u16 누적 테이블을 읽고, 한 청크 캐시로 요청된 범위를 덮는 청크만
+압축 해제하는 임의 접근 리더다; 타입 0x00 청크는 복사된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02064658</code> disassembly; port/shim/game/lzread.c</span></span>. 인터프리터 경로에서는
+그 ROM 코드가 실행되어 등록된 호스트 <code>MI_UncompressLZ8</code>을 청크당 한 번 호출하며,
+그래서 마을 대화가 올바르게 렌더링된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D63</code> 37,500</span></span>. 픽스처:
+<code>port/tools/test_lz77_f7.py</code> (검사 3개, 보정 2개)는 세 청크짜리 파일을
+lzread.c + lz77.c로 독립적인 Python 디코더와 대조하며 디코딩한다. 범용 로더는 이제 0xf7 컨테이너가
+넘겨지는 일이 있으면 일회성 증거(witness)를 출력한다.</p></div><nav class="prevnext"><a class="pn prev" href="../engine/graphics-pipeline.html"><small>◀ 이전</small>그래픽스 파이프라인</a><span class="pn"></span></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#메시지-트리">메시지 트리</a></li><li><a href="#bmg-컨테이너">BMG 컨테이너</a></li><li><a href="#문자-코드">문자 코드</a></li><li><a href="#폰트">폰트</a></li><li><a href="#메시지-박스-아트워크">메시지 박스 아트워크</a></li><li><a href="#키보드">키보드</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li><li><a href="#확정됨-청크-방식0xf7-메시지-파일의-압축을-누가-푸는가">확정됨: 청크 방식(0xf7) 메시지 파일의 압축을 누가 푸는가</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

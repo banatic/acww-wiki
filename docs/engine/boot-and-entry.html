@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>부팅과 진입점 · ACWW 근거 위키</title>
+<meta name="description" content="전원이 켜지면 ARM9는 NitroSDK의 손으로 작성된 스타트업을 실행한 뒤, 세 가지를 고정된 순서로 수행한다: 하드웨어/무선/파일시스템 초기 기동 루틴, C++ 정적 초기화자, 그리고 게임 자체의 NitroMain이다. NitroMain은 OS 틱, 알람, 스레드">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li class="active"><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>부팅과 진입점</span></div><header class="page-head"><h1>부팅과 진입점</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 42</span><span class="gchip g-E"><b>E</b> 13</span><span class="gchip g-O"><b>O</b> 2</span><span class="gchip g-H"><b>H</b> 4</span></div><div class="source-line">원문: <code>wiki/engine/boot-and-entry.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 전원이 켜지면 ARM9는 NitroSDK의 손으로 작성된 스타트업을 실행한 뒤, 세 가지를
+고정된 순서로 수행한다: 하드웨어/무선/파일시스템 초기 기동 루틴, C++ 정적
+초기화자, 그리고 게임 자체의 <code>NitroMain</code>이다. <code>NitroMain</code>은 OS 틱, 알람, 스레드를
+시작하고, 예외 핸들러를 설치하고, 인터럽트를 활성화한 다음 게임에 제어를 넘기며,
+게임은 절대 반환하지 않는다. PC 포트의 인터프리터 경로에서는 이 세 가지 모두가 ROM
+자체의 ARM 및 Thumb 바이트로 실행되고, 호스트는 그 아래의 하드웨어만 제공한다. 닌텐도 로고가
+영원히 표시되는 부팅을 디버깅하고 있다면, 이 페이지의 시퀀스가 그 증상을 걸어 둘
+뼈대가 된다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<h3 id="진입-체인">진입 체인</h3>
+<p>NDS 헤더의 진입 체인은 <code>0x02000800</code>의 <code>Entry</code>, 즉 NitroSDK crt0의 손으로 작성된
+ARM 스타트업에 도달한다. 이 루틴은 CP15를 설정하고, SVC/IRQ/시스템 스택을 구성하고, OAM과 팔레트 RAM을 지우고
+캐시를 플러시한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>Entry</code>, main, <code>port/platform/nitromain.c</code> header</span></span>. 이 중 어느 것도
+디컴파일 가능한 C 본체가 아니다 — 호스트 빌드가 전혀 컴파일할 수 없는 어셈블리 번역 단위 중
+하나이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c</code> header; <code>port/tools/expected_failed_tus.txt</code></span></span>.</p>
+<p><code>Entry</code>는 네 개의 명령어로 끝나며, 이것이 공식적인 부팅 순서이다:
+<code>0x02137124</code>(<code>bx lr</code> no-op) 호출, <code>func_020b1a74</code>(하드웨어, 무선, 파일시스템
+초기 기동) 호출, <code>func_02138968</code>(<code>__init_cpp</code>, 정적 초기화자) 호출, 그리고 마지막으로
+<code>0x02000c39</code>의 리터럴 풀 로드와 그곳으로의 branch-exchange이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>Entry</code>, main, quoted in <code>port/platform/win32.c:2340-2348</code></span></span>.</p>
+<p>이 순서는 우연이 아니라 필수적이다: 포트의 첫 번째 구성은 초기 기동 전에
+<code>__init_cpp</code>를 실행했고, 그러자 생성자들은 힙, VRAM 뱅크, 파일시스템이 아직 존재하지 않는
+머신 위에서 첫 오브젝트들을 만들었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/win32.c:2346-2349</code></span></span>.</p>
+<h3 id="진짜-진입점에는-자체-심볼이-없다">진짜 진입점에는 자체 심볼이 없다</h3>
+<p><code>0x02000c38</code>은 <code>Entry</code>가 분기하는 0x60바이트 Thumb 루틴이며, 여기서 시작하는 심볼은 없다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c</code> header</span></span>. 심볼 테이블은 0xcc바이트 앞에서 시작하는 0x174바이트 Thumb 심볼
+<code>func_02000b6c</code>를 잘라 두었으므로, 진입 루틴은 0xcc바이트의
+읽기 전용 버전 문자열이 앞에 붙은 채로 도착한다 — 정확히 <code>0x02000b6c + 0xcc = 0x02000c38</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02000b6c</code>, main, <code>port/platform/nitromain.c</code> header</span></span>. 이것은 ROM이 아니라
+잘못 잘린 경계가 이상해 보이는 원인이 되는 여러 지점 중 첫 번째이다. 주소 아레나에 미치는 결과는
+<code>memory-map.md</code>를 참고하라.</p>
+<h3 id="nitromain이-하는-일"><code>NitroMain</code>이 하는 일</h3>
+<p>ROM의 <code>0x02000c38</code>에서 읽어 보면, 이 루틴은 NitroSDK의 <code>NitroMain</code> 형태이며 다음을
+순서대로 호출한다: <code>OS_InitTick</code>, <code>OS_InitAlarm</code>, <code>OS_InitThread</code>, 그 다음 ROM 자체의 핸들러
+<code>func_0206e6c4</code>와 인수 워드 <code>0x0220433c</code>를 넘기는 <code>OS_SetUserExceptionHandler</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:33-46, 62-66</code></span></span>. 그런 다음 <code>REG_IME</code>(<code>0x04000208</code>)를 읽고
+1을 쓰고, <code>OS_EnableInterrupts</code>를 호출하고, <code>func_0206e518</code>을 호출한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:68-75</code></span></span>. <code>REG_IME</code> 읽기는 값으로서는 죽어 있지만
+하드웨어 접근으로서는 살아 있다 — ROM은 로드된 레지스터를 즉시 덮어쓴다 — 그래서 포트는
+이를 volatile 읽기로 유지한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:67-71</code></span></span>.</p>
+<p><code>0x027ffc20</code>의 부팅 플래그 뒤에는 두 번째 경로가 있다: 이 값이 1이면 루틴은
+<code>func_0206e464</code>도 호출하고, <code>REG_IME</code>를 다시 건드리고, <code>func_02116a1c(2)</code>를 호출한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:77-82</code></span></span>. 두 경로 모두 같은 방식으로, <code>func_020b1b84</code>
+다음 <code>func_0206e560</code>으로 끝나며, 루틴은 절대 반환하지 않는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:84-85</code></span></span>. <code>func_0206e560</code>이 게임 본체가 시작되는 곳이다;
+<code>scenes-and-channels.md</code>의 모든 내용은 그 아래에서 일어난다.</p>
+<p>여기서 설치되는 예외 핸들러는 장식이 아니다. ROM이 치명적 폴트를 맞으면
+<code>func_0206e3f4 -&gt; func_0206e6c4</code>를 통해 예외의 레지스터 테이블을 <code>0x0213fde0</code>에
+저장하고, 이어서 <code>func_020012ec</code>가 <code>func_02001324</code>를 루프한다 — 양쪽 화면이 모두 검은
+ROM 자체의 크래시 화면이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code>, CARD40..SND40; observed from frame ~830 of an interpreter run</span></span>.</p>
+<h3 id="초기-기동-루틴과-그-마지막-호출">초기 기동 루틴과 그 마지막 호출</h3>
+<p><code>func_020b1a74</code>는 Thumb이며 하드웨어, 무선, 파일시스템 초기 기동을 수행한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020b1a74</code>, main, <code>port/interp/interp_boot.c:29</code></span></span>. 그 마지막 호출은 게임의
+메인 힙 분할인 <code>func_020ea48c</code>이므로, 그 힙이 존재하기 전까지는 초기 기동 이후의 어떤 것도 실행될 수 없다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020ea48c</code>, autoload_2, <code>port/shim/boot/heapinit.c</code> header</span></span>. 이 함수는
+<code>OS_GetArenaLo(0)</code>과 <code>OS_GetArenaHi(0)</code>을 읽고, 빼기 전에 하위 끝을 32바이트로
+올림하여 크기가 이미 정렬 패딩을 감당하도록 한 뒤, 나머지를
+아레나 0에서 할당한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020ea48c</code>, autoload_2, <code>port/shim/boot/heapinit.c</code> header</span></span>. 그 블록 안에
+무엇을 구축하는지는 <code>memory-map.md</code>를 참고하라.</p>
+<p>처음부터 끝까지 인터프리트하면 초기 기동은 3,917스텝, 정적 초기화자는 21,402스텝이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40, runs <code>off-D17</code>..<code>off-D20</code></span></span>.</p>
+<h3 id="pc-포트-인터프리터-경로의-부팅">PC 포트 인터프리터 경로의 부팅</h3>
+<p><code>ACWW_INTERP=1</code>이면 포트는 이 중 어느 것도 자체 전사본을 호출하지 않는다: ROM의
+<code>Entry</code> 순서 — <code>0x020b1a75</code>, <code>0x02138968</code>, <code>0x02000c39</code> — 를 인터프리터를 통해 실행하며,
+인터프리터의 훅이 먼저 설치된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:28-30, 404-418</code></span></span>. 네이티브
+초기 기동, 네이티브 <code>__init_cpp</code>, 네이티브 사운드 부팅은 모두 건너뛰며, 포트는
+stdout에 그렇게 밝힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/win32.c:2355-2405</code></span></span>.</p>
+<p>부팅 줄은 레지스트리 크기, 진입점, 스택을
+<code>acww interp: BOOT via interpreter, registry entries=N entry=0x02000c39 stack=0x027e3e00</code> 형태로 알린다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:395-401</code></span></span>. 인터프리트되는 시스템 스택 상단은 <code>0x027e3e00</code>이며,
+DTCM 상단에 있는 NitroSDK의 IRQ(0x100) 및 SVC(0x40) 스택 아래에 배치된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:11-14, 31</code></span></span>.</p>
+<p>두 가지 순서 관련 사실은 폴트를 대가로 얻은 것이다. 네이티브 초기 기동을 먼저 실행하면 네이티브
+<code>CARD_Init</code>이 HOST 진입점을 가진 카드 태스크 스레드를 만들고, 파이버는 훅이 존재하기도 전에
+이를 인터프리트하려 했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40, <code>off-D16</code></span></span>. 그리고 사운드 커맨드 계층은 인터프리트된 초기 기동 이후로 옮겨야 했는데,
+<code>SND_CommandInit</code>이 ROM 자체의 <code>PXI_Init</code>이 설정하는 PXI 비트를 기다리기 때문이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40, <code>off-D17</code>..<code>off-D20</code></span></span>.</p>
+<p>콘솔 자체 상태 중 하나는 ROM 코드도 PXI도 아니다: 사용자 설정의 NVRAM 읽기
+(PXI 태그 4)는 <code>0x02000c98</code>의 심볼 없는 영역에서 오며, 등록할 이름이 없기 때문에
+포트는 주소로 이를 공급한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/interp_registry.py:77-80</code>; E: <code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40, <code>off-D18</code>, where the read spun forever</span></span>.</p>
+<h3 id="부팅-이후-프레임이란-무엇인가">부팅 이후: 프레임이란 무엇인가</h3>
+<p>NDS에는 프레임 루프가 없다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/vblank.c:11-14</code></span></span>. 게임의 루프는 <code>VBlankIntrWait</code>
+(<code>0x020002c7</code>, BIOS <code>IntrWait</code>를 둘러싼 세 명령어)에서 블록하며 끝나고, 수직 블랭크
+인터럽트가 시간을 흐르게 하는 것이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>VBlankIntrWait</code>, main, <code>port/shim/os/vblank.c</code> header</span></span>.
+유휴 스레드의 본체 전체는 <code>while (1) OS_Halt();</code>이며, <code>OS_Halt</code>는 CP15의
+인터럽트 대기(wait-for-interrupt)이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>OSi_IdleThreadProc</code> / <code>OS_Halt</code>, itcm, <code>port/shim/os/halt.c</code> header</span></span>.</p>
+<p>인터프리터 경로에서는 세 번째 것이 프레임을 끝낼 수 있으며, 마을 시퀀스 동안 실제로
+그렇게 하는 것이 바로 이것이다: ROM의 프레임 동기화 <code>func_0200149c</code>는 <code>VCOUNT</code>를 읽으며 스핀하므로,
+포트의 I/O 로드 훅은 읽기마다 합성 스캔라인을 하나 진행시키고 카운터가 0번 라인으로
+되감길 때 프레임 경계를 호출한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:239-254</code>; E: <code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40..SND40, <code>off-D36</code></span></span>. 이 규칙이 없으면
+상태 머신 경로의 어떤 것도 프레임 경계에 전혀 도달하지 못했다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same run</span></span>. <code>threads-and-interrupts.md</code>를 참고하라.</p>
+<h3 id="부팅이-어디까지-진행되는가">부팅이 어디까지 진행되는가</h3>
+<p>스크립트화된 마을 레시피의 인터프리트 실행은 프레임 4,500까지 이름 키보드가 있는 택시
+내부에, 37,500에 마을 회관 앞의 마을에, 40,500까지 마을 회관
+내부에 도달하며, 폴트나 인터프리터 정지 없이 48,000프레임을 실행한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code>, 31 shots; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40</span></span>.
+같은 레시피를 파이프라인의 영수증(receipt) 경로로 실행하면 801초에 48,000프레임으로 끝났고
+자식 종료 코드는 100이었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/town-R1</code>; RECEIPT41</span></span>. 더 긴 실행은
+상태 정지 없이 90,000프레임에 도달했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D59</code>; LONG41</span></span>.</p>
+<p>프레임 6,000부터 24,000까지 포트와 DeSmuME 레퍼런스는 단계별로 같은 화면에 있으며,
+아래 화면 정규화 상호상관은 0.9997에서 1.0000이다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-fullpad</code>, compared against <code>tap-D56</code>; ORACLE41</span></span>. 둘은
+25,500에서 갈라지는데, 포트의 예약된 두 번의 탭은 마을 이름을 확정하고 원본의 동일한
+탭은 그렇지 않다 <span class="cite" data-grade="E+O"><span class="cite-badge"><b class="g g-E" title="실험">E</b><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same comparison</span></span>. <strong>이 분기는 해결되었다(ORACLE42)</strong>: 24,600의 탭은
+KEYS3 A 누름 프레임(2400 + 37 x 600)에 떨어지고, 원본의 스타일러스 샘플은 포트보다
+1~2프레임 늦게 게임에 도달하므로, 둘은 누름과 탭의 순서를
+다르게 매긴다; 24,700으로 옮기면 양쪽 모두 확정하고 일치하며, 24,000..27,000의 11프레임이 평균 ncc
+0.9955이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42; E: <code>tap-D62</code>; O: <code>scratchpad/oracle/tap-24700</code></span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급 / 출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Entry</code> (<code>0x02000800</code>)</td>
+<td>main</td>
+<td>crt0: CP15, 스택, OAM/팔레트 클리어, 캐시 플러시</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c</code> header</span></span></td>
+</tr>
+<tr>
+<td><code>func_020b1a74</code> (Thumb)</td>
+<td>main</td>
+<td>하드웨어, 무선, 파일시스템 초기 기동</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:29</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020ea48c</code></td>
+<td>autoload_2</td>
+<td>초기 기동의 마지막 호출: 아레나 0에서 게임 힙을 분할</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/boot/heapinit.c</code> header</span></span></td>
+</tr>
+<tr>
+<td><code>func_02138968</code> (ARM)</td>
+<td>main</td>
+<td><code>__init_cpp</code>, C++ 정적 초기화자</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:30</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x02000c38</code> (Thumb, 0x60 bytes)</td>
+<td>main</td>
+<td>진짜 <code>NitroMain</code>; 여기서 시작하는 심볼 없음</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c</code> header</span></span></td>
+</tr>
+<tr>
+<td><code>OS_InitTick</code> / <code>OS_InitAlarm</code> / <code>OS_InitThread</code></td>
+<td>autoload_2</td>
+<td>OS 서비스, 이 순서대로</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:33-35</code></span></span></td>
+</tr>
+<tr>
+<td><code>OS_SetUserExceptionHandler</code> (<code>0x0211628c</code>)</td>
+<td>autoload_2</td>
+<td><code>func_0206e6c4</code>를 인수 <code>0x0220433c</code>와 함께 설치</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:36, 46</code></span></span></td>
+</tr>
+<tr>
+<td><code>OS_EnableInterrupts</code> (<code>0x01ffa314</code>)</td>
+<td>itcm</td>
+<td>인터럽트 켜기</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:37</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_0206e518</code>, <code>func_020b1b84</code>, <code>func_0206e560</code></td>
+<td>main</td>
+<td>게임으로의 인계; 절대 반환하지 않음</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:75, 84-85</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_0206e6c4</code> / <code>func_0206e3f4</code></td>
+<td>main</td>
+<td>치명적 경로: 레지스터 테이블 저장 후 크래시 화면</td>
+<td><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">cycle40 log, CARD40..SND40</span></span></td>
+</tr>
+<tr>
+<td><code>VBlankIntrWait</code> (<code>0x020002c7</code>)</td>
+<td>main</td>
+<td>게임이 블록하는 프레임 경계</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/vblank.c</code> header</span></span></td>
+</tr>
+<tr>
+<td><code>OS_Halt</code></td>
+<td>itcm</td>
+<td>유휴 스레드의 본체</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/halt.c</code> header</span></span></td>
+</tr>
+<tr>
+<td><code>func_0200149c</code></td>
+<td>main</td>
+<td>프레임 동기화; <code>VCOUNT</code>에서 스핀</td>
+<td><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">cycle40 log, CARD40..SND40 <code>off-D36</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x04000208</code> (<code>REG_IME</code>)</td>
+<td>인터럽트 마스터 활성화; 플래그 경로에서 두 번 1로 설정됨</td>
+<td><code>NitroMain</code></td>
+<td>인터럽트 컨트롤러 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:49, 68-81</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x027ffc20</code></td>
+<td>부팅 플래그; 1이면 두 번째 부팅 경로 선택</td>
+<td><code>NitroMain</code> 이전에 설정됨</td>
+<td><code>NitroMain</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:50, 77</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x0220433c</code></td>
+<td>사용자 예외 핸들러의 인수 워드</td>
+<td>ROM 리터럴 풀</td>
+<td><code>OS_SetUserExceptionHandler</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/nitromain.c:48</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x0213fde0</code></td>
+<td>치명적 폴트 시의 예외 레지스터 테이블</td>
+<td><code>func_0206e6c4</code></td>
+<td>크래시 화면, 그리고 <code>ACWW_INTERP_PEEK</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">cycle40 log, CARD40..SND40</span></span></td>
+</tr>
+<tr>
+<td><code>0x027fff9c</code></td>
+<td>crt0가 쓰는 인터럽트 벡터 슬롯</td>
+<td><code>Entry</code></td>
+<td>벡터 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/win32.c:78-83</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x027e3e00</code></td>
+<td>인터프리트되는 시스템 스택 상단(포트 전용)</td>
+<td><code>interp_boot.c</code></td>
+<td>인터프리터 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:31</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>대조 레시피는 OFF 조건이다 — 터치를 비활성화한 커스텀 START9000 키 — 다른 어떤 조건보다
+먼저 실행하고 보관된 네이티브 실행과 프레임 단위로 비교한다:</p>
+<pre><code>sh scratchpad/cycle40/iterate.sh &lt;name&gt;
+</code></pre>
+<p>이 스크립트는 재링크하고, <code>ACWW_INTERP=1 ACWW_TOUCH_ENABLE=0 ACWW_STOP_FRAME=9000
+ACWW_SHOT_AFTER=4500</code>으로 실행한 뒤, 31개 BMP 전부를 SHA256으로 비교한다; 31개 중 31개 일치가 통과이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span>. 부팅 자체는 스크린샷 없이도 로그만으로
+읽을 수 있다: <code>interpreter path:</code> 줄을 찾고, 그 다음
+<code>acww interp: BOOT via interpreter, registry entries=...</code> 줄을, 그 다음 <code>STOP</code> 줄이 없는지를
+확인한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c:395-401, 419-428</code></span></span>.</p>
+<p>타이틀을 지나가려면, <code>docs/kb/hybrid/recipes.md</code> 섹션 3의 두 번 탭 마을 레시피가
+마을 회관에 도달하는 레시피이다; 이 레시피는 콘솔 시계를 <code>20050615</code> / <code>100000</code>에 고정하여
+오라클이 같은 순간을 고정할 수 있게 한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> sections 3 and 6</span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>진입 루틴 앞에 붙은 0xcc바이트의 버전 문자열은 코드가 아니라 <code>OSi_ReferSymbol</code>
+  데이터이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by resolving every literal-pool reference into <code>0x02000b6c</code>..<code>0x02000c37</code> and showing none is a branch target</span></span>.</li>
+<li><code>0x027ffc20 == 1</code> 뒤의 두 번째 부팅 경로는 소매 카트리지의 콜드 부팅에서는
+  절대 선택되지 않는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by an oracle run reading the flag at the first frame, and by an interpreted run reporting whether <code>func_0206e464</code> is ever entered</span></span>.</li>
+<li>인터프리터의 부팅 속도(마을 레시피에서 페이싱 없이 ~59프레임/초)는 페이싱된
+  라이브 플레이에 충분하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by a paced live run with keyboard and mouse; no such run exists — <code>docs/kb/hybrid/open-questions.md</code></span></span>.</li>
+<li>도달 가능한 부팅 경로의 어떤 것도 <code>LDM/STM ^</code> 형태, 게임 코드에서의 <code>SWI</code>, 또는
+  구조체 값 반환을 사용하지 않는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">90,000 frames without a status stop is evidence for, not proof; settled by an interpreter that names those shapes when it meets them — <code>docs/HYBRID-PLAN.md</code> phases H1/H2</span></span>.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>memory-map.md</code> — 초기 기동의 마지막 호출이 게임 힙을 분할해 내는 아레나</li>
+<li><code>threads-and-interrupts.md</code> — <code>OS_InitThread</code>가 구축하는 것, 그리고 VBlank가 하는 일</li>
+<li><code>overlays.md</code> — 초기 기동이 시작하는 파일시스템, 그리고 첫 오버레이 로드</li>
+<li><code>scenes-and-channels.md</code> — <code>func_0206e560</code>이 제어를 넘기는 대상</li>
+</ul></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../engine/overlays.html"><small>다음 ▶</small>오버레이</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#진입-체인">진입 체인</a></li><li><a href="#진짜-진입점에는-자체-심볼이-없다">진짜 진입점에는 자체 심볼이 없다</a></li><li><a href="#nitromain이-하는-일">NitroMain이 하는 일</a></li><li><a href="#초기-기동-루틴과-그-마지막-호출">초기 기동 루틴과 그 마지막 호출</a></li><li><a href="#pc-포트-인터프리터-경로의-부팅">PC 포트 인터프리터 경로의 부팅</a></li><li><a href="#부팅-이후-프레임이란-무엇인가">부팅 이후: 프레임이란 무엇인가</a></li><li><a href="#부팅이-어디까지-진행되는가">부팅이 어디까지 진행되는가</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

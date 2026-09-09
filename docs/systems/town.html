@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>마을 · ACWW 근거 위키</title>
+<meta name="description" content="마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마커 모두 에이커 바이트 옆의 레이어에 16비트 id로 들어 있다. 플레이">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li class="active"><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>마을</span></div><header class="page-head"><h1>마을</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 32</span><span class="gchip g-E"><b>E</b> 13</span></div><div class="source-line">원문: <code>wiki/systems/town.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마커 모두 에이커 바이트 옆의 레이어에 16비트 id로 들어 있다. 플레이어가 걷는 3D 세계는 그 격자를 원기둥에 감은 것으로, 에이커 하나가 32유닛마다 놓이며, 이것이 지평선이 통나무처럼 굴러가는 이유이다. 마을 자체의 이름은 두 번째 키보드 화면에서 플레이어가 입력한다; 생성 시점에 기본 이름이 찍히고 플레이어가 답하면 덮어써진다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>세이브 이미지는 <code>0x021dc7a8</code>에 있고 길이는 <code>0x173fc</code>바이트이며, <code>func_020b5724</code>의 <code>MI_CpuCopy8</code>이 그곳으로 복사한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020b5724, main, port/shim/game/newgameprobe.c</span></span>.
+그 안에서 에이커 맵 객체는 <code>+0xd304</code>(<code>0x021e9aac</code>)에, 주민 집 레코드 여덟 개는 <code>+0x9284</code>(<code>0x021e5a2c</code>)에 스트라이드 <code>0x7ec</code>로 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02085a30, main, port/shim/game/villspawn.c</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>.
+이미지의 유효성 레코드는 <code>+0x173f8</code>(<code>0x021f3ba0</code>)에 있다; <code>func_0209f180</code>은 그 <code>+2</code> 바이트가 2이고 이미지의 바이트 0이 <code>0x32</code>일 것을 요구한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209f180, main, port/shim/game/newgameprobe.c</span></span>.</p>
+<p>쓸 수 있는 세이브가 없는 부팅은 아무 메뉴 없이 마을을 생성한다. <code>func_020b5898</code>은 <code>func_020a1a40</code>을 통해 플래시 뱅크 둘을 폴링하고, <code>func_020b5724</code>는 판정을 자기 객체의 <code>+0x5e</code>에 쓰며, <code>func_020b56a8</code>이 그것을 읽는다; 판정 1 또는 4는 "쓸 수 있는 세이브 없음"을 뜻한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020b5898/func_020b56a8, main, port/shim/game/newgameprobe.c</span></span>. 그 분기는 <code>func_0209ef7c</code> &ndash; 이미지 전체의 <code>MI_CpuFill8</code>, 플레이어 슬롯 init 넷, 하위 초기화기 28개 &ndash; 를 호출한 뒤 <code>func_0209e6ec(save, 3)</code> = <code>func_0209ebec</code>를 호출하며, 이것이 지형(TERRAIN)을 만들고 기본 마을 이름을 찍는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209ef7c/func_0209ebec, main, port/shim/game/newgameprobe.c</span></span>. <code>func_0209ebec</code>는 아직 플레이어가 존재하지 않으므로 의도적으로 플레이어 상태를 전혀 쓰지 않으며, 유효성 바이트를 다시 0으로 설정하는 것으로 끝난다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209ebec, main, port/shim/game/newgameprobe.c</span></span>.</p>
+<p>생성기 본체는 마을 디스패처 <code>func_0209e6ec</code>의 핸들러 2이다: <code>func_0204e728</code>을 통한 지형, 기본 마을 이름, 그 다음 주민을 이사시키는 RTC 전진과 <code>func_020a1038</code>의 세이브 삭제 경로를 그대로 따르는 생성 후 동기화
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209e6ec, main, port/shim/gfx/pmflist.c</span></span>. <code>func_020a1320</code> / <code>func_020a13e8</code> 쌍은 생성기가 아니며(NOT), 이를 확립하는 데 세션 하나가 들었다: <code>func_020a1320</code>은 <code>0x021f3c30</code>의 새 게임 대기 워드를 1로 설정할 뿐이고, <code>func_020a13e8</code>의 상태 1 분기는 맵을 리셋(RESETS)한다 &ndash; 모든 에이커 바이트를 <code>0x86</code>으로, 모든 아이템을 <code>0xfff1</code>로
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020a1320/func_020a13e8, main, port/shim/gfx/pmflist.c</span></span>. <code>0xfff1</code>은 ROM 전반에서 빈 아이템/타일 id이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>.</p>
+<p>생성 중 셀 쓰기는 네 함수로 된 관용구를 거친다: <code>func_0209c618</code>은 중첩된 <code>setv(cell(self, x, y), k)</code> 문 스무 개를 수행한 뒤 루프 셋을 돌리는데, 여기서 <code>cell</code>은 <code>func_0209cc30</code>, <code>setv</code>는 <code>func_0209d01c</code>, <code>getv</code>는 <code>func_0209d030</code>, 거부 검사는 <code>func_02037b14</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209c618, main, port/tools/known_callees.txt</span></span>.</p>
+<p>아이템은 맵 레이어의 16비트 id이다. 생성된 마을의 뱅크 0에서 측정: 상점 <code>0x500d</code>, 집 자리 <code>0x500a</code> 열한 개, 그리고 <code>0x5014</code>를 포함한 아이템 열다섯 개
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass 2026-08-27</span></span>. 집 배치기 <code>func_0207bbb8</code>은 96x96 스캔을 돌리며 패스마다 <code>0x500a</code> 자리 하나를 주민 집 <code>0x5001</code>..<code>0x5008</code>로 바꾼다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207bbb8, main, port/shim/game/houseplace.c</span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass 2026-08-27</span></span>. 쓰기는 <code>func_0207bbb8 -&gt; func_0204e404 -&gt; func_0204ef24(grid, item, x, y)</code>로 진행되며, <code>func_0204ef74</code>는 셀 하나 이상을 차지하는 집을 놓는 다중 타일 배치기이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204e404/func_0204ef24, main, port/shim/game/genfix.c</span></span>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204ef74, main, port/BOOT-STATE.md sixth pass</span></span>.</p>
+<p>타일을 다시 읽는 것은 2단계 조회이다. <code>func_ov003_02227394</code>는 월드 위치를 받아 타일의 x와 z를 <code>fx32</code>(저장된 바이트를 <code>&lt;&lt; 12 &gt;&gt; 4</code>한 것)로 종류 바이트와 함께 돌려주며, 레코드가 발견되고 그 종류가 0이 아닐 때만 1을 돌려준다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_02227394, ov003, port/shim/game/fieldtile.c</span></span>. 레코드 조회 <code>func_ov003_022273f8</code>은 타일 워드를 4비트 그룹(비트 12-15)과 12비트 인덱스로 나누고, <code>0x02236b0c</code>의 8바이트 디스크립터를 그룹 바이트(<code>+4</code>)가 일치하고 개수 하프워드(<code>+6</code>)가 인덱스를 초과하는 것이 나올 때까지 순회한 뒤, 그 디스크립터의 기준 포인터에 <code>3 * index</code>를 더해 레코드를 계산한다; 첫 바이트가 0인 레코드는 거부된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_022273f8, ov003, src/matched/func_ov003_022273f8.c</span></span>. 따라서 레코드는 3바이트 폭이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_022273f8, ov003, src/matched/func_ov003_022273f8.c</span></span>.</p>
+<p>타일 종류는 같은 순서의 같은 상수 집합으로 여러 모듈에 반복되는 9항 술어로 분류된다: <code>0x26-0x2a</code>, <code>0x5d-0x61</code>, <code>0x2f-0x56</code>, <code>0x57-0x5b</code>, <code>0x66-0x68</code>, <code>== 0x69</code>, <code>0x6a-0x6c</code>, <code>== 0x6d</code>, <code>0xc8-0xcf</code>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_0220cd84 / func_ov072_022792e4, ov003/ov072, docs/kb/modules/overlays-ov0xx.md</span></span>.
+ROM 전체에서 열네 개 함수가 그 집합을 갖고 있으므로, 이는 한 함수의 사적 테이블이 아니라 마을의 타일 분류 체계이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md, membership sweep over every ov003 target &gt;= 0x40</span></span>.</p>
+<p>세계는 원기둥(CYLINDER)으로 그려지며, 이것이 게임의 굴러가는 통나무 지평선의 원천이다: 타일은 2.0유닛, 에이커는 32.0이고, 각 에이커 객체는 <code>Translate(col * 32, 0, 0)</code>에 <code>RotX(row * 0x2999)</code>를 합성한 위치에 놓이며, 카메라는 모드별 <code>ov006</code> 플래그 아래에서 <code>func_0203f844</code>에 의해 같은 프레임으로 회전된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0203f844, main, port/BOOT-STATE.md sixth pass</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, ~6,269 opaque pixels on the 3D layer</span></span>. 에이커별 렌더 객체는 <code>func_ov003_0221f270</code>이 만들며, 그 열 이동량은 <code>a2 * data_020ca0ec</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_0221f270, ov003, port/shim/game/acresetup.c</span></span>.</p>
+<p>에이커 지면 텍스처는 파일 시스템에서 <code>/bg/t%d/%04x.nsbtx</code>로 오며, <code>func_021077e8</code>이 이를 텍스처 핸들로 바꾼다 &ndash; <code>func_02037608</code>이 <code>0x020376f4</code>에서 수행하는 것과 같은 변환이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_0221fe34, ov003, port/shim/game/townsetup.c</span></span>. 마을 씬의 등록자는 <code>func_ov003_0221fe34</code>(핸들러 196의 init 슬롯인 <code>func_ov003_022207e0</code>의 세 번째 호출), <code>func_ov003_0221ffec</code>, <code>func_ov003_0221d76c</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003, port/shim/game/townsetup.c, townhouses.c, townhouse3.c</span></span>. 두 번째 등록자의 <code>0x022200f0</code> 리터럴 풀은 건물의 에셋을 직접 명명한다:
+<code>/str/npcHsTex/%c/house_%c%d%c.nsbtx</code>, <code>/str/npcHsTex/%c/light_%c%d.nsbtx</code>,
+<code>/str/obj_house_i.nsbca</code>, <code>/str/obj_house_o.nsbca</code> &ndash; 주민 집 텍스처와 조명 넷에 집 열기/닫기 애니메이션 둘
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 image at 0x02239bf8/0x02239c1c/0x02239c40/0x02239c58, port/shim/game/townhouses.c</span></span>.</p>
+<p><code>ov003</code>은 야외 씬 모듈이며 리터럴 풀을 통해 자기 주제를 스스로 밝힌다: <code>/fg/</code> 트리 전체(<code>/fg/tree/cedar_mdl/</code>, <code>/fg/grass/{grassA-D,clover,redTurnip}</code>, <code>/fg/flower/{tulip,pansy,cosmos,rose,suzuran,rafflesia}</code>, <code>/fg/hole/</code>, <code>/fg/stone/</code>), 플레이어 집(<code>/str/plHsTex/home%c%c.nsbtx</code>), 지면(<code>m_grd_riv</code>, <code>m_grd_sea085</code>), 간판, 물고기와 곤충 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>.</p>
+<p>런타임에 마을은 채널이다. 채널 핸들러 테이블 포인터는 <code>0x021fd044</code>이고, 마을의 채널은 <code>0x22</code>이며, ROM의 디스패처 <code>func_020edc58</code>은 table -&gt; entry -&gt; <code>[entry]</code> -&gt; <code>blx</code>를 읽는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020edc58, main, docs/log/cycle40-keyboard-gate-probe.md CHAN40</span></span>. 지면은 채널 <code>0x0d</code>이고 마을 씬은 <code>0xc4 -&gt; 0x0f -&gt; 건물당 0xbd 하나</code>를 연다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, sixth pass</span></span>. 채널 189는 마을 렌더러가 아니라 눈사람(SNOWMAN)이며, 오랜 작업이 이 오인 위에 놓여 있었다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, bind log <code>/snowman/snowball1.nsbmd</code> id 0x022383ac</span></span>.</p>
+<p>인터프리터 경로에서 스크립트 실행은 프레임 37,500에 마을에 도달한다: 운전사가 마지막 대사를 하는 동안 플레이어는 마을 회관 앞에 서 있고, 오버레이 5, 36, 54, 120, 117이 로드되어 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40, <code>tap-D56</code> frame 37500</span></span>.
+화면에 표시되는 마을 회관의 한국어 이름은 <code>마을사무소</code>이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md LONG40, the five-option destination menu</span></span>.
+마을의 위 화면은 엔진 B 모드 1에 BG3 아핀(<code>BG3CNT = 0x6f02</code>) &ndash; 하늘 &ndash; 이며, 아핀 배경이 그려지자 마을 회관 위로 구름이 나타났다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code> frame 37800</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_0209ebec</code>(<code>func_0209e6ec</code> idx 3)</td>
+<td>main</td>
+<td>지형 구축 + 기본 마을 이름</td>
+<td>S: port/shim/game/newgameprobe.c</td>
+</tr>
+<tr>
+<td><code>func_0209ef7c</code></td>
+<td>main</td>
+<td>이미지 전체 채우기, 플레이어 init 4개, 하위 init 28개</td>
+<td>S: port/shim/game/newgameprobe.c</td>
+</tr>
+<tr>
+<td><code>func_0209c618</code></td>
+<td>main</td>
+<td><code>setv(cell(...))</code> 셀 쓰기 스무 개, 그 다음 루프 셋</td>
+<td>S: port/tools/known_callees.txt</td>
+</tr>
+<tr>
+<td><code>func_0209cc30</code> / <code>func_0209d01c</code> / <code>func_0209d030</code></td>
+<td>main</td>
+<td>셀 주소 / 값 설정 / 값 읽기</td>
+<td>S: port/tools/known_callees.txt</td>
+</tr>
+<tr>
+<td><code>func_0207bbb8</code></td>
+<td>main</td>
+<td>집 배치기, 96x96 스캔, 패스당 자리 하나</td>
+<td>S: port/shim/game/houseplace.c</td>
+</tr>
+<tr>
+<td><code>func_0204ef24</code> / <code>func_0204ef74</code></td>
+<td>main</td>
+<td>아이템 쓰기 함수 / 다중 타일 아이템 배치기</td>
+<td>S: port/shim/game/genfix.c</td>
+</tr>
+<tr>
+<td><code>func_ov003_02227394</code></td>
+<td>ov003</td>
+<td>월드 위치 -&gt; 타일 x, z, 종류</td>
+<td>S: port/shim/game/fieldtile.c</td>
+</tr>
+<tr>
+<td><code>func_ov003_022273f8</code></td>
+<td>ov003</td>
+<td>타일 워드 -&gt; 3바이트 레코드</td>
+<td>S: src/matched/func_ov003_022273f8.c</td>
+</tr>
+<tr>
+<td><code>func_ov003_0221f270</code></td>
+<td>ov003</td>
+<td>에이커별 렌더 객체 설정</td>
+<td>S: port/shim/game/acresetup.c</td>
+</tr>
+<tr>
+<td><code>func_ov003_0221fe34</code></td>
+<td>ov003</td>
+<td>마을 씬 등록자 1(<code>/bg/t%d/%04x.nsbtx</code>)</td>
+<td>S: port/shim/game/townsetup.c</td>
+</tr>
+<tr>
+<td><code>func_ov003_0221ffec</code></td>
+<td>ov003</td>
+<td>마을 씬 등록자 2(집 텍스처)</td>
+<td>S: port/shim/game/townhouses.c</td>
+</tr>
+<tr>
+<td><code>func_020edc58</code></td>
+<td>main</td>
+<td>채널 핸들러 디스패처</td>
+<td>S: docs/log/cycle40-keyboard-gate-probe.md</td>
+</tr>
+<tr>
+<td><code>func_0203f844</code></td>
+<td>main</td>
+<td>카메라를 원기둥 프레임으로 회전</td>
+<td>S: port/BOOT-STATE.md</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021dc7a8</code></td>
+<td>세이브 이미지 기준, <code>0x173fc</code>바이트</td>
+<td><code>func_020b5724</code></td>
+<td>모든 것</td>
+</tr>
+<tr>
+<td><code>0x021e9aac</code>(세이브 <code>+0xd304</code>)</td>
+<td>에이커 맵 객체</td>
+<td><code>func_0209ebec</code></td>
+<td>필드/렌더</td>
+</tr>
+<tr>
+<td><code>0x021e5a2c</code>(세이브 <code>+0x9284</code>)</td>
+<td>집 레코드 8개, 스트라이드 <code>0x7ec</code></td>
+<td><code>func_0207bbb8</code></td>
+<td><code>func_02085a30</code></td>
+</tr>
+<tr>
+<td><code>0x021f3ba0</code>(세이브 <code>+0x173f8</code>)</td>
+<td>유효성 레코드; <code>+2</code>는 2여야 함</td>
+<td>새 게임 경로</td>
+<td><code>func_0209f180</code></td>
+</tr>
+<tr>
+<td><code>0x021f3c30</code></td>
+<td>새 게임 대기 모드 워드</td>
+<td><code>func_020a1320</code></td>
+<td><code>func_ov051_022610d4</code></td>
+</tr>
+<tr>
+<td><code>0x02236b0c</code></td>
+<td>8바이트 타일 그룹 디스크립터</td>
+<td>정적</td>
+<td><code>func_ov003_022273f8</code></td>
+</tr>
+<tr>
+<td><code>0x021c80bc</code></td>
+<td>필드 컨텍스트 포인터</td>
+<td>필드 init</td>
+<td><code>func_0204f5e0</code></td>
+</tr>
+<tr>
+<td><code>0x021c526c</code></td>
+<td>필드 데이터 포인터; 구조체는 <code>+0x2d0</code></td>
+<td><code>func_02034d14</code></td>
+<td><code>func_02035dcc</code></td>
+</tr>
+<tr>
+<td><code>0x021fd044</code></td>
+<td>채널 핸들러 테이블 포인터</td>
+<td>씬 설정</td>
+<td><code>func_020edc58</code></td>
+</tr>
+<tr>
+<td><code>data_020ca0ec</code></td>
+<td>에이커 열 스트라이드 승수</td>
+<td>정적</td>
+<td><code>func_ov003_0221f270</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>등급: 세이브 오프셋은 S [port/shim/game/newgameprobe.c]; <code>0x02236b0c</code>는 S
+[src/matched/func_ov003_022273f8.c]; <code>0x021c526c</code>는 S [port/shim/game/fieldptr.c];
+<code>0x021fd044</code>는 S+E [docs/log/cycle40-keyboard-gate-probe.md CHAN40].</p>
+<h2 id="확인-방법">확인 방법</h2>
+<p>영수증이 남은 마을 레시피가 레퍼런스 실행이다. 사용자 정의 START9000 키, <code>ACWW_INTERP=1</code>, <code>ACWW_TOUCH</code> (221,181) <code>AT</code> 6900 <code>EVERY</code> 60 <code>REPEAT</code> 2, <code>ACWW_TOUCH2</code> (221,181) <code>AT</code> 24600 <code>EVERY</code> 60 <code>REPEAT</code> 2, 정지 48,000; 1,500프레임마다 스크린샷. 프레임 37,500은 마을 회관 앞의 플레이어를, 프레임 37,800은 구름 낀 하늘을 보여 준다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40/SKY40/RECEIPT41, runs <code>tap-D56</code>, <code>tap-D57</code>, <code>town-R1</code></span></span>.</p>
+<p>그림이 아니라 격자를 확인하려면, 생성 후 <code>0x021e9aac</code>의 세이브 이미지에서 에이커 바이트를 읽고 아이템 레이어에서 <code>0x500a</code>(집 자리), <code>0x500d</code>(상점), <code>0x5001</code>..<code>0x5008</code>(주민 집)을 스캔한다; <code>0xfff1</code>은 비어 있음이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass</span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>H: 마을 배치는 셀 단위로 생성되는 것이 아니라 소수의 미리 만들어진 에이커 배열 집합에서 선택된다.</strong> <code>func_0209c618</code>의 형태 &ndash; 리터럴 <code>setv(cell(x, y), k)</code> 문 스무 개 뒤에 루프 셋 &ndash; 는 절차적 생성기가 아니라 루프 기반 변형 패스가 딸린 템플릿 스탬프처럼 읽힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/known_callees.txt</span></span>. 실험: <code>func_0204e728</code>과 <code>func_0209c618</code>을 읽고 스무 개 상수 중 어느 것이 리터럴이고 어느 것이 추첨에서 오는지 기록한다; 그런 다음 서로 다른 RNG 시드로 마을 셋을 생성하고 <code>0x021e9aac</code>의 에이커 바이트를 diff한다.</li>
+<li><strong>H: 리셋이 쓰는 에이커 바이트 <code>0x86</code>은 실제 에이커가 아니라 "미설정"이다.</strong> 리셋은 모든 에이커를 <code>0x86</code>으로, 모든 아이템을 <code>0xfff1</code>로 채우며, <code>0xfff1</code>은 빈 id로 알려져 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/gfx/pmflist.c</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>. 실험: 실제 생성 뒤 여전히 <code>0x86</code>인 에이커 바이트 수를 센다; 0이면 <code>0x86</code>은 센티널이다.</li>
+<li><strong>H: 9항 타일 술어는 타일을 물 / 절벽 / 길 / 풀 클래스로 분할한다.</strong> 상수 대역이 연속적이고 서로소인데, 이는 종류 분류기의 모습이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>. 실험: <code>tap-D56</code> 마을에서 샘플링한 월드 위치 400곳에 대해 <code>func_ov003_02227394</code>의 종류 바이트를 계측하고, 각 대역을 그 위치의 스크린샷이 보여 주는 것과 상관시킨다.</li>
+<li><strong>H: 마을 이름은 세이브 이미지 안에서 유효성 레코드 근처의 고정 길이 UTF-16 필드로 저장된다.</strong> <code>func_0209ebec</code>가 생성 시점에 기본 이름을 찍고 두 번째 키보드가 이를 덮어쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40</span></span>. 실험: 서로 다른 이름을 입력해 마을 레시피를 두 번 실행하고 두 세이브 이미지를 바이트 단위로 diff하면, 달라진 구간이 그 필드이다.</li>
+<li><strong>H: <code>0x500a</code> 집 자리 열한 개는 마을의 합법적 집터 전체 집합이고 배치기는 그중 여덟을 고른다.</strong> 집 레코드 여덟 개에 대해 자리 열한 개가 측정되었다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villspawn.c</span></span>. 실험: 생성 시 모든 <code>0x500a</code> 좌표와 배치기가 끝난 뒤 모든 <code>0x5001</code>..<code>0x5008</code> 좌표를 기록한다; 두 번째 집합은 첫 번째의 부분집합이어야 한다.</li>
+<li><strong>H: 에이커는 한꺼번에가 아니라 카메라가 구르는 데 따라 행 단위로 파일 시스템에서 스트리밍된다.</strong> kb는 생성 중 "acre archives streaming"을 기록하고 있다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass</span></span>. 실험: <code>tap-D56</code>의 37,500과 48,000 사이에서 1,000프레임당 <code>/bg/t%d/%04x.nsbtx</code> 열기 횟수를 센다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>villagers.md</code> &ndash; 집 레코드 여덟 개와 그곳에 누가 사는지</li>
+<li><code>weather-and-seasons.md</code> &ndash; 하늘 행과 계절별 텍스처 변종</li>
+<li><code>player.md</code> &ndash; 같은 세이브 이미지 안의 플레이어 배열</li>
+<li><code>dialogue.md</code> &ndash; 레시피가 도달하는 마을 회관 대화</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/save-data.html"><small>◀ 이전</small>세이브 데이터</a><a class="pn next" href="../systems/villagers.html"><small>다음 ▶</small>주민</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

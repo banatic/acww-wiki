@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>물고기와 곤충 · ACWW 근거 위키</title>
+<meta name="description" content="물고기와 곤충은 작고 병렬적인 두 계열이다. 각각은 자기 디렉터리에 번호가 붙은 3D 모델 세트, 잡은 포즈를 위한 두 번째 &quot;들고 있는&quot; 모델 세트, 박물관과 카탈로그를 위한 56개 항목의 그림 시트, 그리고 이름 메시지 뱅크 하나를 가진다. 번호는 빽빽하고 디렉터리">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li class="active"><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>물고기와 곤충</span></div><header class="page-head"><h1>물고기와 곤충</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 27</span><span class="gchip g-E"><b>E</b> 1</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/data/fish-and-bugs.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 물고기와 곤충은 작고 병렬적인 두 계열이다. 각각은 자기 디렉터리에 번호가 붙은 3D 모델 세트,
+잡은 포즈를 위한 두 번째 "들고 있는" 모델 세트, 박물관과 카탈로그를 위한 56개 항목의 그림 시트, 그리고
+이름 메시지 뱅크 하나를 가진다. 번호는 빽빽하고 디렉터리에 매핑되어 있으므로 개수를 파일 트리에서
+바로 읽을 수 있다: 59개의 물고기 모델 슬롯, 63개의 곤충 모델 슬롯, 그리고 각 계열에 56개의 도감 그림.</p>
+<p>등급 주석: 이 페이지의 <strong>S</strong>는 심볼 테이블, 매칭된 소스, 그리고 추출된 ROM 이미지에서 직접 읽어낸
+바이트(경로와 필드를 항상 명시)를 포함한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<h3 id="물고기">물고기</h3>
+<p>물고기 모델은 <code>fish/</code> 아래 두 그룹으로 나뉘는 열 개의 디렉터리에 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/</code>, subdirectory listing</span></span>. 디렉터리 <code>00</code>, <code>01</code>, <code>02</code>, <code>03</code>은 헤엄치는
+모델을 담으며, 마지막을 제외하고 각각 열여섯 개의 id를 가진다: <code>fish/00/</code>은 <code>fish00</code>..<code>fish15</code>이고,
+<code>fish/03/</code>은 <code>fish58</code>까지 이어진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/00/</code>, <code>/03/</code>, listings</span></span>. 대부분의
+id는 <code>.nsbmd</code>와 <code>.nsbca</code>를 모두 가진다; <code>fish56</code>, <code>fish57</code>, <code>fish58</code>은 모델만 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/03/</code>, listing</span></span>. 따라서 <strong>59개의 물고기 모델 슬롯, id 0-58</strong>이 된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/</code>, counted over the <code>fish??</code> stems</span></span>. <code>fish/03/</code>에 두 개의 추가 항목이
+있다: <code>fish_shadow</code>(물속에서 움직이는 그림자, 모델 + 애니메이션)와 <code>fish_hire</code>(모델, 애니메이션,
+그리고 텍스처 SRT 애니메이션) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same listing</span></span>.</p>
+<p>경로는 두 곳에 컴파일되어 있다. <code>arm9.bin</code>은 <code>/fish/0%d/fish%d.nsbca</code>, <code>/fish/0%d/fish%d.nsbmd</code>,
+0으로 채운 <code>fish0%d</code> 변형, 그리고 세 개의 리터럴 <code>fish/03/fish5N.nsbmd</code> 이름을 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code>, path-format string literals</span></span>;
+<code>ov003</code>은 그림자와 <code>fish_hire</code> 경로를 가진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov003.bin</code></span></span>.</p>
+<p>디렉터리 <code>10</code>부터 <code>15</code>까지는 <code>m_fish</code> 접두사를 가진 두 번째 별도 모델 세트를 담으며, <code>ov004</code>에서
+<code>/fish/%d/m_fish%d.nsbmd</code>와 <code>/fish/%d/m_fish%d%d.nsbca</code>로 지정된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov004.bin</code>, path literals</span></span>. 디렉터리는 <code>10 + id/10</code>이다:
+<code>fish/15/</code>는 <code>m_fish50</code>..<code>m_fish55</code>와 그 애니메이션 <code>m_fish500</code>..<code>m_fish552</code>를 담으며, 마지막 자릿수는
+애니메이션 인덱스이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/15/</code>, listing</span></span>. 따라서 <code>m_fish</code> 세트는 id 0-55를
+다루며, 헤엄치는 세트보다 셋이 적다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/1*/</code>, counted stems</span></span>.</p>
+<h3 id="곤충">곤충</h3>
+<p>곤충은 다른 디렉터리 키로 같은 형태를 따른다. <code>insect/</code>에는 일곱 개의 디렉터리 — <code>01</code>, <code>11</code>, <code>21</code>,
+<code>31</code>, <code>41</code>, <code>51</code>, <code>61</code> — 가 있고, 각각은 열 개의 곤충 id, 스무 개의 파일을 담으며, 예외적으로 <code>61</code>은
+세 개를 담는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/insect/</code>, per-directory counts</span></span>. <code>insect/61/</code>은 <code>bug60</code>,
+<code>bug61</code>, <code>bug62</code>를 담으므로, 범위는 <strong>63개의 곤충 모델 슬롯, id 0-62</strong>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/insect/61/</code>, listing; <code>extract/adm-kr/files/insect/</code>, 129 files</span></span>.</p>
+<p>물고기와 달리 곤충은 곤충별로 선택되는 세 가지 다른 애니메이션 포맷을 사용한다. <code>insect/51/</code>은 세
+가지를 나란히 보여준다: <code>bug50</code>, <code>bug51</code>, <code>bug52</code>, <code>bug56</code>, <code>bug57</code>은 <code>.nsbva</code>(가시성 애니메이션)를
+가진다; <code>bug53</code>, <code>bug54</code>, <code>bug55</code>는 <code>.nsbca</code>(조인트 애니메이션)를 가진다; <code>bug58</code>과 <code>bug59</code>는 <code>.nsbca</code>와
+<code>.nsbta</code>(텍스처 SRT)를 모두 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/insect/51/</code>, listing</span></span>. <code>ov004</code>는 일곱 디렉터리 전부의 템플릿 —
+<code>/insect/01/bug0%d</code>, <code>/insect/11/bug%d</code> 등에서 <code>/insect/61/bug%d</code>까지 — 과, 특정한
+<code>/insect/51/bug52.nsbmd</code>, <code>/insect/51/bug52.nsbva</code>, <code>/insect/51/bug57</code>, <code>/insect/61/bug61</code>,
+<code>/insect/61/bug62</code>, <code>/insect/61/bug%d.nsbta</code>를 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov004.bin</code>, path literals</span></span>. <code>ov003</code>은
+<code>/insect/51/bug%d.nsbta</code>를 추가한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov003.bin</code></span></span>.</p>
+<h3 id="도감-그림">도감 그림</h3>
+<p>두 계열은 하나의 그림 방식을 공유한다. <code>menu/fish_pic/</code>과 <code>menu/bug_pic/</code>은 각각 <code>0</code>..<code>4</code>로 번호가
+붙은 다섯 개의 디렉터리를 담으며, 각 디렉터리는 <code>&lt;n&gt;.bpl</code> 팔레트 하나와 일련의 <code>&lt;n&gt;_&lt;ii&gt;.bch</code> 타일
+시트를 가진다: <code>0</code>은 <code>0_00</code>..<code>0_11</code>을, <code>4</code>는 <code>4_48</code>..<code>4_55</code>를 담는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/menu/fish_pic/0/</code>, <code>/4/</code>; <code>extract/adm-kr/files/menu/bug_pic/4/</code>, listings</span></span>. 두 번째 숫자는 생물 인덱스이고 디렉터리를 가로질러 연속적이므로, 각 계열은 61개 파일에
+<strong>56개의 그림, 인덱스 0-55</strong>를 가진다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/menu/fish_pic/</code>, 56 <code>.bch</code> + 5 <code>.bpl</code>; <code>extract/adm-kr/files/menu/bug_pic/</code>, the same</span></span>. 이를 표시하는 화면은 <code>ov114</code>이며,
+<code>menu/fish/a_bg.bsc</code>, <code>menu/fish/bug_bg.bch</code>와 그 동반 파일들을 가진다 — 두 계열에 오버레이 하나이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov114.bin</code>, path literals</span></span>.</p>
+<h3 id="이름과-텍스트">이름과 텍스트</h3>
+<p>이름은 두 메시지 뱅크에서 나온다: <code>script/KOR/string/obj_etc_fish.bmg</code>(4,239바이트)와
+<code>obj_etc_insect.bmg</code>(4,214바이트) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/string/</code>, file names and sizes</span></span>. 두 개의 뱅크가 더 있어, 생물이 화제에 오를 때 대화가 사용하는 시간대와 계절 표현을 담는다:
+<code>st_fish_time.bmg</code>(99바이트)와 <code>st_insect_time.bmg</code>(116바이트)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same directory</span></span>. 잡았을 때의 안내문은 <code>script/KOR/message/obj/etc/getfish_.bmg</code>와
+<code>getinsect_.bmg</code>이며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/obj/etc/</code>, listing</span></span>, 게시판에는
+낚시 대회와 곤충 채집 대회 뱅크 <code>bbs_fishing.bmg</code>와 <code>bbs_insect.bmg</code>가 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/bbs/</code>, listing</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>에셋</th>
+<th>위치</th>
+<th>개수</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>헤엄치는 물고기 모델</td>
+<td><code>fish/0&lt;0-3&gt;/fish&lt;id&gt;.nsbmd</code> (+<code>.nsbca</code>)</td>
+<td>59개 id, 0-58</td>
+<td>S: <code>extract/adm-kr/files/fish/00..03/</code></td>
+</tr>
+<tr>
+<td>물고기 그림자 / hire</td>
+<td><code>fish/03/fish_shadow.*</code>, <code>fish_hire.*</code></td>
+<td>2세트</td>
+<td>S: <code>extract/adm-kr/files/fish/03/</code></td>
+</tr>
+<tr>
+<td>들고 있는 물고기 모델</td>
+<td><code>fish/1&lt;0-5&gt;/m_fish&lt;id&gt;.nsbmd</code> (+<code>.nsbca</code>)</td>
+<td>56개 id, 0-55</td>
+<td>S: <code>extract/adm-kr/files/fish/10..15/</code></td>
+</tr>
+<tr>
+<td>곤충 모델</td>
+<td><code>insect/&lt;d1&gt;1/bug&lt;id&gt;.nsbmd</code></td>
+<td>63개 id, 0-62</td>
+<td>S: <code>extract/adm-kr/files/insect/</code></td>
+</tr>
+<tr>
+<td>곤충 애니메이션</td>
+<td>곤충별로 <code>.nsbva</code>, <code>.nsbca</code> 또는 <code>.nsbca</code>+<code>.nsbta</code></td>
+<td>혼합</td>
+<td>S: <code>extract/adm-kr/files/insect/51/</code></td>
+</tr>
+<tr>
+<td>물고기 그림</td>
+<td><code>menu/fish_pic/&lt;0-4&gt;/&lt;n&gt;_&lt;ii&gt;.bch</code> + <code>&lt;n&gt;.bpl</code></td>
+<td>56 + 5</td>
+<td>S: <code>extract/adm-kr/files/menu/fish_pic/</code></td>
+</tr>
+<tr>
+<td>곤충 그림</td>
+<td><code>menu/bug_pic/&lt;0-4&gt;/&lt;n&gt;_&lt;ii&gt;.bch</code> + <code>&lt;n&gt;.bpl</code></td>
+<td>56 + 5</td>
+<td>S: <code>extract/adm-kr/files/menu/bug_pic/</code></td>
+</tr>
+<tr>
+<td>도감 화면</td>
+<td><code>ov114</code>, <code>menu/fish/</code></td>
+<td>13개 파일</td>
+<td>S: <code>extract/adm-kr/arm9_overlays/ov114.bin</code></td>
+</tr>
+<tr>
+<td>이름</td>
+<td><code>script/KOR/string/obj_etc_fish.bmg</code>, <code>obj_etc_insect.bmg</code></td>
+<td>2개 뱅크</td>
+<td>S: <code>extract/adm-kr/files/script/KOR/string/</code></td>
+</tr>
+<tr>
+<td>포획 텍스트</td>
+<td><code>script/KOR/message/obj/etc/getfish_.bmg</code>, <code>getinsect_.bmg</code></td>
+<td>2개 뱅크</td>
+<td>S: <code>.../message/obj/etc/</code></td>
+</tr>
+<tr>
+<td>로더</td>
+<td><code>ov003</code>, <code>ov004</code></td>
+<td>경로 리터럴</td>
+<td>S: <code>extract/adm-kr/arm9_overlays/ov003.bin</code>, <code>ov004.bin</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>물고기 id</td>
+<td><code>fish/0&lt;id/16&gt;/fish&lt;id&gt;.nsbmd</code>와 <code>fish/1&lt;id/10&gt;/m_fish&lt;id&gt;.nsbmd</code>를 선택한다</td>
+<td>낚시 시스템</td>
+<td><code>ov003</code> / <code>ov004</code> 로더 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov003.bin</code>, <code>ov004.bin</code></span></span></td>
+</tr>
+<tr>
+<td>곤충 id</td>
+<td><code>insect/&lt;(id/10)*10+1&gt;/bug&lt;id&gt;.nsbmd</code>를 선택한다</td>
+<td>곤충 시스템</td>
+<td><code>ov004</code> 로더 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov004.bin</code></span></span></td>
+</tr>
+<tr>
+<td>그림 인덱스 (0-55)</td>
+<td><code>menu/&lt;family&gt;_pic/&lt;i/12&gt;/&lt;i/12&gt;_&lt;ii&gt;.bch</code>를 선택한다</td>
+<td>도감</td>
+<td><code>ov114</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov114.bin</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<p>정적 조사:</p>
+<pre><code class="language-bash">python - &lt;&lt;'PY'
+import glob, os, re
+fish = sorted({int(m.group(1)) for p in glob.glob(r&quot;extract/adm-kr/files/fish/0*/fish*.nsbmd&quot;)
+               for m in [re.match(r&quot;fish(\d+)\.nsbmd&quot;, os.path.basename(p))] if m})
+bug  = sorted({int(m.group(1)) for p in glob.glob(r&quot;extract/adm-kr/files/insect/*/bug*.nsbmd&quot;)
+               for m in [re.match(r&quot;bug(\d+)\.nsbmd&quot;, os.path.basename(p))] if m})
+pic  = sorted({int(os.path.basename(p).split('_')[1][:2])
+               for p in glob.glob(r&quot;extract/adm-kr/files/menu/fish_pic/*/*_*.bch&quot;)})
+print(len(fish), fish[-1], len(bug), bug[-1], len(pic), pic[-1])
+PY
+</code></pre>
+<p>예상 출력: <code>59 58 63 62 56 55</code>.</p>
+<p>실제 확인에는 생물이 있는 씬이 필요한데, 인터프리터 경로는 아직 거기에 도달하지 못했다: 기록된 가장
+먼 프레임은 마을 회관이 보이는 37,500의 마을이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40, run <code>tap-D56</code></span></span>. 실행이 잠자리채나 낚싯대를
+손에 들 때까지, 이 페이지의 모든 것은 관측된 동작이 아니라 파일 트리 구조이다.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>56이 각 계열의 실제 생물 수이고 추가 모델 슬롯은 변형이다.</strong> 도감에는 계열당 정확히 56개의 그림이
+  있지만, 물고기 모델은 59개, 곤충 모델은 63개이다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">the census above</span></span>. 압축 해제 후 <code>obj_etc_fish.bmg</code>의 <code>INF1</code> 헤더에서 항목 수를 읽어 결정한다 —
+  이름 뱅크는 잡을 수 있는 생물마다 하나의 항목을 가져야 한다.</li>
+<li><strong><code>fish56</code>, <code>fish57</code>, <code>fish58</code>은 잡을 수 없는 오브젝트이다</strong> — 이들은 <code>.nsbca</code>가 없는 유일한
+  헤엄치는 모델이며, 템플릿을 통해서가 아니라 리터럴로 이름이 붙어 있다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/fish/03/</code>; <code>extract/adm-kr/arm9/arm9.bin</code>, the three literal paths</span></span>.
+  그 세 리터럴을 로드하는 함수가 무엇인지 찾아 결정한다.</li>
+<li><strong><code>m_fish</code>는 "잡은 후 들어 올린" 모델이고 <code>fish_shadow</code>는 물속에서 움직이는 실루엣이다.</strong> 두 해석
+  모두 이름과, <code>m_fish</code>가 <code>ov004</code>(게임 자체의 모듈)에 의해 로드되는 반면 헤엄치는 모델은 <code>arm9.bin</code>에서
+  로드된다는 사실에서 나온다 [H].
+  스크립트 실행에서 포획 장면을 스크린샷으로 찍어 결정한다.</li>
+<li><strong><code>fish_hire</code>는 낚시 대회 또는 Chip 관련 모델이다.</strong> 어간은 불투명하고, <code>.nsbta</code>를 가진 유일한
+  물고기 에셋이다 [H]. 같은 방법으로 결정한다.</li>
+<li><strong>곤충 애니메이션 포맷은 행동 분류를 인코딩한다</strong> — 깜빡이며 나타났다 사라지기만 하는 곤충에는
+  <code>.nsbva</code>, 움직이는 부위가 있는 곤충에는 <code>.nsbca</code>, 스크롤하는 날개 텍스처에는 <code>.nsbta</code> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">the split in <code>insect/51/</code></span></span>. 세 종류를 각각 로드하고 움직임을 기술하여 결정한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>rom-layout.md</code> — 디렉터리 조사.</li>
+<li><code>archives.md</code> — <code>nsbmd</code>/<code>nsbca</code>/<code>nsbva</code>/<code>nsbta</code>와 <code>.bch</code>/<code>.bpl</code> 메뉴 포맷.</li>
+<li><code>items.md</code> — 아이템에 대한 같은 아이콘 시트와 메시지 뱅크 패턴.</li>
+<li><code>../engine/text-and-messages.md</code> — 이름이 나오는 <code>string/</code> 뱅크.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../data/villagers.html"><small>◀ 이전</small>주민과 특수 캐릭터</a><a class="pn next" href="../data/music.html"><small>다음 ▶</small>음악과 사운드</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#물고기">물고기</a></li><li><a href="#곤충">곤충</a></li><li><a href="#도감-그림">도감 그림</a></li><li><a href="#이름과-텍스트">이름과 텍스트</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

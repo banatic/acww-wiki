@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>플레이어 · ACWW 근거 위키</title>
+<meta name="description" content="세이브에는 각각 0x249c바이트인 플레이어 슬롯 네 개가 세이브 이미지의 앞부분 근처에 끝과 끝을 맞대고 배치되어 있다. 각 슬롯은 게임이 자체 진행 기록으로 쓰는 64비트 이벤트 비트필드를 갖는다 -- 예를 들어 오프닝 시퀀스는 그 안의 비트 하나이다. 플레이어 이">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li class="active"><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>플레이어</span></div><header class="page-head"><h1>플레이어</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 5</span><span class="gchip g-O"><b>O</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/player.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 세이브에는 각각 <code>0x249c</code>바이트인 플레이어 슬롯 네 개가 세이브 이미지의 앞부분 근처에 끝과 끝을 맞대고 배치되어 있다. 각 슬롯은 게임이 자체 진행 기록으로 쓰는 64비트 이벤트 비트필드를 갖는다 &ndash; 예를 들어 오프닝 시퀀스는 그 안의 비트 하나이다. 플레이어 이름은 첫 번째 키보드 화면에서 입력한다; 게임은 택시를 타기 전에 이름을 묻고, 마을 이름은 나중에 묻는다. 플레이 중에 플레이어 객체는 패드와 스타일러스 입력 한 프레임을 이동 의도(intent) &ndash; 속도, 방향, 달리기 플래그, 목표 위치, 입력 모드 &ndash; 로 바꾸며, 나머지 갱신은 원시 입력이 아니라 그 블록을 소비한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>플레이어 배열은 세이브 <code>+0x14</code> = <code>0x021dc7bc</code>에서 시작하며 스트라이드는 <code>0x249c</code>이므로, 플레이어 0의 이벤트 워드는 슬롯 <code>+0x23f8</code> = <code>0x021debb4</code>에 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02098844, main, port/shim/game/newgameprobe.c</span></span>. 새 세이브 경로에서는 <code>func_0209ef7c</code>가 플레이어 슬롯 네 개를 초기화한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209ef7c, main, port/shim/game/newgameprobe.c</span></span>.
+활성 플레이어는 <code>func_020984e8</code>이 돌려준다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020984e8, main, port/shim/game/spnpc.c</span></span>.</p>
+<p><code>player + 0x23f8</code>의 64비트는 게임의 이벤트 플래그이다. <code>func_02099020(player, bit)</code>는 하나를 검사하고 <code>func_02098ff8(player, bit)</code>는 하나를 설정한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02099020 / func_02098ff8, main, port/shim/game/spnpc.c</span></span>. 플래그 1은 오프닝 자체의 상태 비트이다: 도착 시퀀스 내내 설정되어 있다가 시퀀스가 끝나면 지워지며, 매칭된 트리에서 이를 지우는 단 두 곳은 <code>func_ov050_02262628</code>(너굴 쪽)과 <code>func_ov068_0226e948</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov050/ov068, port/shim/game/spnpc.c</span></span>. 이것이 설정되어 있는 동안에는 <code>0x020e1d08</code>의 특수 NPC 결정자 테이블에 있는 열한 개 술어 모두가 중단하므로, 오프닝 동안 특수 NPC 스케줄 전체가 설계상(BY DESIGN) 침묵한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02084af0, main, port/shim/game/spnpc.c</span></span>.</p>
+<p>그 비트필드를 쓰는 함수는 단 넷이며, 각각 같은 세 연산 &ndash; <code>set(1); set(0x23); clear(9)</code> &ndash; 을 수행한다: <code>func_0209ee54</code>(인덱스 0), <code>func_0209ed90</code>(1), <code>func_0209eac8</code>(5), <code>func_0209ea24</code>(6)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">main, port/shim/game/newgameprobe.c</span></span>. 어느 것이 실행될지는 <code>func_ov051_022610d4</code>가 <code>0x021f3c30</code>의 부팅 모드 워드로부터 고른다: 1은 인덱스 0을, 2는 인덱스 1을, 3은 인덱스 6을 선택한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov051_022610d4, ov051, port/shim/game/newgameprobe.c</span></span>. <code>func_020a1320</code>은 그 워드를 1로 설정하는 유일한 설정자이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020a1320, main, port/shim/game/newgameprobe.c</span></span>.
+이것이 플레이어 비트필드가 여전히 0인 채로 세이브가 &ndash; 지형까지 전부 &ndash; 생성될 수 있는 이유이다: 생성(<code>func_0209ebec</code>)은 아직 플레이어가 존재하지 않으므로 의도적으로 플레이어 상태를 전혀 쓰지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209ebec, main, port/shim/game/newgameprobe.c</span></span>.</p>
+<p>플레이어 이름은 택시를 타기 전에 먼저 묻는다. 화면의 프롬프트는 <code>당신 이름은?</code>이며, 레퍼런스 실행에서는 약 프레임 7,500에 이름이 확정되고 그 뒤 게임이 오버레이 하나를 언로드한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, <code>tap-D55</code></span></span>. 키보드는 첫 번째(FIRST) 스타일러스 탭을 패드(PAD)에서 스타일러스로의 모드 전환으로 소비하므로 탭 한 번으로는 절대 확정되지 않는다; 창 안에서의 탭 두 번이면 확정된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TAP40, <code>tap-D55</code></span></span>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/input/touch.c</span></span>. 같은 동작이 첫 번째 키보드에 대해 DeSmuME 레퍼런스에서도 재현되었고, 이것이 포트가 이 점에서 틀리지 않았음을 확정지었다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md ORACLE41, <code>scratchpad/oracle/tap-fullpad</code> frames 6000-24000, bottom-screen ncc 0.9997-1.0000</span></span>.</p>
+<p>이동은 프레임마다 한 번 <code>func_0200dc98</code>(<code>main</code>의 <code>0x794</code>바이트, Thumb, 미매칭)이 구성하는데, 이 함수는 <code>0x021fbe40</code>의 패드 워드와 터치 드래그 헬퍼 <code>func_020b755c</code> / <code>func_020b758c</code>를 읽고 <code>self + 0x134</code>..<code>0x170</code>에 의도 블록을 쓴다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0200dc98, main, port/shim/c6a_0200dc98_intent.c</span></span>. 함수 자체의 풀과 데이터 흐름에서 읽어 낸 필드는 다음과 같다: <code>+0x134</code>는 <code>[0, 0x1000]</code>으로 클램프된 <code>fx12</code> 걷기 속도; <code>+0x138</code>은 <code>func_020e8ed8(dx, dz)</code> 또는 <code>0x021fbe44</code>의 패드 자체 방향 하프워드에서 온 <code>s16</code> 각도의 걷기 방향; <code>+0x13a</code>는 속도가 <code>0xc32</code>를 넘거나 B/X/Y가 눌려 있을 때 설정되는 달리기 플래그; <code>+0x13c</code>는 <code>func_020b7524</code>에서 온 탭 목표; <code>+0x144</code>는 1 또는 2의 탭 클래스; <code>+0x16d</code>는 터치 코드; <code>+0x14c</code>와 <code>+0x158</code>은 세 워드짜리 위치 둘(기억된 목표와 해석된 목표); 그리고 <code>+0x170</code>은 입력 모드로, 패드는 1, 터치는 2이며 어느 쪽도 그 프레임을 차지하지 않으면 진입 시 값이 보존된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0200dc98, main, port/shim/c6a_0200dc98_intent.c</span></span>. 터치 분류는 <code>0x0200ddd8</code>의 하프워드 오프셋 테이블에서 해독되는 18갈래 switch이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0200dc98, main, port/shim/c6a_0200dc98_intent.c</span></span>.</p>
+<p>그 블록은 참고용이 아니라 필수적이다: 함수를 0을 돌려주도록 스텁 처리하면 실행이 곧 <code>func_0200d900</code> 안에서 폴트를 일으킨다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/shim/c6a_0200dc98_intent.c, <code>ACWW_EXPLORE=1</code> run</span></span>.</p>
+<p>플레이어 집은 주민 집과 별개의 에셋 계열이다:
+<code>/str/plHsTex/home%c%c.nsbtx</code>가 ov003 자체의 표기이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>.</p>
+<p>DS 펌웨어의 사용자 설정은 게임이 읽는 닉네임과 생일을 제공한다. 펌웨어 레코드의 <code>birthMonth</code>는 <code>+0x03</code>에, <code>birthDay</code>는 <code>+0x04</code>에 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/boot/usersettings.c</span></span>. 포트는 자체 값 &ndash; 닉네임 <code>PLAYER</code>, 생일 1월 1일 &ndash; 을 제공하고 그렇다고 명시하는데, 이는 복원이 아니라 포트의 선택이기 때문이며, 닉네임은 게임 안에 실제로(IS) 표시된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/boot/usersettings.c</span></span>.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_020984e8</code></td>
+<td>main</td>
+<td>활성 플레이어 객체를 돌려줌</td>
+<td>S: port/shim/game/spnpc.c</td>
+</tr>
+<tr>
+<td><code>func_02098844</code></td>
+<td>main</td>
+<td>플레이어 슬롯 스트라이드 <code>0x249c</code></td>
+<td>S: port/shim/game/newgameprobe.c</td>
+</tr>
+<tr>
+<td><code>func_02099020</code></td>
+<td>main</td>
+<td>플레이어 64비트 필드의 이벤트 플래그 <code>n</code> 검사</td>
+<td>S: port/shim/game/spnpc.c</td>
+</tr>
+<tr>
+<td><code>func_02098ff8</code></td>
+<td>main</td>
+<td>이벤트 플래그 <code>n</code> 설정</td>
+<td>S: port/shim/game/spnpc.c</td>
+</tr>
+<tr>
+<td><code>func_0209ee54</code> / <code>_ed90</code> / <code>_eac8</code> / <code>_ea24</code></td>
+<td>main</td>
+<td>새 게임 플레이어 커밋 넷</td>
+<td>S: port/shim/game/newgameprobe.c</td>
+</tr>
+<tr>
+<td><code>func_ov051_022610d4</code></td>
+<td>ov051</td>
+<td><code>0x021f3c30</code>으로부터 어느 커밋이 실행될지 선택</td>
+<td>S: port/shim/game/newgameprobe.c</td>
+</tr>
+<tr>
+<td><code>func_0200dc98</code></td>
+<td>main</td>
+<td>이동 의도 빌더</td>
+<td>S: port/shim/c6a_0200dc98_intent.c</td>
+</tr>
+<tr>
+<td><code>func_020b755c</code> / <code>func_020b758c</code></td>
+<td>main</td>
+<td>의도에 공급되는 터치 드래그 분류</td>
+<td>S: port/shim/c6a_0200dc98_intent.c</td>
+</tr>
+<tr>
+<td><code>func_020e8ed8</code></td>
+<td>autoload_2</td>
+<td>사인 테이블 기반 <code>atan2</code>, 걷기 각도를 냄</td>
+<td>S: port/shim/c6a_0200dc98_intent.c</td>
+</tr>
+<tr>
+<td><code>0x020e1d08</code>의 <code>func_02099020</code> 호출자들</td>
+<td>main</td>
+<td>플래그 1로 게이트되는 특수 NPC 술어 열한 개</td>
+<td>S: port/shim/game/spnpc.c</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021dc7bc</code></td>
+<td>플레이어 배열, 슬롯 4개, 스트라이드 <code>0x249c</code></td>
+<td><code>func_0209ef7c</code></td>
+<td><code>func_020984e8</code></td>
+</tr>
+<tr>
+<td>슬롯 <code>+0x23f8</code>(슬롯 0은 <code>0x021debb4</code>)</td>
+<td>64비트 이벤트 비트필드</td>
+<td>커밋 넷, <code>func_02098ff8</code></td>
+<td><code>func_02099020</code></td>
+</tr>
+<tr>
+<td>이벤트 플래그 1</td>
+<td>"오프닝이 진행 중"</td>
+<td><code>func_0209ee54</code> 계열</td>
+<td><code>0x020e1d08</code>의 술어 11개</td>
+</tr>
+<tr>
+<td><code>0x021f3c30</code></td>
+<td>커밋을 고르는 부팅 모드 워드</td>
+<td><code>func_020a1320</code></td>
+<td><code>func_ov051_022610d4</code></td>
+</tr>
+<tr>
+<td><code>0x021fbe40</code> / <code>+4</code></td>
+<td>이번 프레임의 패드 워드 / 방향 하프워드</td>
+<td>입력</td>
+<td><code>func_0200dc98</code></td>
+</tr>
+<tr>
+<td><code>self + 0x134</code>..<code>0x170</code></td>
+<td>이동 의도 블록</td>
+<td><code>func_0200dc98</code></td>
+<td>플레이어 갱신의 나머지</td>
+</tr>
+<tr>
+<td><code>self + 0x170</code></td>
+<td>입력 모드: 1 패드, 2 터치</td>
+<td><code>func_0200dc98</code></td>
+<td>플레이어 갱신</td>
+</tr>
+<tr>
+<td>펌웨어 <code>+0x03</code> / <code>+0x04</code></td>
+<td>생일 월 / 생일 일</td>
+<td>펌웨어(포트: <code>usersettings.c</code>)</td>
+<td>게임 인사 경로</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 행은 S 등급이며, 앞 표의 파일들에서 인용했다.</p>
+<h2 id="확인-방법">확인 방법</h2>
+<p><code>port/shim/game/spnpc.c</code>는 <code>ACWW_TRACE_STATE=1</code> 아래에서 그 튜플이 바뀔 때마다 <code>acww intro: f&lt;frame&gt; player &lt;ptr&gt; flag1 &lt;v&gt; bits &lt;w0&gt;/&lt;w1&gt; mode &lt;m&gt; 54a8 &lt;b&gt;</code>를 출력한다; 게임이 아직 오프닝 중이라고 믿는지를 말해 주는 단 하나의 줄이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>. <code>port/shim/game/newgameprobe.c</code>는 새 게임의 두 절반 &ndash; 부팅 생성과 플레이어 커밋 &ndash; 중 어느 것이 일어났는지를, 한쪽에서 다른 쪽을 추론하지 않고 직접 보고한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>.</p>
+<p>이름 프롬프트에 대해서는 마을 레시피를 실행하고 프레임 4,500에서 7,500을 본다: 키보드가 있는 택시 실내, 그 다음 확정
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40, <code>tap-D56</code></span></span>.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>H: <code>0x249c</code> 플레이어 슬롯은 주머니(인벤토리), 편지, 카탈로그를 담고 있으며, 이들은 슬롯 안에서 연속된 블록이다.</strong> 슬롯은 크고 이벤트 비트필드는 끝 근처 <code>+0x23f8</code>에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>. 실험: 라이브 실행에서 아이템 하나를 줍기 전후에 세이브 이미지 둘을 뜬 뒤 diff하고, 슬롯 안에서 어느 오프셋이 바뀌는지 기록한다.</li>
+<li><strong>H: 커밋 넷 모두가 플래그 1과 함께 설정하는 이벤트 플래그 <code>0x23</code>은 "이 플레이어가 생성되었음"이다.</strong> 넷 모두 <code>set(1); set(0x23); clear(9)</code>를 수행한다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>. 실험: 매칭된 트리에서 <code>func_02099020(..., 0x23)</code> 호출 지점을 grep하고 각각이 무엇을 게이트하는지 읽는다.</li>
+<li><strong>H: 커밋 넷 모두가 지우는(CLEAR) 플래그 9는 "돌아온 플레이어" 또는 튜토리얼 완료 비트이다.</strong> 같은 근거이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>. 실험: 비트 9에 대해 같은 grep을 하고, 택시 전에 <code>func_02098ff8</code>로 손수 설정한 뒤 어떤 대화가 바뀌는지 본다.</li>
+<li><strong>H: 플레이어 자신의 이름은 <code>0x249c</code> 슬롯 안의 시작 근처 고정 오프셋에 UTF-16으로 저장된다.</strong> 마을 이름은 다른 루틴이 마을 영역에 찍는다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40</span></span>.
+  실험: 서로 다른 플레이어 이름을 입력해 레시피를 두 번 실행하고 슬롯을 diff한다.</li>
+<li><strong>H: 걷기 속도 클램프 <code>[0, 0x1000]</code>과 달리기 임계값 <code>0xc32</code>는 달리기가 최대 스타일러스 드래그 속도의 약 76%이고 B를 누르고 있어도 도달할 수 있음을 뜻한다.</strong> 두 상수 모두 풀 워드이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/c6a_0200dc98_intent.c</span></span>. 실험: 라이브 실행에서 마우스를 플레이어로부터 여러 거리에 두고 <code>+0x134</code>와 <code>+0x13a</code>를 기록한다.</li>
+<li><strong>H: 도구는 별도의 도구 슬롯이 아니라 의도 블록의 탭 목표 필드에 보관된다 &ndash; 즉 도구는 지속적인 손의 속성이 아니라 행동의 속성이다.</strong> <code>+0x13c</code>는 탭 목표이고 <code>+0x144</code>는 탭 클래스이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/c6a_0200dc98_intent.c</span></span>. 실험: 플레이어가 도구를 든 상태에 도달한 뒤 <code>self + 0x134</code>..<code>0x170</code>을 도구 없는 프레임과 비교해 살펴본다.</li>
+<li><strong>H: 플레이어 슬롯 넷은 마을이 가질 수 있는 거주자 넷이며, 부팅 모드 워드 1/2/3은 첫 플레이어 / 추가 플레이어 / 가져온 플레이어에 대응한다.</strong>
+  <code>func_ov051_022610d4</code>는 1, 2, 3을 서로 다른 세 커밋으로 사상한다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>. 실험: 워드를 차례로 2와 3으로 강제하고 결과 커밋이 어느 슬롯에 쓰는지 기록한다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>town.md</code> &ndash; 플레이어 배열이 사는 세이브 이미지</li>
+<li><code>dialogue.md</code> &ndash; 플레이어가 답하는 키보드와 선택 프롬프트</li>
+<li><code>events-and-calendar.md</code> &ndash; 게임의 진행 기록으로서의 이벤트 비트필드</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/villagers.html"><small>◀ 이전</small>주민</a><a class="pn next" href="../systems/economy.html"><small>다음 ▶</small>경제</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

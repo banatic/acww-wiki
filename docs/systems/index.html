@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시스템 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>시스템</span></div><header class="page-head"><h1>시스템</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/README.md</code> (영문, 기록 문서)</div></header><div class="cards"><a class="card" href="../systems/time-and-rtc.html"><h3>시간과 실시간 시계</h3><p>동물의 숲은 날짜에 관한 게임이고, 그 날짜는 DS의 ARM7 프로세서만 읽을 수 있는 배터리 백업 시계 칩에서 온다. 게임은 비동기 요청을 통해 날짜를 요청하고, 칩의 BCD 자릿수를 숫자로 변환…</p></a><a class="card" href="../systems/save-data.html"><h3>세이브 데이터</h3><p>놀러오세요 동물의 숲은 마을을 카트리지의 백업 저장소, 즉 DS의 ARM7 프로세서가 소유하고 게임의 ARM9 코드는 요청을 통해서만 접근할 수 있는 256 KB 플래시 칩에 보관한다. 게임은 그 …</p></a><a class="card" href="../systems/town.html"><h3>마을</h3><p>마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마…</p></a><a class="card" href="../systems/villagers.html"><h3>주민</h3><p>마을에는 최대 여덟 명의 주민이 산다. 각 주민은 세이브 이미지 안에서 고정 스트라이드 레코드 하나를 차지하며, 각 레코드는 집 하위 레코드를 품고 있다: 저장소 안에서 주민과 집은 하나의 객체이다…</p></a><a class="card" href="../systems/player.html"><h3>플레이어</h3><p>세이브에는 각각 0x249c바이트인 플레이어 슬롯 네 개가 세이브 이미지의 앞부분 근처에 끝과 끝을 맞대고 배치되어 있다. 각 슬롯은 게임이 자체 진행 기록으로 쓰는 64비트 이벤트 비트필드를 갖는…</p></a><a class="card" href="../systems/economy.html"><h3>경제</h3><p>이것은 위키에서 가장 덜 읽힌 시스템이며, 이 문서는 메커니즘을 지어내는 대신 그 사실을 그대로 밝힌다. 확립된 것은 돈이 쓰이는 대상의 형태이다: 아이템은 16비트 id이고 그 최상위 니블(TOP…</p></a><a class="card" href="../systems/weather-and-seasons.html"><h3>날씨와 계절</h3><p>계절은 달력 날짜의 순수 함수이다 -- 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다.…</p></a><a class="card" href="../systems/events-and-calendar.html"><h3>이벤트와 달력</h3><p>게임의 달력은 NitroSDK를 통해 읽은 DS의 실시간 시계(RTC)이며, 열두 갈래의 switch 문으로 계절에 대응되고, 두 번째 매핑으로 열네 값의 계절/이벤트 인덱스에 대응된다. 특정 날에…</p></a><a class="card" href="../systems/dialogue.html"><h3>대화</h3><p>누군가와 대화하는 것은 NPC 안이 아니라 NPC 곁에 존재하는 작은 상태 머신이다. {enter, update} 멤버 함수 쌍으로 이루어진 다섯 항목의 테이블이 정적 초기화 시점에 만들어지고, 대…</p></a><a class="card" href="../systems/input-and-touch.html"><h3>입력과 터치</h3><p>DS는 게임에 두 개의 입력 장치를 제공하며 ARM9는 그 어느 쪽도 혼자서 완전히 읽을 수 없다. 열 개의 버튼 중 여덟 개는 ARM9가 직접 읽을 수 있는 레지스터에 있다; X, Y와 디버그 비…</p></a><a class="card" href="../systems/rng.html"><h3>난수</h3><p>이 ROM에는 단일한 난수 생성기가 없다. 매칭된 소스에는 서로 무관한 세 개의 선형 합동 생성기(LCG)가 있다: 네트워킹 코드가 사용하는 NitroSDK의 MATH_Rand16과 MATH_Ran…</p></a><a class="card" href="../systems/network.html"><h3>네트워크</h3><p>놀러오세요 동물의 숲(Wild World)에는 완전히 별개인 두 개의 네트워킹 스택이 있다. 로컬 무선(같은 방에 있는 두 대의 DS 본체)은 무선 매니저와 그 연결 매니저에서 멈추며 IP 주소를 …</p></a><a class="card" href="../systems/audio.html"><h3>오디오</h3><p>놀러오세요 동물의 숲(Wild World)의 모든 사운드는 하나의 10.7 MB 아카이브 파일에 들어 있으며, 그중 어떤 것도 게임이 실행되는 프로세서에서 믹싱되지 않는다. ARM9는 명령의 연결 …</p></a></div><div class="md"><p>게임이 어떻게 동작하는가를 다룬다. 모든 페이지는 <code>../STYLE.md</code>를 따른다: 사실을 서술하는 모든
+문장에 등급과 출처가 붙고, 가설(Hypotheses) 섹션은 그 페이지가 요구하는 실험의 대기열이다.</p>
+<h2 id="작성됨">작성됨</h2>
+<ul>
+<li><a href="town.html"><code>town.md</code></a> &ndash; 에이커, 96x96 타일 격자, 시드가 아닌 세이브로부터의 생성, 아이템
+  레이어, 원통형 세계, 마을 이름</li>
+<li><a href="villagers.html"><code>villagers.md</code></a> &ndash; 여덟 개의 집 레코드, 여섯 클래스 선택, 스폰 체인과 액터
+  매니저, 얼굴과 표정</li>
+<li><a href="player.html"><code>player.md</code></a> &ndash; 네 개의 플레이어 슬롯, 64비트 이벤트 비트필드, 이름 키보드,
+  프레임별 이동 의도</li>
+<li><a href="economy.html"><code>economy.md</code></a> &ndash; 아이템 id와 그 카테고리 니블; 벨, 가격, 무 시장과 카탈로그는
+  미해결 질문이며 페이지의 대부분이 가설이다</li>
+<li><a href="weather-and-seasons.html"><code>weather-and-seasons.md</code></a> &ndash; 계절 스위치, 열네 값의 월 인덱스,
+  하늘 행과 시간 블렌드, 눈과 비</li>
+<li><a href="events-and-calendar.html"><code>events-and-calendar.md</code></a> &ndash; RTC, 날짜 변경 루틴, 열한 개의 스케줄링
+  술어와 스물세 개의 방문객 행</li>
+<li><a href="dialogue.html"><code>dialogue.md</code></a> &ndash; 다섯 항목의 대화 테이블, 요청/래치 상태 바이트, 스크립트
+  바인드, 선택 프롬프트와 두 개의 키보드</li>
+</ul>
+<hr />
+<h2 id="작성됨-하드웨어-대면-시스템">작성됨 (하드웨어 대면 시스템)</h2>
+<p>아래 여섯 페이지는 첫 번째 패스에서 "계획됨"으로 나열되었고 하드웨어 시스템 패스에서
+작성되었다; 이제 <code>systems/</code> 아래에 미작성 페이지는 없다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>페이지</th>
+<th>답하는 내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="time-and-rtc.html"><code>time-and-rtc.md</code></a></td>
+<td>RTC 요청 프로토콜, BCD 디코드, 날짜 따라잡기 루프, 틱 타이머, 그리고 포트의 시계가 2005-06-15 10:00:00에 고정된 이유</td>
+</tr>
+<tr>
+<td><a href="save-data.html"><code>save-data.md</code></a></td>
+<td>256 KB 플래시, 두 개의 <code>0x173fc</code>바이트 뱅크, 요청 타입 6/7/9, 256바이트 페이지 루프, 그리고 포트의 옵트인 <code>ACWW_SAVE</code> 저장소</td>
+</tr>
+<tr>
+<td><a href="input-and-touch.html"><code>input-and-touch.md</code></a></td>
+<td>두 개의 패드 레지스터와 <code>0x2fff</code> 마스크, 아홉 항목의 터치 링, 보정, <code>0x021fbde8</code>의 <code>TP_POINT</code>, 그리고 원본과의 측정된 1픽셀 / 1~2프레임 차이</td>
+</tr>
+<tr>
+<td><a href="rng.html"><code>rng.md</code></a></td>
+<td>서로 무관한 세 개의 LCG와 그 상수, 두 엔트로피 소스, 그리고 게임플레이 생성기가 아직 발견되지 않았다는 사실</td>
+</tr>
+<tr>
+<td><a href="network.html"><code>network.md</code></a></td>
+<td>로컬 무선과 Wi-Fi 커넥션 스택, <code>ov065</code>의 구성, 친구 코드, 그리고 포트가 이 모든 것에 "서비스 없음"으로 답하는 이유</td>
+</tr>
+<tr>
+<td><a href="audio.html"><code>audio.md</code></a></td>
+<td>하나의 10.7 MB 아카이브, PXI 태그 7 명령 프로토콜, 공유 작업 영역 레이아웃, 그리고 아무 소리도 나지 않는 이유</td>
+</tr>
+</tbody>
+</table></div>
+<p>여기의 모든 페이지는 가설 섹션을 가지며 <code>../experiments/</code> 아래의 페이지로 링크한다. 일곱 개의
+실험 페이지 중 세 개는 실행되었고(<code>off-recipe</code>, <code>two-tap-town-recipe</code>,
+<code>touch-calibration</code>) 네 개는 설계만 되어 "아직 미실행"으로 표시되어 있다(<code>rtc-hour-sweep</code>,
+<code>save-store-probe</code>, <code>rng-determinism</code>, <code>silent-audio-probe</code>)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>../experiments/README.md</code>, its two tables</span></span>.</p></div>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#작성됨">작성됨</a></li><li><a href="#작성됨-하드웨어-대면-시스템">작성됨 (하드웨어 대면 시스템)</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>
