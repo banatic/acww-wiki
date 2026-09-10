@@ -1,0 +1,1535 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다 · ACWW 근거 위키</title>
+<meta name="description" content="wiki/audits/game-systems.md는 공개 세이브 에디터 코퍼스가 **한국 지역** ACWW 세이브 레이아웃을 공개하고 있으며 그 숫자 네 개가 이 저장소 자체의 판독과 일치한다는 것을 확립했다. 이 감사는 한 단계 더 내려간다: 0x173fc바이트 뱅크">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li class="active"><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</span></div><header class="page-head"><h1>감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 28</span><span class="gchip g-H"><b>H</b> 6</span><span class="gchip g-P"><b>P</b> 3</span></div><div class="source-line">원문: <code>wiki/audits/save-records.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> <code>wiki/audits/game-systems.md</code>는 공개 세이브 에디터 코퍼스가 <strong>한국 지역</strong> ACWW 세이브
+레이아웃을 공개하고 있으며 그 숫자 네 개가 이 저장소 자체의 판독과 일치한다는 것을 확립했다. 이
+감사는 한 단계 더 내려간다: 0x173fc바이트 뱅크 안의 모든 레코드 유형을 필드 단위로, 한국판
+오프셋, 공개 출처, 그리고 &ndash; 저장소가 결론지을 수 있는 곳에서는 &ndash; 매칭된 함수의 출처와 함께
+다룬다. 핵심은 <strong>ROM 자체가 뱅크의 최상위 맵을 공개한다</strong>는 점이다: <code>func_0209ef7c</code>가 이미지
+전체를 훑으며 스물아홉 개의 하위 객체를 리터럴 오프셋에서 각자의 초기화 함수에 넘기므로, 뱅크의
+구조는 P 등급 수입품이 아니라 <strong>S</strong> 등급 판독이다. 공개 오프셋 열두 개가 매칭된 코드와 정확히
+일치함이 확인되었고, 공개 숫자 네 개가 정정되었으며, 아무도 공개한 적 없는 필드 다섯 개에 이름이
+붙었다. <code>port/tools/savetool.py</code>에는 주민 및 플레이어 덤프가 추가되었고, 그것을 증명하는
+픽스처는 기대값을 손으로 써 넣은 합성 뱅크다.</p>
+<h2 id="방법-그리고-sp-등급">방법, 그리고 S+P 등급</h2>
+<p>등급은 <code>README.md</code>의 것이다. <strong>P</strong>는 공개된 주장이며 결코 S/E/O를 대체하지 않는다. <strong>S+P</strong>로
+매겨진 행은 공개 오프셋과 <code>src/matched/</code>의 매칭된 함수가 같은 말을 하는 행이다 &ndash; 이 페이지에서
+가장 강한 종류의 행인데, 두 도출이 서로 독립적이기 때문이다: 에디터는 소매 세이브 이미지를 읽었고,
+매칭된 소스는 ROM 자체의 코드다.</p>
+<p>둘을 잇는 다리는 하나의 항등식이다: <code>func_020b5724</code>가 플래시 뱅크와 고정 작업 주소
+<strong>0x021dc7a8</strong> 사이에서 <strong>0x173fc</strong>바이트를 복사하므로 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b5724.c</code></span></span>,
+<strong>세이브 오프셋 <code>+X</code>는 RAM 주소 <code>0x021dc7a8 + X</code></strong>이고, 리터럴 <code>0x021e____</code> 주소를 역참조하는
+매칭된 함수는 곧 세이브 오프셋을 지목하는 것이다. 이 항등식은 아래의 모든 S 행에 쓰이며, 그 자체로
+확인 실행 한 번의 가치가 있다(A-S1 참고).</p>
+<h3 id="공개-출처">공개 출처</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>id</th>
+<th>출처</th>
+<th>무엇인가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Q1</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Offset_Sizes">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Offset_Sizes</a></td>
+<td>지역별 크기와 베이스 오프셋, KOR 열</td>
+</tr>
+<tr>
+<td>Q2</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Main-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Main-Structure</a></td>
+<td>뱅크 헤더, 플레이어 및 주민 배열</td>
+</tr>
+<tr>
+<td>Q3</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Player-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Player-Structure</a></td>
+<td>플레이어 레코드, KOR 열</td>
+</tr>
+<tr>
+<td>Q4</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Villager-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Villager-Structure</a></td>
+<td>주민 레코드, KOR 열</td>
+</tr>
+<tr>
+<td>Q5</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Pattern-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Pattern-Structure</a></td>
+<td>패턴 레코드, KOR 열</td>
+</tr>
+<tr>
+<td>Q6</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Letter-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Letter-Structure</a></td>
+<td>편지 레코드, 편지지 id 및 플래그 테이블</td>
+</tr>
+<tr>
+<td>Q7</td>
+<td><a href="https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Letter-Storage-Structure">https://github.com/SuperSaiyajinStackZ/ACWW_Research/wiki/Letter-Storage-Structure</a></td>
+<td>뱅크 밖의 편지 보관소</td>
+</tr>
+<tr>
+<td>Q8</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Sav.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Sav.cpp</a></td>
+<td><code>playerPointer</code>/<code>villagerPointer</code>/집/편지 보관소 베이스</td>
+</tr>
+<tr>
+<td>Q9</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Player.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Player.cpp</a></td>
+<td>지갑, 은행, 이름, 주머니, 패턴, 편지, 옷장</td>
+</tr>
+<tr>
+<td>Q10</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Villager.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Villager.cpp</a></td>
+<td>id, 성격, 노래, 가구, 셔츠, 벽지, 카펫, 우산</td>
+</tr>
+<tr>
+<td>Q11</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Town.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Town.cpp</a></td>
+<td>에이커, 맵 아이템, 매장 비트, 무, 마을 깃발, 분실물, 재활용함</td>
+</tr>
+<tr>
+<td>Q12</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/Item.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/Item.cpp</a> 및 <code>core/include/utils/itemUtils.hpp</code></td>
+<td>아이템 id 대역 맵과 <code>ItemType</code> 열거형</td>
+</tr>
+<tr>
+<td>Q13</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/utils/checksum.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/utils/checksum.cpp</a></td>
+<td>부호 반전된 16비트 워드 합과 KOR 체크섬 오프셋</td>
+</tr>
+<tr>
+<td>Q14</td>
+<td><a href="https://github.com/Universal-Team/WildEdit/blob/master/core/source/utils/saveUtils.cpp">https://github.com/Universal-Team/WildEdit/blob/master/core/source/utils/saveUtils.cpp</a></td>
+<td>허용되는 이미지 크기, 게임코드 테이블, <code>SavCopyOffsets</code></td>
+</tr>
+<tr>
+<td>Q15</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/sav.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/sav.js</a></td>
+<td>같은 네 지역을 JS 테이블로</td>
+</tr>
+<tr>
+<td>Q16</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/room.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/room.js</a></td>
+<td>2층 256셀 방 그리드, 카펫/벽지/노래</td>
+</tr>
+<tr>
+<td>Q17</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/house.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/house.js</a></td>
+<td>집 빚, 노래 목록, 집 크기</td>
+</tr>
+<tr>
+<td>Q18</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/shop.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/shop.js</a></td>
+<td>에이블 시스터즈 패턴 보관소, KOR <code>0x10AD0</code></td>
+</tr>
+<tr>
+<td>Q19</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/pattern.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/core/pattern.js</a></td>
+<td>4비트 32x32 이미지와 팔레트 니블</td>
+</tr>
+<tr>
+<td>Q20</td>
+<td><a href="https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/strings/en/items.js">https://github.com/Universal-Team/ACWW-Web-SaveEditor/blob/main/assets/js/strings/en/items.js</a></td>
+<td>이름이 붙은 id-아이템 데이터베이스</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>막다른 길 두 곳, 아무도 다시 걷지 않도록 기록해 둔다.</strong> <code>Cuyler36/ACSE</code>에는 읽을 수 있는 Wild World
+오프셋 테이블이 없다 &ndash; <code>SaveType.WildWorld</code> 분기는 존재하지만 상수들은 공개 웹 페치가 닿을 수 없는
+클래스 안에 있고, <code>game-systems.md</code>가 이미 그 리소스 테이블이 GameCube/City Folk 전용임을 밝혔다.
+그리고 DS 세이브 문서를 찾는 일본어·한국어 검색
+(<code>おいでよ どうぶつの森 セーブデータ 解析 オフセット</code>, <code>놀러오세요 동물의 숲 세이브 구조</code>)은
+기술 페이지를 하나도 돌려주지 않았다: <strong>공개 코퍼스의 모든 한국 지역 숫자는 단 하나의 Universal-Team
+코드베이스로 거슬러 올라간다.</strong> 액션 리플레이 코드 목록은 존재하지만 라이브 RAM 주소만 공개할 뿐
+파일 오프셋으로의 매핑은 공개되어 있지 않다. 따라서 여기서의 S 확인은 형식적인 절차가 아니다 &ndash;
+코퍼스가 달리 갖지 못한 두 번째 독립 증인이다.</p>
+<hr />
+<h2 id="1-뱅크의-최상위-맵-rom이-공개한다">1. 뱅크의 최상위 맵 &ndash; ROM이 공개한다</h2>
+<p><code>func_0209ef7c(self)</code>는 뱅크의 멤버 초기화 체인이다: 세이브 베이스를 받아 스물아홉 개의 하위 객체
+초기화 함수를 리터럴 오프셋에서 호출하고, 여기에 <code>func_0209ef10(self, i)</code>를 도는 4회 반복 루프가
+더해진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209ef7c.c</code></span></span>. 그 오프셋들을 정렬하면 각 하위 객체의 <strong>인접성에 의한
+범위(extent)</strong>가 나오고, 그 범위는 각 초기화 함수가 실제로 무엇을 쓰는지로 다시 확인된다. 이것은 이
+페이지에서 가장 가치 있는 단일 산출물이다: 공개 코퍼스에는 이에 상응하는 것이 없는데, 세이브
+에디터는 자신이 편집하기로 한 필드만 보기 때문이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>오프셋</th>
+<th>초기화 함수</th>
+<th>범위</th>
+<th>초기화 함수가 하는 일</th>
+<th>공개 명칭</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>+0x00002</code></td>
+<td><code>func_020642e0</code></td>
+<td>0x12</td>
+<td>+0의 <code>u16</code>과 +2의 12바이트를 0으로 만든다</td>
+<td>마을 id, 마을 이름 (Q2, Q11)</td>
+</tr>
+<tr>
+<td><code>+0x00014</code></td>
+<td><code>func_02098788</code></td>
+<td>0x9270</td>
+<td><code>i &lt; 4</code> 루프, 스트라이드 <code>0x249c</code></td>
+<td>플레이어 레코드 4개 (Q1, Q8)</td>
+</tr>
+<tr>
+<td><code>+0x09284</code></td>
+<td><code>func_0207cf80</code></td>
+<td>0x4080</td>
+<td>구조체는 <code>0x7ec</code>의 <code>arr[8]</code>에 0x11a바이트 꼬리</td>
+<td>주민 레코드 8개 (Q1, Q8)</td>
+</tr>
+<tr>
+<td><code>+0x0d304</code></td>
+<td><code>func_0204ea40</code></td>
+<td>0x2226</td>
+<td>4절 참고</td>
+<td>에이커, 맵 아이템, 매장 비트 (Q11)</td>
+</tr>
+<tr>
+<td><code>+0x0f52a</code></td>
+<td><code>func_020871b8</code></td>
+<td>0x1</td>
+<td>바이트 하나를 0으로 설정</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x0f52b</code></td>
+<td><code>func_02087140</code></td>
+<td>0x1</td>
+<td>한 바이트의 비트필드 네 개(0x01/0x0e/0x70/0x80)를 지운다</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x0f52c</code></td>
+<td><code>func_0206108c</code></td>
+<td>0x2744</td>
+<td><code>OS_GetOwnerInfo</code>를 읽는다; 9바이트 목록과 압축된 플래그 워드</td>
+<td>집 (Q8) <strong>+ 에이블 시스터즈 패턴 (Q18)</strong></td>
+</tr>
+<tr>
+<td><code>+0x11c70</code></td>
+<td><code>func_02090174</code></td>
+<td>0x950</td>
+<td>정확히 <code>0x950</code>을 memset한 뒤 +0에 편지 하나</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x125c0</code></td>
+<td><code>func_020781bc</code></td>
+<td>0x3394</td>
+<td>+0xb7e의 바이트와 +0xb7c의 <code>u16</code>을 0으로 만든다</td>
+<td><strong>공개된 것 없음</strong></td>
+</tr>
+<tr>
+<td><code>+0x15954</code></td>
+<td><code>func_02097fa4</code></td>
+<td>0xa08</td>
+<td><code>i &lt;&lt; 8</code>에 편지 10통, 그 뒤 4바이트와 <code>u16</code> 하나</td>
+<td><strong>공개된 것 없음</strong></td>
+</tr>
+<tr>
+<td><code>+0x1635c</code></td>
+<td><code>func_020b19b4</code></td>
+<td>0x774</td>
+<td>&ndash;</td>
+<td>마지막 <code>0x2d0</code>은 옷장 (Q9)</td>
+</tr>
+<tr>
+<td><code>+0x16ad0</code></td>
+<td><code>func_02088250</code></td>
+<td>0x474</td>
+<td>&ndash;</td>
+<td>마지막 <code>0x234</code>는 마을 깃발 (Q11)</td>
+</tr>
+<tr>
+<td><code>+0x16f44</code></td>
+<td><code>func_02097f00</code></td>
+<td>0x108</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x1704c</code></td>
+<td><code>func_02090018</code></td>
+<td>0x168</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x171b4</code></td>
+<td><code>func_020afbcc</code></td>
+<td>0x64</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x17218</code></td>
+<td><code>func_020411f4</code></td>
+<td>0x3c</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x17254</code></td>
+<td><code>func_0204cdfc</code></td>
+<td>0x6c</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x172c0</code></td>
+<td><code>func_0203a658</code></td>
+<td>0x1e</td>
+<td><code>u16</code> 슬롯 15개에 <code>0xfff1</code>을 쓴다</td>
+<td>분실물 (Q11)</td>
+</tr>
+<tr>
+<td><code>+0x172de</code></td>
+<td><code>func_0203a4ec</code></td>
+<td>0x1e</td>
+<td><code>u16</code> 슬롯 15개에 <code>0xfff1</code>을 쓴다</td>
+<td>재활용함 (Q11)</td>
+</tr>
+<tr>
+<td><code>+0x172fc</code></td>
+<td><code>func_02086874</code></td>
+<td>0x48</td>
+<td>16바이트 캐릭터 참조 두 개, +0x3e에 <code>0xfff1</code></td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x17344</code></td>
+<td><code>func_02087234</code></td>
+<td>0x20</td>
+<td>+0x1e의 <code>u16</code>에 <code>0xfff1</code></td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x17364</code></td>
+<td><code>func_02087830</code></td>
+<td>0x1a</td>
+<td>8바이트를 <code>1,1,0,0,1,1,0,0</code>으로, +0x18에 <code>0xff</code></td>
+<td>무 바이트를 포함 (Q11)</td>
+</tr>
+<tr>
+<td><code>+0x1737e</code></td>
+<td><code>func_020c17f0</code></td>
+<td>0xa</td>
+<td>꼬리 호출</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x17388</code></td>
+<td><code>func_020ae3bc</code></td>
+<td>0x14</td>
+<td>꼬리 호출</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x1739c</code></td>
+<td><code>func_020aea20</code></td>
+<td>0x12</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x173ae</code></td>
+<td><code>func_020b0678</code></td>
+<td>0x1a</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x173c8</code></td>
+<td><code>func_0205bf90</code></td>
+<td>0x15</td>
+<td>날짜/시계 헬퍼에서 온 3바이트를 쓰고 그 뒤 0</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x173dd</code></td>
+<td><code>func_0209fad4</code></td>
+<td>0x5</td>
+<td>4바이트를 <code>1,1,0,0</code>으로</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x173e2</code></td>
+<td><code>func_020882f0</code></td>
+<td>0x12</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td><code>+0x173f4</code></td>
+<td>&ndash;</td>
+<td>0x4</td>
+<td>32비트 플래그 워드; 2절 참고</td>
+<td><strong>공개된 것 없음</strong></td>
+</tr>
+<tr>
+<td><code>+0x173f8</code></td>
+<td>&ndash;</td>
+<td>0x4</td>
+<td>체크섬 <code>u16</code>, 상태 바이트, 패딩</td>
+<td>체크섬 (Q1, Q13)</td>
+</tr>
+</tbody>
+</table></div>
+<p>이 범위들 가운데 세 개는 정확히 맞아떨어지며, 그 산술 자체가 근거다:</p>
+<ul>
+<li><code>0x14 + 4 * 0x249c = 0x9284</code> &ndash; 플레이어 배열은 주민 배열이 시작하는 바로 그 지점에서 끝난다
+  <span class="cite" data-grade="S+P"><span class="cite-badge"><b class="g g-S" title="소스">S</b><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>src/matched/func_02098788.c</code> loops <code>i &lt; 4</code> at stride <code>0x249c</code>; Q1/Q8 give base <code>0x14</code> and size <code>0x249C</code></span></span>. 이것은 한국판의 특이한 베이스도 결론짓는다: 다른 모든 지역은 플레이어
+  배열을 <code>+0xC</code>에서 시작하는데 한국판은 <code>+0x14</code>에서 시작한다(Q1) &ndash; 매칭된 소스들은 한국판
+  플레이어 배열 주소를 리터럴 <code>0x021dc7bc</code>로 적고 있고, 이는 <code>0x021dc7a8 + 0x14</code>이다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209847c.c</code>, <code>func_02098420.c</code>, <code>func_020a13e8.c</code> and eight others</span></span>.</li>
+<li><code>0xf52c + 0x15a4 + 8 * 0x234 = 0x11c70</code> &ndash; 집 객체의 범위는 정확히 공개된 집 내용(<code>0x1590</code> 빚,
+  <code>0x1594</code> 노래 목록, <code>0x15a0</code> 집 크기, Q17) <strong>뒤에 에이블 시스터즈 패턴 슬롯 여덟 개가 이어진
+  것</strong>이며, 그 공개 베이스 <code>0x10ad0</code>(Q18)은 바이트 단위까지 <code>0xf52c + 0x15a4</code>이다. 서로를 한 번도
+  언급하지 않는 두 공개 출처가 하나의 ROM 객체 안에서 인접한 멤버다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209ef7c.c</code>; P: Q17, Q18</span></span>.</li>
+<li><code>0x16800 + 4 * 0xb4 = 0x16ad0</code> &ndash; 플레이어 네 명의 옷장(각 90개 <code>u16</code> 슬롯, Q9)은
+  <code>func_02088250</code>의 객체가 시작하는 바로 그 지점에서 끝나므로, <code>func_020b19b4</code> 객체의 꼬리다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209ef7c.c</code>; P: Q9</span></span>.</li>
+</ul>
+<p><strong>뱅크에서 가장 큰 구멍은 <code>+0x125c0</code>의 0x3394바이트이며, 어떤 공개 출처도 그 한 바이트조차 이름
+붙이지 않았다.</strong> 다른 어떤 이름 없는 객체보다도 세 배 이상 크고, 카탈로그와 박물관 기증 기록 &ndash;
+<code>economy.md</code>와 공개 코퍼스가 둘 다 갖지 못한 두 가지 &ndash; 의 자명한 거처다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by watching that range across one museum donation and one catalogued purchase</span></span>.</p>
+<hr />
+<h2 id="2-뱅크-헤더와-트레일러">2. 뱅크 헤더와 트레일러</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>KOR 오프셋</th>
+<th>다른 지역</th>
+<th>크기/타입</th>
+<th>공개</th>
+<th>저장소 확인</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>게임코드</td>
+<td><code>+0x0000</code></td>
+<td>같은 오프셋, 값은 다름: EUR <code>0xC5</code>, USA <code>0x8A</code>, JPN 및 KOR <code>0x32</code> (Q14)</td>
+<td><code>u16</code></td>
+<td>Q2, Q14</td>
+<td><code>func_0209f180</code>은 유효성 검사를 호출하기 전에 <code>ptr[0] == 0x32</code>를 요구한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>마을 id</td>
+<td><code>+0x0002</code></td>
+<td>같음 (Q2)</td>
+<td><code>u16</code></td>
+<td>Q2, Q11</td>
+<td><code>func_020642e0</code>이 <code>func_0209ef7c</code>가 <code>+0x02</code>에 설치하는 객체의 +0에 있는 <code>u16</code>을 0으로 만든다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>마을 이름</td>
+<td><code>+0x0004</code></td>
+<td>EUR/USA 8 <code>WWChar</code>, JPN 6 <code>WWChar</code>, KOR 6 <code>char16_t</code> (Q2)</td>
+<td>12바이트 UCS-2</td>
+<td>Q2, Q11</td>
+<td>같은 <code>func_020642e0</code>이 그 객체의 +2에서 12바이트를 0으로 만든다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>미상</td>
+<td><code>+0x0010</code></td>
+<td>KOR 전용 (Q2는 "Unknown 1", 4바이트라 부른다)</td>
+<td>4바이트</td>
+<td>Q2</td>
+<td>헤더 객체(<code>+0x14</code>에서 끝남)와 플레이어 배열 사이의 틈</td>
+<td>S (배제에 의해)</td>
+</tr>
+<tr>
+<td><strong>전역 플래그 워드</strong></td>
+<td><code>+0x173f4</code></td>
+<td>어떤 지역에서도 공개되지 않음</td>
+<td><code>u32</code>, 32비트</td>
+<td><strong>없음</strong></td>
+<td><code>func_0209f128(save, bit)</code>가 <code>((u32*)(save + 0x173f4))[bit &gt;&gt; 5]</code>를 설정하고 <code>func_0209f150(save, bit)</code>가 검사하며, <strong>둘 다 워드 인덱스 &gt;= 1을 거부하므로</strong> 이 필드는 정확히 한 워드다</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+<tr>
+<td>체크섬</td>
+<td><code>+0x173f8</code></td>
+<td>EUR/USA <code>0x15FDC</code>, JPN <code>0x12220</code> (Q1)</td>
+<td><code>u16</code></td>
+<td>Q1, Q13</td>
+<td><code>func_0209f180</code>이 <code>ptr + 0x173f8</code>을 유효성 검사에 넘긴다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>쓰기 상태 바이트</td>
+<td><code>+0x173fa</code></td>
+<td>공개되지 않음</td>
+<td><code>u8</code></td>
+<td><strong>없음</strong></td>
+<td><code>func_0209fb54</code>가 28을, <code>func_0209fb4c</code>가 2를 <code>0x021f3ba0</code> = <code>0x021dc7a8 + 0x173f8</code>에 있는 객체의 <code>[+2]</code>에 쓴다</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong><code>+0x173f4</code>의 32비트 플래그 워드는 새로운 결과다.</strong> 매칭된 코드의 호출 지점에 여섯 개의 비트
+번호 &ndash; 7, 0xd, 0x11, 0x12, 0x13, 0x14 &ndash; 가 나타나므로 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020af648.c</code>, <code>func_020af658.c</code>, <code>func_02060cbc.c</code>, <code>func_02060f5c.c</code>, <code>func_020865d8.c</code>, <code>func_020881c4.c</code>, <code>func_0209fe40.c</code>, <code>func_0209fea4.c</code>, <code>func_020a4454.c</code></span></span>, 게임은 뱅크의
+마지막 8바이트에 마을 전체 진행 플래그를 최소 여섯 개 보관한다. 어떤 공개 에디터도 이를 노출하지
+않으며, 이 워드는 체크섬 범위 안에 있다.</p>
+<p><strong>끝의 4바이트는 단순한 체크섬이 아니라 작은 구조체다.</strong> <code>func_0209f180</code>은 <code>save + 0x173f8</code>을
+<code>func_0209fb3c</code>에 넘기고, 이 함수는 <code>[+2]</code>를 읽어 값이 <strong>2</strong>일 것을 요구한다; 같은 바이트에
+<code>func_0209fb54</code>는 <strong>28</strong>을 쓰고 <code>func_0209fb4c</code>는 다시 <strong>2</strong>를 쓰며, 세이브 상태 머신은 복사를
+전후해 이 두 함수를 호출한다: 쓰기 시작 시 28이 설정되고 끝에 2가 설정된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a03e0.c</code> states <code>a+1</code> and <code>a+4</code></span></span>. 따라서 <code>+0x173fa</code>는
+<strong>쓰기 진행 중 마커</strong>다: 중단된 세이브는 28을 남기고, 그 뱅크는 부팅 시 거부된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209f180.c</code>, <code>func_0209fb3c.c</code>, <code>func_0209fb28.c</code>, <code>func_020a03e0.c</code></span></span>.
+이것은 <code>town.md</code>의 "유효성 레코드는 <code>+0x173f8</code>에 있다"와 <code>game-systems.md</code>의 더 좁은 정정을
+모두 바로잡는다: <code>+0x173f8</code>은 체크섬<strong>이자</strong> 세 번째 바이트가 마커인 4바이트 트레일러의 첫
+멤버다.</p>
+<p><strong>ROM이 하지 않는 일에 주목하라.</strong> <code>func_0209f180</code>은 게임코드 바이트와 마커 바이트를 검사하고
+반환한다 &ndash; 그 안에 합산은 없고, 읽기 쪽에는 다른 유효성 호출이 없다. 따라서 공개된 체크섬(Q13)은
+여전히 <strong>P 전용</strong>이다: 게임의 부팅 시 수용 검사는 그것을 계산하지 않는다. 쓰기 쪽이 계산하는지는
+이제 좁은 질문이 되었다 &ndash; <code>func_020a03e0</code>이 마커를 2로 찍기 직전에 호출하는 <code>func_020a1224</code>를
+보라 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">read <code>func_020a1224</code> for a <code>0xb9fe</code>-iteration word-stride accumulate</span></span>.</p>
+<hr />
+<h2 id="3-플레이어-레코드-kor-0x249c-0x14에-슬롯-4개">3. 플레이어 레코드 (KOR <code>0x249c</code>, <code>+0x14</code>에 슬롯 4개)</h2>
+<p><code>func_02099ad0(self)</code>는 플레이어 슬롯의 멤버 초기화 체인이며, 뱅크의 <code>func_0209ef7c</code>처럼 슬롯의
+맵을 공개한다: 리터럴 오프셋에서의 호출 열여덟 개가 내림차순으로 나열된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02099ad0.c</code></span></span>. 그 헤더 주석은 두 컨테이너 등록이 <strong>서로 다른</strong> 풀 워드 &ndash;
+<code>+0x1bf2</code>와 <code>+0x11a8</code> &ndash; 를 가져야 했다고 기록하는데, 둘에 같은 오프셋을 주면 풀 워드 하나가
+접혀 정확히 4바이트의 크기 차이가 났기 때문이다. <strong>이 오프셋들은 추론된 것이 아니라 바이트 단위로
+검증된 것이다.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>슬롯 내 KOR 오프셋</th>
+<th>다른 지역</th>
+<th>크기/타입</th>
+<th>공개</th>
+<th>저장소 확인</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>패턴</td>
+<td><code>+0x0000</code></td>
+<td>EUR/USA 8 x <code>0x228</code>, JPN 8 x <code>0x220</code> (Q1)</td>
+<td>8 x <code>0x234</code></td>
+<td>Q3, Q9</td>
+<td><code>func_02072ce8</code>이 슬롯 +0에 <strong>개수 8, 스트라이드 <code>0x234</code></strong>의 컨테이너를 등록한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>미상</td>
+<td><code>+0x11a0</code></td>
+<td>EUR/USA <code>+0x1140</code>, JPN <code>+0x1100</code> (Q3)</td>
+<td>8바이트</td>
+<td>Q3</td>
+<td><code>func_02072ce8</code>이 <code>+0x11a0</code>을 자체 초기화 함수에 넘긴다 &ndash; 패딩이 아니라 실제 객체다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>주머니 편지</td>
+<td><code>+0x11a8</code></td>
+<td>EUR/USA <code>+0x1148</code> x <code>0xF4</code>, JPN <code>+0x1108</code> x <code>0x8C</code> (Q1, Q3)</td>
+<td>10 x <code>0x100</code></td>
+<td>Q3, Q9</td>
+<td><code>func_02099ad0</code>이 <code>+0x11a8</code>에 <strong>개수 10, 스트라이드 256</strong>의 컨테이너를 등록한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>기본 편지 서두</td>
+<td><code>+0x1ba8</code></td>
+<td>EUR/USA <code>+0x1AD0</code>, JPN <code>+0x1680</code> (Q3)</td>
+<td>UCS-2 10단위</td>
+<td>Q3</td>
+<td>체인이 등록하지 않고 남긴 틈 <code>0x1ba8..0x1bf1</code> 안에 든다</td>
+<td>P</td>
+</tr>
+<tr>
+<td>기본 편지 맺음</td>
+<td><code>+0x1bd0</code></td>
+<td>EUR/USA <code>+0x1B00</code>, JPN <code>+0x1694</code> (Q3)</td>
+<td>UCS-2 16단위</td>
+<td>Q3</td>
+<td>같은 틈</td>
+<td>P</td>
+</tr>
+<tr>
+<td>주머니 아이템</td>
+<td><code>+0x1bf2</code></td>
+<td>EUR/USA <code>+0x1B22</code>, JPN <code>+0x16A6</code> (Q3)</td>
+<td>15 x <code>u16</code></td>
+<td>Q3, Q9</td>
+<td><code>func_02099ad0</code>이 <code>+0x1bf2</code>에 <strong>개수 15, 스트라이드 2</strong>의 컨테이너를 등록한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>지갑</td>
+<td><code>+0x1c10</code></td>
+<td>EUR/USA <code>+0x1B40</code>, JPN <code>+0x16C4</code> (Q3, Q9)</td>
+<td><code>u32</code></td>
+<td>Q3, Q9</td>
+<td>주머니 컨테이너가 <code>0x1bf2 + 30 = 0x1c10</code>에서 끝나고 다음 등록 객체가 <code>0x1c18</code>에서 시작하므로, 지갑은 공개 오프셋에서 정확히 시작하는 8바이트의 미등록 틈 안에 있다</td>
+<td><strong>S+P</strong> (인접성에 의해)</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x1c18</code></td>
+<td>&ndash;</td>
+<td>0x123</td>
+<td>&ndash;</td>
+<td><code>func_0203cfa0</code></td>
+<td>S</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x1d3b</code></td>
+<td>&ndash;</td>
+<td>1바이트</td>
+<td>&ndash;</td>
+<td><code>func_0203d388</code></td>
+<td>S</td>
+</tr>
+<tr>
+<td><strong>미래 편지</strong></td>
+<td><code>+0x1d3c</code></td>
+<td>EUR/USA <code>+0x1C6C</code> (Q3)</td>
+<td><code>0x100</code>, 그 뒤 <code>+0x1e3c</code>에 날짜 3바이트</td>
+<td>Q3는 EUR/USA에 대해서만 이름 붙임</td>
+<td><code>func_02097e18</code>이 <code>+0x1d3c</code>에 편지 객체를 설치하고, 다음 멤버까지의 범위는 <code>0x104</code> = <code>0x100</code> 편지 한 통에 일/월/년 세 바이트</td>
+<td><strong>S</strong>, KOR 오프셋 신규</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x1e40</code></td>
+<td>&ndash;</td>
+<td>0xcc</td>
+<td>&ndash;</td>
+<td><code>func_0209ade4</code></td>
+<td>S</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x1f0c</code></td>
+<td>&ndash;</td>
+<td>0x50</td>
+<td>&ndash;</td>
+<td><code>func_02077c0c</code>, <code>+0x40</code>에 <code>+0x1f5c</code> 타입의 원소 하나</td>
+<td>S</td>
+</tr>
+<tr>
+<td><strong>32원소 명부</strong></td>
+<td><code>+0x1f5c</code></td>
+<td>EUR/USA는 <code>+0x1D63</code>의 <code>0x481</code> "Unknown 5" (Q3)</td>
+<td><strong>32 x <code>0x24</code></strong></td>
+<td>Q3는 Unknown이라 부름</td>
+<td><code>func_02077d24</code>가 <strong>개수 0x20, 스트라이드 0x24</strong>의 컨테이너를 등록한다; <code>0x1f5c + 0x480 + 4 = 0x23e0</code>, 은행 필드</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+<tr>
+<td>은행</td>
+<td><code>+0x23e0</code></td>
+<td>EUR/USA <code>+0x21E4</code>, JPN <code>+0x1C70</code> (Q3, Q9)</td>
+<td><code>u32</code></td>
+<td>Q3, Q9</td>
+<td><code>func_020992fc(p)</code>는 <code>p + 0x23e0</code>을 반환하는 한 줄짜리 접근자이고, <code>func_02099ad0</code>이 거기에 객체를 설치한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x23ec</code> / <code>+0x2404</code> / <code>+0x2416</code> / <code>+0x242c</code></td>
+<td>&ndash;</td>
+<td>0x18 / 0x12 / 0x11 / 0x12</td>
+<td>&ndash;</td>
+<td><code>func_02088808</code>, <code>func_020adf64</code>, <code>func_02088c0c</code>, <code>func_02088450</code></td>
+<td>S</td>
+</tr>
+<tr>
+<td>도토리 개수</td>
+<td><code>+0x2421</code></td>
+<td>EUR/USA <code>+0x2225</code>, JPN <code>+0x1CB1</code> (Q3)</td>
+<td><code>u8</code></td>
+<td>Q3, Q9</td>
+<td><code>func_02088c0c</code>의 객체 <code>0x2416..0x2426</code> 안</td>
+<td>P (S로 경계 지어짐)</td>
+</tr>
+<tr>
+<td>얼굴 / 머리 모양</td>
+<td><code>+0x243c</code></td>
+<td>EUR/USA <code>+0x223C</code>, JPN <code>+0x1CC6</code> (Q3)</td>
+<td><code>u8</code>, 니블 두 개</td>
+<td>Q3, Q9</td>
+<td><code>func_02099824</code>는 <code>((u32)ptr[0x243c] &lt;&lt; 24) &gt;&gt; 28</code>(상위 니블)을 반환하고 <code>func_02099834</code>는 하위 니블을 쓴다; <code>func_02099808</code>은 그 주소를 취한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>피부색 / 머리 색</td>
+<td><code>+0x243d</code></td>
+<td>EUR/USA <code>+0x223D</code>, JPN <code>+0x1CC7</code> (Q3)</td>
+<td><code>u8</code>, 니블 두 개</td>
+<td>Q3, Q9</td>
+<td>바로 뒤 바이트, <code>func_02097dcc</code>의 객체 <code>+0x243e</code> 앞에 있는 같은 미등록 쌍 안</td>
+<td><strong>S+P</strong> (인접성에 의해)</td>
+</tr>
+<tr>
+<td>마을 id</td>
+<td><code>+0x247e</code></td>
+<td>EUR/USA <code>+0x2276</code>, JPN <code>+0x1CFC</code> (Q3)</td>
+<td><code>u16</code></td>
+<td>Q3, Q9</td>
+<td><code>func_02099a38</code>(<code>func_02098788</code>이 호출하는 슬롯별 초기화 함수)이 <code>p + 0x247e</code>를 <code>func_02095238</code>에 넘긴다; <code>func_02099a28</code>과 <code>func_0209987c</code>도 같은 오프셋을 쓴다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>마을 이름</td>
+<td><code>+0x2480</code></td>
+<td>EUR/USA <code>+0x2278</code> 8자, JPN <code>+0x1CFE</code> 6자 (Q3)</td>
+<td>UCS-2 6단위</td>
+<td>Q3, Q9</td>
+<td><code>+0x247e</code> 신원 객체 안, 이 객체는 슬롯 끝까지 이어진다(<code>0x1e</code>바이트)</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>플레이어 id</td>
+<td><code>+0x248c</code></td>
+<td>EUR/USA <code>+0x2280</code>, JPN <code>+0x1D04</code> (Q3)</td>
+<td><code>u16</code>, 0이 아니면 = 슬롯 사용 중</td>
+<td>Q3, Q9</td>
+<td><code>ov105</code> 함수 다섯 개가 <code>self + 0x248c</code>를 독립 객체로 역참조한다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>플레이어 이름</td>
+<td><code>+0x248e</code></td>
+<td>EUR/USA <code>+0x2282</code>, JPN <code>+0x1D06</code> (Q3)</td>
+<td>UCS-2 6단위</td>
+<td>Q3, Q9</td>
+<td>같은 신원 객체</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>성별</td>
+<td><code>+0x249a</code></td>
+<td>EUR/USA <code>+0x228A</code>, JPN <code>+0x1D0C</code> (Q3)</td>
+<td><code>u8</code></td>
+<td>Q3, Q9</td>
+<td>신원 객체의 끝에서 두 번째 바이트</td>
+<td><strong>S+P</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong><code>+0x1f5c</code>의 32원소 컨테이너는 이 페이지의 두 번째 새 결과다.</strong> 공개 코퍼스가 EUR/USA에 대해
+"Unknown 5"라 이름 붙인 <code>0x481</code>바이트 블록 &ndash; 공개된 플레이어 레코드에서 가장 큰 이름 없는 영역 &ndash;
+의 한국판 대응물이며, ROM은 그것이 <strong>36바이트짜리 레코드 서른두 개</strong>라고 말하고, 같은 타입의
+레코드 하나가 <code>+0x1f4c</code>에 추가로 박혀 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02077d24.c</code>, <code>func_02077c0c.c</code>, both routed to <code>func_02077ebc</code></span></span>. 플레이어당 고정 슬롯 서른두 개, 각각 id 하나와 짧은 UCS-2 이름
+두 개가 들어갈 만한 크기 &ndash; 이는 <strong>친구 또는 방문객 명부</strong>의 형태이며, 정확히 어떤 공개 출처도
+문서화하지 않은 레코드 유형이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by making the port persist a save after one wireless or gate event and diffing <code>0x021de718</code> (= <code>0x021dc7a8 + 0x14 + 0x1f5c</code>) across it</span></span>.</p>
+<hr />
+<h2 id="4-마을-에이커-아이템-그리드-매장-아이템">4. 마을: 에이커, 아이템 그리드, 매장 아이템</h2>
+<p><code>func_0204ea40</code>은 마을 객체의 초기화 함수이며 열한 줄로 위키의 별개 질문 네 개를 결론짓는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0204ea40.c</code></span></span>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>코드가 하는 일</th>
+<th>결론짓는 것</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>base + 0</code>의 <strong>0x24바이트</strong>를 바이트 <strong>0x86</strong>으로 채운다</td>
+<td>에이커 배열은 정확히 <strong>36바이트</strong>, 에이커당 <code>u8</code> 하나(Q11은 베이스 <code>0xD304</code>를 준다; <code>0xD304 + 36 = 0xD328</code>, 공개된 아이템 베이스) &ndash; 그리고 <strong><code>0x86</code>은 미설정 에이커 값</strong>으로, <code>town.md</code>가 가설로만 실어 두었고 공개 에이커 이미지 집합이 다루는 0..130 범위 밖이다</td>
+<td><strong>S+P</strong>, 그리고 H 하나를 결론짓는다</td>
+</tr>
+<tr>
+<td><code>base + 0x24</code>를 <strong>0x200</strong>씩 건너뛰며 <strong>16회</strong> 루프</td>
+<td>맵 아이템 층은 <strong>0x200바이트 블록 16개 = 에이커 16 x 셀 256 x <code>u16</code> = 4,096셀</strong>, <strong>에이커 우선(acre-major)</strong> 저장. <code>0xD304 + 0x24 = 0xD328</code>로 정확히 일치(Q11)</td>
+<td><strong>S+P</strong>; <code>game-systems.md</code>가 "96x96"을 4,096셀로 정정한 것과 에이커 우선 판독을 확인</td>
+</tr>
+<tr>
+<td><code>base + 0x2024</code>를 <strong>0x20</strong>씩 건너뛰며 같은 16회 루프</td>
+<td>매장 아이템 비트필드는 <strong>16 x 32바이트 = 512바이트 = 4,096비트</strong>, 맵 셀당 1비트, <code>0xD304 + 0x2024 = 0xF328</code>에 위치 &ndash; 공개 베이스(Q11)와 바이트 단위까지 일치</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td><code>base + 0x2224</code>의 하위 두 비트를 지운다</td>
+<td><code>+0xf528</code>의 2비트 마을 필드, 매장 비트필드의 끝과 다음 멤버 <code>+0xf52a</code> 사이 2바이트 안</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>마을 객체의 총 범위는 <code>0x2226</code>(<code>0xd304</code>에서 <code>0xf52a</code>)이고, <code>0x24 + 0x2000 + 0x200 + 2</code>는 정확히
+<code>0x2226</code>이다. <strong>남는 것이 없다: 에이커 배열, 아이템 그리드, 매장 비트, 그리고 2비트 필드가 객체의
+전부다.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>다른 마을 필드</th>
+<th>KOR 오프셋</th>
+<th>다른 지역</th>
+<th>공개</th>
+<th>저장소 확인</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>마을 깃발 패턴</td>
+<td><code>+0x16d0c</code></td>
+<td>EUR/USA <code>0x15930</code>, JPN <code>0x11C5C</code> (Q11)</td>
+<td>Q11</td>
+<td><code>func_02088250</code>의 객체 안, 그 범위는 공개 베이스에서 <code>0x234</code>(패턴 하나)만큼 뒤에서 끝난다</td>
+<td><strong>S+P</strong> (인접성에 의해)</td>
+</tr>
+<tr>
+<td>분실물</td>
+<td><code>+0x172c0</code></td>
+<td>EUR/USA <code>0x15EC0</code>, JPN <code>0x12114</code> (Q11)</td>
+<td>Q11</td>
+<td><code>func_0203a658</code>이 정확히 <strong>15</strong>개의 <code>u16</code> 슬롯에 <code>0xfff1</code>을 쓰고, <code>0x172c0 + 0x1e = 0x172de</code></td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>재활용함</td>
+<td><code>+0x172de</code></td>
+<td>EUR/USA <code>0x15EDE</code>, JPN <code>0x12132</code> (Q11)</td>
+<td>Q11</td>
+<td><code>func_0203a4ec</code>, 같은 15슬롯 채우기; <code>0x172de + 0x1e = 0x172fc</code></td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>무 가격</td>
+<td><code>+0x17370</code></td>
+<td>EUR/USA <code>0x15F5D</code>, JPN <code>0x121A3</code> (Q11)</td>
+<td>Q11</td>
+<td><code>+0x17364</code>에 있는 <code>func_02087830</code>의 <code>0x1a</code>바이트 객체 안, 그 객체의 다른 쓰기는 <code>1,1,0,0,1,1,0,0</code> 8바이트와 <code>+0x18</code>의 <code>0xff</code></td>
+<td>P (S로 경계 지어짐)</td>
+</tr>
+</tbody>
+</table></div>
+<p>무 행은 <code>economy.md</code>를 위해 한 문장의 가치가 있다: 무 바이트를 담은 객체는 <strong>동일한 4바이트 그룹
+두 개를 가진 26바이트</strong>로, 이는 2슬롯 이력의 형태이며, 공개된 규칙은 Wild World가 <strong>하루에 두 번
+가격을 매긴다</strong>는 것이다(<code>game-systems.md</code> P22). 공개된 단일 <code>u8</code>은 작은 구조체의 멤버 하나이지
+시장 상태 전체가 아니다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">watch <code>0x021f3b18</code>..<code>0x021f3b1d</code> across a midday boundary</span></span>.</p>
+<hr />
+<h2 id="5-주민-레코드-kor-0x7ec-0x9284에-레코드-8개">5. 주민 레코드 (KOR <code>0x7ec</code>, <code>+0x9284</code>에 레코드 8개)</h2>
+<p><code>func_02081660</code>은 <code>0x7ec</code>바이트를 memset한 뒤 레코드를 필드 하나하나 초기화한다 &ndash; 한국판 주민
+레이아웃 전체가 매칭된 함수 하나에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02081660.c</code></span></span>.
+<code>func_0207cec0(base, idx)</code>는 레코드 접근자다: <code>base + idx * 0x7ec</code>를 반환하며 <code>func_0207cf74(idx)</code>로
+게이트된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207cec0.c</code></span></span>, 그리고 서른 남짓한 매칭된 함수가 리터럴 베이스
+<code>0x021e5a2c</code> = <code>0x021dc7a8 + 0x9284</code>로 이를 호출한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>레코드 내 KOR 오프셋</th>
+<th>다른 지역</th>
+<th>크기/타입</th>
+<th>공개</th>
+<th>저장소 확인</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x80</code>바이트 하위 레코드 8개</td>
+<td><code>+0x000</code></td>
+<td>Q4는 모든 지역에서 <code>0x0-0x3FF</code>를 "Unknown 1"이라 부른다</td>
+<td>8 x <code>0x80</code></td>
+<td>Q4 (이름 없음)</td>
+<td><code>func_02081660</code>이 <code>self + (i &lt;&lt; 7)</code>을 <code>i &lt; 8</code>로 루프하며 정확히 <code>0x400</code>에서 끝난다</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+<tr>
+<td>패턴</td>
+<td><code>+0x400</code></td>
+<td>EUR/USA <code>+0x340</code>, JPN <code>+0x280</code> (Q4)</td>
+<td><code>0x234</code></td>
+<td>Q4, Q10</td>
+<td>8레코드 루프가 거기서 끝나고 다음 초기화 호출은 <code>func_02080b50</code></td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>편지</td>
+<td><code>+0x634</code></td>
+<td>EUR/USA <code>+0x568</code>, JPN <code>+0x4A0</code> (Q4)</td>
+<td><code>0x100</code></td>
+<td>Q4, Q10</td>
+<td><code>func_02081660</code>이 <code>self + 0x634</code>에서 <strong><code>func_02066650</code></strong>을 호출한다 &ndash; <code>+0x15954</code>의 10통 편지 보관소가 쓰는 것과 같은 편지 초기화 함수</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x734</code></td>
+<td>Q4 "Unknown 2", <code>0x58</code></td>
+<td><code>0x58</code></td>
+<td>Q4</td>
+<td><code>func_0209b604(self + 0x734)</code></td>
+<td>S</td>
+</tr>
+<tr>
+<td>가구</td>
+<td><code>+0x78c</code></td>
+<td>EUR/USA <code>+0x6AC</code>, JPN <code>+0x578</code> (Q4)</td>
+<td>10 x <code>u16</code></td>
+<td>Q4, Q10</td>
+<td><code>func_02081660</code>이 <code>j &lt; 10</code> 루프로 <code>self + 0x78c + (j &lt;&lt; 1)</code>에 <code>0xfff1</code>을 쓴다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>캐릭터 참조</td>
+<td><code>+0x7a0</code></td>
+<td>Q4 "Unknown 3", <code>0xE</code></td>
+<td>16바이트</td>
+<td>Q4 (이름 없음)</td>
+<td><code>func_02003738(self + 0x7a0)</code>; 아래 참고</td>
+<td><strong>S</strong>, 구조 신규</td>
+</tr>
+<tr>
+<td>노래</td>
+<td><code>+0x7a4</code></td>
+<td>EUR/USA <code>+0x6D0</code>, JPN <code>+0x59A</code> (Q10, 미조사로 비활성화됨)</td>
+<td><code>u8</code></td>
+<td>Q10</td>
+<td>참조 블록의 이름 필드 안 &ndash; <strong>공개 오프셋은 아마 틀렸다</strong>; 아래의 불일치 참고</td>
+<td>P, 이의 있음</td>
+</tr>
+<tr>
+<td><strong>성격</strong></td>
+<td><code>+0x7ae</code></td>
+<td>EUR/USA <code>+0x6CA</code>, JPN <code>+0x594</code> (Q4, Q10)</td>
+<td><code>u8</code>, 기본값 <strong>6</strong></td>
+<td>Q4, Q10</td>
+<td><code>func_02003738</code>이 <code>+0x7a0</code> 기반 블록에 <code>r4[0x0e] = 6</code>을 쓴다</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td><strong>주민 id</strong></td>
+<td><code>+0x7af</code></td>
+<td>EUR/USA <code>+0x6CB</code>, JPN <code>+0x595</code> (Q4, Q10)</td>
+<td><code>u8</code>, <code>0xff</code> = 비어 있음</td>
+<td>Q4, Q10</td>
+<td><code>func_02003738</code>이 <code>r4[0x0f] = 0xff</code>를 쓰고, <code>func_02003648(p)</code>는 <code>p[15]</code>를 반환하는 리프다 &ndash; <code>villagerface.c</code>가 문서화한 읽기 경로</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>고향 마을 id와 이름</td>
+<td><code>+0x7b8</code></td>
+<td>공개되지 않음 (Q4의 "Unknown 4" 안)</td>
+<td><code>u16</code> + UCS-2 6</td>
+<td><strong>없음</strong></td>
+<td><code>func_02081660</code>이 <code>func_020642e0(self + 0x7b8)</code>을 호출한다 &ndash; 뱅크 헤더가 <code>+0x02</code>에서 쓰는 것과 동일한 id-이름 초기화 함수</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x7ce</code></td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+<td><code>func_02081f94(self + 0x7ce)</code></td>
+<td>S</td>
+</tr>
+<tr>
+<td>셔츠</td>
+<td><code>+0x7d2</code></td>
+<td>EUR/USA <code>+0x6EC</code>, JPN <code>+0x5AE</code> (Q4, Q10)</td>
+<td><code>u16</code> 아이템 id</td>
+<td>Q4, Q10</td>
+<td><code>func_02081660</code>이 거기에 리터럴 <strong><code>0x11a8</code></strong>을 쓴다 &ndash; 첫 번째 옷 id</td>
+<td><strong>S+P</strong></td>
+</tr>
+<tr>
+<td>벽지</td>
+<td><code>+0x7d4</code></td>
+<td>EUR/USA <code>+0x6EE</code>, JPN <code>+0x5B0</code> (Q4, Q10)</td>
+<td><code>u8</code></td>
+<td>Q4, Q10</td>
+<td>별도로 건드리지 않음</td>
+<td>P</td>
+</tr>
+<tr>
+<td>카펫</td>
+<td><code>+0x7d5</code></td>
+<td>EUR/USA <code>+0x6EF</code>, JPN <code>+0x5B1</code> (Q4, Q10)</td>
+<td><code>u8</code></td>
+<td>Q4, Q10</td>
+<td>별도로 건드리지 않음</td>
+<td>P</td>
+</tr>
+<tr>
+<td>&ndash;</td>
+<td><code>+0x7d6</code></td>
+<td>Q4 "Unknown 5"</td>
+<td><code>u8</code>, 기본값 <strong>3</strong></td>
+<td>Q4 (이름 없음)</td>
+<td><code>func_02081660</code>이 3을 쓴다</td>
+<td><strong>S, 신규</strong></td>
+</tr>
+<tr>
+<td>우산</td>
+<td><code>+0x7da</code></td>
+<td>EUR/USA <code>+0x6F4</code>, JPN <strong><code>+0x544</code></strong> (Q4, Q10)</td>
+<td><code>u8</code></td>
+<td>Q4, Q10</td>
+<td>별도로 건드리지 않음</td>
+<td>P</td>
+</tr>
+<tr>
+<td>두 번째 마을 id와 이름</td>
+<td><code>+0x7dc</code></td>
+<td>공개되지 않음 (Q4의 "Unknown 6" 안)</td>
+<td><code>u16</code> + UCS-2 6</td>
+<td><strong>없음</strong></td>
+<td>두 번째 <code>func_020642e0(self + 0x7dc)</code></td>
+<td><strong>S, 신규</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>16바이트 "캐릭터 참조"(지어낸 이름).</strong> <code>func_02003738(p)</code>는 같은 포인터에 <code>func_020642e0</code>을
+호출하고 &ndash; 이 함수는 <code>+0</code>의 <code>u16</code>과 <code>+2</code>의 12바이트를 0으로 만든다 &ndash; 그런 다음 <code>p[0x0e] = 6</code>과
+<code>p[0x0f] = 0xff</code>를 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02003738.c</code>, <code>func_020642e0.c</code></span></span>. 따라서 이 블록은
+<code>{ u16 id; char16_t name[6]; u8 personality; u8 species }</code>, 16바이트이며, 주민 레코드는 <code>+0x7a0</code>에
+하나를 내장한다. 같은 블록이 뱅크에 두 번 더, <code>func_02086874</code> 객체 안의 <code>+0x1731a</code>와 <code>+0x1732a</code>에
+나타나므로 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02086874.c</code></span></span>, 이것은 주민 전용 필드가 아니라 재사용 가능한 "어느
+캐릭터인가" 참조다.</p>
+<p><strong>내보낼 가치가 있는 불일치.</strong> Q10은 주민의 K.K. 노래를 레코드 <code>+0x7a4</code>에 두고 접근자를 미조사로
+비활성화한다. <code>+0x7a4</code>는 참조 블록 이름 필드의 세 번째 UCS-2 단위이며, <code>func_020642e0</code>이 12바이트
+문자열의 일부로 0으로 만든다. <code>u8</code> 노래 인덱스가 거기 있을 수 없다. <strong>이 프로젝트의 판독이 더
+강하다</strong>: <code>+0x7a4</code>는 이름 텍스트이고, 노래는 다른 어딘가에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020642e0.c</code>; contradicts Q10</span></span>.</p>
+<p><strong>왜 레코드는 여덟이고 주민은 셋인가.</strong> 배열 자체의 접근자가 인덱스를 8로 제한하고
+(<code>func_0207cf80</code>의 구조체는 <code>arr[8]</code>이며, 매칭된 루프 열두어 개가 스트라이드 <code>0x7ec</code>로 <code>i &lt; 8</code>을
+돈다), <code>func_0207a02c</code>는 여덟 슬롯에 대해 후보 마스크를 만들지만 <strong>여섯</strong> 항목에서 멈춘다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207a02c.c</code></span></span>. 새 마을이 주민 셋으로 시작한다는 <code>game-systems.md</code>의 발견과
+합치면, 세 슬롯을 채우는 8슬롯 루프는 올바른 동작이다.</p>
+<hr />
+<h2 id="6-아이템-id-인코딩-그리고-공개-맵에-대한-두-가지-정정">6. 아이템 id: 인코딩, 그리고 공개 맵에 대한 두 가지 정정</h2>
+<p>공개 대역 맵(Q12)은 <code>game-systems.md</code>에 재수록되어 있다. 저장소가 더할 수 있는 것 세 가지:</p>
+<ul>
+<li><strong><code>0xfff1</code>은 빈 아이템 id이며 ROM은 아이템 슬롯이 만들어지는 모든 곳에 이를 쓴다</strong>: 주민 가구,
+  분실물, 재활용함, 편지 첨부물, 그리고 보관소 두 곳 더. 매칭된 파일 612개에 걸쳐 968번 등장하고
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/</code> census</span></span>, Q12도 동의한다(<code>0xFFF1 -&gt; ItemType::Empty</code>). <strong>S+P.</strong></li>
+<li><strong>옷은 264개가 아니라 256개 id다.</strong> Q12는 옷(Clothes)에 <code>0x11A8-0x12AF</code>를 준다. 스무 개가 넘는
+  매칭된 함수에서 반복되는 ROM 자체의 범위 검사는 <strong><code>0x11a8 &lt;= id &lt;= 0x12a7</code></strong>이고
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207fd1c.c</code>, <code>func_02024ab4.c</code>, <code>func_020272c0.c</code>, <code>func_02029a98.c</code> and ~20 more</span></span>, <code>func_02061e2c</code>는 <code>0x11a8</code>을 더하기 전에 셔츠 인덱스를 <strong><code>0x100</code></strong>으로 클램프한다.
+  <code>0x12a7 - 0x11a8 + 1 = 256</code>, 이는 <code>data/items.md</code>가 센 <code>cloth/</code> 텍스처 256개와 정확히 같다.
+  여분의 id 여덟 개 <code>0x12a8..0x12af</code>는 ROM <strong>자체의 별도 클래스</strong>다: <code>func_020224c4</code>가
+  <code>0x12a8 &lt;= id &lt;= 0x12af</code>를 검사하고 다른 어떤 것도 그러지 않는다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020224c4.c</code></span></span>. 이것은 <code>data/items.md</code>의 열린 "DISAGREES by 8"을 결론짓는다:
+  id 여덟 개, 텍스처 없음, 자체 술어 &ndash; 착용 가능한 플레이어 패턴 여덟 개다.
+  <strong>여기서는 S가 P를 이긴다.</strong></li>
+<li><strong>채집 가능 대역은 56짜리 대역 두 개다.</strong> Q12는 하나의 범위 <code>0x12B0-0x131F</code>(112개 id)를 준다.
+  ROM은 그 범위를 결코 검사하지 않는다; <strong><code>0x12b0..0x12e7</code></strong>과 <strong><code>0x12e8..0x131f</code></strong>를 두 개의 별도
+  술어로, 수십 개의 짝지은 호출 지점에서 검사하고 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0201f858.c</code>, <code>func_0201fa58.c</code>, <code>func_020255d8.c</code>, <code>func_020292b4.c</code>, <code>func_0202c704.cpp</code>, <code>func_0202c5dc.cpp</code> and ~20 more</span></span>, <code>func_0202c2c4</code>는 <code>0x12b0</code>을 더하기 전에 인덱스를
+  <strong>0x38 = 56</strong>으로 클램프한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0202c2c4.c</code></span></span>. 첫 번째가 <code>0x12b0</code>에 기반한
+  56짜리 두 계열 &ndash; 정확히 <code>data/fish-and-bugs.md</code>가 가설로 세운 것이자 P19의 "곤충 먼저, 그다음
+  물고기"가 주장하는 것이다. <strong>그 페이지의 가설을 S+P로 승격하라.</strong></li>
+</ul>
+<p>가구 인코딩은 <code>game-systems.md</code>에서 바뀌지 않았다: 베이스 <code>0x3000</code>, id의 하위 두 비트가
+회전이므로 <code>file_id = (id - 0x3000) &gt;&gt; 2</code> <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">Q12's <code>0xFFFC</code> rotation mask and the <code>0x3000-0x45D8</code> / <code>0x47D8-0x4BA0</code> bands</span></span>. <strong>JS 에디터는 회전을 전혀 구현하지 않는다는 점에
+주목하라</strong>(<code>room.js</code>는 셀을 평평한 <code>u16</code>으로 다룬다). 따라서 회전 주장은 WildEdit의 C++에만 기대고
+있으며 아직 S 출처가 없다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">find a matched function that masks an item id with <code>0xfffc</code> or <code>&amp; 3</code> on the placement path</span></span>.</p>
+<hr />
+<h2 id="7-패턴-레코드-kor-0x234">7. 패턴 레코드 (KOR <code>0x234</code>)</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>KOR</th>
+<th>EUR/USA</th>
+<th>JPN</th>
+<th>크기/타입</th>
+<th>공개</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이미지</td>
+<td><code>+0x000</code></td>
+<td>같음</td>
+<td>같음</td>
+<td><code>0x200</code>바이트, 4비트 32x32, 바이트당 픽셀 두 개</td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>제작자 마을 id</td>
+<td><code>+0x200</code></td>
+<td>같음</td>
+<td>같음</td>
+<td><code>u16</code></td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>제작자 마을 이름</td>
+<td><code>+0x202</code></td>
+<td><code>+0x202</code> 8자</td>
+<td><code>+0x202</code> 6자</td>
+<td>UCS-2 6</td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>제작자 플레이어 id</td>
+<td><code>+0x20e</code></td>
+<td><code>+0x20A</code></td>
+<td><code>+0x208</code></td>
+<td><code>u16</code></td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>제작자 플레이어 이름</td>
+<td><code>+0x210</code></td>
+<td><code>+0x20C</code></td>
+<td><code>+0x20A</code></td>
+<td>UCS-2 6</td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>제작자 성별</td>
+<td><code>+0x21c</code></td>
+<td><code>+0x214</code></td>
+<td><code>+0x210</code></td>
+<td><code>u8</code></td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>패턴 이름</td>
+<td><code>+0x21e</code></td>
+<td><code>+0x216</code> 15자</td>
+<td><code>+0x212</code> 10자</td>
+<td>UCS-2 10</td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+<tr>
+<td>디자인 유형 / 팔레트</td>
+<td><code>+0x232</code></td>
+<td><code>+0x226</code></td>
+<td><code>+0x21C</code></td>
+<td><code>u8</code>: 비트 0-3 팔레트, 4-7 디자인 유형</td>
+<td>Q5, Q19</td>
+<td>P</td>
+</tr>
+</tbody>
+</table></div>
+<p>레코드 크기는 저장소가 확인하는 유일한 행이다: <code>func_02072ce8</code>이 플레이어의 패턴 컨테이너를
+<strong>스트라이드 <code>0x234</code></strong>, 개수 8로 등록한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02072ce8.c</code>; P: Q1, Q3, Q5</span></span>. <strong>스트라이드는 S+P; 내부는 P 전용이다.</strong> 이미지는 32 x 32 4비트 픽셀에
+<code>0x200</code>바이트(<code>32 * 32 / 2 = 512</code>)로 자기 일관적이며, 팔레트는 니블 하나 &ndash; <code>pattern.js</code>가
+렌더링하는 대로 사용 가능한 색 열다섯 개에 투명 하나(Q19)다.</p>
+<p>패턴은 뱅크의 다섯 곳에 나타난다: 플레이어당 여덟 개가 슬롯 <code>+0x0</code>에, 주민당 하나가 레코드
+<code>+0x400</code>에, 에이블 시스터즈 보관소에 여덟 개가 <code>+0x10ad0</code>에, 그리고 마을 깃발 하나가 <code>+0x16ad0</code>의
+객체 안에 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02072ce8.c</code>, <code>func_02081660.c</code>, <code>func_0209ef7c.c</code>; P: Q9, Q10, Q11, Q18</span></span>.</p>
+<hr />
+<h2 id="8-편지-레코드-kor-0x100와-편지-보관소">8. 편지 레코드 (KOR <code>0x100</code>)와 편지 보관소</h2>
+<p><code>func_02066650</code>은 편지 초기화 함수다: <code>0x100</code>바이트를 0으로 만들고 <code>+0xfc</code>의 <code>u16</code>에 <code>0xfff1</code>을
+쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02066650.c</code></span></span>. Q6는 KOR 편지가 <code>0x100</code>바이트이고 첨부 아이템이 <code>+0xFC</code>에
+있다고 말한다. <strong>두 숫자 모두 S+P, 코드 네 줄에서.</strong></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>KOR</th>
+<th>EUR/USA</th>
+<th>JPN</th>
+<th>크기/타입</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>패딩</td>
+<td><code>+0x00</code></td>
+<td>같음</td>
+<td>같음</td>
+<td><code>u32</code></td>
+<td>P</td>
+</tr>
+<tr>
+<td>수신자 마을 id / 이름</td>
+<td><code>+0x04</code> / <code>+0x06</code></td>
+<td><code>+0x04</code> / <code>+0x06</code> (8자)</td>
+<td><code>+0x04</code> / <code>+0x06</code> (6자)</td>
+<td><code>u16</code>, UCS-2 6</td>
+<td>P</td>
+</tr>
+<tr>
+<td>수신자 플레이어 id / 이름</td>
+<td><code>+0x12</code> / <code>+0x14</code></td>
+<td><code>+0x0E</code> / <code>+0x10</code></td>
+<td><code>+0x0C</code> / <code>+0x0E</code></td>
+<td><code>u16</code>, UCS-2 6</td>
+<td>P</td>
+</tr>
+<tr>
+<td>발신자 마을 id / 이름</td>
+<td><code>+0x24</code> / <code>+0x26</code></td>
+<td><code>+0x1C</code> / <code>+0x1E</code></td>
+<td><code>+0x18</code> / <code>+0x1A</code></td>
+<td><code>u16</code>, UCS-2 6</td>
+<td>P</td>
+</tr>
+<tr>
+<td>발신자 플레이어 id / 이름</td>
+<td><code>+0x32</code> / <code>+0x34</code></td>
+<td><code>+0x26</code> / <code>+0x28</code></td>
+<td><code>+0x20</code> / <code>+0x22</code></td>
+<td><code>u16</code>, UCS-2 6</td>
+<td>P</td>
+</tr>
+<tr>
+<td>서두 / 본문 / 맺음</td>
+<td><code>+0x44</code> / <code>+0x58</code> / <code>+0xd8</code></td>
+<td><code>+0x34</code> / <code>+0x4C</code> / <code>+0xCC</code></td>
+<td><code>+0x2C</code> / <code>+0x36</code> / <code>+0x76</code></td>
+<td>UCS-2 10 / 64 / 16단위</td>
+<td>P</td>
+</tr>
+<tr>
+<td>서두 이름 인덱스, 편지지 id, 플래그</td>
+<td><code>+0xf8</code> / <code>+0xf9</code> / <code>+0xfa</code></td>
+<td><code>+0xEC</code> / <code>+0xED</code> / <code>+0xEE</code></td>
+<td><code>+0x86</code> / <code>+0x87</code> / <code>+0x88</code></td>
+<td>각 <code>u8</code></td>
+<td>P</td>
+</tr>
+<tr>
+<td><strong>첨부 아이템</strong></td>
+<td><code>+0xfc</code></td>
+<td><code>+0xF0</code></td>
+<td><code>+0x8A</code></td>
+<td><code>u16</code>, <code>0xfff1</code> = 없음</td>
+<td><strong>S+P</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Q6는 또한 64항목 편지지 id 테이블과 플래그 열거(<code>0x1</code> 생성됨, <code>0x2</code> 안 읽음, <code>0x3</code> 읽음,
+<code>0x4</code>/<code>0x5</code> 병 편지, <code>0x40</code> 엄마에게서 온 것)를 공개하며, 지역 불변이다. 여기 옮기지 않는다;
+Q6를 인용하라.</p>
+<p>편지는 여섯 곳에 있으며, ROM 자체의 초기화 체인은 공개 코퍼스가 이름 붙이지 않은 두 곳을 찾아낸다:
+<strong>뱅크 <code>+0x15954</code>의 편지 열 통</strong>(<code>func_02097fa4</code>가 <code>i &lt;&lt; 8</code>에서 <code>func_02066650</code>을 열 번 호출한 뒤
+<code>+0xa00</code>..<code>+0xa04</code>에 4바이트와 <code>u16</code>을 설정한다)과 <strong>뱅크 <code>+0x11c70</code>의 편지 한 통</strong>
+(<code>func_02090174</code>가 <code>0x950</code>을 memset하고 <code>+0</code>에 편지를 설치한다)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02097fa4.c</code>, <code>func_02090174.c</code>, <code>func_0209ef7c.c</code></span></span>. 공유 편지 슬롯 열 개에
+단일 슬롯 하나는 <strong>우체국 보관분과 대기 중인 엄마의 편지</strong>의 형태다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">both settled by one save-diff after posting a letter</span></span>.</p>
+<p>뱅크 밖에서, Q7은 한국판 편지 보관소를 <strong><code>0x337fc</code></strong>에 두는데, 플레이어 네 명 x <code>0x3200</code>으로
+<strong>각각 편지 50통</strong>을 담고(EUR/USA <code>0x2E20C</code>, 각 75통; JPN <code>0x35BEC</code>, 각 75통), <code>0x3fffe</code>에 자체
+<code>u16</code> 체크섬이 있다. <code>2 * 0x173fc = 0x2e7f8</code>이므로, 이것은 256 KB 칩에서 어느 뱅크에도 속하지
+않는 약 70 KB 안에 자리한다. <strong>한국판은 다른 어떤 지역보다 적은 편지를 보관한다</strong>, 이는 구체적이고
+값싸게 검증할 수 있는 예측이다.</p>
+<hr />
+<h2 id="9-집-방-옷장-상점">9. 집, 방, 옷장, 상점</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>KOR</th>
+<th>EUR/USA</th>
+<th>JPN</th>
+<th>크기/타입</th>
+<th>공개</th>
+<th>등급</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>집 객체</td>
+<td><code>+0xf52c</code></td>
+<td><code>0xE558</code></td>
+<td><code>0xC554</code></td>
+<td>패턴 보관소 포함 <code>0x2744</code></td>
+<td>Q8, Q15</td>
+<td><strong>S+P</strong> (<code>func_0209ef7c</code>가 정확히 공개 베이스에 설치한다)</td>
+</tr>
+<tr>
+<td>방 층 1</td>
+<td>집 <code>+0x000 + slot*2</code></td>
+<td>같음</td>
+<td>같음</td>
+<td>256 x <code>u16</code></td>
+<td>Q16</td>
+<td>P</td>
+</tr>
+<tr>
+<td>방 층 2</td>
+<td>집 <code>+0x200 + slot*2</code></td>
+<td>같음</td>
+<td>같음</td>
+<td>256 x <code>u16</code></td>
+<td>Q16</td>
+<td>P</td>
+</tr>
+<tr>
+<td>카펫 / 벽지 / 노래</td>
+<td>집 <code>+0x448</code> / <code>+0x44a</code> / <code>+0x44c</code></td>
+<td>같음</td>
+<td>같음</td>
+<td>각 <code>u16</code></td>
+<td>Q16</td>
+<td>P</td>
+</tr>
+<tr>
+<td>방 스트라이드, 방 개수</td>
+<td><code>0x450</code>, 방 4개</td>
+<td>같음</td>
+<td>같음</td>
+<td>&ndash;</td>
+<td>Q17</td>
+<td>P</td>
+</tr>
+<tr>
+<td>빚 / 노래 목록 / 집 크기</td>
+<td>집 <code>+0x1590</code> / <code>+0x1594</code> / <code>+0x15a0</code></td>
+<td>&ndash;</td>
+<td>&ndash;</td>
+<td><code>u32</code>, 9바이트, <code>u8 &amp; 7</code></td>
+<td>Q17</td>
+<td>P</td>
+</tr>
+<tr>
+<td>에이블 시스터즈 패턴</td>
+<td><code>+0x10ad0</code></td>
+<td><code>0xFAFC</code></td>
+<td><code>0xDAF8</code></td>
+<td>8 x <code>0x234</code></td>
+<td>Q18</td>
+<td><strong>S+P</strong> (집 객체의 범위가 이 베이스에서 <code>8 * 0x234</code> 뒤에 끝난다)</td>
+</tr>
+<tr>
+<td>옷장</td>
+<td><code>+0x16800</code>, 플레이어당 <code>u16</code> 90개, 스트라이드 <code>0xb4</code></td>
+<td><code>0x15430</code></td>
+<td><code>0x11764</code></td>
+<td>&ndash;</td>
+<td>Q9</td>
+<td><strong>S+P</strong> (스트라이드 네 개가 정확히 다음 멤버에서 끝난다)</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>어떤 공개 출처도 너굴의 일일 재고, 카탈로그 비트 배열, 박물관 기증 기록, 친구 목록을</strong>
+어느 지역에서도 문서화하지 않는다. 그 넷 중 셋은 <code>+0x125c0</code>의 이름 없는 <code>0x3394</code>바이트 객체와
+플레이어 <code>+0x1f5c</code>의 32슬롯 명부의 가장 유력한 후보다.</p>
+<hr />
+<h2 id="10-도구가-이제-하는-일-그리고-픽스처">10. 도구가 이제 하는 일, 그리고 픽스처</h2>
+<p><code>port/tools/savetool.py check</code>는 이전에 뱅크 헤더, 체크섬 판정, 플레이어 슬롯 네 개를 덤프했다.
+이제는 <strong>주민 레코드 여덟 개</strong> &ndash; 슬롯 베이스, <code>0xff</code>를 빈 슬롯으로 출력하는 <code>+0x7af</code>의 id 바이트,
+<code>+0x7ae</code>의 성격 바이트, <code>+0x7d2</code>의 셔츠 id, <code>+0x78c</code>의 가구 id 열 개 &ndash; 도 덤프하고, 몇 슬롯이
+차 있는지 보고한다. 플레이어 덤프에는 <code>+0x243c</code>/<code>+0x243d</code>의 얼굴/머리 니블이 추가되었다. 도구가
+쓰는 모든 오프셋은 위 표의 S+P 또는 P이며, 모듈 docstring이 어느 쪽인지 밝힌다.</p>
+<p><code>port/tools/test_savetool.py</code>에는 <code>build_bank_with_villager()</code> 위에 세운 테스트 세 개가 추가되었다:
+슬롯 3에 주민 <strong>한 명</strong>(id <code>0x65</code>, 성격 2, 셔츠 <code>0x11ab</code>, 가구 id 두 개와 <code>0xfff1</code> 빈 슬롯 여덟 개)을
+써 넣고 나머지 일곱 슬롯에 <code>0xff</code>를 찍은 합성 뱅크다. 기존 픽스처의 규율(<strong>M1</strong>)을 유지한다:
+기대 합 <code>0x99fb</code>와 체크섬 <code>0x6605</code>는 docstring에서 손으로 더해 리터럴로 단언하며, 결코 도구에
+묻지 않는다. 함정 두 개는 주석이 아니라 보정으로 만들어졌다 &ndash; <strong>0으로 채운 배열은 빈 슬롯
+여덟 개가 아니라 주민 0의 사본 여덟 개</strong>이고, <strong>0으로 채운 가구 슬롯은 빈 슬롯이 아니라 아이템
+<code>0x0000</code></strong>이다 &ndash; 그리고 덤프가 0을 부재로 취급하는 순간 테스트는 실패한다.</p>
+<p><strong>픽스처 결과.</strong> <code>python port/tools/test_savetool.py</code> &ndash; <strong>9/9 통과</strong>(기존 테스트 여섯에 새 테스트
+셋). 픽스처 이미지에 대한 <code>check</code>는 두 뱅크 모두에서 <code>villagers occupied: 1 of 8</code>을 보고하고
+레코드 베이스 여덟 개를 <code>0x09284 0x09a70 0x0a25c 0x0aa48 0x0b234 0x0ba20 0x0c20c 0x0c9f8</code>로
+출력한다 &ndash; 이는 Q2의 한국판 주민 테이블과 행 단위로 같으며, 거기서 복사한 것이 아니라 저장소
+자체의 스트라이드에서 생성한 것이다 <span class="cite" data-grade="S+P"><span class="cite-badge"><b class="g g-S" title="소스">S</b><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>src/matched/func_0207cec0.c</code>; Q2</span></span>.</p>
+<hr />
+<h2 id="11-우선순위별-조치">11. 우선순위별 조치</h2>
+<p><strong>지금 할 정정 (실행 불필요).</strong></p>
+<ol>
+<li><strong>A-S1.</strong> <code>save-data.md</code>: <code>func_0209ef7c</code>에서 얻은 뱅크의 최상위 맵을 "뱅크 안에 무엇이
+   있는가" 절로 S 등급에 추가한다. 이 페이지에서 가장 크게 빠진 내용이며 비용은 전혀 들지 않는다
+   &ndash; 함수는 이미 매칭되어 있다.</li>
+<li><strong>A-S2.</strong> <code>save-data.md</code>와 <code>town.md</code>: <code>+0x173f8</code>은 체크섬<strong>이자</strong> 4바이트 트레일러의 머리다;
+   <code>+0x173fa</code>는 <code>func_0209f180</code>이 2와 같기를 요구하는 <strong>쓰기 진행 중 마커</strong>(세이브 중 28, 완료 시
+   2)다. 두 페이지 모두 이를 말하지 않는다.</li>
+<li><strong>A-S3.</strong> <code>town.md</code>: "96x96" 가설을 완전히 삭제한다. <code>func_0204ea40</code>은 에이커 바이트 36개와
+   0x200바이트 아이템 블록 열여섯 개를 채운다 &ndash; 4,096셀, 에이커 우선, 그리고 <code>0x86</code>이 미설정
+   에이커 값이다. 가설 세 개가 함수 하나에서 닫힌다.</li>
+<li><strong>A-S4.</strong> <code>data/items.md</code>: 옷은 <code>0x11a8..0x12a7</code>(256개)이고, <code>0x12a8..0x12af</code>는 ROM 자체의
+   별도 8개 id 클래스다. 채집 가능 대역은 112짜리 하나가 아니라 56짜리 두 대역이다. 둘 다 공개
+   맵을 이기는 S 판독이다.</li>
+<li><strong>A-S5.</strong> <code>villagers.md</code>: 레코드의 <code>+0x7a0</code> 블록은 기본값 6과 <code>0xff</code>를 가진 16바이트
+   <code>{id, 6 UCS-2 name, personality, species}</code> 참조다; <code>+0x7b8</code>과 <code>+0x7dc</code>에 id-이름 블록이
+   두 개 더 있다; 그리고 공개된 "<code>+0x7a4</code>의 노래"는 맞을 수 없다.</li>
+<li><strong>A-S6.</strong> <code>player.md</code>: <code>func_02099ad0</code>에서 얻은 슬롯 맵을 추가하고, 지갑이 컨테이너 체인이
+   <code>+0x1c10</code>에 남긴 8바이트 틈에 있음을 기록한다.</li>
+</ol>
+<p><strong>실험, 값싼 것부터.</strong></p>
+<ul>
+<li><strong>A-E1 (실행 불필요).</strong> <code>func_020a1224</code> &ndash; <code>func_020a03e0</code>이 트레일러를 2로 찍기 직전에 하는
+  호출 &ndash; 를 읽어 <code>0xb9fe</code>회 반복 워드 스트라이드 누산을 찾는다. ROM이 공개된 체크섬을 계산할 만한
+  유일한 장소이며, 이를 찾으면 Q13이 P에서 S+P로 옮겨 간다.</li>
+<li><strong>A-E2 (실행 불필요).</strong> <code>func_0209ef10</code>, 즉 <code>func_0209ef7c</code>가 오프셋들 앞에서 도는 4회 반복
+  루프를 읽어, 오프셋 목록이 다루지 않는 다섯 번째 플레이어별 구조를 찾는다.</li>
+<li><strong>A-E3 (실행 1회).</strong> 마을 레시피에 걸쳐 <code>0x021f3ba4</code>(= <code>+0x173f4</code>)의 플래그 비트 여섯 개를
+  <code>ACWW_WATCH</code>한다. 이름 붙은 비트 번호 여섯 개는 호출 지점에서 이미 알려져 있다; 어느 것이 어느
+  프레임에 뒤집히는지 보면 이름이 붙는다.</li>
+<li><strong>A-E4 (실행 1회 + <code>savetool check</code>).</strong> 세이브를 저장한 뒤 <code>check</code>를 실행하고, 주민 행 여덟 개를
+  생성 중에 <code>port/shim/game/villpick.c</code>가 기록한 것과 대조해 확인한다. 이것은 레이아웃 전체의 첫
+  번째 종단 간 테스트이며 새 코드가 필요 없다.</li>
+<li><strong>A-E5 (실행 1회).</strong> 게이트 또는 무선 이벤트 전후로 플레이어 <code>+0x1f5c</code>..<code>+0x23df</code>(32 x <code>0x24</code>
+  명부)를 diff한다. 바뀐다면 공개된 플레이어 레코드에서 가장 큰 이름 없는 블록에 이름이 붙는
+  것이고, 그것은 새로운 공개 결과다.</li>
+<li><strong>A-E6 (정적).</strong> A-S1이 기대는 RAM-세이브 항등식을 확인한다: <code>ACWW_WATCH 0x021dc7a8</code>을 실행하고
+  쓰기 후 <code>ACWW_SAVE</code> 이미지의 바이트 0과 비교한다.</li>
+</ul>
+<h2 id="12-관련-문서">12. 관련 문서</h2>
+<ul>
+<li><code>game-systems.md</code> &ndash; 첫 번째 패스, 그 P1-P32를 이 페이지의 Q1-Q20이 아래로 확장한다.</li>
+<li><code>data-formats.md</code> 8절 &ndash; 체크섬, 지역 테이블, UCS-2 발견 사항.</li>
+<li><code>../systems/save-data.md</code>, <code>../systems/player.md</code>, <code>../systems/villagers.md</code>,
+  <code>../systems/town.md</code>, <code>../data/items.md</code> &ndash; A-S1..A-S6가 작용하는 페이지들.</li>
+<li><code>../experiments/save-store-probe.md</code> &ndash; 모든 세이브 관측에 필요한 레시피.</li>
+<li><code>port/tools/savetool.py</code>, <code>port/tools/test_savetool.py</code> &ndash; 도구와 그 픽스처.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/data-formats.html"><small>◀ 이전</small>감사(audit): 공개 사양 대비 데이터 포맷</a><a class="pn next" href="../audits/hardware-services.html"><small>다음 ▶</small>감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#방법-그리고-sp-등급">방법, 그리고 S+P 등급</a><ul><li><a href="#공개-출처">공개 출처</a></li></ul></li><li><a href="#1-뱅크의-최상위-맵-rom이-공개한다">1. 뱅크의 최상위 맵 &ndash; ROM이 공개한다</a></li><li><a href="#2-뱅크-헤더와-트레일러">2. 뱅크 헤더와 트레일러</a></li><li><a href="#3-플레이어-레코드-kor-0x249c-0x14에-슬롯-4개">3. 플레이어 레코드 (KOR 0x249c, +0x14에 슬롯 4개)</a></li><li><a href="#4-마을-에이커-아이템-그리드-매장-아이템">4. 마을: 에이커, 아이템 그리드, 매장 아이템</a></li><li><a href="#5-주민-레코드-kor-0x7ec-0x9284에-레코드-8개">5. 주민 레코드 (KOR 0x7ec, +0x9284에 레코드 8개)</a></li><li><a href="#6-아이템-id-인코딩-그리고-공개-맵에-대한-두-가지-정정">6. 아이템 id: 인코딩, 그리고 공개 맵에 대한 두 가지 정정</a></li><li><a href="#7-패턴-레코드-kor-0x234">7. 패턴 레코드 (KOR 0x234)</a></li><li><a href="#8-편지-레코드-kor-0x100와-편지-보관소">8. 편지 레코드 (KOR 0x100)와 편지 보관소</a></li><li><a href="#9-집-방-옷장-상점">9. 집, 방, 옷장, 상점</a></li><li><a href="#10-도구가-이제-하는-일-그리고-픽스처">10. 도구가 이제 하는 일, 그리고 픽스처</a></li><li><a href="#11-우선순위별-조치">11. 우선순위별 조치</a></li><li><a href="#12-관련-문서">12. 관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

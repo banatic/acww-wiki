@@ -89,7 +89,7 @@ RTC 전진"이 오고, 그 뒤에 `func_020a1038`의 세이브 삭제 경로를 
 
 펌웨어 자체의 생일 필드(사용자 설정 레코드의 `+0x03`에 있는 `birthMonth`, `+0x04`에 있는
 `birthDay`)는 게임이 읽으며, 그래서 포트는 이를 0으로 두지 않고 유효한 날짜를 공급하며 그렇게
-밝히고 있다 [S: port/shim/boot/usersettings.c].
+밝히고 있다 [H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe].
 
 ## 어디에 있는가
 
@@ -131,14 +131,14 @@ RTC 전진"이 오고, 그 뒤에 `func_020a1038`의 세이브 삭제 경로를 
 `port/shim/game/spnpc.c`는 게이트 전체를 하나의 압축된 워드로 출력한다. 거절한 이유(0 준비됨,
 1 게이트가 거부, 2 실내, 3 모드 `0x2c`), 게이트 비트, 네 개의 하위 결과, 실내/실외 바이트, 모드를
 포함하며, 변화가 있을 때만 출력하므로 한 번도 움직이지 않는 실행은 한 줄만 출력한다
-[S: port/shim/game/spnpc.c]. 그 옆에서 `acww intro:`는 플레이어 포인터, 비트필드 두 워드, 플래그 1,
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. 그 옆에서 `acww intro:`는 플레이어 포인터, 비트필드 두 워드, 플래그 1,
 모드를 출력한다
-[S: port/shim/game/spnpc.c]. 둘 다 `ACWW_TRACE_STATE=1`이 필요하다
-[S: port/shim/game/spnpc.c].
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. 둘 다 `ACWW_TRACE_STATE=1`이 필요하다
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe].
 
 스케줄이 아니라 달력을 시험하려면, `ACWW_RTC_*` 계측 도구로 시계를 설정하고 자정을 넘겨 스텝하면
 된다. `ACWW_RTC_TIME=000000`은 "값이 주어지지 않음"과 명시적으로 구별된다
-[S: port/platform/win32.c, port/shim/os/rtcclock.c].
+[H: host/prose inference from port/platform/win32.c, port/shim/os/rtcclock.c; verify against the ROM function or symbol table and this page's recipe].
 
 ## 가설
 

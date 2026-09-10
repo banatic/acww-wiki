@@ -116,6 +116,111 @@ sky [E: `docs/log/cycle40-keyboard-gate-probe.md` SKY40, `tap-D57`]. Affine back
 20.8 reference point at `+0x20` for BG2 and `+0x30` for BG3
 [S: `port/render/nds2d.c`, `draw_affine_bg`, written to GBATEK; E: same run].
 
+### What the port's renderer does, and what it costs
+
+Everything above is the hardware the ROM programs. `port/render/` is the software that answers
+it: `nds2d.c` composites the two 2D engines, `nds3d.c` decodes the geometry FIFO and `raster3d.c`
+rasterises. Two units on 2026-09-09 measured that renderer for the first time -- one for speed
+and one for fidelity -- and the rules they were judged by are different and both worth knowing.
+
+**Speed (PERF42, `fbfc987d`): the port had been built at `-O0`.** `port/tools/link.py`'s
+`GEN_FLAGS` named no `-O` flag at all, so the whole port was compiled at clang's default. Adding
+`-O2 -fwrapv -fno-strict-aliasing` for `port/render/` ALONE took the draw phase from 26.7 ms to
+7.25 ms in one link, byte-exact; the interpreter and the shim stay at `-O0` until they have an
+exactness harness of their own [E: `docs/kb/hybrid/render-perf.md` section 4a]. The remaining
+gain came from taking work out of per-pixel loops with exactness arguments: span attribute
+deltas hoisted, 32-bit multiplies where provably safe, attributes interpolated only where
+needed, the span parameter by carried long division, the depth test as `z >= D*q`, the VRAMCNT
+decode resolved once per configuration behind a validation, the palette converted once per
+layer, text BGs a tile at a time, colour effects per line and skipped where inert
+[E: same, sections 4b-4d].
+
+The rule this unit was judged by is stricter than the fidelity one: **a performance change may
+not move a pixel at all** -- SHA-256 identity, not a correlation. The OFF recipe's 31 frames
+cleared 31/31 at **every one of seven intermediate links**, so a rejection would have named its
+own change rather than a pile of them, and the town recipe cleared 11/11 unpaced and 11/11 paced
+[E: `scratchpad/perf42/exactness-off-*.json`, `exactness-town.json`,
+`exactness-town-paced.json`].
+
+| recipe | draw before | draw after | fps unpaced before -> after |
+|---|---|---|---|
+| OFF (the taxi), frames 4,200..9,000 | 26.45 ms | **7.29 ms** | 30.0 -> **77.1** |
+| town, frames 27,000..30,000 | 22.57 ms | **6.17 ms** | 34.8 -> **91.7** |
+
+[E: `docs/kb/hybrid/render-perf.md` section 5; `scratchpad/perf42/runs/`.] The paced live run
+holds 59.82 Hz with the window open, and `town-paced`'s 11 frames are SHA-256 identical to the
+unpaced run's -- so pacing changes when frames happen and not what any contains [E: same].
+
+**The instrument is `ACWW_FRAMETIME=1`, and it now names a PHASE.** It already printed
+`draw / blit / game / other`; it prints, per 2D engine and per 600 frames, `hblank`, `fill`,
+`text`, `affine`, `3d`, `obj`, `fx` and `lit`, plus the 3D rasteriser's five sub-phases
+(`clear`, `opaque`, `trans`, `count`, `merge`) with polygons, span pixels visited and span pixels
+written [E: `docs/kb/hybrid/render-perf.md` section 2]. That report **corrected a published
+reading**: LIVE41's "the 2D renderer is the next performance target" was wrong about which
+renderer -- the 3D rasteriser was 21.1 of the 26.5 ms [E: same, section 3; the LIVE41 numbers are
+in `docs/kb/hybrid/recipes.md` section 7b, kept as that unit's before-column]. It is still 86%
+of the draw after the work: 6.29 ms for 317,427 span pixels is about 20 ns per span pixel
+[E: same, section 6].
+
+**Fidelity (RENDER42, `b1080164`): two rules corrected, one measured inert.** The pass rule here
+is that **the OFF recipe may not lose ncc on ANY of its 31 frames** -- a change that raises the
+mean while lowering one frame is rejected [E: `docs/kb/hybrid/render-fidelity.md` section 1].
+
+- **P10 -- the colour special effects run in the 5-bit domain.** GBATEK's blend and brightness
+  formulae are five-bit intensities clamped at 31; `chan_mix` and `brighten` had been operating
+  on the 8-bit channels `bgr555()` expands to and clamping at 255, a systematically higher
+  result by up to 7/255 per channel per blended pixel. They now go back down with `>>3`, do the
+  arithmetic, clamp at 31 and expand again [P: GBATEK, *LCD I/O Color Special Effects*;
+  E: `../audits/hardware-services.md` P10]. **Measured INERT on every oracle frame these recipes
+  reach** -- the effect states they hit are the ones where the two domains agree -- so the
+  fixture is the whole of the evidence, and it grew three cases that SEPARATE the domains
+  (EVA=9/EVB=7 over red-on-blue is 143 in 8-bit arithmetic and **140** in hardware's):
+  `port/tools/test_nds2d_blend.py`, 27 checks, 2 calibrations caught
+  [E: `docs/kb/hybrid/render-fidelity.md` section 3].
+- **F6 -- texture-coordinate transform modes 2 and 3.** Both are three-term forms on the raw
+  10-bit normal (shift 21) and the 20.12 position (shift 24), so the texture matrix's translation
+  row never enters; the port ran the full 4x4 with `v[3] = FX_ONE` and a net shift of 20 against
+  a normal the NORMAL command has already scaled `<< 3` -- 16x too large, with a spurious
+  translation. **Exactly one polygon of 458 at OFF frame 6,000 uses mode 2**: the framed picture
+  on the taxi's wall, a 32x32 format-5 material at screen x 164..195. It drew black with coloured
+  stripes, which is what a coordinate 16x too large samples out of a 32x32 image; it now draws
+  the landscape the oracle draws [E: `scratchpad/render42/picture-frame-before-after.png`;
+  `../audits/3d-engine.md` F6]. Whole-frame OFF: mean ncc-top **0.9774 -> 0.9807**, mae
+  7.43 -> 7.31, **0 frames worse**; town `tap-24700` 0.9987 -> 0.9991
+  [E: `scratchpad/render42/off-final.json`, `tapfinal-24700.json`]. Fixture:
+  `port/tools/test_nds3d_texmtx.py`, 5 checks, 2 calibrations, one of which asserts the pre-F6
+  answer and must be caught.
+- **Rejected with numbers, and kept implemented and off**: `ACWW_SAMPLE_INT=1`, which samples at
+  the pixel's integer coordinate as both emulators do rather than at the pixel centre. It moves
+  mean mae 7.31 -> 6.66 and ncc-top 0.9807 -> 0.9833, and **loses whole-frame ncc on 9 of 31
+  frames**. It is half of a pair -- the emulators also quantise the VERTEX position -- so the
+  next experiment is the other half, not a relaxed threshold [E: `off-sampleint` vs `off-final`,
+  `docs/kb/hybrid/render-fidelity.md` section 4]. P11 (a semi-transparent OBJ on the brightness
+  path) was measured with a population of **zero** on both recipes and deliberately NOT made
+  [E: `../audits/hardware-services.md` P11].
+**The BACKDROP changes on almost every SCANLINE, and that is the sky's gradient**
+[E: RENDER43, `ACWW_REGDUMP=37500` on the two-tap town recipe,
+`scratchpad/render43/regdump-town37500.txt`]. At town frame 37,500 engine B's BG palette entry 0
+runs `0x7084` at line 0 to `0x79e4` at line 176 in twelve steps — 5-bit green 4 → 15, red fixed
+at 4, blue 28 → 30 — while entries 1..31 never change. It is a single halfword written per line
+from the ROM's HBlank handler, not a palette DMA. `BLDCNT = 0x2042` names BG1 as the first target
+and the BACKDROP as the second, and `BLDALPHA` ramps `0x0010` → `0x1000` over lines 150..167, so
+the sky layer is faded into that per-line backdrop toward the horizon. Anything that draws this
+screen from an end-of-frame palette gets a flat sky
+[S: `port/render/nds2d.c`, `capture_line_regs` and `fill_backdrop`;
+`docs/kb/hybrid/render-fixes.md` fix P14].
+
+**The 3D layer is BG0 and is scrolled by BG0HOFS** — a 512-pixel region, 256 of image then 256
+transparent [H: host/prose inference from GBATEK, DS 3D Final 2D Output; `port/render/raster3d.c`,
+`acww_nds3d_compose_x`; verify against the ROM function or symbol table and this page's recipe]. MEASURED: ACWW writes `BG0HOFS = 0` at OFF frame 6,000 and at town
+37,500, so it is inert on every frame either proof set reaches.
+
+**SWAP_BUFFERS is not executed until VBlank and halts the geometry engine until then**
+[S: GBATEK, DS 3D Display Control]. A frame therefore carries AT MOST ONE swap; the port used to
+honour every one, and the acre-ground dropout was nineteen swaps in a frame discarding eighteen
+display lists [H: host/prose inference from `port/render/nds3d.c`, `case 0x50`;
+`docs/kb/hybrid/render-fixes.md` fix F15; verify against the ROM function or symbol table and this page's recipe].
+
 ## Where it lives
 
 | function or symbol | module | role | grade/citation |
@@ -185,13 +290,44 @@ above the town hall [E: same log, SKY40, run `tap-D57`]. At frame 37,500 the tow
 
 Two instruments are specific to this page. `ACWW_TEXTRACE_FRAME` with a decimal
 `ACWW_TEXTRACE_INDEX` dumps one polygon's texture provenance, bounded by the 2,048-polygon list
-[S: `docs/kb/port/render.md`, texture provenance]. `ACWW_OAMDUMP=<frame>` dumps both OAM tables
-and is not gated on `ACWW_TRACE_STATE` [S: `docs/kb/port/render.md`, OAM cursor table].
+[H: host/prose inference from `docs/kb/port/render.md`, texture provenance; verify against the ROM function or symbol table and this page's recipe]. `ACWW_OAMDUMP=<frame>` dumps both OAM tables
+and is not gated on `ACWW_TRACE_STATE` [H: host/prose inference from `docs/kb/port/render.md`, OAM cursor table; verify against the ROM function or symbol table and this page's recipe].
 `ACWW_NOBLEND=1` disables the colour special effects so a blend can be isolated
-[S: `port/render/nds2d.c`].
+[H: host/prose inference from `port/render/nds2d.c`; verify against the ROM function or symbol table and this page's recipe].
 
 ## Hypotheses
 
+- **The 3D layer sits about a pixel up and left of the oracle's, and it is a fill rule rather
+  than the texture algebra.** A per-quadrant sub-pixel fit on the taxi's top screen gives the
+  SAME translation in all four quadrants -- dx +1.00, dy +1.00..+2.00 -- which is a translation,
+  not a scale, and it moves mae 15.08 -> 7.03 at OFF frame 6,000; the bottom screen, which is 2D,
+  fits at (0, 0), so the offset belongs to the 3D layer alone. The diff image is a thin outline
+  on every textured edge, which is what a sub-pixel displacement looks like and not what a wrong
+  colour looks like [E: `scratchpad/render42/shiftfit.py`,
+  `scratchpad/render42/off006000-top-A-B-D.png`]. Settled by measuring the OTHER half of the
+  emulators' pair -- quantising the vertex position to a whole pixel -- under the same 31-frame
+  rule, not by translating the layer (`ACWW_3DBIAS_X/_Y` does that and loses ncc on 2-3 frames).
+- **The town's sky has no vertical gradient, and the whole-frame renderer may be unable to see
+  why.** At frame 37,500 the oracle's sky ramps in GREEN from 5-bit 4 at the top of the screen to
+  9 near the horizon with blue 28 -> 29 and red fixed at 4; the port's sky is a flat (4, 4, 28)
+  everywhere -- the oracle's TOP row held for the whole screen. Red being identical rules out a
+  brightness effect, which moves all three channels; the shape is an alpha blend against roughly
+  (4, 31, 31), or a per-line palette [O: `scratchpad/render42/d63-37500.png`]. `capture_line_regs`
+  already runs the ROM's HBlank handler once per line for the affine and effect registers and
+  does NOT capture the palette. Settled by an INSTRUMENT first, not a code change: record BG
+  palette entry 0 and BLDCNT/BLDALPHA per line at a chosen frame. (Compare the sky by structure,
+  not by pixel position: the cloud positions differ because the port is one dialogue step ahead.)
+- **The acre ground drops out intermittently, and the 3D pipeline is running while it does.**
+  17 of 1,160 lower screens over six GAMEPLAY42 runs are 45-99% the single colour `0x2184FF` --
+  the 3D layer's clear blue -- sometimes with the buildings and the player still drawn correctly
+  over the gap, and one more is 99% flat dark green; the door-transition blacks are separate and
+  expected. A stop dump during a 320-frame instance is a HOLD profile with
+  `G3dDrawInternal_Loop_`, `NNS_G3dGeBufferOP_N`, `NNSi_G3dFuncSbc_MAT` and `NNSi_G3dFuncSbc_SHP`
+  at the top -- **the pipeline is being fed while nothing lands on screen** -- with no
+  `unimplemented`, no fault, and normal play afterwards
+  [E: `docs/log/cycle41-gameplay.md` GP42-6; `scratchpad/gameplay42/ground-gap.png`]. It fails at
+  the acre TERRAIN first and sometimes takes the whole scene. Settled by an oracle arm over one
+  reproducing frame range, plus a GX submission count for the acre's own polygons across the gap.
 - **The clear-image (rear-plane bitmap) path is never used by this game.** `DISP3DCNT` bit 14 is
   noted but not implemented in the port, yet `func_ov001_0222e4dc` does call
   `GX_SetBankForClearImage` [S: `port/render/raster3d.c`; `src/matched/GX_SetBankForClearImage.c`].
@@ -218,6 +354,11 @@ and is not gated on `ACWW_TRACE_STATE` [S: `docs/kb/port/render.md`, OAM cursor 
 ## Related
 
 - `../data/archives.md` — the `nsb*` resource containers.
+- `../audits/hardware-services.md` P10-P13 — the 2D claims table and the fixes' status rows.
+- `../audits/3d-engine.md` — the 3D claims table and F1-F13.
+- `../audits/night-2026-09-09.md` — where RENDER42 and PERF42 sit in the night's index.
+- `docs/kb/hybrid/render-perf.md`, `docs/kb/hybrid/render-fidelity.md` — the implementation
+  pages: every number above, the phase table, and the two pass rules in full.
 - `../data/rom-layout.md` — where the model, texture and menu assets live.
 - `text-and-messages.md` — glyphs, which are drawn through the same 2D engines.
 - `display-objects.md`, `memory-map.md` — the framework and the arenas around this pipeline.

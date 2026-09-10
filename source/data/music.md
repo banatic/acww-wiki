@@ -98,7 +98,9 @@ town-tune editor [S: `extract/adm-kr/arm9_overlays/ov143.bin`, path literals;
 
 ### Sound in the port
 
-The port has no audio. The ROM's sound stack does run on the interpreter path, and running it is
+With `ACWW_SND=1` the interpreter path produces music and sound effects; the retained PCM
+capture is `scratchpad/audio7/on/capture.wav` [E: `scratchpad/audio7/on`, 9,000 frames;
+`docs/kb/hybrid/audio.md` sections 1 and 8(a)]. The ROM's sound stack runs on the interpreter path, and running it is
 what exposed the geometry defects fixed by GX40: with the sound stack active the top screen
 stayed black while the geometry engine received about 1,400 vertices a frame and drew none
 [E: `docs/log/cycle40-keyboard-gate-probe.md` GX40]. `func_0205401c` also writes bit 15 of `POWCNT1` at `0x04000304`, from a global the
@@ -160,8 +162,8 @@ Expected: `b'SDAT' (10704768, 64, 3)`, `SYMB 0x0 0 -`, `INFO 0x40 24712 b'INFO'`
 `FAT  0x60c8 24188 b'FAT '`, `FILE 0xbf44 10655804 b'FILE'`, then the eight counts in the table
 above.
 
-There is no live check yet: the port produces no audio [S: `docs/kb/port/input-save-audio.md`,
-which the router lists as "why there is no sound yet"].
+For the measured audio recipe and its PCM checks, see `../systems/audio.md` and
+`docs/kb/hybrid/audio.md` section 8(a) [E: `scratchpad/audio7/on`, 9,000 frames].
 
 ## Hypotheses
 

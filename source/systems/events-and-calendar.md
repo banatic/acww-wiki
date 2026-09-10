@@ -90,7 +90,7 @@ three and reads `0x021d27c0` [S: func_020842b8, main, port/shim/game/eventgate.c
 
 The firmware's own birthday fields -- `birthMonth` at `+0x03`, `birthDay` at `+0x04` of the
 user-settings record -- are read by the game, which is why the port supplies a valid date
-rather than leaving them zero and says so [S: port/shim/boot/usersettings.c].
+rather than leaving them zero and says so [H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe].
 
 ## Where it lives
 
@@ -132,14 +132,14 @@ All rows are S, cited from the files in the previous table.
 `port/shim/game/spnpc.c` prints the whole gate as one packed word -- why it declined (0 staged,
 1 gate said no, 2 interior, 3 mode `0x2c`), the gate bit, the four sub-results, the
 indoor/outdoor byte and the mode -- and only on a change, so a run that never moves prints one
-line [S: port/shim/game/spnpc.c]. Beside it, `acww intro:` prints the player pointer, both
+line [H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. Beside it, `acww intro:` prints the player pointer, both
 bitfield words, flag 1 and the mode
-[S: port/shim/game/spnpc.c]. Both need `ACWW_TRACE_STATE=1`
-[S: port/shim/game/spnpc.c].
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. Both need `ACWW_TRACE_STATE=1`
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe].
 
 To exercise the calendar rather than the schedule, set the clock with the `ACWW_RTC_*`
 instruments and step across a midnight; `ACWW_RTC_TIME=000000` is explicitly distinguished
-from "no value given" [S: port/platform/win32.c, port/shim/os/rtcclock.c].
+from "no value given" [H: host/prose inference from port/platform/win32.c, port/shim/os/rtcclock.c; verify against the ROM function or symbol table and this page's recipe].
 
 ## Hypotheses
 

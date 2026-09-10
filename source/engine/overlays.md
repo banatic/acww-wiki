@@ -57,7 +57,7 @@ and CALL each word in it — the overlay's C++ static initialisers
 [S: `port/shim/fs/ovlreloc.c` header, and the walk at `:243-258`]. Those words are NDS
 addresses in a freshly copied image, which is exactly how the first overlay call presented on
 the port as a jump into raw ARM code at `0x02266905`
-[E: `port/shim/fs/ovlreloc.c` header]. An overlay carries at most a couple of hundred of
+[H: host-source account from `port/shim/fs/ovlreloc.c` header; verify with a retained scripted run and frame using this page's recipe]. An overlay carries at most a couple of hundred of
 them; the interpreter path reads up to 256 [S: `port/shim/fs/ovlreloc.c:206-212`].
 
 There is also an authentication block: `FSi_CompareDigest` checks the image against a digest

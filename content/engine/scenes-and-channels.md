@@ -19,7 +19,7 @@
 `func_020a6688`이고 게터는 `func_020a6684`인데, 게터는 매 스텝마다 호출되므로
 머신의 틱을 보는 유일한 장소다 [S: `port/shim/game/scenestate.c:30-40`].
 관측된 상태의 순서는 16, 그다음 0, 1, 2, 그리고 위로 올라간다
-[E: `port/shim/game/scenestate.c` header, from the port's `acww scenest:` trace].
+[H: host-source account from `port/shim/game/scenestate.c` header, from the port's `acww scenest:` trace; verify with a retained scripted run and frame using this page's recipe].
 
 상태 16의 본체 전체는 하나의 가드다: 씬 id `data_020e3c80`이
 5와 같지 않으면 반환한다 [S: `port/shim/game/scenestate.c:31-34`]. 따라서 하나의 상태를 설정하고 멈추는
@@ -36,7 +36,7 @@
 지운다 [S: `port/shim/game/scene6init.c` header].
 
 스테이지 4는 채널을 여는 서브스테이지 목록이다
-[E: `port/shim/game/chanvector.c` header, narrowed by elimination on the native path].
+[H: host-source account from `port/shim/game/chanvector.c` header, narrowed by elimination on the native path; verify with a retained scripted run and frame using this page's recipe].
 스테이지 5는 `func_020b0b00`을 실행하는데, 이는 리소스 항목을 순회하며 각 항목에 대해
 `data_020e41ec[e->b0]`를 디스패치하는 루프다; 0을 반환하는 핸들러는 "끝나지 않았으니 다음 프레임에
 다시 오라"는 뜻이다 [S: `func_020b0b00`, main, `port/shim/game/stageloop.c` header, body from
@@ -123,7 +123,7 @@ ROM은 전역 변수의 값을 역참조하고, 인덱싱하고, 호출 전에 �
 `func_020edbbc`에 전달되는 서로 다른 핸들러 id의 집합이 곧 한 부팅이 여는 채널의 집합인데,
 첫 번째 인자가 테이블을 인덱싱하는 id이기 때문이다
 [S: `port/shim/game/chanopen.c:40-56`]. 지금까지 이름이 붙은 id: 채널 1은 타이틀 씬
-[E: `port/shim/gfx/dispjoin.c` header]; 채널 13은 마을의 지면으로, 레코드는
+[H: host-source account from `port/shim/gfx/dispjoin.c` header; verify with a retained scripted run and frame using this page's recipe]; 채널 13은 마을의 지면으로, 레코드는
 `0x02239a2c`에 있고 생성자 `func_ov003_0221fe10`은 vtable 슬롯 0에 에이커 모델 및 텍스처 로더를
 가진다 [S: `port/shim/game/chanopen.c:41-45`]; 채널 189의 객체는 `0x022382ac`의 vtable 슬롯 9에
 모델 그리기를 가지며, 포트의 심 헤더들이 여전히 부르는 이름인 필드 렌더러가 아니라
@@ -212,7 +212,7 @@ E: `port/BOOT-STATE.md:1159-1171`]; 채널 0x22는 마을 채널
 
 "채널 목록이 짧다"와 "순회가 프레임 예산을 다 썼다"를 구분하려면, 출력된 개수를
 `acww chanstage` 줄의 수와 비교한다 — 순회는 40 ms로 제한되며
-다음 프레임에 재개된다 [S: `port/shim/game/chanlist.c` header].
+다음 프레임에 재개된다 [H: host/prose inference from `port/shim/game/chanlist.c` header; verify against the ROM function or symbol table and this page's recipe].
 
 ## 가설
 

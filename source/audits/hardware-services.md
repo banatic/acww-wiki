@@ -6,10 +6,31 @@ BIOS — was checked against GBATEK, the public NitroSDK source mirror and emula
 Thirty-one claims were checked. Twenty-two agree with the public record, six disagree, three
 are unspecified. The six disagreements are small, local and each has a named fix; two of them
 (CpuFastSet's rounding and the VBlank flag on line 262) are outright wrong against a quoted
-spec sentence, and one (the stylus latency) is the port's largest measured divergence from the
-original and is a design choice rather than a bug. No decompilation of Animal Crossing exists
+spec sentence, and one (the stylus latency) was the port's largest measured divergence from the
+original and a design choice rather than a bug -- **now closed**: fix P1 landed in TOUCH41 and
+TOUCH42, and the port and the original order a same-frame press and tap the same way
+[E: `scratchpad/cycle40/runs/tap-T42b`] [O: `scratchpad/oracle/tap-window`;
+`../experiments/touch-latency.md`]. No decompilation of Animal Crossing exists
 publicly; a full NitroSDK and NitroSystem source tree does, and it can name a large fraction of
 what this repo still calls `func_XXXXXXXX`.
+
+**Status of the fixes, 2026-09-10.** Four of the thirteen have landed or closed since this
+audit was written, and one hypothesis it did not raise was closed by a unit outside it. The
+per-item Status paragraphs below are authoritative; this table is the index.
+
+| item | status | where |
+|---|---|---|
+| **P1** stylus latency | **LANDED** (TOUCH41 `d1fb25b7`, TOUCH42 `4edc3f6b`) -- applied in a stronger form: the ARM7's samples land AFTER the ROM's VBlank handler | `../experiments/touch-latency.md`, H1 below |
+| **P10** 5-bit colour effects | **LANDED, MEASURED INERT on every oracle frame** (RENDER42 `b1080164`); the fixture is the whole of the evidence | P10 below |
+| **P11** semi-transparent OBJ | **MEASURED INERT, NOT MADE** (RENDER42): the population is zero on both recipes, so the guard could only be dead code | P11 below |
+| **P13** cite the PXI constants | **PARTLY OVERTAKEN** (RTC42 `ef890990`): tag 5 is now answered from the SDK's own semantics rather than paraphrased, and the tag table's RTC row is grade S; tags 6 and 8 still carry the hard-coded bit positions this item is about | `../systems/time-and-rtc.md`; H5 below |
+| P2, P3, P4, P5, P6, P7, P8, P9, P12 | **OPEN**, unchanged | below |
+| not an item here: the port's exit codes | **SETTLED** (STAB42 `0bc59cc0`): `acww.exe` cannot exit 1; an exit 1 is an external `TerminateProcess` | `../experiments/run-stability.md` |
+**Status, RENDER43 (2026-09-10).** One new row and one new landed fix, both about the same
+thing: **the BACKDROP is not a per-frame constant.** Row **F5b** and fix **P14** — ACWW rewrites
+BG palette entry 0 on almost every scanline, and that single halfword is the town sky's vertical
+gradient. The audit had checked what the effects unit does with the backdrop and never asked
+whether the backdrop itself moves.
 
 **Method.** Read at commit `470df4ac`. Public sources were fetched, not remembered; each row
 below names the URL and the heading on that page. No code was copied from any source. The game
@@ -32,7 +53,7 @@ Verdict is **agrees** / **disagrees** / **unspecified** (the public record does 
 | A2 | Calibration is a two-point linear map from ADC counts to pixels | GBATEK, same page, "Converting ADC Position to Screen Position": `scr.x = (adc.x-adc.x1) * (scr.x2-scr.x1) / (adc.x2-adc.x1) + (scr.x1-1)` | agrees | nothing — but note the **`-1`** term; the round trip pixel→ADC→pixel is not the identity, which is the documented reason a tap comes back one pixel off |
 | A3 | The one-pixel offset measured on the oracle (221,181 in → 222,182 out) is an artefact of the emulator converting pixels to ADC counts and `TP_GetCalibratedPoint` converting back [`input-and-touch.md`, "The port and the original disagree"] | melonDS [`src/SPI.cpp`](https://github.com/melonDS-emu/melonDS/blob/master/src/SPI.cpp), TSC `SetTouchCoords`: the host coordinates are stored as `TouchX <<= 4`, i.e. pixel×16, with no calibration inverse at all | agrees, with a correction | The emulator does **not** invert the firmware calibration — it multiplies by 16. The ±1 therefore comes from `TP_GetCalibratedPoint`'s own reciprocal-and-shift against a calibration that does not have slope exactly 16. Say so on the wiki page instead of "converts screen pixels to raw ADC counts" |
 | A4 | The original delivers a tap 1–2 frames later than the port, and holds it one frame longer [`input-and-touch.md`; ORACLE42] | melonDS `src/SPI.cpp`: "no delay between setting touch coordinates and ARM7 readability" — the emulator adds none | agrees, and the cause is now named | The latency is **entirely the ROM's own ARM7 + PXI + `func_020e9314` chain**, not emulator lag. That makes it reproducible in the port. See fix **P1** |
-| A5 | ACWW runs a nine-entry ring at "a sampling period of 4" [`input-and-touch.md`, "The stylus"] | NitroSDK, [`include/nitro/spi/ARM9/tp.h`](https://github.com/ntrtwl/NitroSDK/blob/main/include/nitro/spi/ARM9/tp.h): `TP_RequestAutoSamplingStartAsync(u16 vcount, u16 frequence, TPData bufs[], u16 bufSize)` with `TP_SAMPLING_FREQUENCY_MAX` | unspecified (header carries no comment) | The second argument is `frequence`, not a period. With 16 the documented maximum and ACWW passing 4, the natural reading is **four samples per frame**, which makes the nine-entry ring 2.25 frames deep and makes `func_020e9314`'s "last four entries" exactly one frame's worth. Reword the page and mark it H until the ARM7 side is read |
+| A5 | ACWW runs a nine-entry ring at "a sampling period of 4" [`input-and-touch.md`, "The stylus"] | NitroSDK, [`include/nitro/spi/ARM9/tp.h`](https://github.com/ntrtwl/NitroSDK/blob/main/include/nitro/spi/ARM9/tp.h): `TP_RequestAutoSamplingStartAsync(u16 vcount, u16 frequence, TPData bufs[], u16 bufSize)` with `TP_SAMPLING_FREQUENCY_MAX` | unspecified (header carries no comment) | The second argument is `frequence`, not a period. With 16 the documented maximum and ACWW passing 4, the natural reading is **four samples per frame**, which makes the nine-entry ring 2.25 frames deep and makes `func_020e9314`'s "last four entries" exactly one frame's worth. **Settled (TOUCH41)**: the ARM7 side was read in the public `libraries/spi/src/ARM7/tp/tp_sampling.c` and the port now drives four samples a VBlank; `input-and-touch.md` reads "four samples a frame" |
 | A6 | `validity` is an error code and 0 means the sample is good | NitroSDK `tp.h`: `TP_VALIDITY_VALID`, `TP_VALIDITY_INVALID_X`, `_INVALID_Y`, `_INVALID_XY` | agrees | nothing |
 | A7 | `TPCalibrateParam` is an origin plus a per-axis dot size | NitroSDK `tp.h`: `struct NvTpData { s16 x0, y0, xDotSize, yDotSize; }` | agrees | nothing |
 
@@ -97,6 +118,7 @@ Verdict is **agrees** / **disagrees** / **unspecified** (the public record does 
 | F3 | A semi-transparent OBJ (attr0 mode 1) is always a first target and always uses alpha blending | GBATEK, same page: *"OBJs that are defined as 'Semi-Transparent' in OAM memory are always selected as 1st Target (regardless of BLDCNT Bit 4), and are always using Alpha Blending mode (regardless of BLDCNT Bit 6-7)"* | agrees on the first half, **disagrees** on the second | `apply_color_effects`' third branch can apply *brightness* to a semi-transparent OBJ when the layer below is not a second target and OBJ happens to be a BLDCNT first target. GBATEK's "regardless of Bit 6-7" says it should not. Emulators differ here. Fix **P11**, low priority |
 | F4 | The blend consumes the visible pixel and the one directly below it | GBATEK, same page (the first/second target pair) | agrees | nothing. The two-deep owner record in `nds2d.c` is the right shape |
 | F5 | The backdrop is inert as a first target for alpha | — | agrees by construction | nothing |
+| F5b | *(RENDER43, new)* The backdrop is BG palette entry 0, read ONCE per frame [`nds2d.c`, the fill, as read at `6081a9a1`] | GBATEK, [LCD I/O BG Control](https://problemkaputt.de/gbatek-lcd-i-o-bg-control.htm) and the palette map: entry 0 is the backdrop and is ordinary palette RAM, writable at any time — including from an HBlank handler | **disagreed — FIXED (P14, RENDER43)** | ACWW rewrites entry 0 on almost every scanline and that IS the town sky's vertical gradient: engine B at town frame 37,500 runs `7084` at line 0 to `79e4` at line 176, 5-bit green 4 → 15, while entries 1..31 never move (`ACWW_REGDUMP`, `scratchpad/render43/regdump-town37500.txt`). `struct LineRegs` now carries `bd` and `fill_backdrop` paints per line. Fixture `port/tools/test_nds2d_backdrop.py`; `ACWW_FLATBD=1` keeps the old arm |
 | F6 | Affine BG matrix entries PA..PD are signed 8.8 | GBATEK, [LCD I/O BG Rotation/Scaling](https://problemkaputt.de/gbatek-lcd-i-o-bg-rotation-scaling.htm): *"Bit 0-7 Fractional portion (8 bits); Bit 8-14 Integer portion (7 bits); Bit 15 Sign"* | agrees | nothing |
 | F7 | The reference point is 20.8 with the sign in bit 27 [`nds2d.c:770`; `wiki/engine/graphics-pipeline.md`] | GBATEK, same page: *"Bit 0-7 Fractional (8); Bit 8-26 Integer portion (19 bits); Bit 27 Sign; Bit 28-31 Not used"* | agrees, wording aside | The field is **19.8 plus sign**, i.e. 28 bits signed — which is exactly what `sext(v, 28)` does. Correct the "20.8" wording on the graphics page to "28-bit signed, 8 fractional bits" |
 | F8 | Per-scanline the layer is sampled at `ref + PB*y` (row) and `+PA*x` (column) [`draw_affine_bg`] | GBATEK, same page: *"The above reference points are automatically copied to internal registers during each vblank … The internal registers are then incremented by dmx and dmy after each scanline"* | agrees | nothing. `x0 + pb*y` is algebraically the accumulation, exactly, as long as the game does not write BGxX mid-frame |
@@ -144,6 +166,18 @@ Each names the file, the function, what the spec says, what the code does, and h
 **Fix.** Keep a small shift register of the last three frames' contact state inside `func_020e9314`. Publish `touch = 1` only when all three are down (onset delayed two frames) and hold `touch = 1` for one frame after the newest sample goes up (release delayed one frame). Do it behind `ACWW_TOUCH_LATENCY=0|1` defaulting **off** for one cycle so every existing measurement stays comparable, then flip the default.
 
 **Verify.** The fixture already exists. Re-run the 24,600 recipe — the one that diverged before ORACLE42 moved it to 24,700 — with the latency modelled, and compare against `scratchpad/oracle/tap-fullpad` at frame 25,500. Success is the port failing to confirm the town name exactly as the original does. This is the open hypothesis at the end of `wiki/systems/input-and-touch.md` and this fix is its experiment.
+
+**Status (TOUCH41, d1fb25b7).** Applied in a stronger form than the fix above: instead of a shift
+register inside the transcription, the ROM's own `func_020e9314` runs (touch.c denied on the
+interpreter path) and `port/shim/os/pxisend.c` fills the ARM7's ring four samples a VBlank
+with the ARM7's pen-up encoding (validity INVALID_XY). Measured one frame of latency
+(contact 8,700 → TP_POINT 8,701) [E: `scratchpad/cycle40/runs/tap-T41pd`]. The verify step
+is **negative** so far: the 24,600 recipe still confirms where the original does not
+[E: `tap-T41h`] [O: `scratchpad/oracle/tap-window`]; the 24,700 recipe scores 0.9986
+[E: `tap-T41i`]. **Closed by TOUCH42**: delivering the four samples after the ROM's VBlank handler (the
+hardware's order) makes the 24,600 recipe stay on the keyboard like the original
+[E: `tap-T42b`] [O: `scratchpad/oracle/tap-window`, ncc 0.9981 over 24,000..27,000]
+[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42].
 
 ### P2 — DISPSTAT's VBlank line range, V-count match and HBlank (`port/interp/interp_boot.c`, `dispstat_load`)
 
@@ -235,6 +269,21 @@ Each names the file, the function, what the spec says, what the code does, and h
 
 **Verify.** `port/render/selftest.c` already has a blend fixture (SKY40 records it passing). Add three cases with hand-computed 5-bit expected values: EVA=9/EVB=7 over two known BGR555 colours, EVY=5 increase, EVY=5 decrease. Then re-run the ncc comparison at the nine sampled frames of `tap-D62` against `scratchpad/oracle/tap-24700` and check the mean does not fall.
 
+**Status: LANDED (RENDER42), AND MEASURED INERT ON EVERY ORACLE FRAME.** `chan_mix` and
+`brighten` now go down to 5 bits with `>>3`, do the arithmetic, clamp at 31 and expand with
+`(c<<3)|(c>>2)`. The fixture is `port/tools/test_nds2d_blend.py`, not `selftest.c`: its
+`mix`/`brighter`/`darker` were rewritten into the 5-bit domain and the three cases the
+paragraph above asks for were added -- 27 checks and both calibrations caught. Each of the
+three SEPARATES the domains (EVA=9/EVB=7 over red-on-blue is 143 in 8-bit arithmetic and 140
+in hardware's), so the fixture fails on the pre-P10 renderer.
+The pixels did not move: the OFF recipe's 31 frames and the town recipe's 42 are
+**byte-identical** before and after [H: `scratchpad/cycle40/runs/off-base42` vs `off-p10`,
+`tap-base42` vs `tap-p10`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. The reason is that the effect states these recipes reach are the
+ones where the two domains agree -- `EVY` at 0 or 16, and alpha blends one of whose operands
+is black -- so the bias needs a mid-range coefficient over two non-zero colours to show. The
+fixture is therefore the whole of the evidence
+[S: `docs/kb/hybrid/render-fidelity.md` section 3].
+
 ### P11 — a semi-transparent OBJ should never take the brightness path (`port/render/nds2d.c`, `apply_color_effects`)
 
 **Spec.** GBATEK, same page: semi-transparent OBJs *"are always using Alpha Blending mode (regardless of BLDCNT Bit 6-7)"*.
@@ -244,6 +293,18 @@ Each names the file, the function, what the spec says, what the code does, and h
 **Fix.** Guard the brightness branch with `!own_semi[i]`. Low priority and worth measuring first: emulators disagree with GBATEK's literal sentence here, and the port's counters already separate the two populations (`px_obj_semi` vs `px_bright`).
 
 **Verify.** Read `px_obj_semi` and `px_bright` from a town run first. If `px_bright` is zero on semi-transparent pixels the change is inert and should not be made.
+
+**Status: MEASURED INERT, NOT MADE (RENDER42).** The port draws no attr0-mode-1 sprite at all
+on either recipe, so the population the fix would move is empty and the guard could only be
+dead code. `nds2d: colour special effects` reports `semi-transparent OBJ=00000000` and
+`semi-transparent sprites with a non-identity EVA/EVB=00000000` at the end of the OFF recipe
+[H: `scratchpad/cycle40/runs/off-base42`; receipt lost with its worktree; repeat the named recipe and retain the stated frames] and of the 48,000-frame town recipe
+[E: `scratchpad/cycle40/runs/tap-D63`], while `brightness (modes 2/3)` counts 2.8M and 5.0M
+pixels respectively -- the two populations are cleanly separated and the semi one is zero.
+This closes as a negative: the guard is correct against the quoted sentence and must not be
+added on that ground alone, because nothing here can exercise it and an untestable branch is
+a liability. Reopen only if a scene is found whose `px_obj_semi` is nonzero
+[S: `docs/kb/hybrid/render-fidelity.md` section 3].
 
 ### P12 — GXSTAT: set the empty bit and stop erasing the FIFO-IRQ mode (`port/render/nds3d.c`, `gxstat_update`)
 
@@ -264,6 +325,36 @@ Each names the file, the function, what the spec says, what the code does, and h
 **Fix.** Read both headers, name the constants in the comment, and promote the tag table from E to S with the header as the citation. If the PXI data field turns out to be narrower than bit 25, the touch reply word is wrong in a way that currently cannot bite only because the port calls the callback directly.
 
 **Verify.** Documentation and comment; then one run to confirm no `acww pxi:` line changed.
+
+**Status: PARTLY OVERTAKEN (RTC42, `ef890990`).** Tag 5 is no longer a paraphrase: `pxisend.c`
+answers it the SDK's own way, packing `RTCRawDate`/`RTCRawTime` into the system work at
+`0x027ffde8` and delivering `command << 8 | RTC_PXI_RESULT_SUCCESS` **inside the send**, because
+`RtcWaitBusy` is an assembly spin with no yield and `RTC_GetDateTimeAsync` arms lock, buffers and
+callback BEFORE sending -- the opposite of tag 6's rule, and both directions are forced by the
+ROM's own code rather than chosen [S: `src/matched/RtcWaitBusy.c`,
+`src/matched/RTC_GetDateTimeAsync.c`; E: `../systems/time-and-rtc.md`]. `port/tools/test_rtc.py`
+statically checks that the raw block is written at that address and that tag 5 is dispatched. The
+item is NOT closed: tags 6 and 8 still carry the hard-coded `1<<25`, `1<<24` and `0x8000`, and
+the tag table is still grade E for them.
+### P14 — the backdrop is per SCANLINE (`port/render/nds2d.c`, `capture_line_regs` and `fill_backdrop`) — **LANDED, RENDER43**
+
+**Spec.** BG palette entry 0 is the backdrop, and it is ordinary palette RAM: the game may write
+it from its HBlank handler, and ACWW does, on almost every line.
+
+**Code, before.** `capture_line_regs` snapshotted BLDCNT/BLDALPHA/BLDY and the BG2/BG3 affine
+parameters per line (SKY41) and read the PALETTE once, at draw time — after all 192 handler calls
+had run, so the whole frame was painted with **line 191's** backdrop.
+
+**Fix.** `struct LineRegs` carries `bd`; `fill_backdrop` paints the backdrop and resets the owner
+record together, a line at a time, from it. `own_reset` is gone (one caller, and two ways to say
+what the backdrop is could disagree).
+
+**Verify — DONE.** OFF recipe 31/31 SHA256-identical (the taxi's backdrop does not move per line);
+of the town run's 141 stills only the nine outdoor ones change; tap-town 37,500 ncc-top −0.0957 →
++0.1058 and mae 29.50 → 22.39; the ORACLE44 walk-out set's 27 outdoor frames mean ncc-top 0.1544
+→ 0.2679 and mae 27.92 → 22.85, **no frame worse on any metric**. Fixture
+`port/tools/test_nds2d_backdrop.py`, 12 checks and 2 calibrations. Full write-up and the register
+dump: `docs/kb/hybrid/render-fidelity.md` section 3.
 
 ---
 
@@ -306,10 +397,16 @@ this audit for naming SDK-layer functions this repo still calls `func_XXXXXXXX`:
 
 ## 4. Hypotheses this audit raises
 
-- **H1.** The 1–2 frame stylus lag is fully explained by "three consecutive good samples at four
-  samples a frame". Settled by P1: if modelling exactly that reproduces the original's refusal at
-  24,600 and its acceptance at 24,700, the mechanism is right and `input-and-touch.md`'s standing
-  open question closes.
+- **H1. SETTLED (TOUCH42), with a correction.** Modelling "three consecutive good samples at
+  four samples a frame" reproduces one frame of latency [E: `scratchpad/cycle40/runs/tap-T41pd`,
+  contact 8,700 -> `TP_POINT` 8,701] but was **not by itself enough**: with the samples
+  delivered before the ROM's VBlank handler the port still confirmed the town name at 24,600
+  [E: `tap-T41h`] [O: `scratchpad/oracle/tap-window`]. The second half of the mechanism is the
+  ORDER: the handler samples the pad, so a same-frame press and tap reach the game press-first
+  only when the samples arrive after it -- the hardware's order. With that, 24,600 behaves as
+  the original does [E: `tap-T42b`, ncc 0.9981 over 24,000..27,000] and 24,700 still agrees
+  [E: `tap-T42c`, ncc 0.9987] [O: `scratchpad/oracle/tap-24700`]. See
+  `../experiments/touch-latency.md`.
 - **H2.** No layer in ACWW rewrites `BGxX`/`BGxY` outside VBlank, which is what makes
   `draw_affine_bg`'s closed form exact. Settled by an `ACWW_INTERP_WATCH` on `0x04000038` and
   `0x0400003C` over the town recipe, reporting any write whose synthetic VCOUNT is under 192.
@@ -326,6 +423,7 @@ this audit for naming SDK-layer functions this repo still calls `func_XXXXXXXX`:
 
 - `../engine/graphics-pipeline.md`, `../engine/threads-and-interrupts.md`
 - `../systems/input-and-touch.md`, `../systems/time-and-rtc.md`, `../systems/audio.md`
+- `../experiments/touch-latency.md` — the experiment page for P1, with the recipe of all three arms
 - `../../docs/kb/hybrid/hardware-services.md` — the implementation-side page these claims come from
 - `../../docs/rules/D-defects.md` — D12 (a name encoding a mistyped target) is the class C2 belongs to
 - `../../docs/rules/M-method.md` — M1 (suspect the measurement) is why row B4 reads as it does

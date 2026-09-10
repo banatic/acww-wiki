@@ -80,12 +80,19 @@
 <li><a href="./engine/file-system.html">파일 시스템</a></li>
 <li><a href="./engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="./engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="./engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="./experiments/index.html">실험</a></summary><ul>
 <li><a href="./experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="./experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="./experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="./experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="./experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="./experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="./experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="./experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="./experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="./experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="./experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="./experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="./audits/consistency.html">일관성 감사</a></li>
 <li><a href="./audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="./audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="./audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="./audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="./audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="./audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="./audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="./audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li class="active"><a href="./glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,7 +124,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>용어집</span></div><header class="page-head"><h1>용어집</h1><div class="source-line">원문: <code>wiki/glossary.md</code> (영문, 기록 문서)</div></header><div class="md"><p>위키 전반에서 사용되는 용어로, 각각 그것을 정의하는 함수나 주소를 함께 적는다.</p>
+    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>용어집</span></div><header class="page-head"><h1>용어집</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span></div><div class="source-line">원문: <code>wiki/glossary.md</code> (영문, 기록 문서)</div></header><div class="md"><p>위키 전반에서 사용되는 용어로, 각각 그것을 정의하는 함수나 주소를 함께 적는다.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -145,9 +155,24 @@
 <td><code>func_02084af0</code>; cleared by <code>func_ov050_02262628</code>, <code>func_ov068_0226e948</code></td>
 </tr>
 <tr>
+<td>도착 단계 (arrival step)</td>
+<td>플레이어가 이사 시퀀스에서 어느 단계까지 도달했는지. 따로따로 측정된 두 가지를 게이트한다: 패드 입력을 버리는 튜토리얼 일러스트와, 주민이 그려지는지 여부. <strong>이사 모드</strong> 워드는 그중 세이브 프롬프트가 읽는 부분이다</td>
+<td><code>0x021f3c30</code>; <code>wiki/systems/villagers.md</code>, <code>wiki/systems/save-data.md</code></td>
+</tr>
+<tr>
 <td>카테고리 니블 (category nibble)</td>
 <td>16비트 아이템 id의 상위 4비트; 배치 게이트는 3과 4를 받아들인다</td>
 <td><code>func_0204bcdc</code> (main)</td>
+</tr>
+<tr>
+<td>카드 페이지 (card page)</td>
+<td><code>CARDi_RequestStreamCommandCore</code>가 모든 백업 전송을 잘라 넣는 256바이트 단위. 세이브 전체는 744페이지이고, <code>func_020a1d94</code>의 512바이트 스텝은 두 페이지다</td>
+<td><code>src/matched/CARDi_RequestStreamCommandCore.c</code>; <code>wiki/systems/save-data.md</code></td>
+</tr>
+<tr>
+<td>캡처 유닛 (capture unit)</td>
+<td>DS의 두 사운드 캡처 유닛 중 하나로, 믹서(또는 한 채널)를 메인 RAM에 되쓴다. ACWW는 둘 다 가동하며, 재생 채널 1과 3이 읽는 것과 같은 두 버퍼를 겨냥한다 &ndash; 이것이 유사 서라운드가 동작하는 방식이다</td>
+<td><code>SETUP_CAPTURE</code> (command id 17); <code>port/shim/audio/capture.c</code>; <code>wiki/systems/audio.md</code></td>
 </tr>
 <tr>
 <td>채널 (channel)</td>
@@ -210,14 +235,34 @@
 <td><code>0x021f6cf0</code>; filled by <code>func_020bbf0c</code></td>
 </tr>
 <tr>
+<td>이사 모드 (move-in mode)</td>
+<td>세이브 프롬프트가 읽는 워드: 1 또는 2는 거부(<code>sp_etc_sequence4</code> 메시지 4), 0은 실제 세이브 메뉴를 허용한다. ov147의 이사 단계들이 0이 아닌 값으로 쓰고, 도착이 끝나면 <code>func_020a128c</code>가 다시 0으로 되돌린다 &ndash; 접근자는 모두 열 개</td>
+<td><code>0x021f3c30</code>; <code>func_0209f6e4</code>, <code>func_020a128c</code>; <code>wiki/systems/save-data.md</code></td>
+</tr>
+<tr>
 <td>오라클 (oracle)</td>
 <td>같은 레시피 아래에서 포트와 비교되는 DeSmuME 레퍼런스</td>
 <td><code>port/tools/oracle/</code></td>
 </tr>
 <tr>
+<td>출력 선택자 (output selector)</td>
+<td><code>SOUNDCNT</code>의 각 스피커가 무엇을 듣는지에 대한 선택: 믹서, 또는 채널 1/3 직접. ACWW는 <code>OUTPUT_SELECTOR 1 2 1 1</code>을 보낸다 &ndash; 왼쪽은 Ch1에서, 오른쪽은 Ch3에서, 둘 다 믹서를 우회 &ndash; 그래서 스피커는 캡처 경로의 복사본을 한 버퍼 늦게 듣는다</td>
+<td>command id 25; <code>port/shim/audio/capture.c</code>; <code>wiki/systems/audio.md</code></td>
+</tr>
+<tr>
 <td>멤버 함수 포인터 (PMF)</td>
 <td>CodeWarrior의 멤버 함수 포인터로, 8바이트 <code>{lo, hi}</code> 쌍으로 저장된다</td>
 <td><code>port/shim/game/memptr.c</code>; e.g. villager draw at <code>obj + 0x8b0</code></td>
+</tr>
+<tr>
+<td>패드 스크립트 (pad script)</td>
+<td><code>ACWW_PADSCRIPT</code>가 읽는 타임라인 파일: 한 줄에 한 행, 패드는 <code>&lt;frame&gt; &lt;mask&gt; &lt;frames&gt;</code>, 스타일러스는 <code>&lt;frame&gt; T &lt;x&gt; &lt;y&gt; &lt;frames&gt;</code>. 겹치는 패드 행은 OR로 합쳐지고, 스타일러스 행은 처음 일치하는 것이 이긴다. 프레임 0부터 패드를 소유하므로, 부팅 실행은 부팅 키 단계들을 행으로 다시 구성해야 한다</td>
+<td><code>port/platform/hostinput.c</code>; <code>docs/kb/hybrid/recipes.md</code> 4b; <code>wiki/experiments/gameplay-walkthrough.md</code>. The oracle takes the same file (<code>--padscript</code>)</td>
+</tr>
+<tr>
+<td>페이서 (pacer)</td>
+<td>포트를 NDS 고유의 59.8261 Hz(33.513982 MHz / 560190 사이클)에 붙들어 두는 프레임 리미터. 스크립트된 것이라면 기본 OFF &ndash; <code>ACWW_KEYS*</code>/<code>ACWW_TOUCH*</code>/<code>ACWW_SHOT*</code> 변수나 <code>ACWW_STOP_FRAME</code>이 있는 경우 &ndash; 이고, 두 프레임 넘게 뒤처지면 질주하는 대신 기준을 다시 잡는다</td>
+<td><code>port/platform/frame.c</code>; <code>ACWW_PACE</code>/<code>ACWW_NOPACE</code>; <code>wiki/experiments/live-play.md</code></td>
 </tr>
 <tr>
 <td>플레이어 슬롯 (player slot)</td>
@@ -286,8 +331,13 @@
 </tr>
 <tr>
 <td>거부 목록 (deny list)</td>
-<td><code>interp_registry.py</code>가 등록을 거부하는 49개의 심 basename으로, 인터프리터 경로에서는 이들에 대해 ROM 자체의 본체가 실행된다</td>
-<td><code>port/tools/interp_registry.py</code>, <code>DENY_FILES</code> (plus <code>DENY_FUNCS = {func_020b1b84}</code>)</td>
+<td><code>interp_registry.py</code>가 등록을 거부하는 51개의 심 basename으로, 인터프리터 경로에서는 이들에 대해 ROM 자체의 본체가 실행된다 (TOUCH41이 <code>touch.c</code>를 추가하기 전까지는 49개; RTC42가 <code>rtcclock.c</code>를 추가해 레지스트리를 93 -&gt; 90으로 만든 이후 51개)</td>
+<td><code>port/tools/interp_registry.py</code>, <code>DENY_FILES</code> (plus <code>DENY_FUNCS = {func_020b1b84}</code>), counted at <code>2e579f09</code></td>
+</tr>
+<tr>
+<td>차등 검사 (differential check)</td>
+<td>함수별 승격 테스트: 실제 실행이 하는 호출들을 기록하고, 각각을 같은 호출 전 페이지에서 두 번 재생한 뒤 &ndash; 한 번은 인터프리터로, 한 번은 네이티브 본체로 &ndash; 반환값과 최종 상태의 쓰기 집합을 비교한다. 일치는 기록된 호출들에 대해서만 근거가 된다</td>
+<td><code>port/tools/promote.py</code>, <code>port/interp/interp_record.c</code>; <code>wiki/engine/interpreter-path.md</code>; <code>docs/kb/hybrid/promotion.md</code></td>
 </tr>
 <tr>
 <td>디스플레이 오브젝트 (display object)</td>
@@ -310,9 +360,24 @@
 <td><code>wiki/experiments/off-recipe.md</code>; <code>docs/kb/hybrid/recipes.md</code> section 2</td>
 </tr>
 <tr>
+<td>승격 (promotion)</td>
+<td><code>src/matched/</code> 본체를 ROM의 바이트 대신 핫 패스에 되돌려 놓는 것(하이브리드 계획 단계 H5). 승격은 등록이 아니다: 일치한다는 것은 그 함수가 호스트 코드여야 하는지에 대해 아무것도 말해 주지 않는다</td>
+<td><code>port/tools/promote_record.py</code>; <code>docs/kb/hybrid/promotion.md</code>; <code>wiki/engine/interpreter-path.md</code></td>
+</tr>
+<tr>
 <td>PXI 태그 (PXI tag)</td>
 <td>ARM9-ARM7 FIFO의 번호 붙은 채널: 4 NVRAM, 5 RTC, 6 터치, 7 사운드, 8 전원, 10 무선, 11/14 카드</td>
 <td>callback table <code>0x027e0394 + tag*4</code>; <code>PXI_SetFifoRecvCallback</code> (autoload_2)</td>
+</tr>
+<tr>
+<td>샘플링 링 (sampling ring)</td>
+<td><code>gAutoData</code>, ARM7이 프레임당 네 샘플씩 채우는 아홉 항목의 <code>TPData</code> 링; 게임의 프레임당 공개는 그 마지막 네 항목을 읽는다</td>
+<td><code>0x021fbdf0</code>; installed by <code>func_020e948c</code> via <code>TP_RequestAutoSamplingStartAsync(0, 4, &amp;gAutoData, 9)</code>; <code>wiki/experiments/touch-latency.md</code></td>
+</tr>
+<tr>
+<td>세이브스테이트 (savestate)</td>
+<td>한 프레임에서의 실행 스냅샷: 매핑된 NDS 영역 일곱 개(4 KB 페이지, 제로 비트맵), 이름 붙은 호스트 블롭(SAVE41에서 113개, RTC42가 시계를 추가한 이후 <strong>20개 등록자에서 118개</strong>), 그리고 살아 있는 스레드당 인터프리터 레지스터 파일 하나로, 헤더가 링크를 고정하고 다른 빌드를 거부한다</td>
+<td><code>port/platform/state.c</code>; <code>ACWW_STATE_SAVE</code> / <code>ACWW_STATE_LOAD</code>; <code>wiki/experiments/savestate-resume.md</code>; <code>docs/kb/hybrid/savestate.md</code></td>
 </tr>
 <tr>
 <td>스텝 게이트 (step gate)</td>
@@ -326,8 +391,13 @@
 </tr>
 <tr>
 <td>TP_POINT</td>
-<td>ROM 자체가 공개하는 터치 포인트, <code>{x, y, touch, validity}</code>; <code>0xffff, 0xffff</code>는 터치 없음</td>
+<td>ROM 자체가 공개하는 터치 포인트, <code>{x, y, touch, validity}</code>; 터치된 샘플이 없으면 x=y=<code>0x00ff</code>를 공개한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020e9314</code>, autoload_2, <code>config/adm-kr/arm9/autoload_2/symbols.txt</code>; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41</span></span></td>
 <td><code>0x021fbde8</code>, written by <code>func_020e9314</code> (autoload_2), read by <code>func_020b9280</code></td>
+</tr>
+<tr>
+<td>유효성 (validity)</td>
+<td><code>TPData</code>의 네 번째 하프워드: 오류 코드이므로 <strong>0이 샘플이 정상이라는 뜻</strong>이다. 3은 <code>TP_VALIDITY_INVALID_XY</code>로, 펜이 떨어져 있을 때 ARM7이 x=y=0과 함께 쓰는 값이다</td>
+<td><code>TP_GetCalibratedPoint</code>, autoload_2; NitroSDK <code>include/nitro/spi/ARM9/tp.h</code>; <code>wiki/systems/input-and-touch.md</code></td>
 </tr>
 <tr>
 <td>VBlank 태스크 리스트 (VBlank task list)</td>

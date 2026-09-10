@@ -30,15 +30,14 @@ pass; nothing under `systems/` is unwritten now.
 
 | page | what it answers |
 |---|---|
-| [`time-and-rtc.md`](time-and-rtc.md) | the RTC request protocol, the BCD decode, the day catch-up loop, the tick timer, and why the port's clock is fixed at 2005-06-15 10:00:00 |
-| [`save-data.md`](save-data.md) | the 256 KB flash, the two `0x173fc`-byte banks, request types 6/7/9, the 256-byte page loop, and the port's opt-in `ACWW_SAVE` store |
+| [`time-and-rtc.md`](time-and-rtc.md) | the RTC request protocol, the BCD decode, the day catch-up loop, the tick timer, and the port's frame-driven clock (it ADVANCES since RTC42; 2005-06-15 10:00:00 is the boot instant, not a freeze) |
+| [`save-data.md`](save-data.md) | the 256 KB flash, the two `0x173fc`-byte banks, request types 6/7/9, the 256-byte page loop, the port's opt-in `ACWW_SAVE` store, and the save the game writes itself once the move-in mode word clears |
 | [`input-and-touch.md`](input-and-touch.md) | the two pad registers and the `0x2fff` mask, the nine-entry touch ring, the calibration, `TP_POINT` at `0x021fbde8`, and the measured one-pixel / one-to-two-frame difference from the original |
 | [`rng.md`](rng.md) | three unrelated LCGs with their constants, both entropy sources, and the fact that the gameplay generator has not been found |
 | [`network.md`](network.md) | the local-wireless and Wi-Fi Connection stacks, what `ov065` is made of, friend codes, and why the port answers all of it with "no service" |
-| [`audio.md`](audio.md) | the one 10.7 MB archive, the PXI tag-7 command protocol, the shared-work layout, and why nothing plays |
+| [`audio.md`](audio.md) | the one 10.7 MB archive, the PXI tag-7 command protocol, the shared-work layout, and the host ARM7 driver that plays it (`ACWW_SND=1`) |
 
-Every page here has a Hypotheses section and links to a page under `../experiments/`. Of the
-seven experiment pages, three are run (`off-recipe`, `two-tap-town-recipe`,
-`touch-calibration`) and four are designed and labelled "not yet run" (`rtc-hour-sweep`,
-`save-store-probe`, `rng-determinism`, `silent-audio-probe`)
+Every page here has a Hypotheses section and links to a page under `../experiments/`. The
+experiment index is `../experiments/README.md`, which splits them into run and designed-not-yet-
+run; nine are run as of 2026-09-10 and three are still designed
 [S: `../experiments/README.md`, its two tables].

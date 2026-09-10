@@ -44,7 +44,7 @@ which the game unloads an overlay
 [E: docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, `tap-D55`]. The keyboard consumes
 the FIRST stylus tap as a PAD-to-stylus mode switch, so a single tap never confirms; two taps
 inside the window do [E: docs/log/cycle40-keyboard-gate-probe.md TAP40, `tap-D55`]
-[S: port/shim/input/touch.c]. The same behaviour was reproduced on the DeSmuME reference for
+[H: host/prose inference from port/shim/input/touch.c; verify against the ROM function or symbol table and this page's recipe]. The same behaviour was reproduced on the DeSmuME reference for
 the first keyboard, which is what settled that the port was not wrong about it
 [O: docs/log/cycle40-keyboard-gate-probe.md ORACLE41, `scratchpad/oracle/tap-fullpad`
 frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
@@ -64,9 +64,27 @@ value preserved when neither claims the frame
 switch decoded from the halfword offset table at `0x0200ddd8`
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c].
 
+**Leaving a building does not read a door table: it replays the position the player was
+standing on when they walked IN.** The outside position is kept in a pending-destination record
+at `0x021f69b8` (a `VecFx32` at `+0x00`, then a kind word); `func_020b5ea0` publishes into it
+through `func_020b64f0`, and `func_020b6518` installs the default `{0x30000, 0, 0x30000}` before
+any door has been used [S: `src/matched/func_020b5ea0.c`, `func_020b64f0.c`, `func_020b6518.c`].
+On the exit, `func_020b6098` asks `func_020b6140` for the destination; `func_020b6214` reaches
+the same record for an element of kind `0x3c` and hands back its vector, and `func_020b63f4`
+copies it into the scene-request record at `0x021f69d4`/`+8`/`+0xc`, refusing unless the
+request slot is idle [S: `src/matched/func_020b6098.c`, `func_020b6140.c`, `func_020b6214.c`,
+`func_020b63f4.c`]. The live vector at `0x021c749c` only follows: `func_0203c76c` copies it into
+the camera target through `func_0203f684` every third frame
+[S: `src/matched/func_0203c76c.c`, `func_0203f684.c`]. MEASURED on a scripted arrival: the
+record takes the door's value at frame 38,838, eighty-one frames after the player reached the
+doormat tile, and the exit at frame 49,593 posts that same word -- 10,755 frames and a savestate
+later [E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, runs `x48-p-originz`, `x48-p-seqwatch`].
+So a building exit is a REPLAY, and the tile it lands on is a property of the town the player
+walked through, not of the building.
+
 That block is load-bearing rather than advisory: with the function stubbed to return 0 the run
 faults shortly afterwards inside `func_0200d900`
-[E: port/shim/c6a_0200dc98_intent.c, `ACWW_EXPLORE=1` run].
+[H: host-source account from port/shim/c6a_0200dc98_intent.c, `ACWW_EXPLORE=1` run; verify with a retained scripted run and frame using this page's recipe].
 
 Player houses are a separate asset family from villager houses:
 `/str/plHsTex/home%c%c.nsbtx` is ov003's own spelling
@@ -74,9 +92,9 @@ Player houses are a separate asset family from villager houses:
 
 The DS firmware's user settings supply a nickname and a birthday that the game reads. The
 firmware record's `birthMonth` is at `+0x03` and `birthDay` at `+0x04`
-[S: port/shim/boot/usersettings.c]. The port supplies its own values -- nickname `PLAYER`,
+[H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe]. The port supplies its own values -- nickname `PLAYER`,
 birthday 1 January -- and says so, because those are port choices rather than recoveries, and
-the nickname IS shown in game [S: port/shim/boot/usersettings.c].
+the nickname IS shown in game [H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe].
 
 ## Where it lives
 
@@ -92,30 +110,52 @@ the nickname IS shown in game [S: port/shim/boot/usersettings.c].
 | `func_020b755c` / `func_020b758c` | main | touch-drag classification feeding the intent | S: port/shim/c6a_0200dc98_intent.c |
 | `func_020e8ed8` | autoload_2 | `atan2` over the sine table, gives the walk angle | S: port/shim/c6a_0200dc98_intent.c |
 | `func_02099020` callers in `0x020e1d08` | main | eleven special-NPC predicates gated on flag 1 | S: port/shim/game/spnpc.c |
+| `func_ov096_0229e3b0` | ov096 | **the EQUIP dispatcher**: `(page, slot_kind, item_id)`, one case per wearable slot, storing the new id and returning the old one | S: `src/matched/func_ov096_0229e3b0.c`; E: GAMEPLAY47 `g47-WEARW` |
+| `func_02099704` / `func_02099710` | main | write / address the worn shirt at slot `+0x2408` | S: those two functions; E: a store watchpoint on `0x021debc4` catching the wear-drop |
+| `func_02098f0c` / `func_02098f48` / `func_02098f70` | main | set / address / bounds-check a pocket slot (`base + 0xa4a + 2n`, `0 <= n < 15`), with a 2-bit-per-slot word at `+0xa6c` | S: `src/matched/`; E: GAMEPLAY47 `g47-SLOTW`, `g47-UNIW` |
+| `func_020b5ea0` / `func_020b64f0` | main | publish an outside position into the pending-destination record `0x021f69b8` | S: `src/matched/`; E: EXIT48 `x48-p-originz` |
+| `func_020b6518` | main | installs that record's default `{0x30000, 0, 0x30000}` before any door is used | S: `src/matched/func_020b6518.c` |
+| `func_020b6098` / `func_020b6140` / `func_020b6214` | main | the building EXIT: ask for the destination, forward it, read it back out of `0x021f69b8` for an element of kind `0x3c` | S: `src/matched/`; E: EXIT48 `x48-p-seqwatch` |
+| `func_020b63f4` | main | writes the destination into the scene-request record at `0x021f69d4`, only while the request slot reads `0x3f` | S: `src/matched/func_020b63f4.c`; E: EXIT48 store watch, pc `0x020b6400`/`6404`/`6408` |
+| `func_0203c76c` / `func_0203f684` | main | copy that position into the camera-tracked vector `0x021c749c` every third frame | S: `src/matched/`; E: EXIT48 store watch, pc `0x0203f68a`/`68e`/`692` |
 
 ## Data it reads and writes
 
 | address or field | meaning | who writes | who reads |
 |---|---|---|---|
 | `0x021dc7bc` | player array, 4 slots, stride `0x249c` | `func_0209ef7c` | `func_020984e8` |
+| slot `+0x1bf2`, 15x u16 (`0x021de3ae` for slot 0) | the pockets; `0xfff1` is empty | `func_02098f0c` | `func_02098f48` |
+| slot `+0x1c10` u32 (`0x021de3cc`) | the wallet, in Bells | the game | the HUD, the save |
+| **slot `+0x2408` u16 (`0x021debc4`)** | **the WORN SHIRT.** A drag from a pocket onto the character SWAPS them: the dropped id lands here and the one that was here goes back into the pocket, iff it is in the shirt band `0x11a8..0x12a7` (otherwise `0xfff1`) | `func_02099704`, from `func_ov096_0229e3b0` case 2 | `func_02099710`, the model loader |
+| slot `+0x240a` u16 | the dispatcher's second wearable slot (its cases 3, 4 and 6; bands `0x1429..0x1430` and `0x13a0..0x13a7`). **Not yet exercised by any run** | `func_020996d4` / `func_020996ec` | `func_020996f8` |
 | slot `+0x23f8` (`0x021debb4` for slot 0) | 64-bit event bitfield | the four commits, `func_02098ff8` | `func_02099020` |
 | event flag 1 | "the opening is running" | `func_0209ee54` family | the 11 predicates at `0x020e1d08` |
 | `0x021f3c30` | boot-mode word choosing the commit | `func_020a1320` | `func_ov051_022610d4` |
 | `0x021fbe40` / `+4` | this frame's pad words / direction halfword | input | `func_0200dc98` |
 | `self + 0x134`..`0x170` | movement intent block | `func_0200dc98` | the rest of the player update |
 | `self + 0x170` | input mode: 1 pad, 2 touch | `func_0200dc98` | player update |
+| **`0x021f69b8`**, `VecFx32` at `+0x00` | **the pending OUTSIDE position** -- where a building exit will put the player. Written when the player walks IN, defaulted to `{0x30000, 0, 0x30000}` before that | `func_020b64f0`, from `func_020b5ea0` and `func_020b6518` | `func_020b6214` case `0x3c` |
+| **`0x021f69d4`/`+8`/`+0xc`** | the scene-request record's destination position | `func_020b63f4` | the scene load |
+| `0x021c749c`, 3x `fx32` | the world point the field camera tracks -- the live player position; tile = word / 8192 | `func_0203f684`, from `func_0203c76c` | `ACWW_PLAYER_TRACE`, `port/tools/navlib.py` |
 | firmware `+0x03` / `+0x04` | birth month / birth day | firmware (port: `usersettings.c`) | game greeting paths |
 
-All rows are S, cited from the files in the previous table.
+All rows are S, cited from the files in the previous table; the pockets, wallet and wear rows
+are S+E -- the ROM function plus a live store watchpoint that caught it firing
+(GAMEPLAY47, `docs/log/cycle41-gameplay.md` GP47-1 and GP47-2).
 
 ## How to check it
 
 `port/shim/game/spnpc.c` prints `acww intro: f<frame> player <ptr> flag1 <v> bits <w0>/<w1>
 mode <m> 54a8 <b>` on any change of that tuple, under `ACWW_TRACE_STATE=1`; it is the one
 line that says whether the game believes it is still in the opening
-[S: port/shim/game/spnpc.c]. `port/shim/game/newgameprobe.c` reports which of the two
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. `port/shim/game/newgameprobe.c` reports which of the two
 new-game halves -- boot generation or player commit -- has happened, rather than inferring one
-from the other [S: port/shim/game/newgameprobe.c].
+from the other [H: host/prose inference from port/shim/game/newgameprobe.c; verify against the ROM function or symbol table and this page's recipe].
+
+For the exit position, arm `ACWW_INTERP_WATCH=0x021f69c0:0x021f69c3` from frame 1 over a run
+that walks into a building: there are only three distinct values in a whole arrival, and the
+`ACWW_PLAYER_TRACE` line before the second one names the tile it was taken from
+[E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, run `x48-p-originz`].
 
 For the name prompt, run the town recipe and look at frames 4,500 to 7,500: the taxi interior
 with the keyboard, then the confirmation

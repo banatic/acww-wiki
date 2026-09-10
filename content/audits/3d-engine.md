@@ -15,6 +15,28 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 선언하지만 수행하지 않는 네 가지 효과 — 안개, 엣지 마킹, 툰, 안티에일리어싱.** 열두 개의
 진단 노트 중 두 개는 과적재되어 있어 문자 그대로의 의미와 다른 것을 뜻한다.
 
+**그 판독 이후의 현황(TOUCH41 재링크, 2026-09-09).** 손상된 세 영역 중 두 곳이 움직였고, 이
+페이지의 수정 항목들이 그 수치를 담고 있다. **F3은 켜져 있다**: A3I5와 A5I3 폴리곤이
+반투명으로 취급되며, 프레임 9,000에서 NCC 0.9958 -> 0.9985, 12,000에서 0.9957 -> 0.9989의
+가치가 있다. **F2의 원근 절반은 켜져 있다**: W 버퍼 깊이가 원근 보간기를 거친다. **폴리곤별 W
+정규화는 기각되었고** `ACWW_WNORM=1` 뒤에서 기본 꺼짐이다. 그것만으로 0.13 NCC의 비용이 들기
+때문이다 — W가 상수인 폴리곤은 거리와 무관하게 `0x8000`으로 정규화되므로, 정규화된 W 깊이는
+폴리곤 내부에서는 순서가 있고 폴리곤 사이에서는 임의적이다. `port/tools/test_raster3d_depth.py`가
+두 답을 모두 고정하는 픽스처이며, **54개 검사**다 [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41;
+`docs/state/port-frontier.md`]. 반투명 블렌딩 그룹과 선언되었으나 수행되지 않는 네 효과에
+대해서는 아무것도 움직이지 않았다.
+
+**현황, RENDER43(2026-09-10, `6081a9a1` + 이 유닛).** 두 행이 더 움직였고, 그중 하나는 스펙
+세부가 아니라 완전히 열려 있던 파손이었다. **F15는 켜져 있다**: SWAP_BUFFERS는 프레임당 최대
+한 번만 존중되고 나머지는 보류되는데, 이것이 `docs/log/cycle41-gameplay.md` GP42-6의 에이커
+지면 탈락이다 — 한 프레임에 열아홉 번의 스왑이 열여덟 개의 디스플레이 리스트를 버렸다(새 주장
+행 **G4**). **F14는 켜져 있다**: 3D 레이어가 BG0HOFS로 스크롤된다(행 **G3**, 감사 이후로
+"구현되지 않았고 노트도 없음"). ACWW가 0을 쓰므로 측정상 무효(inert)다. 그리고 행 **E14b**는
+에뮬레이터의 샘플 포인트에 대한 이 페이지 자체의 판독을 정정한다: **DeSmuME 0.9.13은 버텍스를
+정수 픽셀로 양자화하지 않는다 — melonDS는 한다** — 따라서 `ACWW_SAMPLE_INT`가 규칙 전체이지
+짝의 절반이 아니며, 여전히 꺼져 있는 이유는 빠진 변경이 아니라 프레임 매핑 아티팩트다
+[`docs/kb/hybrid/render-fidelity-history.md` sections 2b, 4; `docs/kb/hybrid/render-fixes.md` section 3].
+
 **방법.** `main`의 워크트리 헤드(`6ca48706`)에서 읽었다. 공개 자료는 기억에 의존하지 않고
 가져왔으며, 모든 행은 페이지나 파일을 명시한다. 어떤 소스에서도 코드를 복사하지 않았다. 게임은
 실행하지 않았고 이 페이지의 어떤 측정도 새로운 것이 아니다 — 포트 쪽 수치는 `docs/log/`와 이미
@@ -39,7 +61,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 함수가 설정하지 않는다. 나중에 무언가가 설정하는지는 미해결이다 — H3을 보라.
 
 재질(material) 조사 결과. ROM의 866개 모델에 대한 포트 자체 헤더 주석에서
-[S: `port/render/raster3d.c` header]: 2,040개 재질 전부가 `GX_POLYGONMODE_MODULATE`다(데칼
+[H: host/prose inference from `port/render/raster3d.c` header; verify against the ROM function or symbol table and this page's recipe]: 2,040개 재질 전부가 `GX_POLYGONMODE_MODULATE`다(데칼
 없음, 툰 없음, 섀도우 없음); 18,767개 프리미티브 중 17,173개가 트라이앵글 스트립이다.
 
 ---
@@ -117,19 +139,20 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 | # | 주장 | 공개 자료 | 판정 | 바꿀 것 |
 |---|---|---|---|---|
 | E1 | Z 버퍼 깊이는 `(((z · 0x4000) / w) + 0x3FFF) · 0x200`이며 24비트로 클램프된다 [`to_screen`] | melonDS `GPU3D_Soft.cpp`, 동일한 식 | 일치 | 없음 |
-| E2 | W 버퍼 깊이는 클립 `w`이며 24비트로 클램프된다 [`to_screen`] | melonDS `GPU3D.cpp`: "W is normalized, such that all the polygon's W values fit within 16 bits" — 더 적은 비트에 들어가면 위로 확장하고 더 크면 압축한다 — 그리고 W 버퍼링이 사용하는 것은 **정규화된** W다(뷰포트 변환에는 쓰지 않는다) | 불일치 | **ACWW는 W 버퍼 게임이다**(`SWAP_BUFFERS = 3`). 폴리곤별 정규화가 없으면 폴리곤 전체의 깊이 값이 24비트 범위의 잘못된 부분에 놓인다. 수정 **F2**를 보라 |
-| E3 | 깊이는 두 모드 모두에서 스팬을 가로질러 선형 보간된다 [`attr_lerp` on `a[0]`] | melonDS `GPU3D_Soft.h`, `InterpolateZ()`: Z 버퍼 깊이는 화면 공간에서 선형이다; **W 버퍼 깊이는 원근 보간기를 거친다** | 불일치 | 역시 ACWW의 모드가 틀린 쪽이다. 얕은 각도의 지면은 모든 폴리곤 한가운데에서 깊이가 틀린다. 수정 **F2**를 보라 |
+| E2 | *(`6ca48706`에서 읽은 대로; F2는 그 뒤 반영되었다 — 수정 항목을 보라)* W 버퍼 깊이는 클립 `w`이며 24비트로 클램프된다 [`to_screen`] | melonDS `GPU3D.cpp`: "W is normalized, such that all the polygon's W values fit within 16 bits" — 더 적은 비트에 들어가면 위로 확장하고 더 크면 압축한다 — 그리고 W 버퍼링이 사용하는 것은 **정규화된** W다(뷰포트 변환에는 쓰지 않는다) | 불일치 | **ACWW는 W 버퍼 게임이다**(`SWAP_BUFFERS = 3`). 폴리곤별 정규화가 없으면 폴리곤 전체의 깊이 값이 24비트 범위의 잘못된 부분에 놓인다. 수정 **F2**를 보라 |
+| E3 | *(`6ca48706`에서 읽은 대로; F2는 그 뒤 반영되었다)* 깊이는 두 모드 모두에서 스팬을 가로질러 선형 보간된다 [`attr_lerp` on `a[0]`] | melonDS `GPU3D_Soft.h`, `InterpolateZ()`: Z 버퍼 깊이는 화면 공간에서 선형이다; **W 버퍼 깊이는 원근 보간기를 거친다** | 불일치 | 역시 ACWW의 모드가 틀린 쪽이다. 얕은 각도의 지면은 모든 폴리곤 한가운데에서 깊이가 틀린다. 수정 **F2**를 보라 |
 | E4 | 깊이 동일 허용 오차는 ±0x200이다 [`draw_poly`, `depth_equal`] | GBATEK, [DS 3D Polygon Attributes](https://problemkaputt.de/gbatek-ds-3d-polygon-attributes.htm): "±200h within the 24-bit range". melonDS는 이를 나눈다: **Z 모드에서 ±0x200, W 모드에서 ±0xFF** | 불일치(경미) | `wbuffer_mode`가 설정되면 0xFF를 쓴다 |
 | E5 | 깊이 테스트는 엄격한 미만(less-than) 비교다 [`(gu32)a.a[0] >= depth[off]` → reject] | melonDS `GPU3D_Soft.cpp` 및 블로그 "[The DS GPU and its fun quirks](https://melonds.kuribo64.net/comments.php?id=56)": 미만 비교는 "accepts equal depth values when drawing front-facing polygons over opaque **back-facing** pixels"이며, 게임들은 평면 데칼을 위해 이에 의존한다 | 불일치 | 포트는 픽셀별 면(facing) 비트를 저장하지 않으므로 이를 재현할 수 없다. ACWW에는 우선순위가 낮지만(데칼 재질 없음), 동일 평면 스티커가 빠지는 이유가 이것이다 |
 | E6 | 반투명 폴리곤은 `POLYGON_ATTR` 비트 11이 설정된 경우에만 깊이를 쓴다 [`write_depth`] | GBATEK와 두 에뮬레이터 모두 | 일치 | 없음 |
-| E7 | 이미 있는 픽셀이 **같은** ID의 반투명 폴리곤에 의해 쓰인 것이면 반투명 픽셀은 즉시 거부된다 [`tattr`, `tmark`] | melonDS: `(dstattr & 0x007F0000) == (attr & 0x007F0000)` → 폐기; DeSmuME: "dont overwrite pixels on translucent polys with the same polyids" | 일치 | 없음. 포트 자체 카운터에 따르면 200초 택시 실행에서 이것이 3번 발생하므로, 올바르되 여기서는 사실상 작동하지 않는다 |
+| E7 | 이미 있는 픽셀이 **같은** ID의 반투명 폴리곤에 의해 쓰인 것이면 반투명 픽셀은 즉시 거부된다 [`tattr`, `tmark`] | melonDS: `(dstattr & 0x007F0000) == (attr & 0x007F0000)` → 폐기; DeSmuME: "dont overwrite pixels on translucent polys with the same polyids" | 일치 | 없음 — 그러나 "200초 택시 실행에서 3번 발생하므로 사실상 작동하지 않는다"는 판독은 F3과 함께 죽었다: 반투명 여부가 프래그먼트별로 결정되고 나면, 같은 레시피를 프레임 12,000까지 돌렸을 때 4,880,683개의 프래그먼트, 프레임당 약 400개가 거부된다. 이 규칙은 살아 있다 |
 | E8 | 알파 블렌딩은 `dst = src·a + dst·(1−a)`이며, 목적지 알파는 `a + da·(1−a)`로 누적된다 [`draw_poly`] | GBATEK, [DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing](https://problemkaputt.de/gbatek-ds-3d-toon-edge-fog-alpha-blending-anti-aliasing.htm): `FrameBuf[X] = (Poly[X]·(Poly[A]+1) + FrameBuf[X]·(31−Poly[A]))/32` 그리고 **`FrameBuf[A] = max(Poly[A], FrameBuf[A])`**; melonDS와 DeSmuME도 일치 | 불일치 | 알파는 누적이 아니라 **최댓값**이어야 한다. 알파 16의 반투명 표면 두 개가 겹치면 포트는 88% 불투명, 하드웨어는 52%가 된다. 수정 **F1**을 보라 |
 | E9 | 반투명 픽셀은 클리어된 후면 평면을 포함해 색상 버퍼에 있는 무엇이든 그것과 블렌딩된다 [`draw_poly`] | GBATEK, 같은 페이지: (a) 알파 블렌딩이 꺼져 있거나, (b) `Poly[A] = 31`이거나, (c) **`FrameBuf[A] = 0`**이면 블렌딩은 **건너뛰고** 픽셀은 단순히 덮어쓴다; 두 에뮬레이터 모두 일치 | 불일치 | ACWW의 클리어 알파는 0이므로, 빈 후면 평면 위의 모든 반투명 폴리곤은 검은색, 알파 0인 목적지와 블렌딩된다 — RGB에 자신의 알파가 곱해진다 — 그리고 컴포지터가 3D 레이어를 2D 하늘 위에 얹을 때 알파를 **또 한 번** 곱한다. **택시와 마을의 모든 반투명 표면이 두 번 어두워진다.** 수정 **F1**을 보라 |
 | E10 | 알파 0은 와이어프레임을 뜻하며, 포트는 그 폴리곤을 건너뛴다 [`draw_poly`, `alpha5 == 0`] | GBATEK: 알파 0은 폴리곤의 **엣지만을 고정 알파 31로** 그린다; melonDS는 정확히 그렇게 구현하고 끝에서 알파를 31로 강제한다. DeSmuME에는 와이어프레임 경로가 아예 없다 | 불일치 | 포트의 조사에 따르면 ACWW에는 와이어프레임 재질이 없으므로 오늘날 비용은 0이다. 그러나 이 건너뛰기는 `GX_NOTE_BADCMD`를 올리며, 이는 "an unknown command id reached the parser"로 보고된다 — §3을 보라 |
 | E11 | 알파 테스트는 알파가 0이 아닌 텍셀을 유지한다; `ALPHA_TEST_REF`는 읽지 않는다 [`draw_poly`] | GBATEK, [DS 3D Display Control](https://problemkaputt.de/gbatek-ds-3d-display-control.htm): 픽셀은 알파가 `ALPHA_TEST_REF`**보다 클** 때만 그려지며, 텍스처 블렌딩 후 **최종** 픽셀에 적용된다; ref 0은 테스트가 비활성화된 것과 동일하다 | ACWW에 대해서는 일치(ref 0), 일반적으로는 불일치 | `0x04000340`에서 `ALPHA_TEST_REF`를 읽어 텍셀 알파가 아니라 `fa`와 비교한다. 세 줄이다 |
 | E12 | 두 패스, 불투명 다음 반투명, 둘 다 제출 순서로 — `SWAP_BUFFERS` 비트 0이 수동 정렬을 요구하기 때문 [`acww_nds3d_raster`] | melonDS `SortKey`: 불투명 먼저, 다음 반투명; **불투명 폴리곤은 항상 Y 정렬되며**, 비트 0은 반투명 폴리곤이 Y 정렬에 합류할지만 결정한다 | ACWW에 대해서는 일치 | 포트는 비트 0을 전혀 읽지 않는다. 자동 정렬이 요청되면 노트를 추가하여, 나중에 그것을 원하는 씬이 조용히 잘못 정렬되지 않게 한다 |
-| E13 | 폴리곤은 `POLYGON_ATTR` 알파가 31이 아닐 때, 그리고 오직 그때만 "반투명"이다 [`trans` in `draw_poly`] | GBATEK, [DS 3D Texture Formats](https://problemkaputt.de/gbatek-ds-3d-texture-formats.htm): A3I5(형식 1)와 A5I3(형식 6)가 "반투명" 형식이다; melonDS는 블렌딩된 알파로 **픽셀별로** 반투명 여부를 결정하며, "translucent polygons can have opaque pixels, and those follow the same rules as opaque polygons"라고 적는다 | 불일치 | A3I5 또는 A5I3 텍스처를 가진 알파 31 폴리곤은 포트에서 **불투명** 패스로 그려지고, 깊이를 쓰며, 동일 ID 규칙에서 면제된다. 하드웨어에서는 그 부분 투명 텍셀들이 반투명 프래그먼트다. 이것이 택시의 비와 창유리다. 수정 **F3**을 보라 |
+| E13 | *(`6ca48706`에서 읽은 대로; F3은 그 뒤 반영되었다)* 폴리곤은 `POLYGON_ATTR` 알파가 31이 아닐 때, 그리고 오직 그때만 "반투명"이다 [`trans` in `draw_poly`] | GBATEK, [DS 3D Texture Formats](https://problemkaputt.de/gbatek-ds-3d-texture-formats.htm): A3I5(형식 1)와 A5I3(형식 6)가 "반투명" 형식이다; melonDS는 블렌딩된 알파로 **픽셀별로** 반투명 여부를 결정하며, "translucent polygons can have opaque pixels, and those follow the same rules as opaque polygons"라고 적는다 | 불일치 | A3I5 또는 A5I3 텍스처를 가진 알파 31 폴리곤은 포트에서 **불투명** 패스로 그려지고, 깊이를 쓰며, 동일 ID 규칙에서 면제된다. 하드웨어에서는 그 부분 투명 텍셀들이 반투명 프래그먼트다. 이것이 택시의 비와 창유리다. 수정 **F3**을 보라 |
 | E14 | 스팬은 픽셀 중심 `(px·16 + 8)`이 `[xL, xR)`에 있고 샘플 행이 `[ya, yb)`에 있는 곳이 채워진다 [`draw_poly`] | melonDS `GPU3D_Soft.h`/`.cpp`: DS에는 명시적인 기울기 기반 채우기 규칙이 있다 — "right edge is filled if slope > 1; left edge is filled if slope ≤ 1; edges with slope = 0 are always filled"; AA나 엣지 마킹이 켜져 있을 때, 픽셀이 반투명이고 블렌딩이 켜져 있을 때, 또는 폴리곤이 와이어프레임일 때 엣지는 **항상** 채워진다; 그리고 명시된 조건에서 "right vertical edges are pushed 1px to the left" | 불일치 | 샘플 중심 규칙은 중심을 비켜가는, 한 픽셀보다 좁거나 짧은 모든 폴리곤을 버린다; 하드웨어는 최소한 엣지는 채운다. 가는 울타리, 난간, 먼 세부가 사라진다. ACWW는 AA가 켜져 있으므로 그 지오메트리에 대해 하드웨어의 **엣지는 항상 채워지며**, 이 때문에 포트는 체계적으로 더 가늘다. 수정 **F9**를 보라 |
+| E14b | *(RENDER43, 그리고 RENDER42 실험의 근거였던 E14의 "두 에뮬레이터 모두 정수 좌표에서 샘플링한다"를 정정한다)* 오라클의 채우기 규칙을 절(clause) 단위로: 서브픽셀 좌표는 **12.4이며 가장 가까운 값으로 반올림**된다(`rasterize.cpp` `_TransformVertices`: `vert.coord[0] = (float)iround(16.0f * vert.coord[0])`), 첫 스캔라인은 `Ceil28_4(y_top)`이고 `Ceil28_4(v) = (v-1+16)/16 = ceil(v/16)`이며, 행 범위는 `[ceil(y_top/16), ceil(y_bot/16)-1]`, 스팬은 `[ceil(x_L/16), ceil(x_R/16)-1]`이고(`edge_fx_fl`, `_drawscanline`의 `width = pRight->X - XStart`), 샘플 포인트는 픽셀의 정수 좌표다 | DeSmuME 0.9.13, 태그 `release_0_9_13`, `desmume/src/rasterize.cpp` | 포트의 `ACWW_SAMPLE_INT=1` 분기는 **정확히 일치**한다; 기본값(`soff = 8`, 픽셀 중심)은 반 픽셀만큼 불일치한다 | **DeSmuME는 버텍스를 정수 픽셀로 양자화하지 않는다 — melonDS는 한다**(`GPU3D.cpp` `SubmitPolygon`, `FinalPosition[0] = posX & 0x1FF`). 따라서 "짝"은 없고 `ACWW_SAMPLE_INT`가 규칙 전체다. 여전히 기본 꺼짐이다: 평균과 mae는 개선하지만 31개 OFF 프레임 중 9개에서 ncc를 잃으며, 그 아홉 개가 측정하는 잔차는 정수 픽셀 단위의 수직 위상 차이다(`render-fidelity-history.md` section 4). 보정된(CALIBRATED) 오라클 세트가 이를 확정한다 |
 | E15 | 원근 보정은 `q = (wmin << 14)/w`이며, `s·q`, `t·q`, `q`를 선형 보간하고 픽셀마다 나눈다 [`draw_poly`] | melonDS `GPU3D_Soft.h`: DS는 두 W 값에서 **하나의** 원근 계수를 계산하고, 엣지를 따라 9비트, 스팬을 따라 8비트로 양자화한 뒤, 그 단일 계수를 모든 속성에 선형으로 적용한다; 하위 7비트를 마스킹한 후 두 W 값이 같으면 특별한 **선형** 경로가 있다 | 효과상 일치, 정밀도는 불일치 | 포트가 하드웨어보다 더 정확하다. 두 가지 결과: DS의 텍스처 계단 현상이 없고, 3D 엔진으로 그린 2D 쿼드가 하드웨어의 W 동일 지름길이 만드는 방식대로 픽셀 정확하지는 않을 것이다. 기록해 두되, 오라클이 요구하기 전에는 "고치지" 않는다 |
 | E16 | 클리어 깊이는 `(cd << 9)`이고, `0x1FF`는 `0x7FFF`에서**만** 더해진다 [`clear_buffers`] | GBATEK, [DS 3D Rear-Plane](https://problemkaputt.de/gbatek-ds-3d-rear-plane.htm): `X = (X·200h) + ((X+1)/8000h)·1FFh` — 포트는 이와 정확히 일치한다. melonDS는 무조건 `(d & 0x7FFF)·0x200 + 0x1FF`를 쓴다 | GBATEK과 일치, melonDS와 불일치 | 변경 없음: ACWW는 `0x7FFF`에서 클리어하며, 거기서는 둘이 동일하다. 포트는 GBATEK을 따랐고 에뮬레이터는 그러지 않았다는 점은 기록할 가치가 있다 |
 | E17 | 클리어 폴리곤 ID와 클리어 안개 플래그는 픽셀별로 저장되지 않는다 [`clear_buffers`] | GBATEK: `CLEAR_COLOR` 비트 24–29는 클리어 폴리곤 ID이고 비트 15는 후면 평면 안개 활성화다; melonDS는 둘 다 속성 버퍼에 쓰고, 추가로 가시 영역 **바깥**의 1픽셀 테두리에도 써서 테두리 엣지 마킹이 동작하게 한다 | 불일치 | ACWW는 ID를 `0x3f`로, 안개를 true로 설정한다. 엣지 마킹과 후면 평면 안개를 막는다. **F10**과 **F11**의 선행 조건이다 |
@@ -151,7 +174,8 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 |---|---|---|---|---|
 | G1 | 3D 출력은 엔진 A의 BG0이며, BG0 자체의 우선순위로 합성되고, 블렌드 소유자 레코드에 BG0으로 들어간다 [`nds2d.c`, `K_3D` branch] | GBATEK, [DS 3D Final 2D Output](https://problemkaputt.de/gbatek-ds-3d-final-2d-output.htm) | 일치 | 없음 — 그리고 한 프레임에 네 번 합성한다는 주석은 남겨둘 가치가 있다 |
 | G2 | 3D 레이어는 0..255 알파로 `dst = c·a + d·(1−a)`를 써서 2D 결과 위에 블렌딩된다 [`acww_nds3d_compose`] | GBATEK, 같은 페이지: 픽셀별 3D 블렌딩은 3D 픽셀 자체의 알파에서 유도한 **`EVA = A/2`, `EVB = 16 − A/2`**를 사용하며 `BLDALPHA`를 우회한다 | 형식은 일치, 양자화는 다름 | 하드웨어에서는 5비트 알파가 4비트 가중치가 된다. 작은 문제다; **E9**의 중첩이 진짜 문제다 |
-| G3 | 3D 레이어의 `BG0HOFS` 스크롤, 그리고 모자이크가 이에 적용될 수 없다는 사실 | GBATEK, 같은 페이지: 512픽셀 스팬, 이미지 256 다음 투명 256, 랩어라운드; 수직 스크롤 없음, 회전 없음 | 포트에서 미명시 | 구현되지 않았고 노트도 없다. 우선순위 낮음; 기록해 둔다 |
+| G3 | 3D 레이어의 `BG0HOFS` 스크롤, 그리고 모자이크가 이에 적용될 수 없다는 사실 | GBATEK, 같은 페이지: 512픽셀 스팬, 이미지 256 다음 투명 256, 랩어라운드; 수직 스크롤 없음, 회전 없음 | **수정됨(F14, RENDER43)** — 이전에는 "포트에서 미명시" | `acww_nds3d_compose_x`가 `BG0HOFS & 0x1FF`를 통해 3D 버퍼를 읽으며, 에뮬레이터 자체의 랩 방식을 따른다(256을 넘는 소스 열은 랩어라운드되지 않고 버려진다). 이는 DeSmuME 0.9.13 `GPU.cpp` `RenderLine_Layer3D`와 일치한다. **melonDS는 이를 하지 않는다**(`GPU2D_Soft.cpp` `DrawBG_3D`는 `BGXPos`를 무시한다) — 두 레퍼런스가 불일치하며 오라클은 DeSmuME다. 측정상 무효: ACWW는 두 증명 세트 모두에서 `BG0HOFS = 0`을 쓰며(`ACWW_REGDUMP`), 31/31 및 141/141 프레임이 바이트 단위로 동일하다. `ACWW_3D_HOFS=0`은 옛 분기를 유지한다 |
+| G4 | *(RENDER43, 신규)* `SWAP_BUFFERS`는 모든 커맨드에서 디스플레이 리스트를 **즉시** 스왑한다 [`nds3d.c` `case 0x50`, `6081a9a1`에서 읽은 대로] | GBATEK, [DS 3D Display Control](https://problemkaputt.de/gbatek-ds-3d-display-control.htm): *"SwapBuffers isn't executed until next VBlank (Scanline 192) (the Geometry Engine is halted for that duration)"*; DeSmuME 0.9.13 `gfx3d.cpp` — `gfx3d_glFlush`는 `isSwapBuffers`만 설정하고, `gfx3d_execute3D`는 그것이 설정된 동안 반환하며("3d engine is locked up"), `gfx3d_VBlankSignal`이 플러시를 수행한다 | **불일치했음 — 수정됨(F15, RENDER43)** | 프레임당 최대 한 번의 스왑; 나머지는 보류되며, 그 지오메트리는 다음 프레임의 스왑이 래치하는 리스트에 누적된다. 이것이 에이커 지면 탈락이었다: 한 프레임에 19번의 스왑, 18개 리스트 폐기, 마지막 하나는 비어 있음. `swaps=N held=M`이 상시 보고서에 있다; `ACWW_SWAP_EVERY=1`은 옛 분기를 유지한다 |
 
 ---
 
@@ -207,6 +231,31 @@ W 버퍼링이 사용하는 것은 정규화된 W다 — 뷰포트 변환이 아
 *검증:* 지면이 건물과 만나는 곳과 택시 대시보드가 창과 만나는 곳의 깊이 순서 —
 `tap-town/shot_037500.bmp`의 마을 회관 기초 주변, 그리고 `tap-fullpad`
 프레임 9,000–15,000. 포트는 이미 버텍스별로 `q`를 운반하므로 장치는 존재한다.
+*절반만 반영되었고, 나머지 절반이 발견 사항이다.* 두 변경을 모두 구현한 뒤 tap-fullpad
+택시 레시피(프레임 9,000 / 12,000, 전체 프레임 NCC)에서 따로따로 측정했다:
+
+| 빌드 | 9,000 | 12,000 |
+|---|---|---|
+| F2/F3 이전 | 0.9958 | 0.9957 |
+| F3만 | 0.9985 | 0.9989 |
+| **F3 + 원근 W 깊이, 정규화 없음(현재 기본값)** | **0.9986** | **0.9989** |
+| F3 + 정규화 + 원근 | 0.8710 | 0.8684 |
+| 정규화 + 원근, F3 없음 | 0.8710 | 0.8685 |
+| F3 + 정규화, 선형 보간 | 0.8715 | 0.8690 |
+
+E3(원근 보간)은 옳고 켜져 있다: `draw_poly`는 깊이를 `z*q`로 운반하고 보간된 `q`로 나누는데,
+이는 텍스처 좌표가 쓰는 것과 같은 보간기이며, `z*q`를 부호 있는 워드 안에 유지하는 폴리곤별
+다운시프트가 있다. E2(폴리곤별 정규화)는 `emit_poly`에 구현되어 있고 **`ACWW_WNORM=1` 뒤에서
+기본 꺼짐**인데, 그것만으로 0.13 NCC의 비용이 들고 택시 내부를 22 휘도 단위 더 밝게 만들기
+때문이다. 그 메커니즘은 코딩 실수가 아니라 구조적이며, 픽스처가 이를 보여준다: w가 상수인
+폴리곤은 거리와 무관하게 정확히 `0x8000`으로 정규화되므로, 정규화된 W 깊이는 폴리곤 *내부*에서는
+순서가 있고 폴리곤 *사이*에서는 임의적이다 — 먼 표면이 가까운 표면 위에 그려진다. E2의
+에뮬레이터 판독이 틀렸거나(정규화된 W는 깊이 버퍼 전에 되돌려지는 보간 정밀도 장치일 수 있다)
+다른 무언가가 함께 바뀌어야 한다. 변수를 설정하면 다시 열린다; 다시 구현할 것은 없다.
+
+`port/tools/test_raster3d_depth.py`가 픽스처이며 두 답을 모두 고정한다: 교차하는 쿼드 두 개의
+교차점이 하드웨어 규칙에서는 스팬 `t = 0.6429`, 옛 w 선형 규칙에서는 `t = 0.5455`에 있으며,
+둘이 어긋나는 `t = 0.6016`에서 탐침하고, 모드마다 한 번씩 실행한다.
 
 **F3 — A3I5와 A5I3 폴리곤을 반투명으로 취급한다.** `raster3d.c`, `draw_poly`, `trans`와
 `write_depth` 계산, 그리고 `acww_nds3d_raster`의 두 패스.
@@ -217,6 +266,16 @@ W 버퍼링이 사용하는 것은 정규화된 W다 — 뷰포트 변환이 아
 그려지고 반투명 텍셀을 통해 깊이를 쓴다.
 *검증:* 다시 택시 창과 비 — 포트 자체의 `nds3d tex` 원샷이 그 씬에서 64×64
 A5I3 재질을 명시한다 [E: `docs/log/2026-09-02.md`]. `tap-fullpad/shot_012000.bmp`.
+*반영되었고, 개선이다: 프레임 9,000에서 NCC 0.9958 → 0.9985, 12,000에서 0.9957 → 0.9989,
+MAE 5.76 → 4.02 및 6.17 → 4.16(tap-fullpad, 오라클 `tap-fullpad`).*
+`acww_poly_translucent`가 알파 또는 텍스처 형식으로 패스 소속을 결정하고,
+`draw_poly`는 각 프래그먼트를 최종 알파로 분류한다(`ftrans = fa < 255`, 255는 5비트 31의
+유일한 확장값이다): 반투명 프래그먼트는 동일 ID 규칙을 받고 `POLYGON_ATTR` 비트 11이 있을
+때만 깊이를 쓰며, 같은 폴리곤의 불투명 프래그먼트는 둘 다 하지 않는다. 동일 ID 테스트는
+텍스처링 뒤로 옮겨졌는데, 그것이 분류를 알 수 있는 가장 이른 지점이기 때문이다; 유일한
+결과는 `transid_rejects`가 이제 분류된 프래그먼트를 센다는 것이다. `acww_nds3d_report`에
+새 카운터 두 개: 이 규칙이 불투명 패스에서 빼낸 폴리곤 수 `transtex=`와 반투명 규칙을 받은
+프래그먼트 수 `transfrag=`, 그리고 그 옆에 `depth=W|Z` 모드 판독값.
 
 **F4 — 텍스처를 샘플링할 수 없을 때 노트를 올린다.** `tex3d.c`, `acww_gx_texel`, null인
 `tex_addr` 또는 `pltt_addr` 뒤에 오는 모든 `return 0`.
@@ -245,6 +304,23 @@ A5I3 재질을 명시한다 [E: `docs/log/2026-09-02.md`]. `tap-fullpad/shot_012
 *검증:* 마을 레시피에서 `(tex_param >> 30) & 3`이 {2,3}인 폴리곤을 센다 — 기존
 `nds3d poly-in` 프로브가 이미 `tex`를 출력한다. 개수가 0이 아니면, `tap-town`의 물과 모든
 환경 매핑된 표면이 해당 영역이다.
+*반영되었고, 지금까지 가장 눈에 띄는 3D 수정이다(RENDER42).* 개수는 OFF 레시피에서
+`ACWW_TEXTRACE_FRAME=6000`으로 세었다 [H: `scratchpad/cycle40/runs/off-textrace42`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]:
+458개 폴리곤 중 **하나**가 모드 2를 쓰고 모드 3을 쓰는 것은 없다 — 택시 벽의 액자 그림으로,
+텍스처 `0x95230280`, 화면 x 164..195, y 6..22의 32×32 형식 5 재질이다. 오라클은 거기에
+풍경을 그리고 포트는 색 줄무늬가 있는 검은색을 그렸는데, 이는 16배 너무 큰 텍스처 좌표가
+32×32 이미지에서 샘플링하는 결과다
+[O: `scratchpad/oracle/off/shot_006000.bmp`]
+[E: `scratchpad/render42/picture-frame-before-after.png`, oracle | before | after]. 두 모드
+모두 이제 세 항을 취해 24만큼 시프트한다 — 둘의 시프트가 같은 것은 오직 `cur_normal`이 이미
+`<< 3`된 원시 10비트 값이기 때문이며, `apply_texmtx`의 주석이 그렇게 말한다. OFF 레시피의
+31개 프레임에 대한 전체 프레임: 평균 ncc 0.9970 → 0.9974, 평균 ncc-top 0.9774 → 0.9807, mae
+7.43 → 7.31, **ncc를 잃은 프레임 없음**; 그림 자체의 상자 안에서는 mae 45.8 → 35.9
+[H: `scratchpad/cycle40/runs/off-p10` vs `off-f6`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. `ACWW_TEXMTX23_OLD=1`은 옛 분기를 유지한다.
+픽스처: `port/tools/test_nds3d_texmtx.py`(신규) — 모드 0, 모드 2, 모드 3을 Python으로
+써낸 산술과 대조하며, 네 번째 행이 의도적으로 큰 텍스처 행렬을 쓰고, F6 이전의 답을
+단언하여 반드시 잡혀야 하는 보정(calibration)을 포함한다
+[S: `docs/kb/hybrid/render-fixes.md` fix F6].
 
 **F7 — `gxstat_update()`가 `GXSTAT`을 덮어쓰는 것을 막는다.** `nds3d.c`, `gxstat_update`.
 *스펙:* 비트 30–31이 유일하게 쓰기 가능한 필드다; 26은 FIFO-empty; 1은 박스 테스트 결과다
@@ -263,6 +339,19 @@ A5I3 재질을 명시한다 [E: `docs/log/2026-09-02.md`]. `tap-fullpad/shot_012
 *검증:* `tap-town/shot_037500.bmp`의 지평선 행을 `tap-D56` 프레임 37,500과 비교. 한 행의
 이동은 사람 눈에는 보이지 않지만 행 차이 히스토그램에는 명백하다. 대수만으로 바꾸지 말 것 —
 오라클이 답하기 전까지 `wiki/STYLE.md` 규칙 7이 적용된다.
+*오라클이 답했고, 한 행이 아니라 두 축 모두다(RENDER42).*
+`scratchpad/render42/shiftfit.py`가 사분면별로 서브픽셀 이동을 피팅한다. 택시의 위 화면에서
+최적 피팅은 네 사분면 모두에서 같다 — 스케일이 아니라 이동이다 — dx = **+1.00 px**,
+dy = +1.00..+2.00이며, OFF 프레임 6,000에서 mae 15.08 → 7.03, 9,000에서 12.23 → 7.74로
+움직인다; 2D 아래 화면은 (0, 0)에 피팅되므로 오프셋은 3D 레이어만의 것이다. 이 행의 대수는
+원인이 아니다: ACWW의 전체 화면 뷰포트(y1 = 0, y2 = 191)에서 `(191 − y2)`와 `y1`이 둘 다
+0이므로 두 식은 일치한다. 대신 의심되는 것은 채우기 규칙의 샘플 포인트다 — F9를 보라 — 그리고
+방향이 맞는다(중심 샘플은 정수 샘플보다 특징을 반 픽셀 더 왼쪽·위에 놓는다).
+`ACWW_3DBIAS_X`/`_Y`는 지오메트리를 픽셀의 16분의 1 단위로 이동시키며 측정 전용이다:
++0.5 px는 OFF 프레임 4,500..6,000에 걸쳐 평균 mae 7.66 → 6.92, ncc-top 0.9787 → 0.9824로
+움직이지만, 11개 프레임 중 2개에서 전체 프레임 ncc를 잃으므로 수정으로는 기각된다 — 이동은
+규칙이 아니다 [H: `scratchpad/cycle40/runs/off-bias4040`, `off-bias4848`;
+S: `docs/kb/hybrid/render-fidelity-history.md` section 4; receipt lost with its worktree; repeat the named recipe and retain the stated frames].
 
 **F9 — 엣지를 채우고, 1도트 폴리곤을 렌더링한다.** `raster3d.c`, `draw_poly`; `nds3d.c`,
 `emit_poly`(`area == 0` 분기).
@@ -277,6 +366,18 @@ enabled, or if the polygon is wireframe" — ACWW는 AA가 켜져 있으므로 �
 삼각형이 정말로 납작한 것이 아니라 12.4 절삭 이후에만 납작하다고 기록되어 있다. 먼저 마을
 레시피에서 `degenerate` 수치를 읽는다; 크다면 `tap-town/shot_027000.bmp`의 먼 마을 세부가
 해당 영역이다.
+*샘플 포인트는 이제 변수이며, F8의 용의자다(RENDER42).* `draw_poly`는 픽셀 내부의 샘플
+포인트를 16분의 1 단위로 나타내는 `soff`를 운반하며, 모든 소비자 — 스캔라인의 Y, 행 범위,
+스팬의 첫 열과 마지막 열, 스팬 파라미터의 분자 — 가 이에 대해 표현되므로 두 분기가 서로
+어긋날 수 없다. `ACWW_SAMPLE_INT=1`은 두 에뮬레이터가 쓰는 정수 샘플 포인트를 선택한다;
+기본값은 8(중심)로 변함없다. 이것이 F8에서 측정된 이동이 대리하는 규칙이며, RENDER42에서
+측정된 것 중 가장 많이 움직인다 — OFF 레시피의 31개 프레임에 걸쳐 평균 ncc 0.9974 → 0.9976,
+평균 ncc-top 0.9807 → **0.9833**, 평균 mae 7.31 → **6.66** — 그러나 **31개 프레임 중 9개**에서
+전체 프레임 ncc를 잃으므로(최악 −0.0007), 프론티어 규칙에 따라 기본값으로는 기각되어
+구현된 채 꺼져 있다 [H: `scratchpad/cycle40/runs/off-final` vs `off-sampleint`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. 이 손실이
+있어야 마땅하다는 해석이 있다: 에뮬레이터들은 래스터화 전에 버텍스 위치도 정수 픽셀로
+양자화하는데, 이 분기는 샘플 포인트만 바꾼다 — 짝의 절반이다. 같은 방식으로 측정한 나머지
+절반이 다음 실험이다. F9의 엣지 채우기와 1도트 절반은 여전히 열려 있다.
 
 **F10 — 안개.** `raster3d.c`, 합성 전 `colour[]`와 `depth[]`에 대한 후처리 패스.
 *스펙:* §2 F-fog에 완전히 문서화되어 있다; 포트는 이미 깊이 버퍼를 갖고 있으며, 픽셀별 안개
@@ -304,6 +405,28 @@ enabled, or if the polygon is wireframe" — ACWW는 AA가 켜져 있으므로 �
 깊이 동일 허용 오차(E4); `RAM_COUNT`와 `DISP3DCNT` 비트 13 오버플로 플래그(A12);
 `MTX_STORE` 슬롯 31 오류(A7); `SWAP_BUFFERS` 비트 0이 자동 정렬을 요구할 때의 노트(E12).
 
+**F14 — 3D 레이어가 BG0HOFS로 스크롤된다(G3). 반영됨, RENDER43.** `raster3d.c`
+(`acww_nds3d_compose_x`), `nds2d.c`(`compose_hofs`). *스펙:* GBATEK,
+[DS 3D Final 2D Output](https://problemkaputt.de/gbatek-ds-3d-final-2d-output.htm) — 512픽셀
+스크롤 영역, 이미지 256 다음 투명 256, 랩어라운드; 수직 스크롤 없음, 회전 없음.
+*코드, 이전:* 무조건 x = 0에서 합성했다. *현재:* `BG0HOFS & 0x1FF`를 통해 3D 버퍼를 읽으며,
+에뮬레이터 자체의 랩 방식을 따른다 — 이미지를 넘는 소스 열은 랩어라운드되지 않고 버려진다
+(DeSmuME 0.9.13 `GPU.cpp`, `RenderLine_Layer3D`). melonDS는 이를 아예 구현하지 않는다.
+*검증됨:* 측정상 무효 — ACWW는 두 증명 세트 모두에서 `BG0HOFS = 0`을 쓰므로 31/31 및
+141/141 프레임이 바이트 단위로 동일하다. 문서화된 공백을 닫은 것이지 충실도 이득은 아니다.
+`ACWW_3D_HOFS=0`은 옛 분기를 유지한다.
+
+**F15 — 프레임당 SWAP_BUFFERS 한 번; 나머지는 보류한다(G4). 반영됨, RENDER43, 그리고 이것이
+에이커 지면 탈락이다.** `nds3d.c`, `case 0x50`. *스펙:* GBATEK, DS 3D Display Control — *"SwapBuffers
+isn't executed until next VBlank (Scanline 192) (the Geometry Engine is halted for that
+duration)"*; DeSmuME 0.9.13 `gfx3d.cpp`는 이 정지를 문자 그대로 구현한다. *코드, 이전:* 모든
+커맨드에서 스왑했으므로, 여러 논리 프레임의 GX 작업을 담은 호스트 프레임 하나가 여러
+디스플레이 리스트를 래치하고 버렸다. *측정:* 실패의 경계에서 `swaps`는 1 → **19**로 가고
+리스트는 385 폴리곤 → **0**으로 가며, VRAMCNT, DISP3DCNT, CLEAR_COLOR, CLEAR_DEPTH, VIEWPORT는
+모두 변함없다 [E: `scratchpad/render43/gxwatch-58700-58790.txt`]. *현재:* 프레임당 최대 한 번의
+스왑; 보류된 스왑 이후의 지오메트리는 다음 프레임의 스왑이 래치하는 리스트에 누적된다.
+`swaps=N held=M`이 상시 보고서에 있다; `ACWW_SWAP_EVERY=1`은 옛 분기를 유지한다.
+
 ---
 
 ## 5. 가설
@@ -328,9 +451,12 @@ enabled, or if the polygon is wireframe" — ACWW는 AA가 켜져 있으므로 �
   클리어하고 `G3X_SetFog`의 호출자는 `src/matched/`에 나타나지 않지만, `G3X_SetClearColor`는
   `fog = TRUE`로 호출되며, 이는 마스터 활성화가 켜져 있을 때만 의미가 있다. *실험:* 프레임별
   보고서가 이미 `DISP3DCNT`를 출력한다; 마을과 택시 레시피 전반에서 비트 7을 읽는다.
-- **H4 — 텍스처 좌표 변환의 모드 2와 3은 사용되지 않는다.** 포트는 이들이 실행되는 것을 본
-  적이 없으며 그렇게 밝히고 있다. *실험:* 마을 레시피에서 `(tex_param >> 30) & 3`의
-  히스토그램을 만든다. 0이라면 F6은 수정이 아니라 공짜 정확성이 된다.
+- **H4 — 텍스처 좌표 변환의 모드 2와 3은 사용되지 않는다.** ~~포트는 이들이 실행되는 것을
+  본 적이 없으며 그렇게 밝히고 있다.~~ **확정되었고, 거짓이다(RENDER42).** 히스토그램을 만들었다:
+  OFF 프레임 6,000에서 458개 폴리곤 중 **하나**가 모드 2를 쓰고(모드 3은 없음), 그것은 눈에
+  보이는 것이다 -- 택시 벽의 액자 그림으로, 줄무늬를 그리다가 이제 풍경을 그린다.
+  따라서 F6은 공짜 정확성이 아니라 수정이었다. 마을 레시피는 히스토그램을 만들지 않았다
+  [E: `off-textrace42`; the F6 row above].
 - **H5 — 포트의 추가 정확성은 오라클 비교에 부담이다.** 8비트 색상 채널(C7), 완전 정밀도
   원근 보간(E15), 64비트 나눗셈(B11) 모두 포트를 DS보다 *더* 정확하게 만든다. 어떤
   프레임도 오라클과 바이트 단위로 같아지지 않을 것이므로, 감사 방법은 정확 일치가 아니라
@@ -343,6 +469,7 @@ enabled, or if the polygon is wireframe" — ACWW는 AA가 켜져 있으므로 �
 - `hardware-services.md` — 포트의 나머지 하드웨어에 같은 방법을 적용한 것.
 - `port/render/selftest3d.c` — 기존 검사. 파라미터 개수, 패킹된 인코딩, 버텍스 형식, 행렬,
   와인딩, 클리핑, 래핑, I4와 4x4 텍스처 디코드, 깊이 순서, 그리고 합성 사례 하나를 다룬다.
-  **다음에 대한 검사는 없다:** 안개, 엣지 마킹, 툰, 반투명 ID 규칙, W 버퍼 깊이, 깊이 동일
+  `port/tools/test_raster3d_depth.py`가 이제 W 버퍼 깊이와 정규화 문제를 다룬다(54개 검사).
+  **어느 쪽에도 다음에 대한 검사는 없다:** 안개, 엣지 마킹, 툰, 반투명 ID 규칙, 깊이 동일
   테스트, 와이어프레임, 1도트 폴리곤, `POS_TEST`/`VEC_TEST`, `GXSTAT` 보존, A3I5/A5I3 알파,
   또는 다이렉트 컬러 — §4와 같은 목록이며, 수정의 회귀 테스트가 있어야 할 곳이다.

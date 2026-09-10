@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가 · ACWW 근거 위키</title>
+<meta name="description" content="174ae9e3와 2e579f09 사이의 열네 개 커밋은 이전 어느 사이클보다 포트가 *무엇인지*를 더 많이 바꿨다: 포트가 소리를 냈고, 렌더러가 한 프레임 이상을 잡아먹는 일을 그만뒀고, 게임 내 시계가 돌기 시작했고, 플레이한 마을이 스스로 저장되고 다시 로드됐으">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li class="active"><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</span></div><header class="page-head"><h1>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 3</span><span class="gchip g-O"><b>O</b> 1</span></div><div class="source-line">원문: <code>wiki/audits/night-2026-09-09.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> <code>174ae9e3</code>와 <code>2e579f09</code> 사이의 열네 개 커밋은 이전 어느 사이클보다 포트가
+<em>무엇인지</em>를 더 많이 바꿨다: 포트가 소리를 냈고, 렌더러가 한 프레임 이상을 잡아먹는 일을
+그만뒀고, 게임 내 시계가 돌기 시작했고, 플레이한 마을이 스스로 저장되고 다시 로드됐으며,
+세 건의 별개 "포트 결함"이 알고 보니 게임 자체의 동작이거나 다른 세션의 <code>taskkill</code>이었다.
+이 페이지는 독자가 어느 유닛이 무엇을 측정했는지 찾을 때 쓰는 색인이다 &ndash; 모든 행은 커밋,
+그 유닛이 바꾼 페이지, 무엇을 확정(SETTLED)했고 무엇을 미결(OPEN)로 남겼는지를 적는다.
+이 페이지 자체는 근거가 아니다: 각 행의 출처는 영수증을 담고 있는 페이지를 가리킨다.</p>
+<p><strong>행을 읽는 법.</strong> "확정"이란 어떤 주장이 H에서 S, E 또는 O로 옮겨갔거나, 기존 주장이
+측정으로 철회되었다는 뜻이다. "미결"이란 그 유닛이 다음 실험을 끝내지 않고 이름만 붙였다는
+뜻이다. 두 유닛이 서로 어긋나는 곳에서는 둘 다 나열하고, 그 불일치는 별도의 행으로 둔다.</p>
+<h2 id="유닛들-커밋-순서대로">유닛들, 커밋 순서대로</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>유닛</th>
+<th>커밋</th>
+<th>확정한 것</th>
+<th>미결로 남긴 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CASE42</strong></td>
+<td><code>174ae9e3</code></td>
+<td>"인터프리터 콜백 이상 현상(interpreted callback anomaly)"은 인터프리터 실행이 아니라 전달(DELIVERY) 경로의 문제였다: <code>ACWW_TP_PXI=1</code>이 프레임당 네 번씩 응답 큐 전체를 추가로 비웠기 때문에, 태그 11 카드 요청이 그것을 게시한 바로 그 프레임 안에서 응답되었다(750건 중 599건이 같은 프레임, 기본값에서는 0건). <code>ACWW_TP_DRAIN=1</code> &ndash; 인터프리터 호출이 어디에도 없음 &ndash; 이 이를 바이트 단위로 재현한다. 스택 겹침 가설은 거짓(FALSE)으로 측정되었다: IRQ 컨텍스트에서 가장 깊은 호출도 0x800 중 140바이트를 썼을 뿐이다</td>
+<td><code>TP_WaitBusy</code>도 모든 태그를 비운다(런당 두 번, 둘 다 부팅 시)</td>
+</tr>
+<tr>
+<td><strong>AUDIO6</strong></td>
+<td><code>115984f9</code></td>
+<td><strong>포트가 소리를 낸다.</strong> ARM7 커맨드 프로세서, WASAPI 싱크, 192 Hz 프레임; 호스트 아카이브 없음 &ndash; ROM이 자기 SDAT을 직접 연다. 상한을 없앤 센서스가 감사(audit)의 "게임은 재생 명령을 한 번도 보내지 않는다"를 죽였고(M1: 12줄 상한이 곧 그 근거였다), 모든 음악 조각이 무음의 ARM7을 상대로 해체되었다가 다시 시작되고 있음을 보여줬다</td>
+<td>마일스톤 7(캡처 편차), 마일스톤 8(차분), LFO/포르타멘토, <code>seq_length_of</code>의 상한; 오디오 엔드포인트가 없는 머신에서는 싱크 자체가 영수증이 없다</td>
+</tr>
+<tr>
+<td><strong>LIVE41</strong></td>
+<td><code>fd8da4d8</code></td>
+<td><strong>사람이 플레이할 수 있다</strong>: <code>python port/tools/play.py</code>, 스크립트된 것에는 모두 꺼지는(OFF) 59.8261 Hz 페이서, 2배 창, 영속 세이브, 키 맵, <code>ACWW_QUIET</code>. ROM의 샘플러가 호스트 프레임 약 3개마다 한 번 돌고 세 개의 양호한 샘플을 요구하기 때문에 스타일러스에는 <code>ACWW_TOUCH_MIN_FRAMES</code>가 필요했다. 스크립트된 모든 조건(arm)의 바이트 정확성이 영수증으로 남았다</td>
+<td>오프닝 메뉴를 지난 사람의 세션은 검증되지 않음; 렌더러가 다음 목표로 지명됨(그리고 2D 렌더러로 잘못 지목됨 &ndash; PERF42가 정정했다)</td>
+</tr>
+<tr>
+<td><strong>RENDER42</strong></td>
+<td><code>b1080164</code></td>
+<td><strong>P10</strong>(5비트 영역의 색 효과 &ndash; 반영됨, 효과 없음으로 측정됨, 픽스처가 그 근거) 및 <strong>F6</strong>(텍스처 매트릭스 모드 2와 3: 458개 폴리곤 중 정확히 하나, 택시의 액자 그림이 줄무늬를 그리다가 이제 풍경을 그린다). <strong>P11은 효과 없음으로 측정되어 의도적으로 만들지 않았다.</strong> <code>ACWW_SAMPLE_INT</code>는 숫자를 들어 기각됨</td>
+<td>3D 레이어의 약 1 px 왼쪽 위 오프셋; 마을 하늘의 빠진 수직 그라데이션; exit 1 런들(STAB42가 가져갔다)</td>
+</tr>
+<tr>
+<td><strong>GAMEPLAY41</strong></td>
+<td><code>872ccb3c</code></td>
+<td>스크립트된 플레이어가 마을 회관 너머에서 무엇을 할 수 있는지, 그리고 실험 비용을 22분 대신 20-160초로 만든 도구로서의 <code>ACWW_PADSCRIPT</code></td>
+<td>주민에게 말 걸기는 달성 못함; 4,000프레임 그림 홀드는 설명되지 않음(ORACLE44가 가져갔다)</td>
+</tr>
+<tr>
+<td><strong>AUDIO7</strong></td>
+<td><code>36ee5abe</code></td>
+<td><strong>마일스톤 7과 8.</strong> 캡처 유닛, 출력 선택기(<code>1 2 1 1</code>)와 서라운드 감쇠, 브링업을 예측이 아니라 출력해서 확인했고, <strong>지연 1,025 샘플, 계수 0.9962</strong>의 교차상관으로 선택기가 준수됨을 증명. <code>READ_DRIVER_INFO</code> 구현됨; <strong>이 ROM은 그것을 한 번도 보내지 않는다.</strong> 세 개의 상수 테이블을 이 ROM 자체의 이미지에서 찾음 &ndash; 그리고 진짜 오류는 어느(WHICH) 테이블이냐였다(<code>SND_CalcDecibel</code>이 아니라 <code>SND_CalcDecibelSquare</code>); <strong>공개 SDK가 -32768인 곳에서 엔트리 0은 -723이다</strong></td>
+<td>DeSmuME의 ARM7과의 차분: 그 세션에서는 에뮬레이터가 시작되지 않았다(675초 중 CPU 1.1초, 마일스톤 8 이전 관찰자로도 동일) &ndash; 환경 사실. 채널 6/7의 루핑 대 미재생은 미해결</td>
+</tr>
+<tr>
+<td><strong>SAVEFLOW41</strong></td>
+<td><code>61495f07</code></td>
+<td><code>FlushViewOfFile</code>을 쓴 카드 센서스, 그래서 "쓰였다"와 "디스크에 있다"가 하나의 주장이 됨; <code>savetool.py</code>의 체크섬 규칙은 등급 S(<code>rom_accepts()</code>); 세이브 트리거는 <code>0x020e3810</code>의 멤버 테이블을 거쳐 <code>func_020a1d94</code> / <code>func_020a1cec</code> / <code>func_020a48cc</code>에 위치함</td>
+<td>그 테이블을 무엇이 인덱싱하는가(SAVE42가 가져갔다); "마을 프런티어를 철회하라"는 그 판독은 틀렸다 &ndash; 오래된 <code>TOUCH2_AT=24600</code> 줄을 돌렸던 것</td>
+</tr>
+<tr>
+<td><strong>ORACLE44</strong></td>
+<td><code>82a7dad1</code></td>
+<td>오라클이 <code>ACWW_PADSCRIPT</code>를 익혀, 무비 하나가 레시피와 타임라인을 함께 담는다. <strong>4,000프레임 그림 홀드는 게임(GAME)의 튜토리얼이다</strong>, 포트의 정지가 아니다 &ndash; 원본도 같은 창을 얼리고 같은 프레임 54,900에서 푼다. 마을 회관 안의 검은 위 화면은 실내 고유의 모습이다; 밖에서는 위 화면이 하늘이다</td>
+<td>포트의 더 평평한 하늘; 53,100에서의 HUD 분리(RTC42가 가져갔다)</td>
+</tr>
+<tr>
+<td><strong>GAMEPLAY42</strong></td>
+<td><code>091131a7</code></td>
+<td>과일을 흔들어 떨어뜨리고 주워 주머니에서 찾았고, 들판 표지판의 메시지 상자, 문을 양방향으로 통과함. 지도가 조준용 도구다</td>
+<td>"주민은 결코 그려지지 않는다" &ndash; VILLAGER42와 SAVE43에 의해 <strong>두 번 철회됨</strong>; 그리고 새로운(NEW) 고장, 간헐적인 에이커 지면 드롭아웃(1,160장의 스틸 중 17장)</td>
+</tr>
+<tr>
+<td><strong>PERF42</strong></td>
+<td><code>fbfc987d</code></td>
+<td><strong>포트는 <code>-O0</code>으로 빌드되어 있었다.</strong> <code>port/render/</code>를 <code>-O2</code>로 올리고 픽셀 단위 작업을 제거: 그리기 26.5 -&gt; 7.3 ms(택시), 22.6 -&gt; 6.2 ms(마을), <strong>일곱 개 중간 링크 모두에서 바이트 정확</strong>. <code>ACWW_FRAMETIME=1</code>이 이제 단계를 이름으로 지목하고, 그 보고서가 LIVE41을 정정했다: 3D 래스터라이저가 26.5 ms 중 21.1 ms였다</td>
+<td>인터프리터와 심(shim)은 정확성 하네스가 생길 때까지 <code>-O0</code>에 머문다(H로 표시); 래스터라이저는 여전히 그리기의 86%</td>
+</tr>
+<tr>
+<td><strong>RTC42</strong></td>
+<td><code>ef890990</code></td>
+<td><strong>게임 내 시계가 진행한다.</strong> 태그 5는 SDK 방식대로 응답된다 &ndash; <code>RtcWaitBusy</code>가 결코 양보하지 않으므로 송신 안에서 &ndash; 그리고 그 순간은 프레임 카운트의 순수 함수다. <strong>ORACLE44의 마지막 미결 항목이 닫혔다: 프레임 53,100에서 HUD가 양쪽 모두 <code>6/15 AM10:14</code>를 읽는다.</strong> <code>ACWW_RTC_FREEZE=1</code>이 탈출구이며, 얼린 상태에서는 RTC42 이전 빌드와 31/31 동일하다</td>
+<td>보관된 모든 OFF/마을 레퍼런스가 이제 시계에 의존하므로, RTC42 이전 런과 비교하려면 시계를 얼려야 한다; 포트의 속도와 DeSmuME의 속도가 하루에 걸쳐 보조를 맞추는지는 측정되지 않음</td>
+</tr>
+<tr>
+<td><strong>STAB42</strong></td>
+<td><code>0bc59cc0</code></td>
+<td><strong><code>acww.exe</code>는 exit 1로 끝날 수 없다</strong>; <code>taskkill /F</code>와 Python의 <code>kill()</code>은 둘 다 1을 남기고, <code>Stop-Process</code>는 <code>0xffffffff</code>를 남기며, 평범한 <code>WM_CLOSE</code>는 세이브를 플러시하고 0을 남긴다. 48,000프레임 조건 여섯 개, exit 100 여섯 개, 모든 조건에서 15/15 스크린샷 동일. 마을 레시피의 실제 비용을 명시(1,500초 타임아웃에 대해 1,000-1,360초)</td>
+<td>포트 안에는 아무것도 없음; PERF42의 빌드에서 비용을 다시 측정할 것(SAVE43이 했다: 522초)</td>
+</tr>
+<tr>
+<td><strong>SAVE42</strong></td>
+<td><code>4c17d65e</code></td>
+<td><strong>세이브 거부는 날짜가 아니라 <code>0x021f3c30</code>의 이사 모드 워드(move-in mode word)다</strong> &ndash; <code>func_0209f6e4</code>의 분기, 옮겨 적음; RTC 조건은 논증 대신 실행(RUN)했다(두 날짜, 한 거부, 한 글자도 다르지 않음). 세이브 드라이버는 <code>func_020a2120</code>, 상태 일곱 개, 상태 4 = <code>func_020a1d94</code>. <code>acww_card_report()</code>는 SAVEFLOW41 이후 호출자가 없었고(B6) 이제 연결됨</td>
+<td>"아무것도 0을 쓰지 않는다" &ndash; <strong>틀림</strong>, SAVE43이 열 번째 접근자를 찾았다; 다락방 침대를 규칙으로 읽은 것</td>
+</tr>
+<tr>
+<td><strong>VILLAGER42</strong></td>
+<td><code>362e8dd5</code></td>
+<td><strong>포트 결함이 아니다</strong>: <code>actor+0x8b0</code>은 실제로(IS) 두 번 바인딩된 뒤 autoload_2의 <code>.data</code>에 있는 널 멤버 포인터로부터 ROM 코드에 의해 의도적으로 언바인딩(UNBOUND)된다. 두 액터는 살아서 걷는 주민이다. <strong>도착 튜토리얼의 삽화는 패드를 버리는 프롬프트(PROMPT)다</strong>, 그래서 사이클 41-42의 모든 주민 사냥은 그 홀드 안에서 걸었다</td>
+<td>주민이 찍힌 스틸은 아직 없음; <code>X</code> 다음 <code>B</code>가 해제 방법으로 지명됨</td>
+</tr>
+<tr>
+<td><strong>SAVE43</strong></td>
+<td><code>2e579f09</code></td>
+<td><strong>게임이 저장하고 세이브가 다시 로드된다.</strong> 게이트는 플레이어의 집에서 너굴(Nook)의 대사가 끝날 때 게임 자체의 <code>func_020a128c</code>에 의해 해제된다; 744 x 256바이트 페이지, 한 프레임 뒤에 검증, 뱅크 1 다음 2, 190,456바이트, <code>savetool.py</code>가 둘 다 수락; 새로 실행하면 저장된 마을에서 이어진다. <strong>그리고 도착 스텝을 지나면 주민이 그려진다(ARE)</strong></td>
+<td>VILLAGER42의 "X 다음 B" 프롬프트는 이 체인에서 재현되지 않았다 &ndash; 어느 도착 스텝이 주민을 게이트하는지가 그 밤의 유일한 살아 있는 불일치; <code>0x337fc</code>의 편지 저장소는 한 번도 쓰이지 않음; 침대와 마을 회관 세이브는 미측정; 너굴의 상점</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="그-밤이-남긴-불일치-있는-그대로">그 밤이 남긴 불일치, 있는 그대로</h2>
+<p><strong>어느 도착 스텝이 주민을 게이트하는가, 그리고 무엇이 튜토리얼 홀드를 푸는가.</strong> VILLAGER42는
+패드 스크립트에 <code>X</code> 행이 없으면 닌텐도 DS 삽화가 11,900프레임 뒤에도 여전히 떠 있고 패드는
+버려지며, <code>X</code> 다음 <code>B</code>가 이를 지운다고 측정했다. SAVE43의 체인에는 <code>X</code> 행이 없었는데도 홀드는
+어쨌든 풀렸고, 그다음 주민이 그려지고, 걸어가 부딪히고, 말을 걸 수 있었다. 서로 다른
+스냅샷과 서로 다른 빌드에서 각각 한 번씩의 실행
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> VILLAGER42; <code>docs/log/cycle42-save.md</code> SAVE43</span></span>. 이를 확정할
+네 조건 실험은 <code>../systems/villagers.md</code>의 가설 절에 적혀 있다.</p>
+<h2 id="포트-결함이-아니었던-세-가지">포트 결함이 아니었던 세 가지</h2>
+<p>따로 절을 둘 만하다. 그 밤의 방법론적 결과이고, 이를 배우는 데 유닛 세 개가 들었기 때문이다.</p>
+<ol>
+<li><strong>"주민은 결코 그려지지 않는다"</strong>(GAMEPLAY42)는 도달(REACH) 문제였고, 그다음엔 그것조차
+   아니었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">VILLAGER42, SAVE43</span></span>.</li>
+<li><strong>"4,000프레임 그림 홀드는 포트의 정지다"</strong>(cycle41)는 게임 자체의 튜토리얼이다; 원본도
+   같은 프레임에서 정확히 같은 일을 한다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">ORACLE44</span></span>.</li>
+<li><strong>"마을 레시피가 exit 1로 끝난다 &ndash; AUDIO6 회귀"</strong>(RENDER42의 관측)는 다른 세션의
+   <code>taskkill /IM acww.exe</code>였다; 이미지는 그 종료 코드를 만들어낼 수 없다
+   <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">STAB42, <code>../experiments/run-stability.md</code></span></span>.</li>
+</ol>
+<p>공통된 모양은 M1이다: 각 경우에 도구, 도달, 또는 환경이 변수였고, 각 경우에 올바른 다음
+단계는 포트를 바꾸는 것이 아니라 측정을 보정하는 것이었다. <strong>그 밤 세 개의 별개 에이전트가
+<code>taskkill /IM acww.exe</code>를 실행했고</strong> 매번 다른 세션의 실행을 죽였다 &ndash; PID로 죽여라(B14).</p>
+<h2 id="이-밤에-바뀐-위키-페이지">이 밤에 바뀐 위키 페이지</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>페이지</th>
+<th>무엇이 바뀌었나</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>../systems/audio.md</code></td>
+<td>"아무것도 재생되지 않는다" 철회; 드라이버, 캡처 경로, 브링업, 테이블, 마일스톤</td>
+</tr>
+<tr>
+<td><code>../systems/save-data.md</code></td>
+<td>게임이 수행하는 그대로의 세이브; 이사 게이트; "아무것도 0을 쓰지 않는다" 철회</td>
+</tr>
+<tr>
+<td><code>../systems/villagers.md</code></td>
+<td>주민이 그려짐; 두 체인의 불일치를 가설로</td>
+</tr>
+<tr>
+<td><code>../systems/time-and-rtc.md</code></td>
+<td>시계가 진행함; 보관된 모든 레퍼런스에 대한 <code>ACWW_RTC_FREEZE</code> 규칙</td>
+</tr>
+<tr>
+<td><code>../engine/graphics-pipeline.md</code></td>
+<td>포트의 렌더러가 얼마나 드는지, 무엇을 맞게 하는지; 미결 렌더 항목 세 개</td>
+</tr>
+<tr>
+<td><code>../experiments/save-and-reload.md</code></td>
+<td>세 주장 모두 답변됨</td>
+</tr>
+<tr>
+<td><code>../experiments/gameplay-walkthrough.md</code></td>
+<td>SAVE43 체인; 주민을 순서대로 세 가지 판독으로</td>
+</tr>
+<tr>
+<td><code>../experiments/live-play.md</code></td>
+<td><strong>신규</strong> &ndash; LIVE41</td>
+</tr>
+<tr>
+<td><code>../experiments/run-stability.md</code></td>
+<td><strong>신규</strong> &ndash; STAB42</td>
+</tr>
+<tr>
+<td><code>hardware-services.md</code>, <code>audio-design.md</code>, <code>3d-engine.md</code></td>
+<td>P1/P10/P11/P13, F6/H4, 그리고 오디오 빌드 순서 여덟 단계 전부의 상태 행</td>
+</tr>
+<tr>
+<td><code>../glossary.md</code></td>
+<td>이사 모드, 도착 스텝, 카드 페이지, 캡처 유닛, 출력 선택기, 페이서, 패드 스크립트</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>docs/log/cycle40-keyboard-gate-probe.md</code> &ndash; CASE42, AUDIO6, LIVE41, RENDER42, AUDIO7,
+  SAVEFLOW41, PERF42, RTC42, STAB42, SAVE42, VILLAGER42, SAVE43: 위의 모든 행이 추려져 나온
+  추가 전용 기록</li>
+<li><code>docs/log/cycle41-gameplay.md</code> &ndash; GAMEPLAY41/42, ORACLE44, RTC42, VILLAGER42 전문</li>
+<li><code>docs/log/cycle42-save.md</code> &ndash; SAVE42와 SAVE43 전문</li>
+<li><code>docs/kb/hybrid/</code> &ndash; <code>audio.md</code>, <code>render-perf.md</code>, <code>render-fidelity.md</code>, <code>save-flow.md</code>,
+  <code>savestate.md</code>, <code>stall-playbook.md</code>: 구현 측 페이지</li>
+<li><code>consistency.md</code> &ndash; 위키를 위키 자신에 대조해 읽는 감사(audit)</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/sdk-names.html"><small>◀ 이전</small>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a><span class="pn"></span></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#유닛들-커밋-순서대로">유닛들, 커밋 순서대로</a></li><li><a href="#그-밤이-남긴-불일치-있는-그대로">그 밤이 남긴 불일치, 있는 그대로</a></li><li><a href="#포트-결함이-아니었던-세-가지">포트 결함이 아니었던 세 가지</a></li><li><a href="#이-밤에-바뀐-위키-페이지">이 밤에 바뀐 위키 페이지</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

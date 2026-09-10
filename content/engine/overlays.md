@@ -58,7 +58,7 @@ fault]. 그런 이유로 명령어 집합 테이블은 모든 항목 옆에 오�
 [S: `port/shim/fs/ovlreloc.c` header, and the walk at `:243-258`]. 그 워드들은 방금 복사된
 이미지 안의 NDS 주소이며, 바로 이것이 포트에서 첫 오버레이 호출이 `0x02266905`의 날것 ARM 코드로의
 점프로 나타난 이유다
-[E: `port/shim/fs/ovlreloc.c` header]. 하나의 오버레이는 많아야 이백여 개를 담으며;
+[H: host-source account from `port/shim/fs/ovlreloc.c` header; verify with a retained scripted run and frame using this page's recipe]. 하나의 오버레이는 많아야 이백여 개를 담으며;
 인터프리터 경로는 최대 256개까지 읽는다 [S: `port/shim/fs/ovlreloc.c:206-212`].
 
 인증 블록도 있다: `FSi_CompareDigest`는 이미지를 다이제스트 테이블과 대조하며 그 유일한

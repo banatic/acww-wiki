@@ -75,7 +75,7 @@ Text reaches the glyph layer as 16-bit codes. The string walk reads them **big-e
 `(p[1] << 8) | p[0]` over the byte pair — and passes each to a virtual method
 [S: `func_020a9368`, `main`, transcribed in `port/shim/game/glyphcode.c`, header]. The codes are
 Unicode: a live probe of the port recorded `0xC548`, `0xB155` and `0xD558`, which are the Hangul
-syllables 안, 녕, 하 [E: `port/shim/game/glyphprobe.c`, header, recorded probe output]. When a
+syllables 안, 녕, 하 [H: host-source account from `port/shim/game/glyphprobe.c`, header, recorded probe output; verify with a retained scripted run and frame using this page's recipe]. When a
 code has no glyph the lookup falls back to `0xFF20`, FULLWIDTH COMMERCIAL AT
 [S: `func_020512d4`, `main`, `src/matched/func_020512d4.c`; `port/shim/game/glyphcode.c`,
 header]. The SDK's own UTF-16 splitter, `NNSi_G2dSplitCharUTF16`, is present at `0x02104cec` but
@@ -103,7 +103,7 @@ a 32-bit glyph count followed by two 16-bit dimensions: fontA is 3,314 glyphs at
 exactly 120, both `count * w * h / 8` with nothing left over
 [S: `extract/adm-kr/files/font/fontC_img.bin` 608 bytes, `fontD_img.bin` 120 bytes]. The 3,314
 count for fontA is corroborated live: the port's probe printed `font 0x021c8230 glyphs 3314`
-[E: `port/shim/game/glyphprobe.c`, header, recorded probe output].
+[H: host-source account from `port/shim/game/glyphprobe.c`, header, recorded probe output; verify with a retained scripted run and frame using this page's recipe].
 
 `func_02051794` is the loader for those four triples [S: `func_02051794`, `main`,
 `src/matched/func_02051794.c`; `port/TAXI-ROAD.md`, ACWW font loader row]. `func_020516b8` is
@@ -191,7 +191,7 @@ coordinates from two words in `autoload_3`, `0x021f6c58` (X) and `0x021f6c54` (Y
 | `self+0xb14` | the window's BMG reader | window construction | `func_0206726c` [S: `src/matched/func_0206726c.c`] |
 | `self+0x14ac` | the window's string object | `func_0206726c` | the typewriter [S: `src/matched/func_0206726c.c`] |
 | `self+0x7c` | selects which glyph lookup runs | window setup | `func_020a8e8c` [S: `src/matched/func_020a8e8c.c`] |
-| `0x021c8230` | the loaded fontA record | `func_02051794` | the glyph lookups [E: `port/shim/game/glyphprobe.c`] |
+| `0x021c8230` | the loaded fontA record | `func_02051794` | the glyph lookups [H: host-source account from `port/shim/game/glyphprobe.c`; verify with a retained scripted run and frame using this page's recipe] |
 | `0x020d1df4` | three-entry glyph-set table, 8 bytes each | ROM data | `func_020ad4fc` [S: `port/shim/game/fontsetup.c`, header] |
 | `0x021f49a0` | three 0x18-byte glyph-surface descriptors | `func_020ad4fc` | the canvas registrations [S: `port/shim/game/fontsetup.c`] |
 | `0x021f6c58` / `0x021f6c54` | current stylus X / Y | `port/shim/input/touch.c`; on hardware the touch sampler | the keyboard gates [S: `config/.../ov126/relocs.txt`] |
@@ -207,7 +207,7 @@ hit exactly one — fontA glyph 383, which is `0xFF20`
 character code its caller passed in `r1`, so every code missed and every code fell back
 [S: `port/shim/game/glyphcode.c`, header; `port/tools/overrides.txt`, the `func_020a8e8c` row].
 After the repair the probe printed `0xC548 -> 2313`, `0xB155 -> 1306`, `0xD558 -> 3167`
-[E: `port/shim/game/glyphprobe.c`, header].
+[H: host-source account from `port/shim/game/glyphprobe.c`, header; verify with a retained scripted run and frame using this page's recipe].
 
 To re-run that check, enable the disarmed probe in `port/shim/game/glyphprobe.c` (it is `#if 0`
 and not listed in `port/tools/overrides.txt`), rebuild through `python port/tools/pipeline.py`,

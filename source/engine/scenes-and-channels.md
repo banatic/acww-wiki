@@ -19,7 +19,7 @@ of its own object [S: `func_020a6688` / `func_020a636c`, main,
 `func_020a6688` and the getter `func_020a6684`, which is called on every step and is therefore
 the one place that sees the machine tick [S: `port/shim/game/scenestate.c:30-40`]. The
 observed order of states is 16, then 0, 1, 2 and upward
-[E: `port/shim/game/scenestate.c` header, from the port's `acww scenest:` trace].
+[H: host-source account from `port/shim/game/scenestate.c` header, from the port's `acww scenest:` trace; verify with a retained scripted run and frame using this page's recipe].
 
 State 16's whole body is a single guard: it returns unless the scene id `data_020e3c80`
 equals 5 [S: `port/shim/game/scenestate.c:31-34`]. A machine that sets one state and stops
@@ -36,7 +36,7 @@ function-local static, and the stage counter is a byte at `0x021f42f0` which `fu
 clears when the scene is entered [S: `port/shim/game/scene6init.c` header].
 
 Stage 4 is the substage list that opens channels
-[E: `port/shim/game/chanvector.c` header, narrowed by elimination on the native path].
+[H: host-source account from `port/shim/game/chanvector.c` header, narrowed by elimination on the native path; verify with a retained scripted run and frame using this page's recipe].
 Stage 5 runs `func_020b0b00`, a loop over resource entries that dispatches
 `data_020e41ec[e->b0]` for each entry; a handler that returns zero means "not finished, come
 back next frame" [S: `func_020b0b00`, main, `port/shim/game/stageloop.c` header, body from
@@ -123,7 +123,7 @@ a code test [E: `docs/log/cycle40-keyboard-gate-probe.md` CHAN40b, where channel
 The set of distinct handler ids passed to `func_020edbbc` IS the set of channels a boot opens,
 because the first argument is the id the table is indexed by
 [S: `port/shim/game/chanopen.c:40-56`]. Named ids so far: channel 1 is the title scene
-[E: `port/shim/gfx/dispjoin.c` header]; channel 13 is the town's ground, whose record is at
+[H: host-source account from `port/shim/gfx/dispjoin.c` header; verify with a retained scripted run and frame using this page's recipe]; channel 13 is the town's ground, whose record is at
 `0x02239a2c` and whose constructor `func_ov003_0221fe10` has the acre model and texture loader
 in vtable slot 0 [S: `port/shim/game/chanopen.c:41-45`]; channel 189's object has its model draw
 in vtable slot 9 at `0x022382ac`, and it is the SNOWMAN rather than the field renderer the
@@ -212,7 +212,7 @@ where the instrument checks `acww_trace_state()` [S: `port/shim/game/chanopen.c:
 
 To tell "the channel list is short" from "the walk ran out of frame budget", compare the
 printed count against the number of `acww chanstage` lines — the walk is bounded at 40 ms and
-resumes on the next frame [S: `port/shim/game/chanlist.c` header].
+resumes on the next frame [H: host/prose inference from `port/shim/game/chanlist.c` header; verify against the ROM function or symbol table and this page's recipe].
 
 ## Hypotheses
 

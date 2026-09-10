@@ -53,7 +53,7 @@ this 조정값이 0이다 [S: `port/shim/gfx/dispsteppers.c:41-43`].
 
 바이트 매칭으로는 어떤 풀 워드가 무엇인지 확정할 수 없는데, 하네스가 리터럴 풀
 재배치를 마스킹하기 때문이다: 풀에서 세 개의 데이터 주소를 로드하는 함수는 세 이름의
-어떤 순열에서도 바이트 동일하다 [S: `port/shim/gfx/dispsteppers.c:8-14`].
+어떤 순열에서도 바이트 동일하다 [H: host/prose inference from `port/shim/gfx/dispsteppers.c:8-14`; verify against the ROM function or symbol table and this page's recipe].
 
 ### 순회 자체
 
@@ -172,7 +172,7 @@ ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 [E: `docs/kb
 
 업데이트 리스트가 죽는 측정된 증상은 조용하다: 마을이 계속 그려지는 동안 업데이트 리스트가
 프레임 0에서 한 번 순회되고 다시는 순회되지 않는 실행이다
-[E: `port/shim/gfx/pmflist.c:696-700`, the per-list pass counters].
+[H: host-source account from `port/shim/gfx/pmflist.c:696-700`, the per-list pass counters; verify with a retained scripted run and frame using this page's recipe].
 
 ## 어디에 있는가
 
@@ -194,7 +194,7 @@ ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 [E: `docs/kb
 | `func_02055e7c` / `func_02055e10` / `func_02055e04` | main | 카메라 상태 설정 후 그리기 | [S: `port/shim/gfx/drawobj.c` header] |
 | `NNS_G3dGlbFlushP` | main | 카메라와 투영을 지오메트리 엔진에 업로드 | [S: `port/shim/gfx/drawobj.c:11-13`] |
 | `func_0203c610` | main | 필드 카메라의 그리기 슬롯: 투영과 뷰 | [S: `port/shim/gfx/pmflist.c:59-61`] |
-| vtable `0x022382ac` | ov003 | 채널 189의 오브젝트 — 필드 렌더러가 아니라 눈사람(SNOWMAN) | [E: `port/BOOT-STATE.md:1159-1171`] |
+| vtable `0x022382ac` | ov003 | 채널 189의 오브젝트 — 필드 렌더러가 아니라 눈사람(SNOWMAN) | [H: source/log account from `port/BOOT-STATE.md:1159-1171`; verify with a retained run using this page's recipe] |
 
 ## 읽고 쓰는 데이터
 
@@ -228,7 +228,7 @@ draw=... destroy=...`는 멈춘 패스를 멈춘 카운터로
 
 "프레임워크가 실행 중이다"에 대한 반증 관측은 업데이트 리스트 카운터이다:
 `draw=`는 계속되는데 `update=`가 진행을 멈추면, 오브젝트는 그려지고 있지만 아무것도
-스텝되고 있지 않은 것이다 [E: `port/shim/gfx/pmflist.c:696-700`].
+스텝되고 있지 않은 것이다 [H: host-source account from `port/shim/gfx/pmflist.c:696-700`; verify with a retained scripted run and frame using this page's recipe].
 
 ## 가설
 

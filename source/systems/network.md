@@ -91,17 +91,17 @@ interface as the stated modding target [S: `port/DESIGN.md` section 4].
 Four small pieces are nevertheless reachable, and each is a real answer rather than a stub.
 `port/shim/net/dwcinit.c` replaces `func_0210172c`, which narrows the settings-store init result
 into a two-bit code, and always answers 0 -- settings valid, nothing erased
-[E: `port/shim/net/dwcinit.c`]. `port/shim/net/dwcbackup.c` implements `DWCi_BACKUPlInit`,
+[H: host-source account from `port/shim/net/dwcinit.c`; verify with a retained scripted run and frame using this page's recipe]. `port/shim/net/dwcbackup.c` implements `DWCi_BACKUPlInit`,
 `DWCi_BACKUPlRead` and `DWCi_BACKUPlWriteAll`, the store that holds SSIDs, WEP keys and DHCP
 settings: a read returns an all-zero page, which is a factory-fresh console that has never been
-configured, and a write is accepted and dropped [E: `port/shim/net/dwcbackup.c`].
+configured, and a write is accepted and dropped [H: host-source account from `port/shim/net/dwcbackup.c`; verify with a retained scripted run and frame using this page's recipe].
 `port/shim/tu_wcm_bits.c` supplies C bodies for two libwcm functions that exist only as
 assembly and are on the boot path even with wireless off -- `WcmCountBits`, a popcount, and
 `func_ov065_0227029c`, a count-leading-zero -- because the host compiler cannot build an mwcc
-`asm` body [E: `port/shim/tu_wcm_bits.c`]. And `port/shim/game/ov065thunks.c` answers three
+`asm` body [H: host-source account from `port/shim/tu_wcm_bits.c`; verify with a retained scripted run and frame using this page's recipe]. And `port/shim/game/ov065thunks.c` answers three
 functions the *title menu* reaches through leftover vtable slots pointing into ov065's loaded
 image; all three test a global function-pointer slot that the port's stubbed wireless never
-fills, and decline [E: `port/shim/game/ov065thunks.c`].
+fills, and decline [H: host-source account from `port/shim/game/ov065thunks.c`; verify with a retained scripted run and frame using this page's recipe].
 
 Consistent with that, no `DWC` or `WM` symbol appears in any recorded run's log: the only
 network-adjacent PXI traffic is tag 10 (WM), which the port names once and drops
@@ -131,16 +131,16 @@ network-adjacent PXI traffic is tag 10 (WM), which the port names once and drops
 | `func_ov065_02274798` (`DWC_Auth_Prepare_FirstPost`) | ov065 | builds the WFC authentication POST, including `devtime` from the RTC | [S: `src/matched/func_ov065_02274798.c`] |
 | `DWCi_BACKUPlInit` / `_Read` / `_WriteAll` | libdwcac | the wireless-settings backup store | [S: `src/matched/DWC_BACKUPlCheckSsid.c`] [E: replaced by `port/shim/net/dwcbackup.c`] |
 | `DWCi_SNDlPlay`, `_Stop`, `_SetVolume`, `_SetPitch` | libdwcac | the network UI's hooks into the sound player | [S: `src/matched/DWCi_SNDlPlay.c`] |
-| `func_0210172c` | autoload_2 | narrows the settings-store init result; the port answers 0 | [E: `port/shim/net/dwcinit.c`] |
+| `func_0210172c` | autoload_2 | narrows the settings-store init result; the port answers 0 | [H: host-source account from `port/shim/net/dwcinit.c`; verify with a retained scripted run and frame using this page's recipe] |
 
 ## Data it reads and writes
 
 | address or field | meaning | who writes | who reads |
 |---|---|---|---|
-| PXI tag 10 | the WM channel to the ARM7 | the ARM9 wireless manager | the ARM7 (the port drops it, naming the tag once) [E: `port/shim/os/pxisend.c`] |
+| PXI tag 10 | the WM channel to the ARM7 | the ARM9 wireless manager | the ARM7 (the port drops it, naming the tag once) [H: host-source account from `port/shim/os/pxisend.c`; verify with a retained scripted run and frame using this page's recipe] |
 | `DWCMatchControl.friendList` / `.friendIdxList` / `.evalCallback` | the matchmaking state a session runs from | `DWCi_MatchInit` | the matching layer [S: `docs/kb/modules/ov065-dwc.md`] |
 | `DWCLoginControl` user id / password / connect flag / auth token | the account credentials the POST carries | the auth thread | `DWC_Auth_Prepare_FirstPost` [S: `docs/kb/modules/ov065-dwc.md`] |
-| the DWC backup pages | SSIDs, WEP keys, DHCP settings, validated by CRC-16 | `DWCi_BACKUPlWriteAll` (the port: dropped) | `DWCi_BACKUPlRead` (the port: all zeros) [E: `port/shim/net/dwcbackup.c`] |
+| the DWC backup pages | SSIDs, WEP keys, DHCP settings, validated by CRC-16 | `DWCi_BACKUPlWriteAll` (the port: dropped) | `DWCi_BACKUPlRead` (the port: all zeros) [H: host-source account from `port/shim/net/dwcbackup.c`; verify with a retained scripted run and frame using this page's recipe] |
 | `DWC_BM` 4-page map | the settings store `DWC_BM_Init` validates and repairs with `MATH_CalcCRC16` | `DWC_BM_Init` | the settings UI [S: `src/matched/func_02100830.c`] |
 
 ## How to check it

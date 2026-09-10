@@ -30,6 +30,49 @@ TERRAIN and stamps a default town name
 deliberately writes no player state, because no player exists yet, and ends by setting the
 validity byte back to 0 [S: func_0209ebec, main, port/shim/game/newgameprobe.c].
 
+**The town is generated TWICE on the new-game path, and the second time is 11,346 frames after
+the town id is drawn.** MEASURED on both producers: the boot generation lands at port frame 758 /
+emulator frame 175 (inside the 280-draw initialiser burst), the whole map is then RESET to `0x86`
+/ `0xfff1`, the town **id** is drawn at the name confirmation (port frame 24,789, draw #2,667),
+and the REAL acre map, item layer and villager roster are all written in ONE later frame -- port
+**36,135**, draw index 3,782 -> 4,014 in that single frame
+[E: docs/log/cycle41-gameplay.md ORACLE49 O49-1/O49-2]. The acre bytes are written at pc
+`0x0204ea54` with `lr 0x0204e735` = `func_0204e728` at the real generation and `lr 0x0209efc5` =
+`func_0209ef7c` at the boot one [E: ORACLE49 O49-1, `ACWW_INTERP_WATCH` + `WATCH_LR=1`].
+
+**The generator is FAITHFUL in the port**: given the same stream position at the layout draw, the
+port writes the original's map. Two independent checks -- the boot town `0xd391`, where both
+producers draw from index 0..280 with no recipe at all (**4,617 compared words, 0 differ**), and
+the confirmed town `0x8365` under ORACLE47's forward shared recipe (**2,057 map words, 1
+differs**, and that one is a loose item `0x1555` twelve thousand frames of live play later)
+[E: docs/log/cycle41-gameplay.md ORACLE49 O49-3/O49-4]. **ORACLE50 re-took the forward tap
+window on a later build (it lands in the same three frames, `24,907..24,909`) and read the
+roster on BOTH producers rather than slot 0 alone: all eight slots agree,
+`6b 5e 84 ff ff ff ff ff`, and so do all SEVENTEEN building cells of `0x8365`, tile for tile --
+town hall (72,36), villager houses (61,67) (28,35) (68,20), gate (39,16), Able Sisters (26,24),
+Nook (21,25), museum (23,58), the player's house (73,53), the sign (67,38) and seven `0x500a`
+plots** [E: docs/log/cycle41-gameplay.md ORACLE50 O50-1].
+
+**The generator agrees when the layout draw starts at the same stream position:**
+the boot town `0xd391` has 4,617 compared words with 0 differences
+[E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-3].
+In the confirmed town `0x8365` under the forward recipe, 2,057 map words have 1 difference
+at frame 48,000; the 36 acre bytes and all seventeen building cells agree, with the town hall
+at (72, 36) on both producers [E: `scratchpad/oracle49/RECEIPTS.md`; log:
+`docs/log/cycle41-gameplay.md` O49-4].
+The differing word is a loose item `0x1555`, recorded twelve thousand frames of live play
+after generation, rather than a generated building or acre difference
+[E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-4].
+
+**A shared id under the inverse recipe is not a shared layout:** EXIT48 found the town-hall
+doormats at (40,38) on the port and (40,22) on the armed inverse original, with each producer
+recording its own entry position at frame 38,838 and replaying it on exit
+[E: `scratchpad/exit48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-2, X48-3, X48-4].
+The sixteen tiles therefore describe two town layouts, not a misplaced player in one layout;
+ORACLE49 located the inverse recipe's discrepancy at the layout burst, entering at index
+3,780 on the armed original and 3,782 on the port [E: `scratchpad/exit48/RECEIPTS.md`,
+`scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-4, O49-2].
+
 The generator proper is handler 2 of the town dispatcher `func_0209e6ec`: terrain through
 `func_0204e728`, the default town name, then an RTC advance that moves villagers in and a
 post-generation sync mirroring `func_020a1038`'s save-erase path
@@ -44,6 +87,23 @@ Cell writing during generation goes through a four-function idiom: `func_0209c61
 twenty nested `setv(cell(self, x, y), k)` statements and then three loops, where `cell` is
 `func_0209cc30`, `setv` is `func_0209d01c`, `getv` is `func_0209d030` and the rejection test
 is `func_02037b14` [S: func_0209c618, main, port/tools/known_callees.txt].
+
+**Where the map is in the save image, and how a tile maps to an address.** The acre map object at
+save `+0xd304` (`0x021e9aac`) is **36 raw acre bytes**, 6x6, and the ITEM LAYER follows it at save
+`+0xd328` (`0x021e9ad0`). **The item layer covers only the INNER 4x4 acres** -- 4x4 acres of 16x16
+halfwords is exactly 4,096 halfwords / 8,192 bytes, so it holds tiles 16..79 on both axes and the
+border acres carry no item block at all:
+
+    idx  = (addr - 0x021e9ad0) / 2
+    tile = (16 + 16*((idx//256) % 4) + (idx%256) % 16,
+            16 + 16*((idx//256) // 4) + (idx%256) // 16)
+
+MEASURED: that arithmetic run over the port's control town `0xc66e` reproduces every one of the
+nine building rows in the door table below -- town hall (40, 36), museum (71, 26), Nook (22, 52),
+and the rest -- from a snapshot taken INDOORS, with no live field
+[E: docs/log/cycle41-gameplay.md ORACLE49 O49-0, `scratchpad/oracle49/savemap.py`]. This is the
+reader to use when the question is what the GENERATOR produced: `navigate.py --list` needs the
+live field at `0x021c80bc` and answers about the room the player is standing in.
 
 Items are 16-bit ids in the map layer. Measured in a generated town's bank 0: fifteen items,
 including the shop `0x500d`, eleven house spots `0x500a`, and `0x5014`
@@ -121,6 +181,115 @@ The town's top screen is engine B in mode 1 with BG3 affine (`BG3CNT = 0x6f02`) 
 and once affine backgrounds were drawn the clouds appeared over the town hall
 [E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57` frame 37800].
 
+## Walkability: the acre template's collision map
+
+Each acre entry's `+0x20` points at the LOADED ACRE TEMPLATE, shared between every acre of the
+same id, and the template's `+0x0c` is that acre's `bcl` file: **256 bytes of a 16x16 TILE KIND
+map, then 128 bytes of 16x16 nibbles**. The acre's resource is a NARC whose `BTNF` names its
+two members `bmd0` and `bcl0` and whose `BTAF` puts the second at `[0x384, 0x504)` -- 384
+bytes, i.e. 256 + 128 [S: port/tools/navlib.py] [E: docs/log/cycle41-gameplay.md NAV42]. So
+the town's collision is a per-acre 16x16 byte map indexed by the acre id, and the 96x96 grid is
+those 36 maps laid side by side. A tile is **2.0 world units**: an acre origin at `acre+0x0c`
+is `gx * 0x20000` = 32.0 units, over 16 tiles [S: port/tools/navlib.py].
+
+The kinds, MEASURED by flood fill over the reference town and then checked against the map
+screen [E: docs/log/cycle41-gameplay.md NAV42]:
+
+| kind | what it is | walks? |
+|---|---|---|
+| `0x03` `0x04` `0x09` `0x17` `0x1d` `0x1e` | grass, house plot, the second grass shade, seams | yes |
+| `0x1f`..`0x57` | slopes, ramps, bridge decks, the beach | yes |
+| `0x08` | the sea | no |
+| `0x0a` | a building's footprint | no |
+| `0x0b`..`0x14` | the river | no |
+| `0x15` | outside the town (the border acres are all `0x15`) | no |
+
+On the reference town that is **3,256 walkable tiles in one component of 3,214**, containing
+the player and every door; the other two components are 41 tiles and 1 tile
+[E: docs/log/cycle41-gameplay.md NAV42, `scratchpad/nav42/RECEIPTS.md`]. The ITEM layer blocks
+on top of the kind: a building id `0x5000..0x5021`, and the tree/rock family the ROM's own
+nine-term predicate picks out [S: src/matched/func_ov003_0220cd84.c]. **That predicate tests
+the ITEM word, not the kind byte** -- the town's item layer carries `0x002a` 85 times, `0x0053`
+32 times, `0x0068` 15 times and `0x0061` 10 times, all inside its bands -- which retires this
+page's hypothesis that it partitions water/cliff/path/grass.
+
+**The item layer is also where a shaken tree and its fallen fruit are recorded**, so it is a
+live gameplay field and not only terrain. Measured on one town's orange tree across a single
+shake, the four words that moved [E: docs/log/cycle42-save.md `## PICKUP43`,
+`scratchpad/pickup43/RECEIPTS.md`]:
+
+| id | what it is | grade |
+|---|---|---|
+| `0x0043` | an orange tree **bearing fruit** (28 of them in that town) | E: the word at the shaken tile before the shake |
+| `0x0044` | the same tree **shaken bare** | E: the same word after it |
+| `0x1519` | a fallen **orange** (`오렌지`) | E: three appeared on the shake, and the pockets page named slot 0 `오렌지` on the frame the pocket word read `0x1519` |
+| `0x002a` | the ordinary, fruitless tree (80 of them) | E: the census above |
+
+**The tile the game acts on when the B button picks an item up is the player's position
+ROUNDED to the nearest tile on each axis** -- fx32 `(p + 0x1000) >> 13` -- **stepped one tile
+in the facing direction**, which is one tile away from `navlib.Town.player_tile()`'s FLOOR
+whenever the player is past a tile's half-way line. Fifteen runs agree and two discriminate
+rounding from flooring [E: docs/log/cycle42-save.md `## PICKUP43`, runs `S14` and `S24`].
+Whether the ROM rounds elsewhere is not established.
+
+## The doors, and the tile to stand on
+
+A building is a connected component of `0xf030` footprint filler plus its one
+`0x5000..0x5021` id cell, and the id says which building it is. There are two shapes
+[E: docs/log/cycle41-gameplay.md NAV42]:
+
+- **a NOTCH** -- a walkable tile inside the building's own block of `0x0a`. The doorway is the
+  shallowest such tile and the doormat is the tile immediately south of it. The player's house,
+  the town hall and the villagers' houses are this shape. The notch is looked for by BOUNDING
+  BOX rather than by component, because it does not always carry the footprint item: Nook's
+  shop's notch is at the bottom-left corner of its block and carries none.
+- **NO notch** -- a solid block entered from the tile below its front wall, where the doormat
+  is the component's own southernmost non-`0x0a` cell. The museum and the sign are this shape.
+
+The facing is NORTH either way: every building in the town faces south. The door does not open
+by walking into it; it opens on an A press while standing there
+[E: docs/log/cycle42-save.md, `gp-D8` vs `gp-D9`], and the last fraction of a tile has to be
+hunted for sideways because the doorway is sub-tile
+[E: docs/log/cycle41-gameplay.md NAV42, `W1` vs `E1`].
+
+| building | item | anchor tile | stand on | face | citation |
+|---|---|---|---|---|---|
+| town hall | `0x5000` | (40, 36) | (40, 38) | north | E: map panel (150,172), NAV42 |
+| villager house 1-3 | `0x5001`-`0x5003` | (51,60) (61,69) (76,34) | (51,62) (61,71) (76,36) | north | S: this page, `0x5001`..`0x5008`; E: the three blue map icons |
+| empty house plot | `0x500a` | 9 of them | -- | -- | one tile, no footprint, no door |
+| gate | `0x500b` | (39, 16) | (40, 16) | north | E: the red arch at the top of the map |
+| Able Sisters | `0x500c` | (27, 54) | (25, 56) | north | E: the second red building on the west side |
+| Nook's | `0x500d` | (22, 52) | (20, 54) | north | S: this page, the shop is `0x500d`; the notch is at the block's bottom-LEFT corner |
+| museum | `0x5011` | (71, 26) | (71, 27) | north | E: the white columned icon |
+| player's house | `0x5014` | (41, 53) | (41, 55) | north | E: the GREEN legend icon; `gp-D9` entered this building |
+| sign | `0x501c` | (35, 38) | (35, 39) | north | E: 2x2, beside the town hall |
+
+The tiles are this town's; the RULE is what transfers, and `port/tools/navigate.py --list`
+re-derives the table from any snapshot -- the two towns cycle41's NAV42 generated produced two
+different tables. MEASURED, how far that gets a scripted walk: `port/tools/goto.py` reached
+five of six targets from one snapshot -- the player's house, the town hall and the museum
+entered, and two arbitrary tiles within one tile -- in 46 to 141 seconds each. ~~**Nook's shop
+is the standing exception**: the walk arrives at its doormat and the press does not open it.~~
+**No longer**: GAMEPLAY43 was inside in five iterations and 90 s, and GAMEPLAY44 in TWO
+iterations and 12.4 s from the player's own doorstep, 22 tiles away
+[E: docs/log/cycle41-gameplay.md NAV42 arms `U1`..`U6`; GAMEPLAY43 `NK-1`..`NK-5`; GAMEPLAY44
+`NOOK-1`, `NOOK-2`].
+
+**THIS TABLE IS COMPLETE, AND THAT ANSWERS THE POST OFFICE (GAMEPLAY44).** `navigate.py --list`
+now also prints every building component the door rule produced NO door for, with its item id.
+On this town it prints nine, and all nine are `0x500a` -- the empty house plot, which has no
+building. So the ten rows above are ALL the `0x50xx` ids the item layer carries: **there is no
+eleventh building and none fell through `navlib.BUILDING_NAMES`.** GAMEPLAY43 recorded an
+ENVELOPE icon on the map page and inferred a missing post office, posing the choice "either its
+item id is missing from the table or its door is not the walkable-notch shape the rule
+recognises"; the answer is NEITHER, and a `--list` on any outdoor snapshot re-checks it in a
+second [E: docs/log/cycle41-gameplay.md GP44-4, `scratchpad/gameplay44/png/M1-map.png`].
+
+MEASURED (GAMEPLAY44), an eleventh row that is not a building: the villager ACTORS. The manager
+at `0x021d1d4c` holds the live NPCs and `--list` prints them with their world positions and the
+tile to talk to each from; `goto.py --to actor:<n>` walks to one and presses A. See
+`wiki/systems/villagers.md`.
+
 ## Where it lives
 
 | function or symbol | module | role | grade/citation |
@@ -144,7 +313,8 @@ and once affine backgrounds were drawn the clouds appeared over the town hall
 | address or field | meaning | who writes | who reads |
 |---|---|---|---|
 | `0x021dc7a8` | save image base, `0x173fc` bytes | `func_020b5724` | everything |
-| `0x021e9aac` (save `+0xd304`) | acre map object | `func_0209ebec` | field/render |
+| `0x021e9aac` (save `+0xd304`) | acre map object -- 36 raw acre bytes, 6x6 | `func_0209ebec`; the store is pc `0x0204ea54` under `func_0204e728` | field/render |
+| `0x021e9ad0` (save `+0xd328`) | ITEM LAYER, 8,192 bytes = the inner 4x4 acres, tiles 16..79 | the generation burst | field/render, `savemap.py` |
 | `0x021e5a2c` (save `+0x9284`) | 8 house records, stride `0x7ec` | `func_0207bbb8` | `func_02085a30` |
 | `0x021f3ba0` (save `+0x173f8`) | validity record; `+2` must be 2 | new-game path | `func_0209f180` |
 | `0x021f3c30` | new-game-pending mode word | `func_020a1320` | `func_ov051_022610d4` |
@@ -186,11 +356,13 @@ bytes and scan the item layer for `0x500a` (house spot), `0x500d` (shop) and
   empty id [S: port/shim/gfx/pmflist.c] [S: docs/kb/modules/overlays-ov0xx.md]. Experiment:
   after a real generation, count how many acre bytes are still `0x86`; if zero, `0x86` is the
   sentinel.
-- **H: the nine-term tile predicate partitions tiles into water / cliff / path / grass
-  classes.** The constant bands are contiguous and disjoint, which is what a kind
-  classifier looks like [S: docs/kb/modules/overlays-ov0xx.md]. Experiment: instrument
-  `func_ov003_02227394`'s kind byte at 400 sampled world positions on the `tap-D56` town and
-  correlate each band with what the screenshot shows at that position.
+- **RETIRED, NAV42: the nine-term tile predicate does not partition tiles into water / cliff /
+  path / grass classes -- it tests the ITEM word and picks out the tree and rock family.**
+  `func_ov003_0220cd84` reads its operand through `func_0204f5e0(..., layer 0)`, which is the
+  item layer, and the town's item layer carries `0x002a` 85 times, `0x0053` 32, `0x0068` 15 and
+  `0x0061` 10 -- all inside its bands, all trees on the map screen
+  [S: src/matched/func_ov003_0220cd84.c] [E: docs/log/cycle41-gameplay.md NAV42]. The terrain
+  classifier is a different thing entirely and is the acre template's `bcl` map, above.
 - **H: the town name is stored in the save image as a fixed-length UTF-16 field near the
   validity record.** `func_0209ebec` stamps a default name at generation time and the second
   keyboard overwrites it [S: port/shim/game/newgameprobe.c]

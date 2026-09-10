@@ -9,13 +9,13 @@ day/night lighting has never been exercised at more than one point
 [E: `port/shim/os/rtcclock.c`; `scratchpad/cycle40/runs/tap-D56`]. The blend weight the
 lighting interpolates from is the minute byte at `0x021dc758` scaled by 4096/60, and reading it
 off host stack garbage once put a 20-26% pixel noise floor under every screenshot comparison in
-this port [E: `port/shim/os/rtcclock.c`]. This experiment asks two things at once: does the hour
+this port [H: source/log account from `port/shim/os/rtcclock.c`; verify with a retained run using this page's recipe]. This experiment asks two things at once: does the hour
 visibly change the scene, and do the port and the original change the same way.
 
 It also settles a smaller question. `ACWW_RTC_TIME=000000` used to mean "use the default",
 because the port's older parser folded unset, unparsable and zero into one answer -- so a
 midnight probe came back byte-identical to the 10:00 one, which is a measurement that looks
-like an answer [E: `port/shim/os/rtcclock.c`]. The current parser distinguishes them; this run
+like an answer [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. The current parser distinguishes them; this run
 is the check that it does.
 
 ## Recipe
@@ -76,7 +76,7 @@ the commands as written still say 24,600 and would reproduce the old caveat.
 
 The boot line to check in every log is `acww rtc: fixed clock year+2000=5 month=6 day=f
 week=3 hour=... min=0 sec=0` -- the values are printed in hex
-[E: `port/shim/os/rtcclock.c`]. Week 3 is Wednesday, computed, never taken from the
+[H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. Week 3 is Wednesday, computed, never taken from the
 environment.
 
 Falsifiable prediction: if all four arms produce byte-identical images at 37,500, either the

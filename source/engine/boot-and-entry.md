@@ -27,7 +27,7 @@ literal-pool load of `0x02000c39` followed by a branch-exchange into it
 
 The order is load-bearing rather than incidental: the port's own first arrangement ran
 `__init_cpp` before the bring-up, and the constructors then built their first objects against
-a machine whose heap, VRAM banks and filesystem did not exist yet [E: `port/platform/win32.c:2346-2349`].
+a machine whose heap, VRAM banks and filesystem did not exist yet [H: host-source account from `port/platform/win32.c:2346-2349`; verify with a retained scripted run and frame using this page's recipe].
 
 ### The real entry point has no symbol of its own
 
@@ -138,7 +138,10 @@ lands on a KEYS3 A-press frame (2400 + 37 x 600) and the original's stylus sampl
 game one to two frames later than the port's, so the two order the press and the tap
 differently; moved to 24,700 both sides confirm and agree, 11 frames 24,000..27,000 at mean ncc
 0.9955 [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-O: `scratchpad/oracle/tap-24700`].
+O: `scratchpad/oracle/tap-24700`]. Since TOUCH42 the port reproduces that ordering rather than
+avoiding it, and the 24,600 recipe behaves as the original does
+[E: `scratchpad/cycle40/runs/tap-T42b`] [O: `scratchpad/oracle/tap-window`;
+`../experiments/touch-latency.md`].
 
 ## Where it lives
 
@@ -181,7 +184,7 @@ ACWW_SHOT_AFTER=4500`, and compares all 31 BMPs by SHA256; 31 of 31 equal is the
 [S: `docs/kb/hybrid/recipes.md` section 2]. The boot itself is legible from the log without
 any screenshot: look for the `interpreter path:` line, then the
 `acww interp: BOOT via interpreter, registry entries=...` line, then the absence of a `STOP`
-line [S: `port/interp/interp_boot.c:395-401, 419-428`].
+line [H: host/prose inference from `port/interp/interp_boot.c:395-401, 419-428`; verify against the ROM function or symbol table and this page's recipe].
 
 To go past the title, the two-tap town recipe in `docs/kb/hybrid/recipes.md` section 3 is the
 one that reaches the town hall; it pins the console clock to `20050615` / `100000` so the
@@ -209,3 +212,5 @@ oracle can pin the same instant [S: `docs/kb/hybrid/recipes.md` sections 3 and 6
 - `threads-and-interrupts.md` — what `OS_InitThread` builds, and what a VBlank does
 - `overlays.md` — the filesystem the bring-up starts, and the first overlay load
 - `scenes-and-channels.md` — what `func_0206e560` hands control to
+- `interpreter-path.md` — the deny list, and how a native body earns the hot path
+- `../experiments/savestate-resume.md` — snapshotting a run of this path and resuming exactly

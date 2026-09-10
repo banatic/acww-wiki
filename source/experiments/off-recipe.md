@@ -68,7 +68,7 @@ side is `scratchpad/oracle/off`, with `compare-off.json` and `diff-off/` beside 
   not as noise: the reference is a byte comparison, not a similarity score.
 - A run that finishes without the `acww touch: up` line, which would mean the instrument itself
   went quiet -- indistinguishable from the thing it measures going quiet
-  [E: `port/platform/hostinput.c`'s announcement rationale].
+  [H: host-source account from `port/platform/hostinput.c`'s announcement rationale; verify with a retained scripted run and frame using this page's recipe].
 - Running an ON arm before this control (M15). The 31-frame comparison is what makes an ON
   difference mean anything.
 

@@ -146,3 +146,8 @@ town hall from 40,500, 15 frames 27000..48000 at mean ncc 0.8967 and the town-ha
 fall on opposite sides of a fade. At 37,500 the original's sky is perspective-scaled toward
 the horizon and the port's is flat [H: the HBlank handler `func_01ffcc30` updates the affine
 parameters per scanline; capture BG3 P*/X/Y per line and compare `tap-D63` 37,500 again].
+
+Update (SKY41): with per-scanline register capture (the HBlank callbacks rewrite BG3's
+affine parameters and BLDCNT/BLDALPHA per line) the port's sky at 37,500 flattens toward
+the horizon and fades into the backdrop like the original's [E: `tap-D71`]
+[S: docs/log/cycle40-keyboard-gate-probe.md SKY41].

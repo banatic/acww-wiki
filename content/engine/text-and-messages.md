@@ -75,7 +75,7 @@ BMG 리더를 통해 그것을 열고 결과 텍스트를 `self+0x14ac`의 문�
 바이트 쌍에 대해 `(p[1] << 8) | p[0]` — 읽고 각각을 가상 메서드에 넘긴다
 [S: `func_020a9368`, `main`, transcribed in `port/shim/game/glyphcode.c`, header]. 코드는
 유니코드다: 포트의 라이브 프로브가 `0xC548`, `0xB155`, `0xD558`을 기록했는데, 이는 한글
-음절 안, 녕, 하이다 [E: `port/shim/game/glyphprobe.c`, header, recorded probe output]. 코드에
+음절 안, 녕, 하이다 [H: host-source account from `port/shim/game/glyphprobe.c`, header, recorded probe output; verify with a retained scripted run and frame using this page's recipe]. 코드에
 글리프가 없으면 조회는 `0xFF20`, FULLWIDTH COMMERCIAL AT으로 폴백한다
 [S: `func_020512d4`, `main`, `src/matched/func_020512d4.c`; `port/shim/game/glyphcode.c`,
 header]. SDK 자체의 UTF-16 분리기 `NNSi_G2dSplitCharUTF16`은 `0x02104cec`에 존재하지만
@@ -103,7 +103,7 @@ header]. SDK 자체의 UTF-16 분리기 `NNSi_G2dSplitCharUTF16`은 `0x02104cec`
 정확히 120바이트로, 둘 다 `count * w * h / 8`에 남는 것이 없다
 [S: `extract/adm-kr/files/font/fontC_img.bin` 608 bytes, `fontD_img.bin` 120 bytes]. fontA의 3,314라는
 수는 라이브로도 확인된다: 포트의 프로브가 `font 0x021c8230 glyphs 3314`를 출력했다
-[E: `port/shim/game/glyphprobe.c`, header, recorded probe output].
+[H: host-source account from `port/shim/game/glyphprobe.c`, header, recorded probe output; verify with a retained scripted run and frame using this page's recipe].
 
 `func_02051794`가 그 네 삼중쌍의 로더다 [S: `func_02051794`, `main`,
 `src/matched/func_02051794.c`; `port/TAXI-ROAD.md`, ACWW font loader row]. `func_020516b8`은
@@ -191,7 +191,7 @@ exactly one file in the whole ROM — `dwc/utility.bin`]. 이를 확정하려면
 | `self+0xb14` | 창의 BMG 리더 | 창 생성 | `func_0206726c` [S: `src/matched/func_0206726c.c`] |
 | `self+0x14ac` | 창의 문자열 객체 | `func_0206726c` | 타자기 [S: `src/matched/func_0206726c.c`] |
 | `self+0x7c` | 어느 글리프 조회가 실행될지 선택 | 창 설정 | `func_020a8e8c` [S: `src/matched/func_020a8e8c.c`] |
-| `0x021c8230` | 로드된 fontA 레코드 | `func_02051794` | 글리프 조회들 [E: `port/shim/game/glyphprobe.c`] |
+| `0x021c8230` | 로드된 fontA 레코드 | `func_02051794` | 글리프 조회들 [H: host-source account from `port/shim/game/glyphprobe.c`; verify with a retained scripted run and frame using this page's recipe] |
 | `0x020d1df4` | 각 8바이트짜리 세 항목 글리프 집합 테이블 | ROM 데이터 | `func_020ad4fc` [S: `port/shim/game/fontsetup.c`, header] |
 | `0x021f49a0` | 0x18바이트짜리 글리프 표면 서술자 셋 | `func_020ad4fc` | 캔버스 등록 [S: `port/shim/game/fontsetup.c`] |
 | `0x021f6c58` / `0x021f6c54` | 현재 스타일러스 X / Y | `port/shim/input/touch.c`; 하드웨어에서는 터치 샘플러 | 키보드 게이트 [S: `config/.../ov126/relocs.txt`] |
@@ -207,7 +207,7 @@ exactly one file in the whole ROM — `dwc/utility.bin`]. 이를 확정하려면
 넘긴 문자 코드를 떨어뜨려서, 모든 코드가 실패하고 모든 코드가 폴백한 것이었다
 [S: `port/shim/game/glyphcode.c`, header; `port/tools/overrides.txt`, the `func_020a8e8c` row].
 수리 후 프로브는 `0xC548 -> 2313`, `0xB155 -> 1306`, `0xD558 -> 3167`을 출력했다
-[E: `port/shim/game/glyphprobe.c`, header].
+[H: host-source account from `port/shim/game/glyphprobe.c`, header; verify with a retained scripted run and frame using this page's recipe].
 
 그 검사를 다시 실행하려면, `port/shim/game/glyphprobe.c`의 비활성화된 프로브를 활성화하고(`#if 0`이며
 `port/tools/overrides.txt`에 없다), `python port/tools/pipeline.py`로 다시 빌드한 다음,

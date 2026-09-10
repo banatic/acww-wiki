@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li class="active"><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,7 +124,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>텍스트와 메시지</span></div><header class="page-head"><h1>텍스트와 메시지</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 55</span><span class="gchip g-E"><b>E</b> 6</span><span class="gchip g-H"><b>H</b> 3</span></div><div class="source-line">원문: <code>wiki/engine/text-and-messages.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 한국어판의 모든 대화 한 줄 한 줄은 <code>script/KOR/</code> 아래 1,791개의 개별 <code>.bmg</code> 파일 중 하나에
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>텍스트와 메시지</span></div><header class="page-head"><h1>텍스트와 메시지</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 55</span><span class="gchip g-E"><b>E</b> 2</span><span class="gchip g-H"><b>H</b> 7</span></div><div class="source-line">원문: <code>wiki/engine/text-and-messages.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 한국어판의 모든 대화 한 줄 한 줄은 <code>script/KOR/</code> 아래 1,791개의 개별 <code>.bmg</code> 파일 중 하나에
 들어 있는 UTF-16 문자열이다. 게임은 화자의 성격과 메시지 레이블로 경로를 만들고, 그 파일 하나를 열어,
 텍스트를 글리프 하나씩 그리는 타자기(typewriter)에 넘긴다. 글리프는 닌텐도 폰트 라이브러리에서
 오지 않는다: 네 개의 자체 <code>font/font{A,B,C,D}</code> 비트맵 뱅크에서 오며, ROM에 함께 실린 라이브러리
@@ -173,7 +183,7 @@ BMG 리더를 통해 그것을 열고 결과 텍스트를 <code>self+0x14ac</cod
 바이트 쌍에 대해 <code>(p[1] &lt;&lt; 8) | p[0]</code> — 읽고 각각을 가상 메서드에 넘긴다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020a9368</code>, <code>main</code>, transcribed in <code>port/shim/game/glyphcode.c</code>, header</span></span>. 코드는
 유니코드다: 포트의 라이브 프로브가 <code>0xC548</code>, <code>0xB155</code>, <code>0xD558</code>을 기록했는데, 이는 한글
-음절 안, 녕, 하이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code>, header, recorded probe output</span></span>. 코드에
+음절 안, 녕, 하이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/glyphprobe.c</code>, header, recorded probe output; verify with a retained scripted run and frame using this page's recipe</span></span>. 코드에
 글리프가 없으면 조회는 <code>0xFF20</code>, FULLWIDTH COMMERCIAL AT으로 폴백한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020512d4</code>, <code>main</code>, <code>src/matched/func_020512d4.c</code>; <code>port/shim/game/glyphcode.c</code>, header</span></span>. SDK 자체의 UTF-16 분리기 <code>NNSi_G2dSplitCharUTF16</code>은 <code>0x02104cec</code>에 존재하지만
 게임 자체의 경로가 아니라 라이브러리 스택에 속한다
@@ -195,7 +205,7 @@ BMG 리더를 통해 그것을 열고 결과 텍스트를 <code>self+0x14ac</cod
 정확히 120바이트로, 둘 다 <code>count * w * h / 8</code>에 남는 것이 없다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/font/fontC_img.bin</code> 608 bytes, <code>fontD_img.bin</code> 120 bytes</span></span>. fontA의 3,314라는
 수는 라이브로도 확인된다: 포트의 프로브가 <code>font 0x021c8230 glyphs 3314</code>를 출력했다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code>, header, recorded probe output</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/glyphprobe.c</code>, header, recorded probe output; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
 <p><code>func_02051794</code>가 그 네 삼중쌍의 로더다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02051794</code>, <code>main</code>, <code>src/matched/func_02051794.c</code>; <code>port/TAXI-ROAD.md</code>, ACWW font loader row</span></span>. <code>func_020516b8</code>은
 속성 테이블에 대한 코드-글리프 인덱스 조회로 실패 시 -1을 반환하고
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020516b8</code>, <code>main</code>, <code>src/matched/func_020516b8.c</code></span></span>, <code>func_0205171c</code>는 글리프 하나의
@@ -381,7 +391,7 @@ BMG 리더를 통해 그것을 열고 결과 텍스트를 <code>self+0x14ac</cod
 <td><code>0x021c8230</code></td>
 <td>로드된 fontA 레코드</td>
 <td><code>func_02051794</code></td>
-<td>글리프 조회들 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code></span></span></td>
+<td>글리프 조회들 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/glyphprobe.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span></td>
 </tr>
 <tr>
 <td><code>0x020d1df4</code></td>
@@ -418,7 +428,7 @@ BMG 리더를 통해 그것을 열고 결과 텍스트를 <code>self+0x14ac</cod
 넘긴 문자 코드를 떨어뜨려서, 모든 코드가 실패하고 모든 코드가 폴백한 것이었다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/glyphcode.c</code>, header; <code>port/tools/overrides.txt</code>, the <code>func_020a8e8c</code> row</span></span>.
 수리 후 프로브는 <code>0xC548 -&gt; 2313</code>, <code>0xB155 -&gt; 1306</code>, <code>0xD558 -&gt; 3167</code>을 출력했다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/glyphprobe.c</code>, header</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/glyphprobe.c</code>, header; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
 <p>그 검사를 다시 실행하려면, <code>port/shim/game/glyphprobe.c</code>의 비활성화된 프로브를 활성화하고(<code>#if 0</code>이며
 <code>port/tools/overrides.txt</code>에 없다), <code>python port/tools/pipeline.py</code>로 다시 빌드한 다음,
 대화 상자에 도달하는 아무 레시피나 실행한다. 예상: 하나의 쌍이 반복되는 것이 아니라 서로 다른
@@ -469,7 +479,7 @@ u16 누적 테이블을 읽고, 한 청크 캐시로 요청된 범위를 덮는 
 그래서 마을 대화가 올바르게 렌더링된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D63</code> 37,500</span></span>. 픽스처:
 <code>port/tools/test_lz77_f7.py</code> (검사 3개, 보정 2개)는 세 청크짜리 파일을
 lzread.c + lz77.c로 독립적인 Python 디코더와 대조하며 디코딩한다. 범용 로더는 이제 0xf7 컨테이너가
-넘겨지는 일이 있으면 일회성 증거(witness)를 출력한다.</p></div><nav class="prevnext"><a class="pn prev" href="../engine/graphics-pipeline.html"><small>◀ 이전</small>그래픽스 파이프라인</a><span class="pn"></span></nav>
+넘겨지는 일이 있으면 일회성 증거(witness)를 출력한다.</p></div><nav class="prevnext"><a class="pn prev" href="../engine/graphics-pipeline.html"><small>◀ 이전</small>그래픽스 파이프라인</a><a class="pn next" href="../engine/interpreter-path.html"><small>다음 ▶</small>인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></nav>
     </div>
     <footer class="foot">
       <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>

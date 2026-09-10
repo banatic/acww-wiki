@@ -13,16 +13,22 @@ use, and its predictions are written to be falsifiable rather than to be confirm
 |---|---|
 | `off-recipe.md` | the control: 31 screenshots to frame 9,000 with the stylus off, compared by SHA-256 |
 | `two-tap-town-recipe.md` | the game from the title screen to the town hall, 48,000 frames, and the oracle comparison over it |
+| `gameplay-walkthrough.md` | past the town hall: out of the building, walking the town, the map, the pockets, night, the save menu -- from a snapshot with a pad script |
 | `touch-calibration.md` | what the ROM's own touch point holds on the original: 221,181 in, 222,182 out, one to two frames late |
+| `touch-latency.md` | how many frames a contact takes to reach the game, and why the ARM7's samples must land after the ROM's VBlank handler |
+| `savestate-resume.md` | snapshot a run at frame N and resume from it exactly, turning ten minutes of replay into one |
+| `save-and-reload.md` | does a PLAYED game persist: the card-request census of a whole town run, what the game writes, and the second launch that boots into the saved town |
+| `live-play.md` | driving the port from a keyboard: `play.py`, the 59.8261 Hz pacer, the key map, the stylus hold -- and the receipt that no scripted run moved |
+| `run-stability.md` | what an exit code means on this image, why an exit 1 is always an external kill, and what a 48,000-frame run costs |
 
 ## Designed, not yet run
 
 | page | the question |
 |---|---|
 | `rtc-hour-sweep.md` | does the hour change the scene, and does the original change the same way |
-| `save-store-probe.md` | does the game issue backup requests, and does anything reach the file |
+| `save-store-probe.md` | superseded by `save-and-reload.md`; its arm B is run, arms A and C are not |
 | `rng-determinism.md` | is a port run identical to itself, and does one second of clock change anything |
-| `silent-audio-probe.md` | which sound command ids does the game actually emit |
+| `silent-audio-probe.md` | which sound command ids does the game actually emit -- **superseded**: the uncapped census answers it, see `../systems/audio.md` |
 
 ## Rules that apply to all of them
 
@@ -37,6 +43,11 @@ use, and its predictions are written to be falsifiable rather than to be confirm
   right.
 - The port is an instrument, not the truth: a port-only observation is grade E and stays E until
   the oracle agrees or the source explains it.
+- **Freeze the clock when comparing against a run taken before 2026-09-09.** The port's RTC
+  advances now, and the minute drives the day/night blend, so every frame differs; set
+  `ACWW_RTC_FREEZE=1` [E: `../systems/time-and-rtc.md`].
+- **An exit code of 1 is somebody else's `taskkill`, not a failure.** Nothing in the image exits
+  1 [E: `run-stability.md`].
 
 ## Related
 

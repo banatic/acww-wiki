@@ -128,6 +128,33 @@ displays them is `ov142`, carrying the `menu/catalog/` assets
 | `item_info/series.bin` slot | 2 bytes, probably the matching-set id | the packer | the furniture/interior code [H] |
 | `menu/inventory/itmp/m%d.bch`, `w%d.bch` | per-item inventory pictures | the packer | `ov094` [S: `extract/adm-kr/arm9_overlays/ov094.bin`] |
 
+### The id a pocket slot holds, and its three surface bands
+
+Grade **A**. The 16-bit id the save's pockets and a shop's shelf cell carry is **`0x1000` plus an
+index into `item_info`'s 1,536 slots**: every id this project has read out of a live game -- twelve
+of them, across four cycles -- lies in `0x1000`..`0x15ff`, which is exactly that range
+[H: arithmetic over the four `item_info` sizes above; S for the ids themselves,
+`docs/log/cycle41-gameplay.md` GP54-8].
+
+Three consecutive bands inside it fall out of the asset counts on this page and are each confirmed
+by a name the GAME printed, so the band boundaries are measured rather than assumed:
+
+| band | what, and how many | the witness |
+|---|---|---|
+| `0x1100`..`0x1143` | the 68 `wall/wall_%d.nsbtx` wallpapers | `0x111f` = `wall_31`, and Nook's shop calls it a `벽지` — a wallpaper |
+| `0x1144`..`0x1187` | the 68 `carpet/floor_%d.nsbtx` floorings | `0x114b` = `floor_7`, and the shop calls it a `바닥` — a flooring |
+| `0x1188`..`0x1287` | the 256 `cloth/%d/cloth%03d.nsbtx` shirts | `0x11a8` = `cloth032`, which the save reads as the WORN SHIRT [S: `port/tools/savetool.py check`] |
+
+So **`0x117c` is `carpet/floor_56.nsbtx`**, the 57th flooring — which is what the villager who gave
+it calls a `바닥`. A fourth witness comes from the save itself: a villager's stored `wallpaper` and
+`carpet` bytes are raw indices under 68, so the SAVE keeps the index where a POCKET keeps
+`base + index` [S: `savetool.py check` on `scratchpad/gameplay54/town3.sav`].
+
+**Names are not in a KOR message archive.** The largest of the 91 under `script/KOR/` has 256
+entries and none is near 1,536, so an item-name table lives in `a_mes/`, `str/arc/` or an overlay
+and is still unfound — which is why `0x1547`, `item_info` slot 1351, is identified only by its slot
+[S: entry counts over every `script/KOR/**/*.bmg`].
+
 ## How to check it
 
 Static checks first. To confirm the furniture id range:
@@ -147,7 +174,7 @@ To settle a table's record size, the useful measurement is a live one: run the i
 that reaches the town (see `../engine/file-system.md`), watch the address the loader stores
 `ftr_info/dma.bin` at, and record the stride between two consecutive furniture lookups. The port
 already reads these files through the ROM's own `FS_*` path, so no shim is needed
-[S: `port/shim/fs/romfs.c`, header].
+[H: host/prose inference from `port/shim/fs/romfs.c`, header; verify against the ROM function or symbol table and this page's recipe].
 
 ## Hypotheses
 
@@ -175,3 +202,55 @@ already reads these files through the ROM's own `FS_*` path, so no shim is neede
 - `archives.md` — the `NARC` and `nsb*` containers each asset sits in.
 - `fish-and-bugs.md` — the creature families, which use the same icon-sheet pattern.
 - `../engine/file-system.md` — how `/ftr/1/0/0100.arc` becomes bytes.
+
+## Item-name lookup (item-names-1)
+
+This measured appendix supersedes the earlier **Names** paragraph's claim that no table
+here holds names. Names are UTF-16LE in `item_info/dma.bin` and `ftr_info/dma.bin`;
+the offline reader is `port/tools/items.py`. No complete name table is published
+[S: `src/matched/func_02062cbc.c`, `func_02053ea4.c`, `func_02062ea4.c`;
+E: `scratchpad/handoff/item-names-1/evidence.json`, input hashes and six known-ID checks].
+
+The inventory caller `ov094:0x0229abf8` invokes `main:0x02062ea4`, which first normalizes
+the ID with `0x02061e2c`, then selects the item or furniture branch. Item lookup
+`0x02062a28` reads the DMA handle at `0x021cb5e0 + 0x38`, indexes by the low 12 bits
+(the `0x1000..0x10ff` quantity group ORs in 3), and clamps at index `0x56d`.
+Furniture lookup `0x020537e8` uses `0x021c8c48 + 0x38`, index `(id - 0x3000) >> 2`,
+and clamps at `0x6e8`. Applying the low-12-bit rule to furniture produces a wrong name
+[S: `src/matched/func_ov094_0229abf8.c`, `func_02062ea4.c`, `func_02061e2c.c`,
+`func_02062a28.c`, `func_0204bc64.c`, `func_020537e8.c`, `func_0206e6e4.c`;
+E: `scratchpad/item-names-1/tests.stderr`, furniture negative control].
+
+The initializer proves 1,536 item slots with 12/4/24-byte always/indoor/DMA strides,
+and 2,048 furniture slots with 8/4/32-byte strides. Furniture names occupy the first
+22 bytes, before a price halfword at `+0x16`; item names occupy 24 bytes, with their
+price halfword at always `+0`. Series initialization is separately **128 records of
+24 bytes**, not a proven 1,536-entry array of series halfwords. `--count` returns 3,159
+canonical lookup queries (1,390 item + 1,769 furniture, including aliases/empty names),
+not the number of distinct names or all physical slots
+[S: `src/matched/func_02062cbc.c`, `func_02053ea4.c`, `func_020628ac.c`,
+`func_02053e18.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, counts and decoded digest].
+
+| ID band | measured distinction | evidence |
+|---|---|---|
+| `0x00xx` | includes field-tree IDs; `0x0043/0x0044` have no item-name branch | S: `src/matched/func_02061e2c.c`, `func_02062ea4.c`; E: `scratchpad/item-names-1/tests.stderr` |
+| `0x1100..0x1143`, `0x1144..0x1187` | item record categories 1 and 2; the latter contains the measured flooring ID below | S: `src/matched/func_02062870.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, category runs |
+| `0x11a8..0x12a7` | wearable range, category 5; thus `0x11xx` is not all clothing | S: `src/matched/func_0204b2c8.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, category runs |
+| `0x14fe..0x1517` | flower/seed category 32, including measured `0x150a` | S: `src/matched/func_02062870.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, known-ID and category checks |
+| `0x1518..0x151c` | fruit predicate; record category 33 | S: `src/matched/func_0204ca64.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, category runs |
+| high nibble `3` or `4` | furniture branch after normalization, not an item-table index | S: `src/matched/func_0204bcdc.c`, `func_0204bc64.c`, `func_02061e2c.c` |
+
+- `0x117c`: **눈속임 바닥**, item index `0x17c`, stored base price 1,600 Bells [E: `scratchpad/handoff/item-names-1/evidence.json`, known IDs].
+- `0x3508`: **흰꽃 테이블**, furniture index `0x142`, stored base price 1,900 Bells [E: `scratchpad/handoff/item-names-1/evidence.json`, known IDs].
+- `0x1547`: **품절 간판**, item index `0x547`, stored base price zero [E: `scratchpad/handoff/item-names-1/evidence.json`, known IDs].
+
+The base-price label is deliberate: the orange record stores 2,000, but the native-fruit
+arm divides by five and shop sale callers can divide by four. The tool does not read town
+state or promise an actual buy/sell quote. The brief's seed and rod bases are 80 and 500
+[S: `src/matched/func_0204c878.c`, `func_ov049_02260cf8.c`;
+E: `scratchpad/handoff/item-names-1/evidence.json`, known-ID prices].
+
+Reproduce with `python port/tools/items.py 117c 3508 1547`, `--grep TEXT`, or `--count`;
+`python port/tools/test_items.py` also requires malformed/truncated input refusal. Input
+paths are relative to the script's repository root, independent of the caller's cwd
+[S: `port/tools/items.py`, `port/tools/test_items.py`].

@@ -98,7 +98,7 @@ snowball [E: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"].
 Rain is NOT a file. `m_rainA`, `m_rainB` and `m_splash` are model node or animation names
 inside the already-loaded `obj_taxi` model, and a filesystem search for `*rain*` returns only
 twelve BMG message files -- so there is no missing rain asset and nobody should hunt one
-[S: port/VISIBLE-STATE.md, filesystem search]. ov003's pool names them beside the taxi objects
+[H: host/prose inference from port/VISIBLE-STATE.md, filesystem search; verify against the ROM function or symbol table and this page's recipe]. ov003's pool names them beside the taxi objects
 [S: ov003 pool words, docs/kb/modules/ov003-068.md]. The rain IS visible in the taxi interior
 on the interpreter path at frame 4,500
 [E: docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51].

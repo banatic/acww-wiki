@@ -25,10 +25,10 @@
 메인 RAM은 하드웨어에서 `0x02000000`-`0x02ffffff`에 걸쳐 미러링되며, 게임은 이에 의존한다:
 crt0는 `0x027fff9c`의 인터럽트 벡터 슬롯에 쓰고 부팅 플래그는 `0x027ffc20`에 있는데,
 둘 다 `0x027fxxxx` 윈도우 안에 있고, 이는 `0x023fxxxx`와 같은 저장 공간이다
-[S: `port/platform/win32.c:78-83`]. VRAM 범위 안에서 엔진 A의 BG 윈도우는
+[H: host/prose inference from `port/platform/win32.c:78-83`; verify against the ROM function or symbol table and this page's recipe]. VRAM 범위 안에서 엔진 A의 BG 윈도우는
 `0x06000000`, 엔진 B의 것은 `0x06200000`, 두 OBJ 윈도우는 `0x06400000`과 `0x06600000`,
 LCDC 뱅크 별칭은 `0x06800000`에 있다; ROM 자체의 초기화(bring-up)는 마지막 것의 128 KB를
-지운다 [S: `port/platform/win32.c:101-105`].
+지운다 [H: host/prose inference from `port/platform/win32.c:101-105`; verify against the ROM function or symbol table and this page's recipe].
 
 ### 코드가 있는 곳
 
@@ -51,7 +51,7 @@ CodeWarrior float/64비트 런타임, SPL, 한국어 IME, C++ 언와인더
 
 오버레이는 심하게 겹친다 — 인접한 137쌍 중 129쌍이 주소 범위를 공유한다 — 그래서 오버레이 띠 안의
 주소는 상주(residency) 여부에 대한 답과 함께일 때만 하나의 바이트를 식별한다
-[S: `port/shim/fs/ovlreloc.c` header]. `overlays.md`를 참고하라.
+[H: host/prose inference from `port/shim/fs/ovlreloc.c` header; verify against the ROM function or symbol table and this page's recipe]. `overlays.md`를 참고하라.
 
 ### DTCM의 스택
 
@@ -94,8 +94,8 @@ OS 인터럽트 테이블이다: `OS_IRQTable[0]`, 즉 VBlank 슬롯은 `0x027e0
 
 디스플레이 오브젝트는 그 힙에서 할당되며, 그래서 상수로는 어느 것도 이름 지을 수 없다:
 관측된 마을 시기의 객체들은 `0x022b6xxx`-`0x022b7xxx` 부근에 있으며 실행마다 이동한다
-[E: `port/shim/gfx/pmflist.c:52-66, 262-268`, which keeps live pointers precisely because the
-allocations move].
+[H: host-source account from `port/shim/gfx/pmflist.c:52-66, 262-268`, which keeps live pointers precisely because the
+allocations move; verify with a retained scripted run and frame using this page's recipe].
 
 ### 전역 변수 띠
 
@@ -144,7 +144,7 @@ allocations move].
 인터프리터는 변환도 MMU도 없이 ROM 바이트를 제자리에서 실행한다
 [S: `docs/kb/hybrid/runtime.md` section 2]. 메인 RAM은 두 번의 할당이 아니라 하나의 4 MB 파일 매핑을
 두 번 바라보는 것이므로, `0x023fxxxx` / `0x027fxxxx` 별칭이 계속 동작한다
-[S: `port/platform/win32.c:78-86`]. I/O 페이지는 훅이 개입하는 곳을 제외하면 평범한 호스트
+[H: host/prose inference from `port/platform/win32.c:78-86`; verify against the ROM function or symbol table and this page's recipe]. I/O 페이지는 훅이 개입하는 곳을 제외하면 평범한 호스트
 메모리이며, 그래서 ROM이 폴링하는 레지스터는 스스로 바뀌지 않는다 — 이것이 세 가지
 부류의 멈춤(stall)의 근원이다 [S: `docs/kb/hybrid/runtime.md` section 2].
 
@@ -183,7 +183,7 @@ allocations move].
 
 어떤 실행이든 시작 시 포트의 영역 보고를 출력하며, 각 예약 영역과 그 크기를 이름으로 나열하고,
 고정 기준 주소 예약이 실패하면 계속 진행을 거부한다
-[S: `port/platform/win32.c:1-25, 97-112`]. 매핑이 실제 주소에 있으므로, 오류 보고의
+[H: host/prose inference from `port/platform/win32.c:1-25, 97-112`; verify against the ROM function or symbol table and this page's recipe]. 매핑이 실제 주소에 있으므로, 오류 보고의
 주소는 심볼 테이블 행과 직접 비교할 수 있다: 모듈은 그 `config/adm-kr/arm9/**/symbols.txt`가
 가장 가까운 아래쪽 `addr:0x...`를 담고 있는 것이다
 [S: `config/adm-kr/arm9/**/symbols.txt`].

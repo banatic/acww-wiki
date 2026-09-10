@@ -117,6 +117,111 @@ GXSTAT busy 비트 `0x08000000`을 기다린 뒤 `CLIPMTX_RESULT` `0x04000640`�
 20.8 기준점은 BG2는 `+0x20`, BG3는 `+0x30`에 있다
 [S: `port/render/nds2d.c`, `draw_affine_bg`, written to GBATEK; E: same run].
 
+### 포트의 렌더러는 무엇을 하고, 그 비용은 얼마인가
+
+위의 모든 것은 ROM이 프로그래밍하는 하드웨어이다. `port/render/`는 그에 응답하는
+소프트웨어이다: `nds2d.c`는 두 2D 엔진을 합성하고, `nds3d.c`는 지오메트리 FIFO를 디코드하며, `raster3d.c`는
+래스터화한다. 2026-09-09에 두 유닛이 그 렌더러를 처음으로 측정했다 -- 하나는 속도,
+하나는 충실도 -- 그리고 둘을 판정한 규칙은 서로 다르며, 둘 다 알아 둘 가치가 있다.
+
+**속도(PERF42, `fbfc987d`): 포트는 `-O0`으로 빌드되고 있었다.** `port/tools/link.py`의
+`GEN_FLAGS`에는 `-O` 플래그가 전혀 없었으므로, 포트 전체가 clang의 기본값으로 컴파일되고 있었다.
+`port/render/`에만 `-O2 -fwrapv -fno-strict-aliasing`을 추가하자 링크 한 번으로 draw 단계가 26.7 ms에서
+7.25 ms로 내려갔고, 바이트 단위로 동일했다; 인터프리터와 심(shim)은 자체 정확성 하니스가
+생길 때까지 `-O0`에 머문다 [E: `docs/kb/hybrid/render-perf.md` section 4a]. 나머지
+이득은 정확성 논증을 붙여 픽셀별 루프에서 작업을 걷어 내는 데서 왔다: 스팬 속성
+델타를 루프 밖으로 끌어올리고, 안전이 증명되는 곳에서는 32비트 곱셈을 쓰고, 속성은 필요한 곳에서만
+보간하고, 스팬 파라미터는 이월 장제법으로, 깊이 테스트는 `z >= D*q`로, VRAMCNT
+디코드는 검증 뒤에 구성당 한 번만 해석하고, 팔레트는 레이어당 한 번만
+변환하고, 텍스트 BG는 타일 단위로, 색상 효과는 라인 단위로 처리하고 효과가 없는 곳에서는 건너뛴다
+[E: same, sections 4b-4d].
+
+이 유닛을 판정한 규칙은 충실도 쪽보다 엄격하다: **성능 변경은 픽셀을 단 하나도
+움직여서는 안 된다** -- 상관이 아니라 SHA-256 동일성이다. OFF 레시피의 31 프레임은
+**일곱 번의 중간 링크 하나하나에서** 31/31을 통과했으므로, 거부가 있었다면 여러 변경의 더미가 아니라
+그 변경 자체를 지목했을 것이고, 마을 레시피는 비페이싱 11/11, 페이싱 11/11을 통과했다
+[E: `scratchpad/perf42/exactness-off-*.json`, `exactness-town.json`,
+`exactness-town-paced.json`].
+
+| 레시피 | draw 이전 | draw 이후 | 비페이싱 fps 이전 -> 이후 |
+|---|---|---|---|
+| OFF(택시), 프레임 4,200..9,000 | 26.45 ms | **7.29 ms** | 30.0 -> **77.1** |
+| 마을, 프레임 27,000..30,000 | 22.57 ms | **6.17 ms** | 34.8 -> **91.7** |
+
+[E: `docs/kb/hybrid/render-perf.md` section 5; `scratchpad/perf42/runs/`.] 페이싱된 라이브 실행은
+창을 연 채로 59.82 Hz를 유지하며, `town-paced`의 11 프레임은 비페이싱 실행의 것과 SHA-256이
+동일하다 -- 그러므로 페이싱은 프레임이 언제 일어나는지를 바꾸지, 그 내용을 바꾸지는 않는다 [E: same].
+
+**계측 도구는 `ACWW_FRAMETIME=1`이며, 이제 단계(PHASE)를 지목한다.** 이미
+`draw / blit / game / other`를 출력하고 있었다; 이제는 2D 엔진별, 600 프레임마다 `hblank`, `fill`,
+`text`, `affine`, `3d`, `obj`, `fx`, `lit`을 출력하고, 여기에 3D 래스터라이저의 다섯 하위 단계
+(`clear`, `opaque`, `trans`, `count`, `merge`)를 폴리곤 수, 방문한 스팬 픽셀 수, 기록한 스팬 픽셀
+수와 함께 출력한다 [E: `docs/kb/hybrid/render-perf.md` section 2]. 그 보고서는 **이미 공개된
+해석 하나를 정정했다**: LIVE41의 "2D 렌더러가 다음 성능 목표다"는 어느 렌더러인지를
+틀렸다 -- 26.5 ms 중 21.1 ms가 3D 래스터라이저였다 [E: same, section 3; the LIVE41 numbers are
+in `docs/kb/hybrid/recipes.md` section 7b, kept as that unit's before-column]. 작업 이후에도 여전히 draw의
+86%이다: 317,427 스팬 픽셀에 6.29 ms이니 스팬 픽셀당 약 20 ns이다
+[E: same, section 6].
+
+**충실도(RENDER42, `b1080164`): 규칙 둘을 정정했고, 하나는 효과 없음으로 측정되었다.** 여기서의 통과 규칙은
+**OFF 레시피가 31 프레임 중 어느 하나에서도 ncc를 잃어서는 안 된다**는 것이다 -- 평균을
+올리면서 한 프레임을 낮추는 변경은 거부된다 [E: `docs/kb/hybrid/render-fidelity.md` section 1].
+
+- **P10 -- 색상 특수 효과는 5비트 영역에서 동작한다.** GBATEK의 블렌드 및 밝기
+  공식은 31에서 클램프되는 5비트 강도이다; `chan_mix`와 `brighten`은 `bgr555()`가 확장한
+  8비트 채널 위에서 동작하며 255에서 클램프하고 있었는데, 이는 블렌드된 픽셀마다 채널당 최대 7/255만큼
+  체계적으로 높은 결과이다. 이제는 `>>3`으로 다시 내려가서 연산하고, 31에서 클램프한 뒤
+  다시 확장한다 [P: GBATEK, *LCD I/O Color Special Effects*;
+  E: `../audits/hardware-services.md` P10]. **이 레시피들이 도달하는 모든 오라클 프레임에서 효과 없음(INERT)으로
+  측정됨** -- 이들이 만나는 효과 상태는 두 영역이 일치하는 것들이다 -- 그러므로
+  픽스처가 근거의 전부이며, 두 영역을 갈라놓는 사례 셋이 추가되었다
+  (파랑 위 빨강에 EVA=9/EVB=7은 8비트 연산으로는 143, 하드웨어 연산으로는 **140**):
+  `port/tools/test_nds2d_blend.py`, 27개 검사, 보정 2건 검출
+  [E: `docs/kb/hybrid/render-fidelity.md` section 3].
+- **F6 -- 텍스처 좌표 변환 모드 2와 3.** 둘 다 원시 10비트 법선(시프트 21)과
+  20.12 위치(시프트 24)에 대한 3항 형식이므로, 텍스처 행렬의 이동
+  행은 결코 들어오지 않는다; 포트는 `v[3] = FX_ONE`과 순 시프트 20으로 전체 4x4를,
+  NORMAL 명령이 이미 `<< 3`으로 스케일한 법선에 대해 돌리고 있었다 -- 16배 크고, 있어서는 안 될
+  이동이 있었다. **OFF 프레임 6,000의 458개 폴리곤 중 정확히 하나가 모드 2를 쓴다**: 택시 벽의
+  액자 그림, 화면 x 164..195의 32x32 포맷 5 머티리얼이다. 이것이 색 줄무늬가 있는 검정으로
+  그려졌는데, 16배 큰 좌표가 32x32 이미지에서 샘플링해 오는 것이 바로 그것이다; 이제는
+  오라클이 그리는 풍경을 그린다 [E: `scratchpad/render42/picture-frame-before-after.png`;
+  `../audits/3d-engine.md` F6]. OFF 전체 프레임: 평균 ncc-top **0.9774 -> 0.9807**, mae
+  7.43 -> 7.31, **나빠진 프레임 0**; 마을 `tap-24700` 0.9987 -> 0.9991
+  [E: `scratchpad/render42/off-final.json`, `tapfinal-24700.json`]. 픽스처:
+  `port/tools/test_nds3d_texmtx.py`, 5개 검사, 보정 2건, 그중 하나는 F6 이전의
+  답을 assert하므로 반드시 검출되어야 한다.
+- **수치로 거부되었고, 구현된 채 꺼져 있음**: `ACWW_SAMPLE_INT=1`, 픽셀 중심이 아니라
+  두 에뮬레이터가 하듯 픽셀의 정수 좌표에서 샘플링한다. 평균 mae를
+  7.31 -> 6.66으로, ncc-top을 0.9807 -> 0.9833으로 옮기지만, **31 프레임 중 9개에서 전체 프레임
+  ncc를 잃는다**. 이는 한 쌍의 절반이다 -- 에뮬레이터들은 VERTEX 위치도 양자화한다 -- 그러므로
+  다음 실험은 완화된 임계값이 아니라 나머지 절반이다 [E: `off-sampleint` vs `off-final`,
+  `docs/kb/hybrid/render-fidelity.md` section 4]. P11(밝기 경로 위의 반투명
+  OBJ)은 두 레시피 모두에서 모집단 **0**으로 측정되었고 의도적으로 만들지 않았다
+  [E: `../audits/hardware-services.md` P11].
+**BACKDROP은 거의 모든 스캔라인(SCANLINE)마다 바뀌며, 그것이 하늘의 그라디언트이다**
+[E: RENDER43, `ACWW_REGDUMP=37500` on the two-tap town recipe,
+`scratchpad/render43/regdump-town37500.txt`]. 마을 프레임 37,500에서 엔진 B의 BG 팔레트 엔트리 0은
+라인 0의 `0x7084`에서 라인 176의 `0x79e4`까지 열두 단계로 변한다 — 5비트 초록 4 → 15, 빨강은 4로
+고정, 파랑 28 → 30 — 반면 엔트리 1..31은 결코 바뀌지 않는다. 이는 팔레트 DMA가 아니라 ROM의 HBlank 핸들러에서
+라인마다 하프워드 하나를 쓰는 것이다. `BLDCNT = 0x2042`는 BG1을 첫 번째 대상으로,
+BACKDROP을 두 번째 대상으로 지정하고, `BLDALPHA`는 라인 150..167에 걸쳐 `0x0010` → `0x1000`으로 램프하므로,
+하늘 레이어는 지평선을 향해 그 라인별 백드롭으로 페이드된다. 프레임 끝의 팔레트로 이
+화면을 그리는 것은 무엇이든 평평한 하늘을 얻는다
+[S: `port/render/nds2d.c`, `capture_line_regs` and `fill_backdrop`;
+`docs/kb/hybrid/render-fixes.md` fix P14].
+
+**3D 레이어는 BG0이며 BG0HOFS로 스크롤된다** — 512픽셀 영역으로, 256은 이미지, 그다음 256은
+투명이다 [H: host/prose inference from GBATEK, DS 3D Final 2D Output; `port/render/raster3d.c`,
+`acww_nds3d_compose_x`; verify against the ROM function or symbol table and this page's recipe]. 측정됨: ACWW는 OFF 프레임 6,000과 마을
+37,500에서 `BG0HOFS = 0`을 쓰므로, 두 증명 세트 중 어느 쪽이 도달하는 모든 프레임에서 효과가 없다.
+
+**SWAP_BUFFERS는 VBlank까지 실행되지 않으며 그때까지 지오메트리 엔진을 정지시킨다**
+[S: GBATEK, DS 3D Display Control]. 따라서 한 프레임은 최대 한 번의 스왑만 담는다; 포트는 예전에
+모든 스왑을 존중했고, 에이커 지면 탈락은 한 프레임 안의 열아홉 번 스왑이 열여덟 개의
+디스플레이 리스트를 버리는 것이었다 [H: host/prose inference from `port/render/nds3d.c`, `case 0x50`;
+`docs/kb/hybrid/render-fixes.md` fix F15; verify against the ROM function or symbol table and this page's recipe].
+
 ## 어디에 있는가
 
 | 함수 또는 심볼 | 모듈 | 역할 | 등급/출처 |
@@ -186,13 +291,44 @@ O: `scratchpad/oracle/off`, the same scene in DeSmuME]. 프레임 37,800에는 �
 
 이 페이지에 특화된 계측이 둘 있다. `ACWW_TEXTRACE_FRAME`을 십진수
 `ACWW_TEXTRACE_INDEX`와 함께 쓰면 2,048 폴리곤 리스트 범위 안에서 한 폴리곤의 텍스처 출처를 덤프한다
-[S: `docs/kb/port/render.md`, texture provenance]. `ACWW_OAMDUMP=<frame>`은 두 OAM 테이블을 모두
-덤프하며 `ACWW_TRACE_STATE`에 게이트되지 않는다 [S: `docs/kb/port/render.md`, OAM cursor table].
+[H: host/prose inference from `docs/kb/port/render.md`, texture provenance; verify against the ROM function or symbol table and this page's recipe]. `ACWW_OAMDUMP=<frame>`은 두 OAM 테이블을 모두
+덤프하며 `ACWW_TRACE_STATE`에 게이트되지 않는다 [H: host/prose inference from `docs/kb/port/render.md`, OAM cursor table; verify against the ROM function or symbol table and this page's recipe].
 `ACWW_NOBLEND=1`은 색상 특수 효과를 비활성화하여 블렌드를 분리할 수 있게 한다
-[S: `port/render/nds2d.c`].
+[H: host/prose inference from `port/render/nds2d.c`; verify against the ROM function or symbol table and this page's recipe].
 
 ## 가설
 
+- **3D 레이어는 오라클의 것보다 약 1픽셀 위·왼쪽에 놓이며, 이는 텍스처 대수가 아니라
+  채움 규칙(fill rule)이다.** 택시의 위 화면에 대한 사분면별 서브픽셀 피팅은 네 사분면 모두에서
+  같은 이동을 준다 -- dx +1.00, dy +1.00..+2.00 -- 이는 스케일이 아니라 이동이며,
+  OFF 프레임 6,000에서 mae를 15.08 -> 7.03으로 옮긴다; 2D인 아래 화면은
+  (0, 0)에 피팅되므로, 오프셋은 3D 레이어만의 것이다. 차이 이미지는 텍스처가 입혀진 모든 모서리의
+  얇은 윤곽선인데, 이는 서브픽셀 변위의 모습이지 틀린
+  색상의 모습이 아니다 [E: `scratchpad/render42/shiftfit.py`,
+  `scratchpad/render42/off006000-top-A-B-D.png`]. 에뮬레이터 쌍의 나머지 절반 -- 버텍스 위치를
+  정수 픽셀로 양자화하기 -- 를 같은 31 프레임 규칙 아래에서 측정하여 해결하며,
+  레이어를 이동시켜서는 안 된다(`ACWW_3DBIAS_X/_Y`가 그렇게 하는데 2-3 프레임에서 ncc를 잃는다).
+- **마을의 하늘에는 수직 그라디언트가 없으며, 전체 프레임 렌더러는 그 이유를 볼 수
+  없을지 모른다.** 프레임 37,500에서 오라클의 하늘은 초록이 화면 위쪽의 5비트 4에서
+  지평선 근처의 9까지 램프하며 파랑은 28 -> 29, 빨강은 4로 고정이다; 포트의 하늘은 어디서나 평평한 (4, 4, 28)
+  이다 -- 오라클의 맨 위 행이 화면 전체에 유지된 것이다. 빨강이 동일하다는 것은 세 채널을 모두
+  움직이는 밝기 효과를 배제한다; 그 모양은 대략 (4, 31, 31)에 대한 알파 블렌드이거나,
+  라인별 팔레트이다 [O: `scratchpad/render42/d63-37500.png`]. `capture_line_regs`는
+  이미 어파인 및 효과 레지스터를 위해 ROM의 HBlank 핸들러를 라인마다 한 번 실행하지만
+  팔레트는 캡처하지 않는다. 코드 변경이 아니라 계측 도구로 먼저 해결한다: 선택한 프레임에서 BG
+  팔레트 엔트리 0과 BLDCNT/BLDALPHA를 라인별로 기록한다. (하늘은 픽셀 위치가 아니라 구조로
+  비교한다: 포트가 대화 한 단계 앞서 있으므로 구름 위치가 다르다.)
+- **에이커 지면이 간헐적으로 탈락하며, 그동안에도 3D 파이프라인은 돌고 있다.**
+  여섯 번의 GAMEPLAY42 실행에서 1,160개의 아래 화면 중 17개가 45-99%가 단일 색상 `0x2184FF` --
+  3D 레이어의 클리어 파랑 -- 이며, 때로는 건물과 플레이어가 그 틈 위에 여전히 올바르게
+  그려져 있고, 하나 더는 99%가 평평한 짙은 초록이다; 문 전환의 검정은 별개이며
+  예상된 것이다. 320 프레임 인스턴스 도중의 정지 덤프는
+  `G3dDrawInternal_Loop_`, `NNS_G3dGeBufferOP_N`, `NNSi_G3dFuncSbc_MAT`, `NNSi_G3dFuncSbc_SHP`가
+  맨 위에 있는 HOLD 프로파일이다 -- **파이프라인은 먹이를 받고 있는데 화면에는 아무것도 도착하지 않는다** -- 그리고
+  `unimplemented`도, 폴트도 없고, 이후에는 정상적으로 플레이된다
+  [E: `docs/log/cycle41-gameplay.md` GP42-6; `scratchpad/gameplay42/ground-gap.png`]. 에이커 지형(TERRAIN)에서
+  먼저 실패하고 때로는 씬 전체를 잃는다. 재현되는 한 프레임 범위에 대한 오라클 대조 조건과,
+  틈 전후에 걸친 에이커 자체 폴리곤의 GX 제출 수 세기로 해결한다.
 - **클리어 이미지(후면 평면 비트맵) 경로는 이 게임에서 절대 사용되지 않는다.** `DISP3DCNT` 비트 14는
   포트에서 기록만 되고 구현되지 않았지만, `func_ov001_0222e4dc`는
   `GX_SetBankForClearImage`를 호출한다 [S: `port/render/raster3d.c`; `src/matched/GX_SetBankForClearImage.c`].
@@ -219,6 +355,11 @@ O: `scratchpad/oracle/off`, the same scene in DeSmuME]. 프레임 37,800에는 �
 ## 관련 문서
 
 - `../data/archives.md` — `nsb*` 리소스 컨테이너.
+- `../audits/hardware-services.md` P10-P13 — 2D 주장 표와 수정들의 상태 행.
+- `../audits/3d-engine.md` — 3D 주장 표와 F1-F13.
+- `../audits/night-2026-09-09.md` — RENDER42와 PERF42가 그날 밤의 색인에서 놓인 자리.
+- `docs/kb/hybrid/render-perf.md`, `docs/kb/hybrid/render-fidelity.md` — 구현
+  페이지: 위의 모든 수치, 단계 표, 두 통과 규칙 전문.
 - `../data/rom-layout.md` — 모델, 텍스처, 메뉴 에셋이 있는 곳.
 - `text-and-messages.md` — 같은 2D 엔진으로 그려지는 글리프.
 - `display-objects.md`, `memory-map.md` — 이 파이프라인을 둘러싼 프레임워크와 아레나.

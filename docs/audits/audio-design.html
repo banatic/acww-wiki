@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>감사와 설계: 호스트 측 ARM7 사운드 드라이버 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li class="active"><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사와 설계: 호스트 측 ARM7 사운드 드라이버</span></div><header class="page-head"><h1>감사와 설계: 호스트 측 ARM7 사운드 드라이버</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 51</span><span class="gchip g-E"><b>E</b> 10</span><span class="gchip g-H"><b>H</b> 4</span><span class="gchip g-P"><b>P</b> 16</span></div><div class="source-line">원문: <code>wiki/audits/audio-design.md</code> (영문, 기록 문서)</div></header><div class="md"><p>verified-at: 115984f9 2026-09-09</p>
+<p><strong>목적.</strong> 이 페이지는 포트가 무음이었고 호스트 "ARM7"이 샘플 하나 내지 않은 채 모든 명령을
+완료하던 시점에 작성되었다. <strong>그것은 더 이상 사실이 아니다</strong>: 아래의 여덟 빌드 순서 단계가
+모두 완료되었고, <code>ACWW_SND=1</code>은 게임이 실제로 요구하는 캡처 경로를 통해 게임의 음악과 효과음을
+재생한다(<code>docs/kb/hybrid/audio.md</code>). 이 페이지는 당시의 설계(DESIGN)와 감사(AUDIT) 그대로
+보존된다. 이 페이지의 명령 표, 인자 분해, 주장 표가 드라이버를 만드는 바탕이었고 지금도 여전히
+옳기 때문이다. 이 페이지는 세 가지 일을 한다: 그 경계가 실어 나르는 정확한 명령 집합을 명명하고,
+소리로 응답할 호스트 드라이버를 설계하며, <code>systems/audio.md</code>와 <code>data/music.md</code>를 공개 기록에
+비추어 감사한다. 코드는 여기 복사하지 않으며, 구조는 서술하고 출처를 단다.</p>
+<p><strong>P 등급(공개)</strong> 은 <code>data-formats.md</code>를 따른다: 공개 문서 — GBATEK, 벤더 헤더, 같은 라이브러리의
+디컴파일 — 는 URL을 갖는다. <strong>P는 결코 S, E, O를 대체하지 않는다.</strong> P와 S가 어긋나는 곳에서는
+S가 이기며, 그 불일치 자체가 내용이 된다(STYLE 규칙 7). 이 주제의 특이한 점은 그 상당 부분이
+<strong>S</strong> 등급이라는 것이다: <code>src/matched/</code>에는 실제 NitroSDK 2.2a와 NNS 라이브러리 번역 단위가
+들어 있으므로, 명령 enum, 인자 패킹, 공유 워크 레이아웃, 드라이버 자체의 상태 구조체, SDAT
+레코드 구조체를 모두 이 저장소에서 읽을 수 있다.</p>
+<h2 id="참고한-출처">참고한 출처</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>출처</th>
+<th>URL</th>
+<th>다루는 내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NitroSDK <code>nitro/snd/common/command.h</code></td>
+<td><code>https://raw.githubusercontent.com/ntrtwl/NitroSDK/main/include/nitro/snd/common/command.h</code></td>
+<td><code>SNDCommandID</code> enum, 노드 구조체, 푸시 플래그</td>
+</tr>
+<tr>
+<td>NitroSDK <code>nitro/snd/common/mml.h</code></td>
+<td><code>https://raw.githubusercontent.com/ntrtwl/NitroSDK/main/include/nitro/snd/common/mml.h</code></td>
+<td>SSEQ 옵코드 이름</td>
+</tr>
+<tr>
+<td>NitroSDK <code>seq.h</code>, <code>bank.h</code>, <code>channel.h</code>, <code>exchannel.h</code>, <code>main.h</code>, <code>alarm.h</code>, <code>work.h</code></td>
+<td>같은 트리, <code>include/nitro/snd/common/</code></td>
+<td>플레이어/트랙/채널 한계, 악기 타입, <code>SND_PROC_INTERVAL</code></td>
+</tr>
+<tr>
+<td>pret/pokediamond ARM7 SND 디컴파일</td>
+<td><code>https://raw.githubusercontent.com/pret/pokediamond/master/arm7/lib/src/SND_command.c</code> (그리고 <code>SND_main.c</code>, <code>SND_seq.c</code>, <code>SND_exChannel.c</code>, <code>SND_bank.c</code>)</td>
+<td><code>SND_CommandProc</code>, 드라이버 스레드 루프, 시퀀서, 채널 할당기</td>
+</tr>
+<tr>
+<td>GBATEK, DS Sound Channels 0-15</td>
+<td><code>https://problemkaputt.de/gbatek-ds-sound-channels-0-15.htm</code></td>
+<td><code>SOUNDxCNT/SAD/TMR/PNT/LEN</code> 비트 필드</td>
+</tr>
+<tr>
+<td>GBATEK, DS Sound Control Registers</td>
+<td><code>https://problemkaputt.de/gbatek-ds-sound-control-registers.htm</code></td>
+<td><code>SOUNDCNT</code>, <code>SOUNDBIAS</code>, 32.768 kHz 출력 레이트</td>
+</tr>
+<tr>
+<td>GBATEK, DS Sound Notes</td>
+<td><code>https://problemkaputt.de/gbatek-ds-sound-notes.htm</code></td>
+<td>IMA-ADPCM 테이블과 DS의 편차, 10단계 믹싱 파이프라인, PSG 듀티, 노이즈 LFSR</td>
+</tr>
+<tr>
+<td>GBATEK, DS Sound Capture</td>
+<td><code>https://problemkaputt.de/gbatek-ds-sound-capture.htm</code></td>
+<td><code>SNDCAPxCNT/DAD/LEN</code>, 두 가지 캡처 버그</td>
+</tr>
+<tr>
+<td>GBATEK, SDAT / SSEQ / SSAR / SBNK / SWAR / SWAV / STRM</td>
+<td><code>https://problemkaputt.de/gbatek-ds-files-sound-sdat-etc.htm</code> 및 그 하위 페이지</td>
+<td>컨테이너와 레코드 레이아웃</td>
+</tr>
+<tr>
+<td>kiwi.ds, Nitro Composer File Specification</td>
+<td><code>https://www.feshrine.net/hacking/doc/nds-sdat.html</code> (<code>.php</code> 형식은 406을 반환한다)</td>
+<td>원래의 SDAT 스펙</td>
+</tr>
+<tr>
+<td>ndspy</td>
+<td><code>https://ndspy.readthedocs.io/en/latest/appendices/sdat-structure.html</code>, <code>https://github.com/RoadrunnerWMC/ndspy</code></td>
+<td>필드 이름, 참조용 SDAT/SSEQ 구현</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="1-명령-채널-arm9가-실제로-보내는-것">1. 명령 채널: ARM9가 실제로 보내는 것</h2>
+<h3 id="전송">전송</h3>
+<p><code>SND_FlushCommand</code>는 예약(reserve) 리스트를 대기(pending) 리스트로 옮기고 <strong>한 워드 — 머리
+노드의 주소 — 를 PXI 태그 7로</strong> 보내며, FIFO가 가득 차 있는 동안 재시도한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_FlushCommand.c</code></span></span>. 명령은 결코 하나씩 이동하지 않는다; 256노드 풀에
+쌓였다가 플러시 한 번에 이동한다. 0 워드는 <code>RequestCommandProc</code>의 깨우기(wake)이며 리스트를
+싣지 않는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/os/pxisend.c</code>, <code>snd_arm7</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
+<p>노드는 24바이트다: <code>next</code>가 <code>+0x00</code>, id가 <code>+0x04</code>, 네 개의 인자 워드가 <code>+0x08</code>,
+<code>+0x0c</code>, <code>+0x10</code>, <code>+0x14</code>. <code>SND_FlushCommand</code>의 번역 단위는 id를 <code>u8</code>과 그 뒤 3바이트 패딩으로
+타입 지정하고, <code>SND_AllocCommand</code>의 번역 단위는 4바이트 enum으로 타입 지정한다 — 어느 쪽이든
+같은 24바이트다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_FlushCommand.c</code>, <code>src/matched/SND_AllocCommand.c</code></span></span>
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>command.h</code>, <code>struct SNDCommand</code></span></span>. <strong>이 레이아웃은 포트 자체의 주소로 산술적으로
+확인된다</strong>: <code>0x022048a0</code>의 256엔트리 명령 배열에 <code>256 * 24 = 0x1800</code>을 더하면 정확히
+공유 블록 포인터인 <code>0x022060a0</code>에 도달한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>systems/audio.md</code>'s address table, arithmetic</span></span>.
+포트는 <code>+0x04</code>에서 워드 전체를 읽는데, 이것이 맞는 이유는 오직 리틀 엔디언 호스트에서 패딩
+바이트가 0이기 때문이다; id는 1바이트다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>pxisend.c</code></span></span>.</p>
+<p>ARM7은 디스패치 전에 각 노드를 로컬로 복사하고, 복사된 <code>next</code>를 따라가며,
+<code>finishCommandTag</code>를 <strong>명령마다가 아니라 플러시된 리스트마다 한 번</strong> 증가시킨다
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">pokediamond <code>SND_command.c</code>, <code>SND_CommandProc</code></span></span>. 호스트도 같게 한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>pxisend.c</code></span></span>.</p>
+<p><code>SNDSharedWork</code>는 다음과 같다: <code>+0x00</code>에 u32 <code>finishCommandTag</code>, <code>+0x04</code>에 u32 <code>playerStatus</code>,
+<code>+0x08</code>/<code>+0x0a</code>에 u16 <code>channelStatus</code>와 u16 <code>captureStatus</code>, 패딩 워드 다섯 개, 그 다음
+<code>+0x20</code>부터 <code>{ s16 variable[16]; u32 tickCounter; }</code>의 <code>player[16]</code>, 그 다음 <code>s16
+globalVariable[16]</code> — 640바이트 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_GetPlayerStatus.c</code>, <code>src/matched/AllocFunc_SOCL.c</code>, the struct verbatim</span></span> <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>work.h</code>, identical</span></span>. <strong>따라서 포트의
+"첫 워드를 증가시킨다"는 옳으며</strong>, 그 옆의 세 상태 워드가 ARM7이 상태를 되돌려 보고할 유일한
+채널이다 — §4의 정지(stall) 가설을 보라.</p>
+<h3 id="명령-집합">명령 집합</h3>
+<p>id는 열거자 위치 0..33이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_AllocCommand.c</code>, the full <code>SNDCommandID</code> enum</span></span> <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>command.h</code></span></span>. 인자 열은 매칭된 ARM9 빌더가 패킹하는 곳에서는 S 등급,
+<code>SND_CommandProc</code>만이 언패킹하는 곳에서는 P 등급이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>id</th>
+<th>이름</th>
+<th>인자 (arg0..arg3)</th>
+<th>ARM7이 해야 하는 일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>START_SEQ</code></td>
+<td>playerNo, seq base, seq offset, bank</td>
+<td>준비와 시작을 한 단계로 [P]</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>STOP_SEQ</code></td>
+<td>playerNo</td>
+<td>플레이어의 트랙과 채널을 해제 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_StopSeq.c</code></span></span></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>PREPARE_SEQ</code></td>
+<td>playerNo, seq base, seq offset, bank</td>
+<td>플레이어 + 트랙을 할당하되 실행하지 않음 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_PrepareSeq.c</code></span></span></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>START_PREPARED_SEQ</code></td>
+<td>playerNo</td>
+<td>준비됨 플래그를 지우고 스텝 시작 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_StartPreparedSeq.c</code></span></span></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>PAUSE_SEQ</code></td>
+<td>playerNo, flag</td>
+<td>[P]</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>SKIP_SEQ</code></td>
+<td>playerNo, ticks</td>
+<td>출력 없이 시퀀서를 앞으로 진행 [P]</td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>PLAYER_PARAM</code></td>
+<td>playerNo, offset, data, size</td>
+<td><code>SNDPlayer</code>에 대한 크기 지정 원시 쓰기 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SNDi_SetPlayerParam.c</code></span></span></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>TRACK_PARAM</code></td>
+<td>size&lt;&lt;24 | playerNo, trackBitMask, offset, data</td>
+<td>선택된 모든 <code>SNDTrack</code>에 대한 크기 지정 원시 쓰기 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SNDi_SetTrackParam.c</code></span></span></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>MUTE_TRACK</code></td>
+<td>playerNo, trackBitMask, mute</td>
+<td>[P]</td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>ALLOCATABLE_CHANNEL</code></td>
+<td>playerNo, trackBitMask, chBitMask</td>
+<td>그 트랙들이 16채널 중 어느 것을 가져갈 수 있는지 제한 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetTrackAllocatableChannel.c</code></span></span></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>PLAYER_LOCAL_VAR</code></td>
+<td>playerNo, varNo, s16 value</td>
+<td><code>sharedWork.player[n].variable[v]</code>에 쓴다 [P]</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>PLAYER_GLOBAL_VAR</code></td>
+<td>varNo, s16 value</td>
+<td><code>sharedWork.globalVariable[v]</code>에 쓴다 [P]</td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>START_TIMER</code></td>
+<td>chBitMask, capBitMask, alarmBitMask, flags</td>
+<td>채널, 캡처 유닛, 알람의 시작 비트를 세팅 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_StartTimer.c</code></span></span></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>STOP_TIMER</code></td>
+<td>chBitMask, capBitMask, alarmBitMask, flags</td>
+<td>그 역; ARM9가 먼저 각 알람의 id를 올린다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_StopTimer.c</code></span></span></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>SETUP_CHANNEL_PCM</code></td>
+<td>timer&lt;&lt;16|chNo; dataAddr; volume&lt;&lt;24|shift&lt;&lt;22|loopLen; loop&lt;&lt;26|format&lt;&lt;24|pan&lt;&lt;16|loopStart</td>
+<td><code>SNDWaveData</code>로부터 채널 하나를 프로그래밍 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetupChannelPcm.c</code></span></span></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>SETUP_CHANNEL_PSG</code></td>
+<td>chNo; volume|shift&lt;&lt;8; pan|timer&lt;&lt;8; duty</td>
+<td>채널 8-13만 [P]</td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>SETUP_CHANNEL_NOISE</code></td>
+<td>chNo; volume|shift&lt;&lt;8; pan|timer&lt;&lt;8</td>
+<td>채널 14-15만 [P]</td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>SETUP_CAPTURE</code></td>
+<td>buffer; length; capture&lt;&lt;31|format&lt;&lt;30|loop&lt;&lt;29|in&lt;&lt;28|out&lt;&lt;27; 0</td>
+<td>캡처 유닛 하나를 프로그래밍 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetupCapture.c</code></span></span></td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>SETUP_ALARM</code></td>
+<td>alarmNo, tick, period, handler id</td>
+<td>ARM9 핸들러를 일으키는 주기적 ARM7 알람 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetupAlarm.c</code></span></span></td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>CHANNEL_TIMER</code></td>
+<td>chBitMask, timer</td>
+<td>실행 중인 채널을 재조율 [P]</td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>CHANNEL_VOLUME</code></td>
+<td>chBitMask, volume, shift</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetChannelVolume.c</code></span></span></td>
+</tr>
+<tr>
+<td>21</td>
+<td><code>CHANNEL_PAN</code></td>
+<td>chBitMask, pan</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetChannelPan.c</code></span></span></td>
+</tr>
+<tr>
+<td>22</td>
+<td><code>SURROUND_DECAY</code></td>
+<td>decay</td>
+<td>캡처 기반 의사 서라운드의 깊이 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SNDi_SetSurroundDecay.c</code></span></span></td>
+</tr>
+<tr>
+<td>23</td>
+<td><code>MASTER_VOLUME</code></td>
+<td>volume</td>
+<td><code>SOUNDCNT</code> 비트 0-6 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetMasterVolume.c</code></span></span></td>
+</tr>
+<tr>
+<td>24</td>
+<td><code>MASTER_PAN</code></td>
+<td>pan</td>
+<td>[P]</td>
+</tr>
+<tr>
+<td>25</td>
+<td><code>OUTPUT_SELECTOR</code></td>
+<td>left, right, ch1, ch3</td>
+<td><code>SOUNDCNT</code> 비트 8-13 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetOutputSelector.c</code></span></span> <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">GBATEK control registers</span></span></td>
+</tr>
+<tr>
+<td>26</td>
+<td><code>LOCK_CHANNEL</code></td>
+<td>chBitMask, flags</td>
+<td>채널을 할당기에서 제거 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_LockChannel.c</code></span></span></td>
+</tr>
+<tr>
+<td>27</td>
+<td><code>UNLOCK_CHANNEL</code></td>
+<td>chBitMask, flags</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_UnlockChannel.c</code></span></span></td>
+</tr>
+<tr>
+<td>28</td>
+<td><code>STOP_UNLOCKED_CHANNEL</code></td>
+<td>chBitMask, flags</td>
+<td>[P]</td>
+</tr>
+<tr>
+<td>29</td>
+<td><code>SHARED_WORK</code></td>
+<td><code>SNDSharedWork</code>의 주소</td>
+<td>저장한다; 이것이 도착하기 전에는 아무것도 동작하지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_CommandInit.c</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>pxisend.c</code></span></span></td>
+</tr>
+<tr>
+<td>30</td>
+<td><code>INVALIDATE_SEQ</code></td>
+<td>start, end</td>
+<td>해제되는 범위를 가리키는 캐시된 포인터를 버린다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_InvalidateSeqData.c</code></span></span></td>
+</tr>
+<tr>
+<td>31</td>
+<td><code>INVALIDATE_BANK</code></td>
+<td>start, end</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_InvalidateBankData.c</code></span></span></td>
+</tr>
+<tr>
+<td>32</td>
+<td><code>INVALIDATE_WAVE</code></td>
+<td>start, end</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_InvalidateWaveData.c</code></span></span></td>
+</tr>
+<tr>
+<td>33</td>
+<td><code>READ_DRIVER_INFO</code></td>
+<td><code>SNDDriverInfo</code>의 주소</td>
+<td>드라이버 상태 전체를 ARM9로 복사해 되돌린다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_ReadDriverInfo.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>기록해 둘 만한 교차 검증이 두 가지 있다. id 14와 id 7에 대한 ARM9의 패킹은 ARM7의 분해와
+필드 하나하나까지 일치하므로 S와 P가 서로를 뒷받침한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>SND_SetupChannelPcm.c</code>, <code>SNDi_SetTrackParam.c</code></span></span> <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">pokediamond <code>SND_command.c</code></span></span>. id 17은 일치하지 <strong>않는다</strong>:
+pokediamond 디컴파일은 비트 31을 캡처 <em>포맷</em>이라 부르지만, ARM9 빌더는 그 자리에 캡처
+<em>유닛 번호</em>를 넣고 포맷은 비트 30에 넣는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_SetupCapture.c</code></span></span>. ARM9
+빌더는 이 ROM 자신의 코드이므로 이긴다; 그 한 명령에 대한 디컴파일의 인자 이름은 신뢰할 수
+없다.</p>
+<h3 id="이-rom이-보내는-것이-관측된-것">이 ROM이 보내는 것이 관측된 것</h3>
+<p>두 실행에서 동일한 열두 개의 명령이, 모두 프레임 3이 끝나기 전에, 다음 순서로 관측되었다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D59/tap-D59-run.log:161,194-204</code>; <code>scratchpad/cycle40/runs/off-D45/off-D45-run.log:146,163-173</code></span></span>:</p>
+<p><code>29 SHARED_WORK</code> · <code>22 SURROUND_DECAY</code> · <code>26 LOCK_CHANNEL</code> · <code>14 SETUP_CHANNEL_PCM</code> ·
+<code>17 SETUP_CAPTURE</code> · <code>14 SETUP_CHANNEL_PCM</code> · <code>17 SETUP_CAPTURE</code> · <code>18 SETUP_ALARM</code> ·
+<code>25 OUTPUT_SELECTOR</code> · <code>12 START_TIMER</code> · <code>23 MASTER_VOLUME</code> · <code>13 STOP_TIMER</code>.</p>
+<p><strong>그 목록이 포트가 가진 근거의 전부이며, 그것은 게임이 아니라 계측기의 산물이다.</strong>
+<code>snd_arm7</code>은 정적 카운터가 12 미만인 동안만 출력하므로, 실행이 아무리 길어져도 열두 번째 줄이
+포트가 내보내는 마지막 줄이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>pxisend.c</code>, <code>said &lt; 12</code></span></span>.
+프레임 3 이후 게임이 보내는 모든 것 — 모든 <code>PREPARE_SEQ</code>, 모든 <code>START_PREPARED_SEQ</code>, 모든
+<code>PLAYER_PARAM</code> — 은 보이지 않는다. <code>systems/audio.md</code>에 계획된 <code>silent-audio-probe</code> 실험은
+그 상한을 올리기 전까지 자신의 질문에 답할 수 없다.</p>
+<p>열두 명령이 <em>실제로</em> 보여주는 것은, 게임이 무엇이든 재생하기 전에 <strong>캡처 기반 출력 이펙트</strong>를
+띄운다는 것이다: 채널 쌍 하나를 할당기에서 잠그고, PCM 채널 둘과 그에 대응하는 캡처 유닛 둘을
+프로그래밍하고, 알람을 무장시킨 뒤, <code>SOUNDCNT</code>의 출력 셀렉터를 다시 가리킨다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">the identification; settled by raising the cap and printing arg0..arg3 for each node</span></span>.
+<code>SND_CAPOUT_CHANNEL_MASK</code>는 <code>0x000A</code>(채널 1과 3)이고 <code>SND_CAPIN_CHANNEL_MASK</code>는
+<code>0x0005</code>(채널 0과 2)이다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>channel.h</code></span></span>. <code>NNS_SndCaptureStartOutputEffect</code>는 32,000워드
+버퍼와 콜백을 캡처 시작 경로에 넘긴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndCaptureStartOutputEffect.c</code></span></span>.</p>
+<p><strong>설계상의 귀결은 크다.</strong> 출력 셀렉터가 Ch1/Ch3를 가리키면, GBATEK의 <code>SOUNDCNT</code> 비트 8-11에
+따라 스피커는 더 이상 믹서를 전혀 듣지 않는다 — 스피커는 캡처 버퍼로부터 공급되는 그 두
+채널을 듣는다
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>gbatek-ds-sound-control-registers.htm</code></span></span>. 열여섯 채널과 믹서를 구현하되 캡처와 출력
+셀렉터를 무시하는 호스트 드라이버는 아무도 듣지 않는 버퍼에 올바른 믹스를 렌더링하게 된다.</p>
+<p><strong>측정으로 확정됨 (2026-09-09, 오디오 마일스톤 7).</strong> 포트가 각 노드의 네 워드를 모두 출력하자
+위 두 문단의 모든 예측이 인자 하나하나까지 들어맞았다: <code>LOCK_CHANNEL</code> 마스크 <code>0x000A</code>,
+채널 1과 3에 팬 0과 팬 127로 타이머 512의 512워드 버퍼 두 개에 대한 <code>SETUP_CHANNEL_PCM</code>,
+같은(SAME) 두 버퍼에 소스 비트를 지운 채(믹서) 루프 비트를 세팅한 <code>SETUP_CAPTURE</code>, 그리고
+<code>OUTPUT_SELECTOR 1 2 1 1</code>. 캡처와 그 재생 채널이 버퍼 하나와 클럭 하나를 공유하므로,
+스피커는 버퍼 하나만큼 지연된 믹서를 듣는다 &ndash; 32,729.5 Hz에서 1,024 샘플 = 31.3 ms &ndash;
+왼쪽 끝과 오른쪽 끝으로 다시 팬되고, <code>SNDi_SetSurroundDecay</code>가 채널 1과 3을 제외한 모든
+것을 끌어내린다. <code>capture.c</code>가 이를 구현하며, 포트 자신의 렌더는 지연 1,025에서 상관계수
+0.9962로 캡처 끔 렌더와 같다 [<code>docs/kb/hybrid/audio.md</code> §7].</p>
+<hr />
+<h2 id="2-설계-portshimaudio">2. 설계: <code>port/shim/audio/</code></h2>
+<h3 id="호스트가-모델링해야-하는-것">호스트가 모델링해야 하는 것</h3>
+<p>ARM7 드라이버의 전체 상태는 구조체 하나이며, 이 저장소는 이미 그 선언을 갖고 있다:
+<code>SNDWork</code>는 <code>SNDExChannel channel[16]</code>, <code>SNDPlayer player[16]</code>, <code>SNDTrack track[32]</code>,
+<code>SNDAlarm alarm[8]</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_ReadPlayerInfo.c</code>, the structs verbatim</span></span>. 이것은
+편의가 아니다 — id 6과 7은 <strong><code>SNDPlayer</code>와 <code>SNDTrack</code>에 대한 원시 오프셋/크기 쓰기</strong>이므로,
+호스트 드라이버는 그 필드 오프셋을 정확히 재현해야 하며 그렇지 않으면 ARM9의
+<code>SND_SetPlayerVolume</code>이 엉뚱한 바이트에 떨어진다. <code>SND_SetPlayerVolume</code>은 오프셋 6, 크기 2 —
+<code>extFader</code> — 에 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_SetPlayerVolume.c</code></span></span>.</p>
+<ul>
+<li><code>SNDPlayer</code>: 플래그 비트 셋, <code>myNo</code>, <code>prio</code>, <code>volume</code>, <code>s16 extFader</code>, <code>u8 tracks[16]</code>
+  (0xFF = 없음), <code>tempo</code>, <code>tempo_ratio</code>, <code>tempo_counter</code>, <code>SNDBankData *bank</code>.</li>
+<li><code>SNDTrack</code>: 플래그 비트 여덟 개(active, note_wait, mute, tie, note_finish_wait, porta, cmp,
+  channel_mask), <code>prgNo</code>, 볼륨 둘, 피치 벤드와 범위, 팬과 ext 팬, <code>extFader</code>,
+  <code>ext_pitch</code>, A/D/S/R, <code>prio</code>, <code>transpose</code>, 포르타멘토 키와 시간, <code>sweep_pitch</code>,
+  <code>SNDLfoParam mod</code> 하나, <code>channel_mask</code>, <code>s32 wait</code>, <code>base</code>와 <code>cur</code> 바이트 포인터,
+  <code>call_stack[3]</code>, <code>loop_count[3]</code>, <code>call_stack_depth</code>, 그리고 채널 리스트 머리.</li>
+<li><code>SNDExChannel</code>: <code>env_status</code>, 키, 벨로시티, 팬들, <code>env_decay</code>, 스윕 카운터, A/D/S/R,
+  <code>volume</code>, <code>timer</code>, <code>SNDLfo</code> 하나, <code>length</code>, 내장된 <code>SNDWaveParam</code>, 데이터 포인터 또는
+  듀티 값, 그리고 drop/finish 콜백.</li>
+</ul>
+<p><code>SND_TRACK_CALL_STACK_DEPTH</code>는 3이고 <code>SND_TRACK_NUM_PER_PLAYER</code>는 16이다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>seq.h</code></span></span>; 위의
+구조체가 이에 동의한다 [S].</p>
+<h3 id="프레임">프레임</h3>
+<p>실제 ARM7 드라이버는 <code>SND_PROC_INTERVAL 0xAA8</code> = 2728 OS 틱의 <code>OS</code> 주기 알람으로 깨어나는
+스레드다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>main.h</code>, pokediamond <code>SND_main.c</code></span></span>. 초당 <code>33513982/64 = 523,656</code> OS 틱이므로
+이는 191.96 Hz — <strong>1/192초 드라이버 프레임</strong> — 이다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">arithmetic over those two constants</span></span>.
+그 루프는: 채널 갱신, 명령 큐 비우기, 시퀀스 스텝, 채널 엔벨로프 실행, <code>SNDSharedWork</code> 게시,
+RNG 진행이다. 명령 푸시는 주기 플래그를 <em>false</em>로 하여 스레드를 깨우므로, 명령은 즉시
+처리되고 엔벨로프와 시퀀스는 192 Hz 프레임에서만 진행한다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">pokediamond <code>SND_main.c</code></span></span>.
+시퀀스 타이밍은 그 위에 얹힌다: 프레임마다 누산기에 <code>(tempo * tempoRatio) &gt;&gt; 8</code>을 더하고,
+240을 뺄 때마다 시퀀스 틱 하나를 낸다
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">pokediamond <code>SND_seq.c</code>; <code>SND_BASE_TEMPO 240</code>, <code>SND_DEFAULT_TEMPO 120</code> from <code>seq.h</code></span></span>.</p>
+<h3 id="데이터-흐름-말로-풀면">데이터 흐름, 말로 풀면</h3>
+<p><em>요청.</em> 게임 글루가 <code>NNS_SndArcPlayerStartSeqArc(handle, seqArcNo, index)</code>를 호출한다. NNS
+계층은 <code>index</code>의 SSAR 레코드를 읽고, 사운드 힙을 통해 뱅크와 그 웨이브 아카이브를 로드하고,
+플레이어를 할당한 뒤, 시퀀스의 베이스 포인터와 바이트 오프셋과 로드된 뱅크 포인터로
+<code>SND_PrepareSeq</code>를 호출한다. 이것이 풀의 노드 id 2가 된다. <code>NNS_SndMain</code>이 게임 프레임마다
+한 번 풀을 플러시한다: PXI 워드 하나, 리스트 하나.</p>
+<p><em>디스패치.</em> 호스트는 머리 주소를 받아 리스트를 순회하고, 각 노드에 대해 위 표가 명명한
+드라이버 변경을 실행한다. 리스트가 끝나면 <code>finishCommandTag++</code>.</p>
+<p><em>틱.</em> 게임의 프레임과 독립적으로, 호스트는 드라이버를 초당 192번 진행시킨다. 각 드라이버
+프레임에서: 활성 플레이어마다 템포를 누산하고, 방출된 시퀀스 틱마다 <code>wait</code>가 0에 도달한
+모든 트랙을 스텝한다; 실행된 각 노트온은 트랙의 <code>prgNo</code>를 뱅크를 통해 <code>SNDInstParam</code>으로
+해석하고, 채널을 할당하고, 그것을 프로그래밍한다. 그 다음 모든 활성 채널이 엔벨로프와 LFO를
+한 프레임 진행시킨다; 릴리스 상태에서 엔벨로프가 바닥 아래로 떨어진 채널은 비활성화되고
+FINISH로 콜백을 발화한다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">pokediamond <code>SND_exChannel.c</code></span></span>.</p>
+<p><em>렌더.</em> 채널 상태는 소리가 아니다; 소리에 대한 서술이다. 별도의 믹서가 열여섯 채널의 현재
+파라미터로부터 32.768 kHz로 N 샘플을 렌더링하고, 캡처 경로를 적용하고, 그 블록을 싱크에
+넘긴다. 믹서는 게임의 클럭이 아니라 싱크의 클럭으로 구동되어야 한다: 이곳이 포트의 가변
+프레임 레이트가 새어 들어와서는 안 되는 유일한 지점이다.</p>
+<h3 id="모듈">모듈</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>모듈</th>
+<th>책임</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sdat.c</code></td>
+<td>호스트 FS를 통해 <code>sound_data.sdat</code>를 연다; 인덱스 기반 INFO/FAT/FILE 접근자. 읽기 전용, 할당 없음.</td>
+</tr>
+<tr>
+<td><code>sseq.c</code></td>
+<td>SSEQ/SSAR 이벤트 디코더: 가변 길이 값, 옵코드 테이블, <code>RANDOM</code>/<code>VARIABLE</code>/<code>IF</code> 접두어, 깊이 3의 호출 및 루프 스택.</td>
+</tr>
+<tr>
+<td><code>sbnk.c</code></td>
+<td>악기 조회: <code>instOffset[prgNo]</code> → 타입 + 24비트 오프셋; 드럼 세트와 키 스플릿 하강; <code>SNDInstParam</code> 출력.</td>
+</tr>
+<tr>
+<td><code>swav.c</code></td>
+<td>DS의 반올림과 클리핑 편차를 포함한 PCM8 / PCM16 / IMA-ADPCM 디코드; 루프 지점의 디코더 상태 스냅샷.</td>
+</tr>
+<tr>
+<td><code>driver.c</code></td>
+<td><code>SNDWork</code>: 34개 명령 디스패처, 플레이어/트랙/채널 상태 머신, 192 Hz 프레임, <code>SNDSharedWork</code> 게시.</td>
+</tr>
+<tr>
+<td><code>chanalloc.c</code></td>
+<td><code>SND_AllocExChannel</code>: 마스크, 잠금, 최저 우선순위 후 최소 음량 희생자 선정, DROP 콜백.</td>
+</tr>
+<tr>
+<td><code>mixer.c</code></td>
+<td>32.768 kHz 믹스: 10단계 볼륨/팬/마스터/바이어스/클립 파이프라인, PSG 듀티, 15비트 노이즈 LFSR.</td>
+</tr>
+<tr>
+<td><code>capture.c</code></td>
+<td>두 캡처 유닛, 그 루프 버퍼, 출력 셀렉터, 그리고 <code>SOUNDCNT</code> 라우팅.</td>
+</tr>
+<tr>
+<td><code>sink_win32.c</code></td>
+<td>WASAPI 공유 모드 렌더 클라이언트(waveOut을 폴백으로), 링 버퍼, 그리고 유일한 스레드 경계.</td>
+</tr>
+<tr>
+<td><code>snd_trace.c</code></td>
+<td>기존 <code>w3_sndtrace</code>를 노드별 인자 로깅과 상한 없는 id 집계로 확장.</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="빌드-순서">빌드 순서</h3>
+<p>순서 규칙은 <strong>무음 보존</strong>이다: 6단계 이전의 어떤 것도 게임이 하는 일을 바꿀 수 없으므로,
+6단계 이전의 어떤 것도 90,000프레임 프런티어를 퇴행시킬 수 없다.</p>
+<p><strong>상태 (2026-09-09): 여덟 단계 모두 완료.</strong> 7단계와 8단계는 오디오 마일스톤 7과 8로 착지했다;
+<code>docs/kb/hybrid/audio.md</code> §7-§10이 그것들이 오늘 무엇을 하는지 말하는 페이지다. 6단계는
+<code>port/shim/audio/driver.c</code>(34개 명령 디스패처), <code>port/shim/audio/sink_win32.c</code>(WASAPI 공유
+모드, waveOut 폴백), 그리고 <code>port/shim/os/pxisend.c</code>와 <code>port/platform/frame.c</code>의 배선으로
+착지했다. 아래의 모든 내용은 쓰인 그대로 보존되는데, 순서 논증이 여전히 이 작업이 안전한
+이유이기 때문이다; <code>docs/kb/hybrid/audio.md</code>는 포트가 오늘(TODAY) 무엇을 하는지 — 어떤
+명령이 디스패치되고, 어떤 것이 의도적인 no-op이고, 어떤 것이 로깅만 되는지를 포함해 —
+말하는 페이지이며, 여기의 단계별 문구를 대체한다.</p>
+<ol>
+<li><strong>완료. 계측기를 올린다.</strong> <code>snd_arm7</code>의 열두 줄 상한을 상한 없는 id 히스토그램과 유계
+   인자 로그로 교체하고, 둘 다 <code>ACWW_SND_TRACE</code> 변수 뒤에 둔다. 이것은 <code>pxisend.c</code>의 편집
+   하나이며 이 목록에서 가장 값싼 것이다. 산출물: 마을 실행에 대한 실제 id 집계로, §2의
+   얼마만큼이 실제로 필요한지를 결정한다.</li>
+<li><strong>완료. <code>sdat.c</code> + <code>sbnk.c</code> + <code>swav.c</code> 오프라인.</strong> 아카이브를 순회하고 레코드를 덤프하는
+   독립 실행 호스트 도구. 검증은 정확하다: 아래 §3의 개수와 체인을 재현해야 한다.</li>
+<li><strong>완료. <code>sseq.c</code> 오프라인.</strong> 시퀀스 하나를 이벤트 리스트로 디코드한다. 같은 파일에 대해
+   ndspy의 디코더와 대조 검증한다 — 불일치는 둘 중 하나의 버그이며 둘 다 읽을 수 있다.</li>
+<li><strong>완료. <code>chanalloc.c</code> + <code>mixer.c</code> 오프라인, WAV 파일로 렌더링.</strong> <em>마일스톤 1</em>:
+   <code>extract/adm-kr/files/sound_data.sdat</code>에서 <code>SSAR 0</code>, 엔트리 121을 디스크로 렌더링하고,
+   공개 SDAT 플레이어가 같은 엔트리를 렌더링한 것과 바이트 비교한다. 그것은 시퀀스 바이트
+   여덟 개와 6,020바이트 ADPCM 페이로드 하나(§3)이므로, 모든 불일치를 손으로 진단할 수 있다.</li>
+<li><strong>완료 (열 개가 아니라 두 시퀀스). 더 큰 오프라인 코퍼스.</strong> PSG, 노이즈, 드럼 세트, 키
+   스플릿, 루프를 포괄하도록 고른 열 개의 시퀀스. 여전히 게임은 없다.</li>
+<li><strong>완료. <code>sink_win32.c</code>와 배선.</strong> <code>snd_arm7</code>의 무음 순회를 드라이버의 디스패처로 교체하고,
+   <code>acww_frame</code>(<code>port/platform/frame.c</code>)에서 192 Hz 프레임을 구동하고, 싱크를 연다.
+   <em>마일스톤 2</em>: 포트가 첫 소리를 낸다. 이것은 프런티어를 퇴행시킬 수 있는 첫 단계이므로,
+   무음 순회를 복원하는 <code>ACWW_SND=0</code> 탈출구와 함께 단독으로 착지한다.</li>
+<li><strong>완료 (2026-09-09). <code>capture.c</code>.</strong> 두 캡처 유닛, 출력 셀렉터, 서라운드 감쇠, 마스터 팬이
+   준수되고, <code>SETUP_CHANNEL_PCM/PSG/NOISE</code>와 <code>START_TIMER</code>/<code>STOP_TIMER</code>가 캡처 경로가 재생하는
+   하드웨어 채널을 프로그래밍하고 시작한다. 의도적 편차는 사라졌다; <code>ACWW_SND_CAPTURE=0</code>이
+   그것을 복원하며, 전후 영수증은 그 사이에서 측정된다. <strong>§1과 §4의 부팅 가설은 측정으로
+   확정되었다</strong>: id별 인자 로그가 모든 노드의 네 워드를 모두 출력했고, 그것들은 §1이 예측한
+   그대로였다 &ndash; <code>LOCK_CHANNEL</code> 마스크 0x000A, 채널 1과 3에 왼쪽 끝과 오른쪽 끝으로 팬된
+   타이머 512의 512워드 버퍼 두 개에 대한 <code>SETUP_CHANNEL_PCM</code> 둘, 같은(SAME) 두 버퍼에
+   믹서(MIXER)로부터 루프 비트를 세팅한 <code>SETUP_CAPTURE</code> 둘, 그리고
+   <code>OUTPUT_SELECTOR 1 2 1 1</code>(왼쪽은 Ch1에서, 오른쪽은 Ch3에서, 둘 다 믹서 우회). 셀렉터가
+   정말로 준수된다는 영수증은 교차 상관이다: 캡처 켬 렌더는 캡처 끔 렌더를
+   <strong>1,025 샘플 = 31.28 ms 지연시킨 것, 계수 0.9962</strong>이며, 지연 0에서는 0.2530이다 &ndash;
+   산술이 예측한 대로 캡처 버퍼 하나 분량
+   [<code>docs/kb/hybrid/audio.md</code> §7-8; <code>scratchpad/audio7/</code>].</li>
+<li><strong>완료, 한쪽만 (2026-09-09). 차분 검사.</strong> <code>READ_DRIVER_INFO</code>(id 33)가 구현되었다 &ndash; 포트는
+   이 ROM 자신의 구조체 오프셋으로 ARM9의 <code>SNDDriverInfo</code>를 채운다 &ndash; 그리고 <strong>이 ROM은 그것을
+   결코 보내지 않는데</strong>, 이는 OFF 레시피에 대해 §4의 네 번째 가설을 닫는다: 9,000프레임에
+   걸친 상한 없는 집계는 id 0-32를 나열하고 33은 없다. 차분의 포트 쪽 절반은
+   <code>ACWW_SND_DUMP=&lt;frames&gt;:&lt;path&gt;</code>이고; 원본 쪽 절반은 <code>port/tools/oracle/oracle.py</code>의
+   <code>--snd-dump</code>와 <code>observer.lua</code>의 사운드 블록이며; <code>port/tools/oracle/
+   snddiff.py</code>가 둘을 diff한다. <strong>이 글이 쓰인 세션에서 에뮬레이터가 시작되지 않았으므로</strong>
+   (유휴, 675초 중 CPU 1.1초, 원장 없음, 마일스톤 8 이전 옵저버로도 같은 행), 아직 일치
+   표는 존재하지 않는다.</li>
+</ol>
+<p><strong>차분이 비교할 수 있는 것은 이 페이지가 가정한 것보다 좁으며, 그것은 논증이 아니라
+   측정된 것이다.</strong> <code>SNDi_Work</code>는 0x037f8000의 ARM7 WRAM에 있는 ARM7 정적 변수이고 열여섯
+   개의 SOUNDxCNT 레지스터는 ARM7 전용 I/O다; DeSmuME 0.9.13의 Lua는 어느 쪽에도 닿지 않고,
+   실행 중인 에뮬레이터에 ARM9 <code>READ_DRIVER_INFO</code>를 주입할 방법도 없다. 비교 가능한(IS) 것은
+   <code>SNDSharedWork</code> &ndash; ARM9가 소유하므로 메인 RAM에 있다 &ndash; 이며, 이것은 또한 게임 코드가 볼
+   수 있는 드라이버의 유일한 부분이다. <code>observer.lua</code>는 어차피 닿지 않는 레지스터를 프로브하되
+   0끼리 비교하는 대신 원시 결과를 기록한다.</p>
+<p><strong>8단계는 에뮬레이터 없이 테이블들을 확정했다.</strong> <code>extract/</code>가 그것들을 갖고 있다:
+   <code>AttackCoeffTable</code>은 <code>arm7/arm7.bin</code> +0xf2e0, <code>SNDi_DecibelSquareTable</code>은 +0xf1cc,
+   <code>SNDi_DecibelTable</code>은 <code>arm9/unk_autoload_2.bin</code> +0x54dcc. 세 H 등급 재구성 중 둘은 ROM과
+   바이트 단위로 동일했다; 세 번째 테이블은 통째로 빠져 있었는데, 그것이 시퀀서가 사용하는
+   것이다(벨로시티, 두 트랙 볼륨, 플레이어 볼륨, 서스테인 레벨에 <code>SND_CalcDecibel</code>이 아니라
+   <code>SND_CalcDecibelSquare</code>). 이 ROM에서 엔트리 0은 -723이고 공개 NitroSDK에서는 -32768이다:
+   S가 P를 이기며 그 불일치가 내용이다.</p>
+<h3 id="상태-여덟-단계-모두-완료-그리고-차분이-이제-실행됨-audio8-2026-09-10">상태: 여덟 단계 모두 완료, 그리고 차분이 이제 실행됨 (AUDIO8, 2026-09-10)</h3>
+<p><strong>AUDIO8 결과, 한 줄로: 드라이버는 만들어졌고 차분은 동작하며, 음악은 틀렸다.</strong> 에뮬레이터
+쪽 절반이 처음으로 실행되었다(DeSmuME 다섯 번 실행, 152초에 9,000프레임, 첫 실행 옆에
+DirectSound 대화상자 해제기를 둠). <code>SNDSharedWork</code>는 ARM9 전역 <code>SNDi_SharedWork</code>
+@0x022060a0를 역참조하여 찾는다 &ndash; 틀렸던 하드코딩된 힙 주소가 아니라 &ndash; 그리고 두 머신
+모두 블록을 <strong>0x02204620</strong>에 둔다. 두 화면이 바이트 단위로 정확히 일치하는 유일한
+창(프레임 100..300)에서, <code>captureStatus</code>, 캡처 쌍에서의 <code>channelStatus</code>, <code>finishCommandTag</code>,
+그리고 시퀀서의 틱 레이트(TICK RATE)가 모두 정확히 일치하는 반면, 첫 시퀀스는 원본에서
+트랙당 하나인 데 반해 <strong>포트에서는 트랙당 세 채널</strong>을 울리고, <strong>원본의 틱 123에 대해 틱
+84</strong>에서 끝난다. 전체 표와 영수증:
+<code>docs/kb/hybrid/audio.md</code> §10, <code>scratchpad/audio8/</code>.</p>
+<h3 id="상태-여덟-단계-모두-완료-audio6-115984f9-audio7-36ee5abe-2026-09-09">상태: 여덟 단계 모두 완료 (AUDIO6 <code>115984f9</code>, AUDIO7 <code>36ee5abe</code>, 2026-09-09)</h3>
+<p><strong>마일스톤 6 = 6단계, 마일스톤 7 = 7단계, 마일스톤 8 = 8단계이며, 셋 모두 같은 밤에
+착지했다.</strong> <code>wiki/systems/audio.md</code>와 <code>docs/kb/hybrid/audio.md</code>가 포트가 오늘 무엇을 하는지에
+대한 기록 페이지다; 아래의 서술은 마일스톤 1이 남긴 오프라인 전용 상태 그대로 보존되는데,
+픽스처가 그것에 맞춰 만들어졌고 그것이 여전히 6단계 이전의 어떤 것도 프런티어를 퇴행시킬 수
+없는 이유에 대한 논증이기 때문이다. 이에 대한 정정 두 가지: <code>port/tools/test_sndrender.py</code>는
+이제 19개가 아니라 <strong>22개 검사</strong>이며, 그중 셋은 이 ROM 자신의 이미지에 대한 S 등급이다;
+그리고 아래의 "마일스톤 2 &ndash; 포트가 소리를 내는 것 &ndash; 는 시작되지 않았다"는 철회된다 &ndash;
+마일스톤 6으로 착지했다.</p>
+<h3 id="마일스톤-1이-남긴-오프라인-상태-touch41-재링크-2026-09-09">마일스톤 1이 남긴 오프라인 상태 (TOUCH41 재링크, 2026-09-09)</h3>
+<p>위의 2-4단계는 착지했으며 <strong>오프라인 전용</strong>이다: <code>port/shim/audio/{sdat,sbnk,swav,sseq,
+chanalloc,mixer}.c</code>가 존재하고, <code>port/tools/sndrender.py</code>가 포트의 링크 바깥(OUTSIDE)에서
+그것들을 수정 없이 컴파일하여(자체 no-CRT 하네스, <code>link.py</code>의 <code>GEN_FLAGS</code>) 이 ROM의
+<code>sound_data.sdat</code>에서 시퀀스 하나를 WAV 파일로 렌더링한다. 여기의 어떤 것도 등록되지
+않았고, <code>link.py</code>나 <code>overrides.txt</code>에 아무것도 나타나지 않으며, 이 도구의 어떤 호출도 게임이
+하는 일을 바꿀 수 없다 &ndash; 이것이 이 단계를 무음 보존이며 프런티어를 퇴행시킬 수 없게 만드는
+것이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/sndrender.py</code> header; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41; <code>docs/state/port-frontier.md</code></span></span>.</p>
+<p><code>port/tools/test_sndrender.py</code>가 픽스처이며, <strong>19개 검사</strong>이고, 그 안의 모든 기대값은 시험
+대상 C가 아닌 다른 곳에서 온다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/tools/test_sndrender.py</code> header; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41, "audio milestone 1, 19 checks"; verify against the ROM function or symbol table and this page's recipe</span></span>:</p>
+<ul>
+<li><strong>시퀀서를 ndspy와 대조</strong> &ndash; C가 실제로 실행하는 모든 이벤트는 ndspy도 파싱한 오프셋에,
+  같은 옵코드, 같은 총 길이, 같은 피연산자로 떨어져야 한다. 중요한 것은 길이다: SSEQ 옵코드
+  집합에는 가변 길이 정수와 접두 옵코드 셋이 있으므로, 피연산자 폭을 잘못 잡은 디코더는 다음
+  이벤트를 이 이벤트의 한가운데에서 읽게 된다. ndspy를 임포트할 수 없으면 픽스처는 로컬
+  디코더로 폴백하고 그렇게 말한다(SAYS SO); 이는 C와 저자를 공유하므로 더 약한 근거다;</li>
+<li><strong>파형을 샘플 단위로</strong> GBATEK의 의사코드로 작성한 두 번째 IMA-ADPCM 디코더와 대조하며,
+  DS의 두 가지 편차(3분의 1 절삭, -0x7FFF 클램프)를 포함한다. 이것은 §3이 기록하는 불일치를
+  결론짓는다: 두 오프라인 디코더가 예측기 헤더가 방출되는 샘플인지에 대해 12,033 샘플 대
+  12,032로 갈렸다. <strong>12,032가 옳으며</strong>, SWAV 42 &ndash; SSAR 0 / 엔트리 121 체인의 6,020바이트
+  ADPCM 페이로드 &ndash; 는 이제 샘플 하나하나까지 단언된다;</li>
+<li><strong>아카이브</strong>를 §3의 주장 표와 대조: 개수들, 그리고 체인 SSAR 0 엔트리 121 -&gt; 뱅크 154 -&gt;
+  WAVEARC 4 -&gt; SWAR 파일 1499 -&gt; SWAV 42의 모든 필드;</li>
+<li><strong><code>mixer.c</code>의 <code>VolumeTable</code></strong>을 <code>src/matched/SND_CalcChannelVolume.c</code>에서 다시 읽어 바이트
+  단위로 비교하므로, 디렉터리 안의 유일한 S 등급 상수 테이블이 표류할 수 없다.</li>
+</ul>
+<p><strong>보정은 결과의 일부다 (M1).</strong> 두 실행이 정답을 단언하면서 드라이버에 의도적으로 틀린 입력을
+먹이며, 픽스처는 둘 다 잡힐 때에만 건전하다: <code>CALIBRATION-adpcm-nibble</code>은 ADPCM 니블 하나의
+비트 하나를 뒤집고(차분 포맷이므로 디코드된 다이제스트가 바뀌어야 한다 &ndash; 상수를 반환하는
+"디코더"나 오래된 캐시 파일은 그냥 통과할 것이다), <code>CALIBRATION-tempo</code>는 템포 비율 절반으로
+렌더링하며 같은(SAME) 이벤트가 같은 순서로 같은 피연산자로 다른(DIFFERENT) 드라이버
+프레임에서 나오기를 요구하는데, 이것이 정말로 192 Hz 프레임과 <code>(tempo * tempoRatio) &gt;&gt; 8</code>
+누산기를 돌리는 시퀀서를 이벤트 리스트를 곧장 훑는 것과 구별하는 유일한 방법이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/tools/test_sndrender.py</code> header; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
+<p>~~마일스톤 2 &ndash; 포트가 소리를 내는 것 &ndash; 는 시작되지 <strong>않았다</strong>: 6단계는 프런티어를 퇴행시킬
+수 있는 첫 단계이며 단독으로 착지한다.~~ <strong>철회됨 (AUDIO6, <code>115984f9</code>): 착지했고, 이 문장이
+요구한 대로 단독으로 착지했다.</strong> <code>ACWW_SND=1</code>이면 포트는 게임 자신의 음악과 효과음을
+재생한다; 스위치가 없으면 31프레임 OFF 레시피와 48,000프레임 마을 레시피 모두에서 프레임이
+손대지 않은 빌드와 바이트 단위로 동일하다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/audio.md</code> sections 8 and 8(b2); <code>../systems/audio.md</code></span></span>.</p>
+<hr />
+<h2 id="3-주장-표">3. 주장 표</h2>
+<p>아래의 새 측정은 <strong><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span></strong> 등급이며, 메인 체크아웃의
+<code>extract/adm-kr/files/sound_data.sdat</code>에서 읽었다(이 파일은 워크트리에 없다).</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>페이지와 주장</th>
+<th>공개 기록 (P)</th>
+<th>판정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>music.md</code>: "SEQ 슬롯 376, 정의된 것 342, SEQARC 216, BANK 943, WAVEARC 14, PLAYER 21, GROUP 30, STRM 2"</td>
+<td>P: GBATEK/kiwi.ds INFO는 개수+오프셋 테이블 여덟 개</td>
+<td><strong>확인됨</strong>; 그리고 FAT 매직 히스토그램은 정확히 <code>SSEQ</code> 336, <code>SSAR</code> 216, <code>SBNK</code> 943, <code>SWAR</code> 14, <code>STRM</code> 2 = 1,511 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span></td>
+</tr>
+<tr>
+<td><code>music.md</code> 가설: "3,233,800바이트 파일은 두 스트림 중 하나다"</td>
+<td>—</td>
+<td><strong>확정: 그렇다.</strong> STRM 0은 fileId 1509, 볼륨 112, 우선순위 64, 플레이어 0이며, 그 FAT 엔트리는 오프셋 7,136,480 크기 3,233,800이다. STRM 1은 fileId 1510, 334,436바이트 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span></td>
+</tr>
+<tr>
+<td><code>music.md</code> 가설: "웨이브 아카이브 14개에 뱅크 943개는 많다; 곡별 선택인가?"</td>
+<td>P: BANK 레코드는 최대 네 아카이브를 명명하며 0xFFFF는 미사용</td>
+<td><strong>확정: 그렇다, 그리고 질문보다 더 강하게.</strong> 943개 뱅크 모두 정확히 <strong>하나</strong>의 아카이브만 명명한다; 서로 다른 튜플이 14개이고, 모두 싱글턴이며, 웨이브 아카이브당 하나다. 이 ROM의 어떤 뱅크도 다중 아카이브 기능을 쓰지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span></td>
+</tr>
+<tr>
+<td><code>music.md</code>: "SEQ 레코드는 12바이트: fileID u16, unknown u16, bankNo, volume, channelPriority, playerPriority, playerNo, reserved"</td>
+<td>P: kiwi.ds/ndspy는 <code>u16 fileID; u16 unknown; ...</code>으로 읽는다</td>
+<td><strong>"unknown u16"은 unknown이 아니다.</strong> SDK는 이를 <code>u32 fileId</code> 다음에 <code>NNSSndSeqParam { u16 bankNo; u8 volume; u8 channelPrio; u8 playerPrio; u8 playerNo; u16 reserved; }</code>로 타입 지정한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGetSeqInfo.c</code> and siblings</span></span>. 같은 바이트, 올바른 이름</td>
+</tr>
+<tr>
+<td><code>music.md</code>: "BANK 레코드: fileID u16, unknown u16, waveArcNo 4개"</td>
+<td>P: 같음</td>
+<td><strong>같은 정정</strong>: <code>u32 fileId; u16 waveArcNo[4]</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGetBankInfo.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>data-formats.md</code> W6: "SDAT 레코드를 채우고 필드 이름을 붙일 것"</td>
+<td>—</td>
+<td><strong>지금 가능, 모두 S 등급</strong>, ROM 자신의 헤더로부터: WAVEARC는 <code>u32 fileId:24, flags:8</code>; PLAYER는 <code>u8 seqMax; u8 pad; u16 allocChBitFlag; u32 heapSize</code>; GROUP은 <code>u32 count</code> + <code>u8 type; u8 loadFlag; u16 pad; u32 index</code> 항목들; STRM은 <code>u32 fileId; u8 volume; u8 playerPrio; u8 playerNo; u8 flags</code>; STRMPLAYER는 <code>u8 numChannels; u8 chNoList[2]</code>; FAT 엔트리는 <code>u32 offset; u32 size; void *mem; u32 reserved</code> — "예약된 8바이트"는 이름 붙은 런타임 필드 둘이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_SndArcGet*.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>audio.md</code>: "공유 워크의 첫 워드는 <code>finishCommandTag</code>다"</td>
+<td>P: <code>work.h</code></td>
+<td><strong>정확히 확인됨</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_GetPlayerStatus.c</code></span></span>; 블록은 640바이트이고 그 옆의 세 상태 워드가 ARM7의 유일한 보고 채널이다</td>
+</tr>
+<tr>
+<td><code>audio.md</code>: "복원된 요청은 id 2를 무조건 내보낸다; 마스크가 0이 아니면 id 9가 뒤따른다; 볼륨이 다르면 id 6; 준비된 플레이어에는 id 3"</td>
+<td>P: id들은 맞다</td>
+<td>~~<strong>포트에서 미검증</strong>, 로그가 프레임 3의 열두 줄에서 멈추기 때문.~~ <strong>측정됨 (AUDIO6): 상한 없는 집계가 넷 모두를 본다</strong>, 프레임 6부터. 드라이버 켬: id 2와 3이 각 371, id 6이 741, id 7이 2,270. 끔: id 2와 3이 각 967, id 6이 1,933인데, 무음 ARM7은 <code>playerStatus</code>를 결코 세팅하지 않아 게임이 시작하는 모든 시퀀스를 다시 시작하기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/audio.md</code> section 8(c)</span></span></td>
+</tr>
+<tr>
+<td><code>audio.md</code>: "아카이브 0 인덱스 121은 시퀀스 바이트 여덟 개(쉼표, 프로그램, 노트 하나, 끝), 뱅크 154, 웨이브 아카이브 4, 웨이브 42, 6,020바이트 ADPCM 페이로드 하나"</td>
+<td>P: SSAR 레코드 레이아웃</td>
+<td><strong>모든 필드에서 확인됨, 그리고 이제 완전히 해석됨</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span>: SSAR 0은 fileId 336, 엔트리 552개, 데이터는 +6,656; 엔트리 121은 오프셋 2,334, 뱅크 154, 볼륨 127, chPrio 96, playerPrio 64, 플레이어 13. 그 바이트는 <code>80 5a</code>(쉼표 90), <code>81 00</code>(프로그램 0), <code>3c 3c 00</code>(노트 60, 벨로시티 60, 길이 0), <code>ff</code>(끝). 뱅크 154는 SBNK 파일 706, 76바이트, 타입 1(PCM) 악기 하나, 웨이브 아카이브 인덱스 0 → WAVEARC 4 → SWAR 파일 1499(웨이브 81개): SWAV 42, 포맷 2(ADPCM), 루프 없음, 16,000 Hz, 타이머 1,047, loopstart 1워드, looplen 1,504워드 → 6,032바이트 블록 안의 페이로드 6,020바이트</td>
+</tr>
+<tr>
+<td><code>audio.md</code>: "5,550개 엔트리를 담은 시퀀스 아카이브 216개"</td>
+<td>—</td>
+<td><strong>모든 SSAR 자신의 count 필드를 합산하여 확인됨</strong>: 5,550 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span></td>
+</tr>
+<tr>
+<td><code>music.md</code>: "정의된 SEQ 레코드 342개이지만 서로 다른 물리적 시퀀스 파일은 336개"</td>
+<td>—</td>
+<td><strong>확인되고 설명됨</strong>: fileId 넷이 둘 이상의 SEQ 레코드에서 참조된다; SEQ 테이블이 별칭을 갖는다. 또한 서로 다른 뱅크는 262개만 참조하므로, 943개 뱅크 중 681개는 SSAR 시퀀스에만 속한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">image</span></span></td>
+</tr>
+<tr>
+<td><code>music.md</code>: "<code>SYMB</code>가 없으므로 이름 기반 조회는 동작할 수 없다"</td>
+<td>P: GBATEK — SYMB 부재는 지원되는 구성</td>
+<td><strong>라이브러리로도 확인됨</strong>: <code>NNSSndArc</code>는 <code>symbol</code> 포인터를 갖지만 <code>src/matched/</code>의 모든 접근자는 인덱스 기반이다 [S]</td>
+</tr>
+<tr>
+<td><code>audio.md</code>: "두 오프라인 디코더가 ADPCM 예측기 헤더가 방출되는 샘플인지에 대해 12,033 대 12,032로 갈린다"</td>
+<td>P: GBATEK — 4바이트 헤더는 초기 예측기와 인덱스이며, <code>SOUNDxLEN</code>은 ADPCM에 대해 <code>8*(N-1)</code> 샘플을 센다, 즉 헤더 워드는 샘플을 내지 않는다</td>
+<td><strong>스펙이 결론짓는다: 12,032.</strong> 1,505워드 × 8 − 8 = 12,032. 12,033을 내는 디코더는 헤더의 초기 PCM 값을 샘플로 방출하고 있다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>gbatek-ds-sound-channels-0-15.htm</code></span></span></td>
+</tr>
+<tr>
+<td><code>audio.md</code>: "포트는 프로토콜에 응답하고 아무것도 재생하지 않는다; 그것은 오디오를 향한 한 걸음이 아니다"</td>
+<td>—</td>
+<td>~~<strong>확인됨, 그리고 보존할 가치가 있다.</strong>~~ <strong>철회됨 2026-09-09</strong>: <code>ACWW_SND=1</code>이면 포트가 재생한다. 유지된 절반은 무음 순회에 대한 해석이다 &ndash; 그것이 공유 워크 주소와 완료 태그를 제공했고, 그것이 정확히 실제 드라이버가 출발한 부트스트랩이었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/audio.md</code> section 1</span></span></td>
+</tr>
+<tr>
+<td>공개: SBNK "단일 노트 정의는 16바이트" (kiwi.ds)</td>
+<td>P: kiwi.ds는 자신의 필드 목록과 모순된다; GBATEK과 ndspy는 10이라 한다</td>
+<td><strong>10이 옳다</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_GetNextInstData.c</code>, <code>SNDInstParam</code> = <code>u16 wave[2</span></span></code> + six <code>u8</code>]; 드럼 세트와 키 스플릿 안의 중첩 형태는 12(<code>u8 type; u8 pad;</code> + 그 10)</td>
+</tr>
+<tr>
+<td>공개: SBNK 악기 레코드는 "u8 type; u16 offset; u8 reserved"</td>
+<td>P: ndspy는 <code>&lt;BHx</code>로 읽는다</td>
+<td><strong>"reserved" 바이트는 오프셋의 상위 바이트다.</strong> SDK는 레코드를 u32 하나로 읽어 8만큼 오른쪽 시프트하여 <strong>24비트</strong> 오프셋을 얻는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_GetNextInstData.c</code></span></span></td>
+</tr>
+<tr>
+<td>공개: <code>+0x08</code>의 SWAV 필드는 "non-loop length"(kiwi.ds) / "total length"(ndspy) / "loop end offset"(NitroStudio2)</td>
+<td>3자 충돌</td>
+<td><strong>SDK는 이를 <code>looplen</code>이라 부르며</strong> <code>loopstart</code>와 짝짓는데, 이는 GBATEK의 <code>SOUNDxPNT</code>/<code>SOUNDxLEN</code>과 그 "원샷 길이 = PNT+LEN, 루프 = 1×PNT 후 ∞×LEN" 규칙에 1:1로 대응한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_GetWaveDataAddress.c</code>, <code>SNDWaveParam</code></span></span></td>
+</tr>
+<tr>
+<td>공개: SSEQ 옵코드 <code>0xD5</code>는 "expression"</td>
+<td>P: <code>mml.h</code>는 이를 <code>SND_MML_VOLUME2</code>라 부른다</td>
+<td><strong>SDK 이름을 쓴다.</strong> <code>SNDTrack</code>은 <code>volume</code> 옆에 <code>volume2</code> 필드를 가지며 그것이 쓰는 곳이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_ReadPlayerInfo.c</code></span></span> <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><code>mml.h</code></span></span>. <code>0xD7 MUTE</code>도 존재하며 대부분의 커뮤니티 표에서 빠져 있다; <code>0xB7</code>과 <code>0xE2</code>는 빈칸이다</td>
+</tr>
+<tr>
+<td>공개: "채널 0-7은 PCM 전용"</td>
+<td>P: <code>channel.h</code> — <code>SND_PCM_CHANNEL_MASK 0xFFFF</code></td>
+<td><strong>틀렸으며, 이는 할당기에 중요하다.</strong> 16채널 모두 PCM을 한다; 8-13은 <em>추가로</em> PSG를, 14-15는 <em>추가로</em> 노이즈를 한다</td>
+</tr>
+<tr>
+<td>공개: <code>SNDDriverInfo</code> 레이아웃은 문서화되지 않음</td>
+<td>P: 검색이 닿은 어떤 공개 헤더에서도 찾지 못함</td>
+<td><strong>이 저장소가 갖고 있다</strong>: <code>SNDWork work; u32 chCtrl[16]; SNDWork *workAddress; u32 lockedChannels; u32 padding[6]</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_ReadPlayerInfo.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="4-가설-각각-그것을-결론짓는-실험과-함께">4. 가설, 각각 그것을 결론짓는 실험과 함께</h2>
+<ul>
+<li>~~<strong>게임은 측정된 경로에서 재생 명령을 결코 보내지 않는다.</strong>~~ <strong>확정, 그리고 M1이 예측한
+  그대로 측정 산물이었다.</strong> 여기 명명된 실험이 실행되었다: 열두 줄 상한이 제거되었고,
+  9,000프레임 OFF 레시피에 걸친 집계는 <strong>프레임 6</strong>부터 <code>PREPARE_SEQ</code>와 <code>START_PREPARED_SEQ</code>를
+  보며, 드라이버를 켠 상태에서 각 371개다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/audio.md</code> section 8(c)</span></span>. 계측기가 이 가설의 근거의 전부였고, 그것은
+  틀렸다.</li>
+<li>~~<strong>무음 ARM7은 게임 로직에 무기한 충분하다.</strong>~~ <strong>확정 (AUDIO6): 죽었으며, 정확히 여기
+  제안된 실험에 의해서다.</strong> 포트는 이제 SDK가 하듯 <code>PREPARE_SEQ</code> 안에서 <code>playerStatus</code>를
+  세팅하고 <code>STOP_SEQ</code> 안에서 지우며, 게임의 동작이 측정 가능하게 바뀌었다:
+  <code>NNSi_SndPlayerMain</code>이 시작된 모든 시퀀스를 해체해 오고 있었으므로, OFF 레시피는
+  <code>PREPARE_SEQ</code> 967에서 371로, 뱅크 무효화 590에서 6으로 갔다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNSi_SndPlayerMain.c</code>; E: <code>docs/kb/hybrid/audio.md</code> section 8(c)</span></span>. <strong>아무것도
+  정지하지(STALLED) 않았으므로</strong>, "충분하다"에 대한 90,000프레임 근거는 참이었고 그 단어는
+  여전히 틀렸다. <code>ACWW_SND_SHARED=0</code>이 비교를 위해 옛 동작을 유지한다.</li>
+<li><strong>§1의 부팅 시퀀스는 <code>NNS_SndCaptureStartOutputEffect</code>다.</strong> <strong>확정: 그렇다, 예측된 모든
+  필드에서.</strong> 실험이 실행되었다 &ndash; <code>driver.c</code>의 id별 인자 로그 &ndash; 그리고 그것은
+  <code>LOCK_CHANNEL</code> 마스크 <code>0x000A</code>, 채널 1과 3에 대한 두 <code>SETUP_CHANNEL_PCM</code>, 비트 31이
+  지워진 뒤 세팅된 <code>SETUP_CAPTURE</code>(유닛 0 다음 유닛 1, 이는 또한 pokediamond 명명이 아니라
+  이 ROM의 빌더가 옳다는 교차 검증이다), 그리고 <code>OUTPUT_SELECTOR 1 2 1 1</code>을 냈다. 또한
+  측정되었으나 여기서 예측되지 않은 것: <code>SURROUND_DECAY 0x3000</code>이 맨 먼저(FIRST) 도착하고,
+  프레임 819부터 게임은 채널 6과 7도 하드웨어 PCM으로 프로그래밍한다(잠긴 마스크가 <code>0xCA</code>로
+  커진다) &ndash; NitroSDK의 스트리밍 오디오 경로
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/audio7/args/run-tail.log</code></span></span>.</li>
+<li><strong>ROM의 <code>SNDDriverInfo</code>는 런타임에 결코 읽히지 않는다.</strong> <strong>OFF 레시피에 대해 확정: 결코
+  읽히지 않는다.</strong> 9,000프레임에 걸친 상한 없는 집계는 id 0-32를 나열하고 33은 없으므로, 이
+  경로에서는 어떤 호출자도 실행되지 않는다. 그 명령은 프로토콜 자신의 상태 덤프이므로 어쨌든
+  구현되었다(오디오 마일스톤 8); 호출자가 언젠가 실행된다면, 이제 초기화되지 않은 버퍼 대신
+  이 ROM 자신의 구조체 오프셋으로 드라이버의 실제 상태를 얻는다.</li>
+<li><strong>음악은 시작 경계의 디컴파일되지 않은 네 호출자 중 하나 안의 시간 인덱스 테이블로
+  선택된다</strong> — <code>systems/audio.md</code>에서 그대로 이어받았으며, 이제 더 날카롭다: 아카이브에는
+  독립 시퀀스 342개에 대해 아카이브된 시퀀스 5,550개가 있으므로, 음악을 선택하는 것이 무엇이든
+  <code>(archive, index)</code> 쌍을 고르고 있으며, <code>func_020f1fb4</code>의 <code>0x79</code> 인자는 무언가에 대한
+  인덱스다. <em>실험:</em> <code>func_020f1fb4</code>를 디스어셈블하여 RTC 시간으로 인덱싱되는 테이블을 찾는다.</li>
+<li><strong>정의되지 않은 SEQ 슬롯 34개는 잘린 음악이다.</strong> <em>실험:</em> 그 인덱스를 나열하고 어떤 GROUP
+  항목이든 그것을 참조하는지 확인한다; 참조되는 구멍은 패커 버그이고, 참조되지 않는 구멍은
+  삭제다.</li>
+<li><strong>호스트 드라이버는 파형 단위가 아니라 명령 단위로 DeSmuME와 대조 검증할 수 있다.</strong>
+  <strong>부분 확정, 그리고 도달 범위는 이 줄이 가정한 것보다 좁다.</strong> <code>SNDi_Work</code>는 0x037f8000의
+  ARM7 WRAM에 있는 ARM7 정적 변수이고 열여섯 개의 SOUNDxCNT 레지스터는 ARM7 전용 I/O다;
+  DeSmuME 0.9.13의 Lua는 어느 쪽에도 닿지 않고, 실행 중인 에뮬레이터에 ARM9
+  <code>READ_DRIVER_INFO</code>를 주입할 방법도 없다 — 따라서 32개 트랙의 <code>cur</code> 포인터와 16개 채널의
+  <code>timer</code>/<code>volume</code>은 원본(ORIGINAL) 쪽에서는 전혀 읽을 수 없다. 비교 가능한(IS) 것은
+  <code>SNDSharedWork</code>이며, ARM9가 소유하므로 메인 RAM에 있고, 또한 게임 코드가 볼 수 있는
+  드라이버의 유일한 부분이다: 거기서 일치하는 두 드라이버는 게임이 관측할 수 있는 모든 것에서
+  일치한다. 양쪽의 도구는 존재한다(<code>ACWW_SND_DUMP</code>, <code>oracle.py --snd-dump</code>,
+  <code>port/tools/oracle/snddiff.py</code>); 그것들이 쓰인 세션에서 에뮬레이터가 시작되지 않았으므로,
+  아직 일치 표는 존재하지 않는다 [<code>docs/kb/hybrid/audio.md</code> §10].</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../audits/night-2026-09-09.md</code> — 그 밤의 색인에 있는 AUDIO6와 AUDIO7, 각각이 열어 둔
+  것과 함께.</li>
+<li><code>../systems/audio.md</code> — 이 설계가 섬기는 페이지; 그 주소 표와 전송에 대한 서술은 이 감사로
+  바뀌지 않는다.</li>
+<li><code>../data/music.md</code> — 아카이브의 형태; 그 가설 넷이 §3에서 확정된다.</li>
+<li><code>data-formats.md</code> — <strong>P</strong> 등급 관례, 그리고 §3이 해소하는 W6/W10.</li>
+<li><code>docs/kb/hybrid/hardware-services.md</code> §1 태그 7 — 경계에 대한 포트 측 서술.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/3d-engine.html"><small>◀ 이전</small>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a><a class="pn next" href="../audits/sdk-names.html"><small>다음 ▶</small>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#참고한-출처">참고한 출처</a></li><li><a href="#1-명령-채널-arm9가-실제로-보내는-것">1. 명령 채널: ARM9가 실제로 보내는 것</a><ul><li><a href="#전송">전송</a></li><li><a href="#명령-집합">명령 집합</a></li><li><a href="#이-rom이-보내는-것이-관측된-것">이 ROM이 보내는 것이 관측된 것</a></li></ul></li><li><a href="#2-설계-portshimaudio">2. 설계: port/shim/audio/</a><ul><li><a href="#호스트가-모델링해야-하는-것">호스트가 모델링해야 하는 것</a></li><li><a href="#프레임">프레임</a></li><li><a href="#데이터-흐름-말로-풀면">데이터 흐름, 말로 풀면</a></li><li><a href="#모듈">모듈</a></li><li><a href="#빌드-순서">빌드 순서</a></li><li><a href="#상태-여덟-단계-모두-완료-그리고-차분이-이제-실행됨-audio8-2026-09-10">상태: 여덟 단계 모두 완료, 그리고 차분이 이제 실행됨 (AUDIO8, 2026-09-10)</a></li><li><a href="#상태-여덟-단계-모두-완료-audio6-115984f9-audio7-36ee5abe-2026-09-09">상태: 여덟 단계 모두 완료 (AUDIO6 115984f9, AUDIO7 36ee5abe, 2026-09-09)</a></li><li><a href="#마일스톤-1이-남긴-오프라인-상태-touch41-재링크-2026-09-09">마일스톤 1이 남긴 오프라인 상태 (TOUCH41 재링크, 2026-09-09)</a></li></ul></li><li><a href="#3-주장-표">3. 주장 표</a></li><li><a href="#4-가설-각각-그것을-결론짓는-실험과-함께">4. 가설, 각각 그것을 결론짓는 실험과 함께</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

@@ -1,17 +1,25 @@
 # Silent audio probe: which sound commands does the game emit?
 
-**Status: designed, not yet run.**
+**Status: SUPERSEDED, 2026-09-09 (AUDIO6, `115984f9`) -- and the design below was right about
+the mechanism.** The twelve-line cap was removed and the census made uncapped, which is exactly
+what this page asked for. The answer: the game emits ids 2, 3, 6, 7 and 9 **from frame 6**, and
+the cap had been the whole of the evidence for "the game never sends a playback command" (M1).
+With the driver on, the OFF recipe sees 371 each of `PREPARE_SEQ` and `START_PREPARED_SEQ`; with
+it off, 967 each, because a silent ARM7 never publishes `playerStatus` and the game restarts
+every sequence it starts [E: `docs/kb/hybrid/audio.md` section 8(c); `../systems/audio.md`]. The
+page below is kept because its reasoning is the reasoning that got there; every sentence in it
+about the port's ARM7 being silent is superseded by `../systems/audio.md`.
 
 ## Purpose
 
 The port's whole ARM7 sound processor is one function that walks the ARM9's command list,
 completes every command silently and bumps the finished tag
-[E: `port/shim/os/pxisend.c`]. It prints the id of each command it sees -- but only the first
-twelve, because the print is capped at `said < 12` [E: `port/shim/os/pxisend.c`].
+[H: host-source account from `port/shim/os/pxisend.c`; verify with a retained scripted run and frame using this page's recipe]. It prints the id of each command it sees -- but only the first
+twelve, because the print is capped at `said < 12` [H: host-source account from `port/shim/os/pxisend.c`; verify with a retained scripted run and frame using this page's recipe].
 
 That cap makes the most useful question unanswerable as things stand. A first audible slice
 would have to support ids 2 (`PREPARE_SEQ`), 9 (`ALLOCATABLE_CHANNEL`), 6 (`PLAYER_PARAM`) and 3
-(`START_PREPARED_SEQ`) [S: `docs/kb/port/input-save-audio.md`], and nobody knows which of them
+(`START_PREPARED_SEQ`) [H: host/prose inference from `docs/kb/port/input-save-audio.md`; verify against the ROM function or symbol table and this page's recipe], and nobody knows which of them
 the game actually emits on the way to the town hall. Twelve lines from frame 0 will all be boot
 traffic.
 
@@ -22,12 +30,12 @@ This experiment is therefore two parts: raise the cap, then count.
 **Step 1, a one-line instrument change.** In `port/shim/os/pxisend.c`'s `snd_arm7`, the print is
 gated by a static counter capped at 12. Replace it with a per-id "seen" table, exactly the shape
 `acww_card_arm7` already uses for request types -- one line per distinct command id, ungated
-[E: `port/shim/fs/cardreq.c`, `static unsigned char seen[16]`]. That answers "which ids occur"
+[H: host-source account from `port/shim/fs/cardreq.c`, `static unsigned char seen[16; verify with a retained scripted run and frame using this page's recipe]`]. That answers "which ids occur"
 without a print flood; a second counter per id answers "how many", printed once at the dump.
 
 Rationale, and it is this repo's standing warning arriving in a constant: an instrument that
 cannot fire is indistinguishable from one that fires and changes nothing. The card shim shipped
-two wrong constants for exactly this reason [E: `port/shim/fs/cardreq.c`].
+two wrong constants for exactly this reason [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe].
 
 **Step 2, the control.** Run `off-recipe.md` and confirm 31 of 31 equal. A print-only change
 must not move a pixel; if it does, the change is not print-only (M15).
@@ -82,7 +90,7 @@ an oracle comparison over a scene with music-driven timing would need to be desi
 
 **This experiment does not make sound and is not a step toward it.** Transport alone cannot
 interpret a sequence, resolve a bank or wave archive, allocate channels, advance envelopes and
-timers, or produce PCM [S: `docs/kb/port/input-save-audio.md`].
+timers, or produce PCM [H: host/prose inference from `docs/kb/port/input-save-audio.md`; verify against the ROM function or symbol table and this page's recipe].
 
 ## Related
 

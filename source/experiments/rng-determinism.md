@@ -1,19 +1,40 @@
 # RNG determinism
 
-**Status: designed, not yet run.**
+**Status:** the original A/B/C shot experiment remains a proposal [H: no A/B/C receipt is supplied here].
++The later draw-position arms below were measured in ORACLE47..49 [E: `scratchpad/oracle47/RECEIPTS.md`, `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O47-4, O49-1..5].
 
 ## Purpose
 
-The port pins both of the ROM's entropy sources: the tick advances exactly 8,728 counts per
-frame from zero [E: `port/platform/tick.c`] and the RTC is a fixed instant
-[E: `port/shim/os/rtcclock.c`]. So a port run *should* be bit-identical to itself. That has
-never been checked as its own claim -- it has only ever been assumed by every comparison built
-on top of it.
+Separate the boot seed from the stream position at generation: the clock seed folds
+`minute | day<<8 | hour<<16 | second<<24`, so changing one second changes a seed byte,
+while changing only the year or month does not change this fold
+[S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
+That source fact alone does not prove whole-frame equality or that every changed seed gives
+a different town [H: the A/B/C experiment below is not a retained result].
+ORACLE46 measured the same seed `0x000a0f00` with and without the original's freeze arm;
+ORACLE47 located the arm's extra draw consumption after frame 10,000, reaching 14 extra draws
+by confirmation [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`;
+log: `docs/log/cycle41-gameplay.md` O46-4, O47-3].
 
-The second half is the interesting one. If moving the clock by one second changes nothing, then
-nothing on the path to the town hall consumes a clock-seeded draw, and the determinism is
-trivially true. If it changes something, we have found a consumer -- and no gameplay-side
-generator has been located in `src/matched` at all [S: absence; see `../systems/rng.md`].
+## Measured arms: id, layout and roster are separate checks
+
+| arm / comparison | measured result | grade and source section |
+|---|---|---|
+| ORACLE47 port confirmation timing only | `24700` gives `0xc66e`; `24907` and `24908` give `0x8365`; `24909` gives `0xe767` on that build | [E: `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O47-4] |
+| ORACLE49 boot control, no tap | town `0xd391`; 4,617 compared words, 0 differ | [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-3] |
+| ORACLE49 forward: port `ACWW_TOUCH2_AT=24908`, `ACWW_RTC_FREEZE_UNTIL=48000`; original `--touch2-at 24700`, no arm | town `0x8365`; 36 acre bytes and all seventeen building cells identical; 2,057 map words with 1 loose-item difference at frame 48,000 | [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-4] |
+| ORACLE49 inverse: original `24315` with freeze to 48000; port `24700` | id draw #2,667 on both; original enters layout burst at 3,780, port at 3,782 | [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2] |
+
+The new-game path generates twice: the port's boot town is at frame 758, then the map is
+reset before the real map, item layer and roster are written together at frame 36,135,
+11,346 frames after the id draw at frame 24,789 [E: `scratchpad/oracle49/RECEIPTS.md`;
+log: `docs/log/cycle41-gameplay.md` O49-1].
+The control port enters the real burst at index 3,782, with first layout draw #3,783 and
+232 draws in one frame [E: `scratchpad/oracle49/RECEIPTS.md`; log:
+`docs/log/cycle41-gameplay.md` O49-2].
+ORACLE49 re-calibrated the forward tap window to 24,907..24,909 on its build, so the older
+24,907..24,908 interval is historical rather than a portable constant
+[E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-4].
 
 ## Recipe
 
@@ -39,13 +60,13 @@ then arm C with `ACWW_RTC_TIME=100001`, and a SHA-256 comparison of the three sh
 same comparison `iterate.sh` already performs for the OFF recipe
 [E: `scratchpad/cycle40/iterate.sh`].
 
-## Expected observations
+## Original A/B/C predictions, not measured outcomes
 
 | comparison | prediction | what it would mean if wrong |
 |---|---|---|
-| A vs B | 29 of 29 equal | the port is not deterministic; something reads the host -- the address-space layout, a wall clock, or an uninitialised buffer, which is exactly the class of defect `rtcclock.c` was written to remove |
-| A vs C | 29 of 29 equal | nothing on this path consumes a second-resolution clock draw; the pinned clock is doing no work beyond the lighting |
-| A vs C | some frames differ | a consumer exists, and the first differing frame names roughly where |
+| A vs B | 29 of 29 equal [H: proposed repeat test, not an ORACLE47..49 result] | investigate the differing inputs or nondeterminism before attributing a cause [H] |
+| A vs C | frames may differ from the town onward [H: proposed test] | the second changes the seed's top byte, but frame equality alone does not falsify that fold [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
+| a fourth arm, `ACWW_RTC_DATE=20060615` (year only) | same boot seed; whole-frame equality is unmeasured [H: proposed test] | the year is absent from this fold; other year-dependent behaviour is not excluded [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
 
 A useful third comparison, cheap because the arms are already there: normalise the two logs from
 A and B and diff them. A clean run's only expected differences are the host address-space

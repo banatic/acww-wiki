@@ -69,7 +69,7 @@ grep한다
   결함으로 읽어야 한다: 레퍼런스는 유사도 점수가 아니라 바이트 비교이다.
 - `acww touch: up` 줄 없이 끝나는 실행. 이는 도구 자체가 조용해졌다는 뜻이며 -- 측정
   대상이 조용해진 것과 구별할 수 없다
-  [E: `port/platform/hostinput.c`'s announcement rationale].
+  [H: host-source account from `port/platform/hostinput.c`'s announcement rationale; verify with a retained scripted run and frame using this page's recipe].
 - 이 대조 실행 전에 ON 조건을 실행하는 것 (M15). 31 프레임 비교가 있어야 ON 쪽의
   차이가 의미를 갖는다.
 

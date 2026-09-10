@@ -20,7 +20,7 @@
 
 플레이어 이름은 택시를 타기 전에 먼저 묻는다. 화면의 프롬프트는 `당신 이름은?`이며, 레퍼런스 실행에서는 약 프레임 7,500에 이름이 확정되고 그 뒤 게임이 오버레이 하나를 언로드한다
 [E: docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, `tap-D55`]. 키보드는 첫 번째(FIRST) 스타일러스 탭을 패드(PAD)에서 스타일러스로의 모드 전환으로 소비하므로 탭 한 번으로는 절대 확정되지 않는다; 창 안에서의 탭 두 번이면 확정된다 [E: docs/log/cycle40-keyboard-gate-probe.md TAP40, `tap-D55`]
-[S: port/shim/input/touch.c]. 같은 동작이 첫 번째 키보드에 대해 DeSmuME 레퍼런스에서도 재현되었고, 이것이 포트가 이 점에서 틀리지 않았음을 확정지었다
+[H: host/prose inference from port/shim/input/touch.c; verify against the ROM function or symbol table and this page's recipe]. 같은 동작이 첫 번째 키보드에 대해 DeSmuME 레퍼런스에서도 재현되었고, 이것이 포트가 이 점에서 틀리지 않았음을 확정지었다
 [O: docs/log/cycle40-keyboard-gate-probe.md ORACLE41, `scratchpad/oracle/tap-fullpad`
 frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
 
@@ -29,15 +29,30 @@ frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c]. 터치 분류는 `0x0200ddd8`의 하프워드 오프셋 테이블에서 해독되는 18갈래 switch이다
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c].
 
+**건물에서 나올 때 문 테이블을 읽지 않는다: 플레이어가 들어갈(IN) 때 서 있던 위치를 재생한다.**
+바깥 위치는 `0x021f69b8`의 보류 목적지 레코드(`+0x00`에 `VecFx32`, 그 다음 종류 워드)에 보관된다;
+`func_020b5ea0`이 `func_020b64f0`을 통해 그 안에 게시하고, `func_020b6518`은 어떤 문이 사용되기
+전에 기본값 `{0x30000, 0, 0x30000}`을 설치한다 [S: `src/matched/func_020b5ea0.c`, `func_020b64f0.c`, `func_020b6518.c`].
+나갈 때 `func_020b6098`은 `func_020b6140`에 목적지를 요청한다; `func_020b6214`는 종류 `0x3c`인
+요소에 대해 같은 레코드에 도달해 그 벡터를 돌려주고, `func_020b63f4`는 요청 슬롯이 유휴 상태가
+아니면 거부하면서 이를 `0x021f69d4`/`+8`/`+0xc`의 씬 요청 레코드로 복사한다 [S: `src/matched/func_020b6098.c`, `func_020b6140.c`, `func_020b6214.c`,
+`func_020b63f4.c`]. `0x021c749c`의 라이브 벡터는 그저 뒤따를 뿐이다: `func_0203c76c`가 세 프레임마다
+`func_0203f684`를 통해 이를 카메라 목표로 복사한다
+[S: `src/matched/func_0203c76c.c`, `func_0203f684.c`]. 스크립트된 도착에서 측정됨(MEASURED): 레코드는
+플레이어가 현관 매트 타일에 도달하고 81프레임 뒤인 프레임 38,838에 문의 값을 취하고, 프레임 49,593의
+퇴장은 -- 10,755프레임과 세이브스테이트 하나 뒤에 -- 바로 그 워드를 게시한다 [E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, runs `x48-p-originz`, `x48-p-seqwatch`].
+따라서 건물 퇴장은 재생(REPLAY)이며, 착지하는 타일은 건물이 아니라 플레이어가 지나온 마을의
+속성이다.
+
 그 블록은 참고용이 아니라 필수적이다: 함수를 0을 돌려주도록 스텁 처리하면 실행이 곧 `func_0200d900` 안에서 폴트를 일으킨다
-[E: port/shim/c6a_0200dc98_intent.c, `ACWW_EXPLORE=1` run].
+[H: host-source account from port/shim/c6a_0200dc98_intent.c, `ACWW_EXPLORE=1` run; verify with a retained scripted run and frame using this page's recipe].
 
 플레이어 집은 주민 집과 별개의 에셋 계열이다:
 `/str/plHsTex/home%c%c.nsbtx`가 ov003 자체의 표기이다
 [S: ov003 pool words, docs/kb/modules/ov003-068.md].
 
 DS 펌웨어의 사용자 설정은 게임이 읽는 닉네임과 생일을 제공한다. 펌웨어 레코드의 `birthMonth`는 `+0x03`에, `birthDay`는 `+0x04`에 있다
-[S: port/shim/boot/usersettings.c]. 포트는 자체 값 -- 닉네임 `PLAYER`, 생일 1월 1일 -- 을 제공하고 그렇다고 명시하는데, 이는 복원이 아니라 포트의 선택이기 때문이며, 닉네임은 게임 안에 실제로(IS) 표시된다 [S: port/shim/boot/usersettings.c].
+[H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe]. 포트는 자체 값 -- 닉네임 `PLAYER`, 생일 1월 1일 -- 을 제공하고 그렇다고 명시하는데, 이는 복원이 아니라 포트의 선택이기 때문이며, 닉네임은 게임 안에 실제로(IS) 표시된다 [H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe].
 
 ## 어디에 있는가
 
@@ -53,26 +68,46 @@ DS 펌웨어의 사용자 설정은 게임이 읽는 닉네임과 생일을 제�
 | `func_020b755c` / `func_020b758c` | main | 의도에 공급되는 터치 드래그 분류 | S: port/shim/c6a_0200dc98_intent.c |
 | `func_020e8ed8` | autoload_2 | 사인 테이블 기반 `atan2`, 걷기 각도를 냄 | S: port/shim/c6a_0200dc98_intent.c |
 | `0x020e1d08`의 `func_02099020` 호출자들 | main | 플래그 1로 게이트되는 특수 NPC 술어 열한 개 | S: port/shim/game/spnpc.c |
+| `func_ov096_0229e3b0` | ov096 | **장착(EQUIP) 디스패처**: `(page, slot_kind, item_id)`, 착용 슬롯마다 case 하나, 새 id를 저장하고 이전 id를 돌려줌 | S: `src/matched/func_ov096_0229e3b0.c`; E: GAMEPLAY47 `g47-WEARW` |
+| `func_02099704` / `func_02099710` | main | 슬롯 `+0x2408`의 착용 중인 셔츠를 쓰기 / 주소 얻기 | S: those two functions; E: a store watchpoint on `0x021debc4` catching the wear-drop |
+| `func_02098f0c` / `func_02098f48` / `func_02098f70` | main | 주머니 슬롯(`base + 0xa4a + 2n`, `0 <= n < 15`)을 설정 / 주소 얻기 / 범위 검사, `+0xa6c`에 슬롯당 2비트 워드 | S: `src/matched/`; E: GAMEPLAY47 `g47-SLOTW`, `g47-UNIW` |
+| `func_020b5ea0` / `func_020b64f0` | main | 바깥 위치를 보류 목적지 레코드 `0x021f69b8`에 게시 | S: `src/matched/`; E: EXIT48 `x48-p-originz` |
+| `func_020b6518` | main | 어떤 문이 사용되기 전에 그 레코드의 기본값 `{0x30000, 0, 0x30000}`을 설치 | S: `src/matched/func_020b6518.c` |
+| `func_020b6098` / `func_020b6140` / `func_020b6214` | main | 건물 퇴장(EXIT): 목적지를 요청하고, 전달하고, 종류 `0x3c`인 요소에 대해 `0x021f69b8`에서 다시 읽어 냄 | S: `src/matched/`; E: EXIT48 `x48-p-seqwatch` |
+| `func_020b63f4` | main | 요청 슬롯이 `0x3f`로 읽히는 동안에만 목적지를 `0x021f69d4`의 씬 요청 레코드에 씀 | S: `src/matched/func_020b63f4.c`; E: EXIT48 store watch, pc `0x020b6400`/`6404`/`6408` |
+| `func_0203c76c` / `func_0203f684` | main | 그 위치를 세 프레임마다 카메라가 추적하는 벡터 `0x021c749c`에 복사 | S: `src/matched/`; E: EXIT48 store watch, pc `0x0203f68a`/`68e`/`692` |
 
 ## 읽고 쓰는 데이터
 
 | 주소 또는 필드 | 의미 | 쓰는 쪽 | 읽는 쪽 |
 |---|---|---|---|
 | `0x021dc7bc` | 플레이어 배열, 슬롯 4개, 스트라이드 `0x249c` | `func_0209ef7c` | `func_020984e8` |
+| 슬롯 `+0x1bf2`, u16 15개(슬롯 0은 `0x021de3ae`) | 주머니; `0xfff1`은 비어 있음 | `func_02098f0c` | `func_02098f48` |
+| 슬롯 `+0x1c10` u32(`0x021de3cc`) | 지갑, 벨 단위 | 게임 | HUD, 세이브 |
+| **슬롯 `+0x2408` u16(`0x021debc4`)** | **착용 중인 셔츠(WORN SHIRT).** 주머니에서 캐릭터로 드래그하면 둘을 맞바꾼다(SWAPS): 떨어뜨린 id가 여기에 들어가고 여기 있던 것이 주머니로 돌아가되, 그것이 셔츠 밴드 `0x11a8..0x12a7`에 있을 때에 한한다(아니면 `0xfff1`) | `func_02099704`, `func_ov096_0229e3b0` case 2에서 | `func_02099710`, 모델 로더 |
+| 슬롯 `+0x240a` u16 | 디스패처의 두 번째 착용 슬롯(case 3, 4, 6; 밴드 `0x1429..0x1430`과 `0x13a0..0x13a7`). **아직 어떤 실행에서도 시험되지 않음** | `func_020996d4` / `func_020996ec` | `func_020996f8` |
 | 슬롯 `+0x23f8`(슬롯 0은 `0x021debb4`) | 64비트 이벤트 비트필드 | 커밋 넷, `func_02098ff8` | `func_02099020` |
 | 이벤트 플래그 1 | "오프닝이 진행 중" | `func_0209ee54` 계열 | `0x020e1d08`의 술어 11개 |
 | `0x021f3c30` | 커밋을 고르는 부팅 모드 워드 | `func_020a1320` | `func_ov051_022610d4` |
 | `0x021fbe40` / `+4` | 이번 프레임의 패드 워드 / 방향 하프워드 | 입력 | `func_0200dc98` |
 | `self + 0x134`..`0x170` | 이동 의도 블록 | `func_0200dc98` | 플레이어 갱신의 나머지 |
 | `self + 0x170` | 입력 모드: 1 패드, 2 터치 | `func_0200dc98` | 플레이어 갱신 |
+| **`0x021f69b8`**, `+0x00`의 `VecFx32` | **보류 중인 바깥(OUTSIDE) 위치** -- 건물 퇴장이 플레이어를 놓을 곳. 플레이어가 들어갈(IN) 때 쓰이고, 그 전에는 `{0x30000, 0, 0x30000}`으로 기본 설정됨 | `func_020b64f0`, `func_020b5ea0`과 `func_020b6518`에서 | `func_020b6214` case `0x3c` |
+| **`0x021f69d4`/`+8`/`+0xc`** | 씬 요청 레코드의 목적지 위치 | `func_020b63f4` | 씬 로드 |
+| `0x021c749c`, `fx32` 3개 | 필드 카메라가 추적하는 월드 점 -- 라이브 플레이어 위치; 타일 = 워드 / 8192 | `func_0203f684`, `func_0203c76c`에서 | `ACWW_PLAYER_TRACE`, `port/tools/navlib.py` |
 | 펌웨어 `+0x03` / `+0x04` | 생일 월 / 생일 일 | 펌웨어(포트: `usersettings.c`) | 게임 인사 경로 |
 
-모든 행은 S 등급이며, 앞 표의 파일들에서 인용했다.
+모든 행은 S 등급이며, 앞 표의 파일들에서 인용했다; 주머니, 지갑, 착용 행은 S+E이다 -- ROM 함수에
+더해, 그것이 실행되는 순간을 포착한 라이브 스토어 워치포인트이다
+(GAMEPLAY47, `docs/log/cycle41-gameplay.md` GP47-1과 GP47-2).
 
 ## 확인 방법
 
 `port/shim/game/spnpc.c`는 `ACWW_TRACE_STATE=1` 아래에서 그 튜플이 바뀔 때마다 `acww intro: f<frame> player <ptr> flag1 <v> bits <w0>/<w1> mode <m> 54a8 <b>`를 출력한다; 게임이 아직 오프닝 중이라고 믿는지를 말해 주는 단 하나의 줄이다
-[S: port/shim/game/spnpc.c]. `port/shim/game/newgameprobe.c`는 새 게임의 두 절반 -- 부팅 생성과 플레이어 커밋 -- 중 어느 것이 일어났는지를, 한쪽에서 다른 쪽을 추론하지 않고 직접 보고한다 [S: port/shim/game/newgameprobe.c].
+[H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. `port/shim/game/newgameprobe.c`는 새 게임의 두 절반 -- 부팅 생성과 플레이어 커밋 -- 중 어느 것이 일어났는지를, 한쪽에서 다른 쪽을 추론하지 않고 직접 보고한다 [H: host/prose inference from port/shim/game/newgameprobe.c; verify against the ROM function or symbol table and this page's recipe].
+
+퇴장 위치에 대해서는 건물로 걸어 들어가는 실행에서 프레임 1부터 `ACWW_INTERP_WATCH=0x021f69c0:0x021f69c3`을 건다: 도착 전체에 걸쳐 서로 다른 값은 셋뿐이며, 두 번째 값 앞의 `ACWW_PLAYER_TRACE` 줄이 그 값을 가져온 타일을 알려 준다
+[E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, run `x48-p-originz`].
 
 이름 프롬프트에 대해서는 마을 레시피를 실행하고 프레임 4,500에서 7,500을 본다: 키보드가 있는 택시 실내, 그 다음 확정
 [E: docs/log/cycle40-keyboard-gate-probe.md TOWN40, `tap-D56`].

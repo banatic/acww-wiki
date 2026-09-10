@@ -28,7 +28,7 @@ ARM 스타트업에 도달한다. 이 루틴은 CP15를 설정하고, SVC/IRQ/�
 
 이 순서는 우연이 아니라 필수적이다: 포트의 첫 번째 구성은 초기 기동 전에
 `__init_cpp`를 실행했고, 그러자 생성자들은 힙, VRAM 뱅크, 파일시스템이 아직 존재하지 않는
-머신 위에서 첫 오브젝트들을 만들었다 [E: `port/platform/win32.c:2346-2349`].
+머신 위에서 첫 오브젝트들을 만들었다 [H: host-source account from `port/platform/win32.c:2346-2349`; verify with a retained scripted run and frame using this page's recipe].
 
 ### 진짜 진입점에는 자체 심볼이 없다
 
@@ -139,7 +139,10 @@ KEYS3 A 누름 프레임(2400 + 37 x 600)에 떨어지고, 원본의 스타일�
 1~2프레임 늦게 게임에 도달하므로, 둘은 누름과 탭의 순서를
 다르게 매긴다; 24,700으로 옮기면 양쪽 모두 확정하고 일치하며, 24,000..27,000의 11프레임이 평균 ncc
 0.9955이다 [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-O: `scratchpad/oracle/tap-24700`].
+O: `scratchpad/oracle/tap-24700`]. TOUCH42 이후 포트는 그 순서를 피하는 대신 재현하며,
+24,600 레시피는 원본과 같이 동작한다
+[E: `scratchpad/cycle40/runs/tap-T42b`] [O: `scratchpad/oracle/tap-window`;
+`../experiments/touch-latency.md`].
 
 ## 어디에 있는가
 
@@ -182,7 +185,7 @@ ACWW_SHOT_AFTER=4500`으로 실행한 뒤, 31개 BMP 전부를 SHA256으로 비�
 [S: `docs/kb/hybrid/recipes.md` section 2]. 부팅 자체는 스크린샷 없이도 로그만으로
 읽을 수 있다: `interpreter path:` 줄을 찾고, 그 다음
 `acww interp: BOOT via interpreter, registry entries=...` 줄을, 그 다음 `STOP` 줄이 없는지를
-확인한다 [S: `port/interp/interp_boot.c:395-401, 419-428`].
+확인한다 [H: host/prose inference from `port/interp/interp_boot.c:395-401, 419-428`; verify against the ROM function or symbol table and this page's recipe].
 
 타이틀을 지나가려면, `docs/kb/hybrid/recipes.md` 섹션 3의 두 번 탭 마을 레시피가
 마을 회관에 도달하는 레시피이다; 이 레시피는 콘솔 시계를 `20050615` / `100000`에 고정하여
@@ -210,3 +213,5 @@ ACWW_SHOT_AFTER=4500`으로 실행한 뒤, 31개 BMP 전부를 SHA256으로 비�
 - `threads-and-interrupts.md` — `OS_InitThread`가 구축하는 것, 그리고 VBlank가 하는 일
 - `overlays.md` — 초기 기동이 시작하는 파일시스템, 그리고 첫 오버레이 로드
 - `scenes-and-channels.md` — `func_0206e560`이 제어를 넘기는 대상
+- `interpreter-path.md` — 거부 목록, 그리고 네이티브 본체가 핫 패스를 얻는 방법
+- `../experiments/savestate-resume.md` — 이 경로의 실행을 스냅샷하고 정확히 재개하기

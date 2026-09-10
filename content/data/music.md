@@ -97,7 +97,9 @@ counts]. 사운드 스택 전체는 `main`이 아니라 `autoload_2`이다 — `
 
 ### 포트에서의 사운드
 
-포트에는 오디오가 없다. ROM의 사운드 스택은 인터프리터 경로에서 실행되기는 하며, 이를 실행한 것이
+`ACWW_SND=1`이면 인터프리터 경로는 음악과 효과음을 만들어 낸다; 보관된 PCM 캡처는
+`scratchpad/audio7/on/capture.wav`이다 [E: `scratchpad/audio7/on`, 9,000 frames;
+`docs/kb/hybrid/audio.md` sections 1 and 8(a)]. ROM의 사운드 스택은 인터프리터 경로에서 실행되며, 이를 실행한 것이
 GX40에서 수정된 지오메트리 결함을 드러냈다: 사운드 스택이 활성화된 상태에서 지오메트리 엔진이
 프레임당 약 1,400개의 버텍스를 받고도 아무것도 그리지 않아 위 화면이 검은 채로 남아 있었다
 [E: `docs/log/cycle40-keyboard-gate-probe.md` GX40]. `func_0205401c`는 또한 재구성이 `gSoundFlag`라
@@ -158,8 +160,8 @@ PY
 예상 출력: `b'SDAT' (10704768, 64, 3)`, `SYMB 0x0 0 -`, `INFO 0x40 24712 b'INFO'`,
 `FAT  0x60c8 24188 b'FAT '`, `FILE 0xbf44 10655804 b'FILE'`, 그리고 위 표의 여덟 개 개수.
 
-아직 실제 실행 확인은 없다: 포트는 오디오를 출력하지 않는다 [S: `docs/kb/port/input-save-audio.md`,
-which the router lists as "why there is no sound yet"].
+측정된 오디오 레시피와 그 PCM 검사는 `../systems/audio.md`와
+`docs/kb/hybrid/audio.md` 8(a)절을 볼 것 [E: `scratchpad/audio7/on`, 9,000 frames].
 
 ## 가설
 

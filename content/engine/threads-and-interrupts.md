@@ -208,16 +208,16 @@ CARD40..SND40 `off-D36`].
 `docs/kb/hybrid/recipes.md`의 아무 레시피나 실행하고 포트 자체의 인터럽트 계측 줄을 읽는다:
 `acww vblank: frame N OS_IRQTable[0] = <word>`는 첫 프레임들과 변경이 있을 때마다 슬롯을
 출력하며, 이는 "핸들러가 등록되지 않았다"와 "슬롯이 짓밟혔다"를 구분해 준다
-[S: `port/shim/os/vblank.c:104-127, 175-186`]; 그리고
+[H: host/prose inference from `port/shim/os/vblank.c:104-127, 175-186`; verify against the ROM function or symbol table and this page's recipe]; 그리고
 `acww vblank: handler runs interpreted, NDS <addr>`는 슬롯의 호스트 워드가 ROM 함수로
-되돌려 매핑되었음을 말해 준다 [S: `port/shim/os/vblank.c:158-168`]. 응답되지 않은 ARM7 태그는
+되돌려 매핑되었음을 말해 준다 [H: host/prose inference from `port/shim/os/vblank.c:158-168`; verify against the ROM function or symbol table and this page's recipe]. 응답되지 않은 ARM7 태그는
 `acww pxi: tag N word W accepted and dropped (no ARM7)` 형식으로 한 번 스스로 이름을 대므로, 이후의 대기를
 아무도 응답하지 않은 태그로 추적할 수 있다 [S: `docs/kb/hybrid/hardware-services.md` section 1].
 
 게임이 진행되지 않는 동안 돌아가는 프레임 루프는 별개의 실패이며, 스레드 리스트를 읽기 전까지는
 밖에서 보면 똑같아 보인다: 진단 서명은 스레드 0이
 큐에서 대기하고, 유휴 스레드가 `OS_Halt`를 통해 스핀하며, 디스플레이 레지스터가
-한 프레임에서 다음 프레임으로 바뀌지 않는 것이다 [E: `port/shim/os/vblank.c:58-64`].
+한 프레임에서 다음 프레임으로 바뀌지 않는 것이다 [H: host-source account from `port/shim/os/vblank.c:58-64`; verify with a retained scripted run and frame using this page's recipe].
 
 ## 가설
 

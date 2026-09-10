@@ -26,10 +26,10 @@ key the other engine pages cite into.
 Main RAM is MIRRORED across `0x02000000`-`0x02ffffff` on hardware, and the game depends on it:
 crt0 writes the interrupt-vector slot at `0x027fff9c` and the boot flag lives at `0x027ffc20`,
 both inside the `0x027fxxxx` window, which is the same storage as `0x023fxxxx`
-[S: `port/platform/win32.c:78-83`]. Within the VRAM range, engine A's BG window is at
+[H: host/prose inference from `port/platform/win32.c:78-83`; verify against the ROM function or symbol table and this page's recipe]. Within the VRAM range, engine A's BG window is at
 `0x06000000`, engine B's at `0x06200000`, the two OBJ windows at `0x06400000` and `0x06600000`,
 and the LCDC bank aliases at `0x06800000`; the ROM's own bring-up clears 128 KB of that last
-one [S: `port/platform/win32.c:101-105`].
+one [H: host/prose inference from `port/platform/win32.c:101-105`; verify against the ROM function or symbol table and this page's recipe].
 
 ### Where the code is
 
@@ -52,7 +52,7 @@ assembly from CodeWarrior's `FP_fastI_v5t_LE.a` and is not compiled C at all
 
 Overlays overlap heavily — 129 of 137 adjacent pairs share address ranges — so an address in
 the overlay band identifies a byte only together with a residency answer
-[S: `port/shim/fs/ovlreloc.c` header]. See `overlays.md`.
+[H: host/prose inference from `port/shim/fs/ovlreloc.c` header; verify against the ROM function or symbol table and this page's recipe]. See `overlays.md`.
 
 ### The stacks in DTCM
 
@@ -95,8 +95,8 @@ same scene fits in `0x022a3330`-`0x023e0000` [S: `port/shim/os/arenahi.c` header
 
 Display objects are allocated from that heap, which is why nothing can name one from a
 constant: observed town-era objects sit around `0x022b6xxx`-`0x022b7xxx` and move between runs
-[E: `port/shim/gfx/pmflist.c:52-66, 262-268`, which keeps live pointers precisely because the
-allocations move].
+[H: host-source account from `port/shim/gfx/pmflist.c:52-66, 262-268`, which keeps live pointers precisely because the
+allocations move; verify with a retained scripted run and frame using this page's recipe].
 
 ### The global bands
 
@@ -145,7 +145,7 @@ The port maps NDS memory at its real addresses, so an NDS address IS a host poin
 interpreter executes ROM bytes in place with no translation and no MMU
 [S: `docs/kb/hybrid/runtime.md` section 2]. Main RAM is one 4 MB file mapping viewed twice
 rather than two allocations, so the `0x023fxxxx` / `0x027fxxxx` aliasing keeps working
-[S: `port/platform/win32.c:78-86`]. The I/O page is plain host memory except where a hook
+[H: host/prose inference from `port/platform/win32.c:78-86`; verify against the ROM function or symbol table and this page's recipe]. The I/O page is plain host memory except where a hook
 intervenes, which is why a register the ROM polls never changes on its own — the root of three
 classes of stall [S: `docs/kb/hybrid/runtime.md` section 2].
 
@@ -184,7 +184,7 @@ classes of stall [S: `docs/kb/hybrid/runtime.md` section 2].
 
 Any run prints the port's region report at startup, naming each reservation and its size, and
 refuses to continue if a fixed-base reservation fails
-[S: `port/platform/win32.c:1-25, 97-112`]. Because the mapping is at the real addresses, an
+[H: host/prose inference from `port/platform/win32.c:1-25, 97-112`; verify against the ROM function or symbol table and this page's recipe]. Because the mapping is at the real addresses, an
 address in a fault report is directly comparable to a symbol table row: the module is the one
 whose `config/adm-kr/arm9/**/symbols.txt` contains the nearest lower `addr:0x...`
 [S: `config/adm-kr/arm9/**/symbols.txt`].

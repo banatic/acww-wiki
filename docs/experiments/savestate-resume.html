@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기 · ACWW 근거 위키</title>
+<meta name="description" content="">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li class="active"><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</span></div><header class="page-head"><h1>세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 16</span><span class="gchip g-E"><b>E</b> 5</span></div><div class="source-line">원문: <code>wiki/experiments/savestate-resume.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 실행됨.</strong> 인터프리터 실행을 프레임 N에서 스냅샷하고, 그 파일에서 재개하면, 재개된
+실행은 N 이후의 모든 프레임에서 그것을 쓴 실행과 <strong>바이트 단위로 동일</strong>하다. 이것이
+마을, 마을 회관, 그 밖에 프레임 24,000을 넘어선 무엇에 관한 실험이든 감당할 수 있게
+만드는 계측 장치다.</p>
+<h2 id="목적">목적</h2>
+<p>이 위키의 모든 늦은 관측은 전체 재생으로 값을 치러 왔다: 두 번 탭 마을 레시피는 첫
+흥미로운 프레임까지 약 750초가 들고, 세 가지 변형이 필요한 질문은 아무것도 배우지 못하는
+벽시계 한 시간이 든다. 스냅샷은 그 비용을 한 번으로 옮긴다. 하지만 스냅샷은 그것에서
+재개하는 것이 <strong>정확</strong>할 때에만 유용하다 &ndash; 단지 비슷할 뿐인 재개는 이후의 모든 비교를
+그 차이가 검사 중인 변경에서 왔는지 스냅샷에서 왔는지에 대한 논쟁으로 바꿔 놓는다.
+그래서 여기서의 기준은 <code>ncc</code>가 아니라 <code>exact-rgb</code>이며, 아래의 영수증이 그것을 얻어 낸다.</p>
+<h2 id="스냅샷이란-무엇인가">스냅샷이란 무엇인가</h2>
+<p>스냅샷 파일은 세 가지를 담는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/platform/state.c</code>; <code>docs/kb/hybrid/savestate.md</code> sections 1 and 3</span></span>:</p>
+<ol>
+<li><strong>매핑된 NDS 영역 일곱 개</strong> &ndash; <code>0x02000000</code>의 메인 RAM(4 MB, <code>0x02400000</code>과
+   <code>0x027f0000</code> 시스템 RAM 창은 같은 매핑의 뷰이므로 한 번만 나열), <code>0x027e0000</code>의
+   DTCM(64 KB, 자체 할당), <code>0x04000000</code>의 I/O 페이지, <code>0x05000000</code>의 팔레트,
+   <code>0x06000000</code>의 VRAM(8.6 MB), <code>0x07000000</code>의 OAM, 그리고 <code>0x30000000</code>의 39 MB
+   미배치 심볼 아레나. 페이지는 4 KB 단위 제로 비트맵과 함께 저장되므로, 52 MB의 주소
+   공간이 약 4.7 MB의 파일이 된다.</li>
+<li><strong>18개 등록자의 이름 붙은 블롭 113개</strong>(RTC42 이후 20개 등록자의 118개) &ndash; 프레임을
+   넘어 게임 상태를 나르며 NDS 메모리에서 아무것도 다시 만들어 내지 못하는 호스트 쪽
+   정적 변수들: 프레임 카운터, 틱 누적기, 인터프리터의 합성 스캔라인 위상과 IRQ 스택,
+   지오메트리 엔진의 레지스터 파일 전체(I/O 페이지가 공개하지 않는 30개 선언), GX FIFO
+   파서의 위치, 오버레이 상주 테이블, PXI 응답 큐, 사운드 서비스의 소유권 상태 머신,
+   스크립트된 키 위상. 서브에이전트의 영수증을 채취할 때는 111개였고, SAVE41의 병합된
+   트리에서는 113개였으며 &ndash; RTC42가 시계의 부팅 시각, 동결 플래그, 결정 플래그를 더한
+   이후로는 <strong>20개 등록자의 118개</strong>다
+   <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 3; <code>docs/log/cycle41-gameplay.md</code> RTC42, item 6, whose savestate pair is 21/21 identical with the clock coming from the blob</span></span>. 아래의
+   모든 영수증은 113에서 채취되었고 <code>.st</code> 파일은 어차피 다른 빌드에서는 거부되므로, 이
+   개수는 포맷이 아니라 빌드에 관한 사실이다(TOUCH41 샘플러의 <code>tp_auto_on</code> /
+   <code>tp_frequence</code>와 <code>raster3d.c</code>의 <code>ever</code>는 병합 중에 등록되었다)
+   <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> SAVE41</span></span>.</li>
+<li><strong>살아 있는 스레드마다 인터프리터 레지스터 파일 하나.</strong> ROM 스레드는 Windows 파이버이며,
+   파이버가 멈추는 유일한 곳은 <code>OS_LoadContext</code> 안의 <code>SwitchToFiber</code>이므로, 일시 중단된
+   파이버의 호스트 스택은 항상 정확히 인터프리터 프레임 <strong>하나</strong> 깊이이고 그 아래의 모든
+   것은 NDS 메모리에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/thread.c</code>; <code>docs/kb/hybrid/savestate.md</code> section 5</span></span>.</li>
+</ol>
+<p>헤더는 <strong>링크를 고정한다</strong>: 이미지 베이스, PE TimeDateStamp, <code>SizeOfImage</code>,
+<code>AddressOfEntryPoint</code>, 디스크상의 exe 크기, 그리고 인터프리터 레지스트리의 항목 수.
+로드는 여섯 가지 모두를 비교하고 어느 하나라도 다르면 이름을 들어 거부하는데, 이것이
+막는 실패는 오래된 파일이 아니라 게임 버그처럼 보일 것이기 때문이다. 다시 링크하면,
+이전의 모든 스냅샷은 거부된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 5</span></span>.</p>
+<h2 id="캡처가-아니라-재구성되는-것">캡처가 아니라 재구성되는 것</h2>
+<p>파이버(호스트 스택은 파일에 쓸 수 없다); 모든 Win32 핸들 &ndash; 창, 그 DC와 DIB, 워치독
+스레드, 열여섯 핸들짜리 파일 캐시(<code>romfs.c</code>는 모든 읽기 전에 절대 위치로 seek하므로
+파일 위치를 나를 필요가 없다); 인터프리터의 훅과 호스트 본체 레지스트리, 로드 지점 전에
+<code>acww_interp_boot</code>가 다시 설치하며, 이것이 로드 지점이 그 자리에 있는 <em>이유</em>다; <code>.fun</code> /
+<code>.ovl</code> / <code>.dark</code> 사이드 테이블; 트램폴린 풀의 바이트, 해시 테이블에서 다시 방출되어
+<code>call rel32</code> 변위가 이 이미지의 것이 되도록 함; 그리고 가상 카트리지, 그
+<code>acww_romfs_mount()</code>는 재개된 실행이 결코 도달하지 않는 호출자(<code>CARD_Init</code>) 정확히 하나만
+가지므로 로드 경로가 명시적으로 호출한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 4</span></span>.</p>
+<p>환경에서 파생된 캐시는 다시 읽히므로, <strong>로드하는 실행은 동작을 바꾸는 모든 것에 대해
+저장한 실행과 같은 <code>ACWW_*</code> 환경을 써야 한다</strong> &ndash; <code>ACWW_RTC_DATE</code>와 <code>ACWW_RTC_TIME</code>이
+날카로운 사례다. 스크립트된 키 위상은 의도된 예외로서 블롭으로 운반되므로, 재개된 실행은
+다르게 설정된 실행이 아니라 저장한 실행을 재현한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>.</p>
+<h2 id="거부-규칙-계측-장치가-하기를-거절하는-것">거부 규칙 &ndash; 계측 장치가 하기를 거절하는 것</h2>
+<p>이들 각각은 나중에 미묘하게 실패할 스냅샷을 만드는 대신 아무것도 쓰지 않고 이유를
+말한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> sections 5, 6, 8</span></span>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>거부</th>
+<th>이유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>인터프리터 호출 체인이 정확히 한 프레임 깊이가 아닌 파이버</td>
+<td>그 레지스터 파일은 재개가 복원할 수 있는 것이 아니다. <strong>모든 프레임이 합법적인 저장 지점은 아니다</strong> &ndash; 6,000과 24,000은 둘 다 한 번에 성공했다; 6,061과 6,150 사이에서 표본한 열 프레임은 모두 거부되었다. 거부는 흔하며 결함이 아니다: 다른 프레임을 고른다</td>
+</tr>
+<tr>
+<td>여섯 헤더 필드 중 어느 하나라도 빌드 정체성 불일치</td>
+<td>exit 9, 두 정체성을 모두 출력. exe의 <strong>크기가 바뀌지 않았고</strong> 타임스탬프와 진입점도 바뀌지 않은 재링크에서 측정됨 &ndash; 크기만 검사했다면 놓쳤을 사례</td>
+</tr>
+<tr>
+<td>다시 쓰인 호스트 워드에서 정규화해 빼내야 할 반환 지점</td>
+<td>호스트 호출 도중의 프레임을 재개하면 그 호출을 다시 실행하게 된다; <code>acww_interp_cpu_resume_image</code>는 프레임이 <em>가지게 될</em> 상태를 쓰며, 추측하는 대신 거부한다</td>
+</tr>
+<tr>
+<td><code>0x20000000</code>에 자리 잡지 않은 트램폴린 풀</td>
+<td>ROM은 풀 주소를 스냅샷이 캡처하는 RAM에 저장하므로, 풀 베이스는 정체성의 일부다</td>
+</tr>
+</tbody>
+</table></div>
+<p>알려진 빈틈 두 가지, 아무도 걸려 넘어지지 않도록 명시한다: <code>ACWW_SAVE</code>의 플래시
+이미지는 이름 붙은 파일의 <code>MapViewOfFile</code>이므로 <strong>복사가 아니라 공유</strong>다 &ndash; 재로드는
+파일을 지금 있는 그대로 본다(스크립트된 레시피들은 <code>ACWW_SAVE</code>를 해제한다); 그리고
+환경 변수로 게이트되는 몇몇 일회성 동작(<code>ACWW_GENTOWN</code>, <code>ACWW_REQ_SCENE</code>, <code>ACWW_DEMO_OV4</code>,
+<code>ACWW_LOAD_OVL</code>, <code>ACWW_FORCE_CHAN</code>, <code>ACWW_FORCE_FIELD</code>, 새 게임 프로브)은 운반되지 않으며
+같은 변수가 설정된 로드에서 다시 발화할 것이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> sections 5 and 3</span></span>.</p>
+<h2 id="레시피">레시피</h2>
+<p>두 변수 모두 <strong>절대</strong> 경로를 받는다: <code>run_direct.py</code>는 exe를 cwd <code>port/build</code>로 띄우므로,
+저장소 상대 경로는 엉뚱한 디렉터리를 기준으로 해석되어 전체 실행이 끝난 뒤 늦게 저장이
+실패한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 7</span></span>. 이들은 DIAGNOSTIC 실행이지 프론티어
+주장이 아니다(B38).</p>
+<p>OFF 대조, 6,000에서 저장(<code>off-recipe.md</code>의 환경):</p>
+<pre><code>python -B scratchpad/cycle40/run_direct.py st-off-save ACWW_INTERP=1 \
+  ACWW_TOUCH_ENABLE=0 ACWW_STOP_FRAME=9000 ACWW_SHOT_AFTER=6000 ACWW_SHOT_EVERY=300 \
+  ACWW_STATE_SAVE=6000:C:/Users/moomin/Desktop/acww/scratchpad/state/off6000.st
+
+python -B scratchpad/cycle40/run_direct.py st-off-load ACWW_INTERP=1 \
+  ACWW_TOUCH_ENABLE=0 ACWW_STOP_FRAME=9000 ACWW_SHOT_AFTER=6000 ACWW_SHOT_EVERY=300 \
+  ACWW_STATE_LOAD=C:/Users/moomin/Desktop/acww/scratchpad/state/off6000.st
+</code></pre>
+<p>마을 레시피, 24,000에서 저장 &ndash; <code>two-tap-town-recipe.md</code>와 같은 환경에
+<code>ACWW_TOUCH2_AT=24700</code>, <code>ACWW_STOP_FRAME=27000</code>, <code>ACWW_SHOT_AFTER=24000</code>,
+<code>ACWW_SHOT_EVERY=300</code>, 그리고 <code>ACWW_STATE_SAVE=24000:.../town24000.st</code> 다음에
+<code>ACWW_STATE_LOAD=.../town24000.st</code>.</p>
+<p>각 쌍은 다음으로 비교한다</p>
+<pre><code>python port/tools/oracle/compare.py \
+  scratchpad/cycle40/runs/st-off-save scratchpad/cycle40/runs/st-off-load
+</code></pre>
+<h2 id="예상-관측">예상 관측</h2>
+<p>저장 다음 프레임부터 끝점까지의 모든 프레임이 <code>exact-rgb yes</code>로 읽혀야 한다. 그렇지
+않은 프레임은 호스트 상태 한 조각이 블롭 레지스트리에서 빠져 있다는 뜻이며, 고치는
+방법은 그것을 찾는 것이다 &ndash; 대신 <code>ncc</code> 열을 읽는 것이 <strong>아니다</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 7</span></span>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>쌍</th>
+<th>프레임</th>
+<th>결과</th>
+<th>비용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>st-off-save</code> / <code>st-off-load</code></td>
+<td>6,000..9,000, 300마다</td>
+<td><strong>11/11 exact-rgb</strong></td>
+<td>309 s -&gt; 110 s <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">their <code>receipt.json</code></span></span></td>
+</tr>
+<tr>
+<td><code>st-town-save</code> / <code>st-town-load</code></td>
+<td>24,000..27,000, 300마다</td>
+<td><strong>11/11 exact-rgb</strong>, 24,700의 접촉과 그것이 시작하는 탑승을 가로질러</td>
+<td>756 s -&gt; 65 s <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">their <code>receipt.json</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>저장 줄은 실제로 안착한 프레임을 명시한다:
+<code>acww state: saved frame 6000 -- 113 blobs, 5 threads</code>, 그리고 로드 줄은 어디서 재개했는지
+말한다: <code>resuming pc 0x01ffa4fc</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">the two <code>*-run.log</code> files; <code>docs/log/cycle40-keyboard-gate-probe.md</code> SAVE41</span></span>.</p>
+<p>이 기능이 만들어진 워크트리에서 나온 이전 영수증들, 그 워크트리가 제거되기 전에 복사해
+둔 것: 두 변수 모두 설정하지 않은 상태에서 프론티어는 <strong>31/31 exact</strong>로 온전하고, OFF는
+11/11, 그리고 24,000 -&gt; 27,000 마을 저장은 11/11 exact
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/state-agent/state/RECEIPTS.md</code></span></span>.</p>
+<h2 id="반증-조건-그리고-이미-잡아낸-것">반증 조건 &ndash; 그리고 이미 잡아낸 것</h2>
+<p>정확성 기준은 <code>ncc</code>라면 통과시켰을 실제 결함 두 가지를 찾아냈다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 6</span></span>:</p>
+<ul>
+<li>첫 번째 쌍은 모든 프레임에서 <code>diff% 49.9</code>에 <code>ncc-top 1.0000</code>으로 <code>exact-rgb no</code>였다 &ndash;
+  엔진 B의 화면 전체가 검은색이었는데, 팔레트 RAM과 OAM이 2 KB, 즉 4 KB 페이지의 절반이라
+  페이지 수 <code>size / PAGE</code>가 0이 되어 어느 영역도 쓰이지 않았기 때문이다;</li>
+<li>두 번째는 첫 스크립트된 A 누름부터 이어지는 0.11%의 차이였다: 두 실행에서 같은
+  프레임에 채취한 스냅샷이 <strong>52 MB 중 141 바이트</strong>에서 달랐고 모든 영역, 모든 블롭, 모든
+  레지스터 파일은 그 외에 동일했다 &ndash; 이는 <em>호스트</em> 자원이 빠져 있을 때에만 가능하며,
+  그것은 <code>acww_romfs_mount()</code>였다.</li>
+</ul>
+<p>따라서 반증 요소는 저장 이후의 <code>exact-rgb</code>가 아닌 어떤 프레임이며, 그것을 추적하는
+방법은 같은 프레임에서 채취한 두 스냅샷을 diff하고 주소를 읽어 내는 것이다.</p>
+<h2 id="미해결">미해결</h2>
+<ul>
+<li>[H] <strong>페이스 조절된 라이브</strong> 실행, 즉 사람이 키보드 앞에 있는 실행에서 스냅샷을 채취한
+  적은 한 번도 없다. 호스트 입력 상태는 등록되어 있지만, 어떤 라이브 실행도 저장되고
+  재로드된 적이 없다. 한 번 해 보면 해결된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 8</span></span>.</li>
+<li>[H] 무엇이 프레임을 거부 대상으로 만드는가. 거부는 슬롯 하나를 지목하는데, 이는
+  프레임의 속성이라기보다 생애 대부분을 인터프리터 프레임 두 개 깊이에서 보내는 스레드를
+  시사한다; 어느 스레드인지 왜 그런지는 아무것도 측정하지 않았다. 거부된 슬롯의 체인을
+  출력하면 해결된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>.</li>
+<li>[H] 오라클 레코더와 결합한 로드. <code>oracle.c</code>와 <code>oracle_events.c</code> 모두 엄격한 프레임
+  단조성을 강제하며 로드를 가로질러서는 트레이스를 중단할 것이다; <code>run_on2.py</code>는 이미
+  이들을 해제하며, 아무도 시도해 보지 않았다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 5</span></span>.</li>
+</ul>
+<h2 id="위키-독자가-이것을-쓰는-법">위키 독자가 이것을 쓰는 법</h2>
+<p>프레임 26,000에 관한 질문 &ndash; 씬, 메뉴, 색, 레지스터 &ndash; 을 하려면:</p>
+<ol>
+<li>마을 레시피를 <code>ACWW_STATE_SAVE=24000:&lt;absolute&gt;.st</code>로 한 번 돌린다. 프레임이 거부되면
+   다른 것을 고른다; 근처 프레임은 재생이 아니라 기존 스냅샷에서 시도하면 값싸다
+   <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>scratchpad/state-agent/state/probe_frames.py</code></span></span>.</li>
+<li>질문의 모든 변형을 <code>ACWW_STATE_LOAD=&lt;that file&gt;</code>과 <strong>같은</strong> <code>ACWW_*</code> 환경으로 돌리되,
+   추가하는 계측 장치만 바꾼다.</li>
+<li>산출물을 보관한다. 재링크는 설계상 스냅샷을 무효화하므로, 포트도 함께 바꾸는 세션은
+   매 링크 뒤에 다시 저장해야 한다.</li>
+</ol>
+<p><code>python port/tools/test_savestate.py</code>는 게임을 실행하지 않고 1초 이내에 헤더, 두 거부
+규칙, 블롭 레지스트리를 검사한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 7</span></span>.</p>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>../engine/interpreter-path.md</code> &ndash; 스냅샷이 채취되는 런타임</li>
+<li><code>two-tap-town-recipe.md</code>, <code>off-recipe.md</code> &ndash; 영수증이 채취된 두 레시피</li>
+<li><code>touch-latency.md</code> &ndash; 이 계측 장치가 겨냥하는 종류의 늦은 프레임 질문</li>
+<li><code>../../docs/kb/hybrid/savestate.md</code> &ndash; 구현 쪽 페이지</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/save-and-reload.html"><small>◀ 이전</small>저장과 재로드</a><a class="pn next" href="../experiments/run-stability.html"><small>다음 ▶</small>실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#목적">목적</a></li><li><a href="#스냅샷이란-무엇인가">스냅샷이란 무엇인가</a></li><li><a href="#캡처가-아니라-재구성되는-것">캡처가 아니라 재구성되는 것</a></li><li><a href="#거부-규칙-계측-장치가-하기를-거절하는-것">거부 규칙 &ndash; 계측 장치가 하기를 거절하는 것</a></li><li><a href="#레시피">레시피</a></li><li><a href="#예상-관측">예상 관측</a></li><li><a href="#반증-조건-그리고-이미-잡아낸-것">반증 조건 &ndash; 그리고 이미 잡아낸 것</a></li><li><a href="#미해결">미해결</a></li><li><a href="#위키-독자가-이것을-쓰는-법">위키 독자가 이것을 쓰는 법</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

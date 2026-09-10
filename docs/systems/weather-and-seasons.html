@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,7 +124,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>날씨와 계절</span></div><header class="page-head"><h1>날씨와 계절</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 10</span></div><div class="source-line">원문: <code>wiki/systems/weather-and-seasons.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 계절은 달력 날짜의 순수 함수이다 &ndash; 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다. 계절과 날씨가 함께 낮/밤 색상 테이블의 한 행(ROW)을 고르고, 시(hour)가 그 행 안에서 <code>0x20</code>바이트 뱅크 한 쌍(PAIR)을 &ndash; 하나는 오전용, 하나는 오후용 &ndash; 고르며, 게임은 현재 시의 뱅크를 다음 시의 뱅크로 두 개의 가중치로 블렌딩하므로 하늘과 조명은 계단식이 아니라 연속적으로 움직인다. 계절별 외형은 마을 자체 모델의 <code>w</code>/<code>s</code>/<code>f</code> 텍스처 변종으로도 나타나며, 눈사람은 그 자체로 하나의 채널이다.</p>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>날씨와 계절</span></div><header class="page-head"><h1>날씨와 계절</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 25</span><span class="gchip g-E"><b>E</b> 10</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/weather-and-seasons.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 계절은 달력 날짜의 순수 함수이다 &ndash; 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다. 계절과 날씨가 함께 낮/밤 색상 테이블의 한 행(ROW)을 고르고, 시(hour)가 그 행 안에서 <code>0x20</code>바이트 뱅크 한 쌍(PAIR)을 &ndash; 하나는 오전용, 하나는 오후용 &ndash; 고르며, 게임은 현재 시의 뱅크를 다음 시의 뱅크로 두 개의 가중치로 블렌딩하므로 하늘과 조명은 계단식이 아니라 연속적으로 움직인다. 계절별 외형은 마을 자체 모델의 <code>w</code>/<code>s</code>/<code>f</code> 텍스처 변종으로도 나타나며, 눈사람은 그 자체로 하나의 채널이다.</p>
 <h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p><code>func_02063bb4(month, day)</code>는 계절을 0, 1, 2, 3 중 하나로 돌려준다. 이것은 단일 <code>switch</code>이다 &ndash; <code>cmp r0,#0xb</code> 다음에 <code>0x02063bc6</code>에 있는 12항목 Thumb 점프 테이블이 오고, 각 항목은 부호 확장되어 <code>0x02063bc6</code>에 더해지며, <code>bhi</code>가 11을 넘는 값을 모두 첫 번째 대상으로 보내기 때문에 월 0과 기본(default)이 같은 답을 낸다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02063bb4, main, port/shim/game/season.c</span></span>. 각 분기(arm)는 다음과 같다: 월 1 -&gt; 3; 월 2 -&gt; <code>day &lt;= 24</code>이면 3, 아니면 0; 월 3과 4 -&gt; 0; 월 5 -&gt; <code>day &lt;= 26</code>이면 0, 아니면 1; 월 6과 7 -&gt; 1; 월 8 -&gt; <code>day &lt;= 26</code>이면 1, 아니면 2; 월 9와 10 -&gt; 2; 월 11 -&gt; <code>day &lt;= 26</code>이면 2, 아니면 3; 월 12와 기본 -&gt; 3
@@ -154,7 +164,7 @@
 <p>눈은 이펙트가 아니라 채널이다: 채널 189는 눈사람(SNOWMAN)으로, <code>/snowman/snowball1.nsbmd</code>(모델 <code>SNW0</code>, id <code>0x022383ac</code>)와 <code>/snowman/snow_face.nsbmd</code>(모델 <code>SNW1</code>, id <code>0x022383c8</code>)를 바인딩하며, ov003 역시 자체 풀에 <code>sp_npc_snowman</code>이라는 이름을 갖고 있다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, bind log</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>. 오랜 작업 동안 지형으로 취급되었던 53폴리곤 곡면은 알고 보니 눈덩이였다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"</span></span>.</p>
 <p>비는 파일이 아니다(NOT). <code>m_rainA</code>, <code>m_rainB</code>, <code>m_splash</code>는 이미 로드된 <code>obj_taxi</code> 모델 안의 모델 노드 또는 애니메이션 이름이며, 파일 시스템에서 <code>*rain*</code>을 검색하면 BMG 메시지 파일 열두 개만 나온다 &ndash; 따라서 빠진 비 에셋은 없으며 아무도 그것을 찾아 헤맬 필요가 없다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/VISIBLE-STATE.md, filesystem search</span></span>. ov003의 풀은 택시 객체들 옆에 이들의 이름을 두고 있다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from port/VISIBLE-STATE.md, filesystem search; verify against the ROM function or symbol table and this page's recipe</span></span>. ov003의 풀은 택시 객체들 옆에 이들의 이름을 두고 있다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>. 비는 인터프리터 경로에서 프레임 4,500의 택시 실내에서 실제로 보인다(IS)
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51</span></span>.</p>
 <p>계절별 외형은 에셋에도 들어 있다: ov003의 텍스처 이름은 <code>w</code>/<code>s</code>/<code>f</code> 변종을 갖는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>.</p>

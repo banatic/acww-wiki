@@ -1,12 +1,20 @@
 # Save store probe
 
-**Status: designed, not yet run.**
+**Status: arms A and B measured (SAVEFLOW41); arm C remains unrun. The results, and the answers to the
+three questions below, are on `save-and-reload.md` -- read that page rather than re-running
+this one.** In short: the town recipe issues 746 backup reads and exactly one write, of one
+byte at `0x3fffc`; the file is otherwise still 0xFF; and an honest 0xFF-erased read does NOT
+reproduce the `unimplemented: func_02225a90` stop on the interpreter path
+[E: `scratchpad/saveflow/runs/town1`; arm A `scratchpad/saveflow/runs/town-nosave`,
+6,000..27,000, as recorded in `save-and-reload.md`]. The census the shim prints at the stop frame has
+replaced the one-line-per-request-type instrument this page's table describes.
 
-## Purpose
+## Original purpose (before SAVEFLOW41 and SAVE43)
 
-The port has a real 256 KB backup store behind `ACWW_SAVE`, and as far as any record goes it has
-never persisted a byte on a game run. The shim counts what it writes and prints the total, so
-the question is directly answerable [E: `port/shim/fs/cardreq.c`]. Three things are worth
+At the time this experiment was proposed, no retained game run had demonstrated persistence.
+SAVEFLOW41 subsequently measured the one-byte write above, and SAVE43 demonstrated a saved
+town reloading [E: `scratchpad/save43/RECEIPTS.md`, `gp-S3`, `boot-A` and `boot-B`;
+`docs/log/cycle42-save.md` SAVE43]. The original questions below are retained as history. Three things are worth
 separating, and only instruments can separate them:
 
 1. does the game *issue* backup requests on the way to the town hall (request type 6, and ever
@@ -17,7 +25,7 @@ separating, and only instruments can separate them:
 The third has a measured half already: with the read fill on, the keyed START run stopped at
 `unimplemented: func_02225a90` around frame 10 (the symbol tables name it
 `func_ov003_02225a90`, `ov003` [S: `config/adm-kr/arm9/overlays/ov003/symbols.txt`]), where the same build with the fill off runs
-clean [E: `port/shim/fs/cardreq.c`]. That says the honest answer moves the boot onto a path the
+clean [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe]. That says the honest answer moves the boot onto a path the
 port cannot yet follow -- it does not say which path.
 
 ## Recipe
@@ -44,11 +52,11 @@ different name.
 
 **Arm C -- a zeroed store.** The same, against a file created as 256 KB of `0x00`. This is the
 damaged-save branch on purpose: a block of zeros is not an absent save, it is a save whose
-header and checksum are zero [E: `port/shim/fs/cardreq.c`].
+header and checksum are zero [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe].
 
 ## Expected observations
 
-The instruments, all in the run log [E: `port/shim/fs/cardreq.c`]:
+The instruments, all in the run log [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe]:
 
 | line | meaning |
 |---|---|
@@ -87,7 +95,7 @@ Afterwards, check the file rather than trusting the log:
 - Reading the absence of a `persisted` line as "the port cannot save". It says this recipe did
   not save. An instrument that cannot fire is indistinguishable from one that fires and changes
   nothing -- which is the exact shape of the two constant defects this shim already had
-  [E: `port/shim/fs/cardreq.c`].
+  [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe].
 
 ## Related
 

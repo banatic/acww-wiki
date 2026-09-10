@@ -147,3 +147,8 @@ O: `scratchpad/oracle/tap-24700`]. **따라서 공식 레시피는 24,700을 사
 서로 반대편에 떨어진다. 37,500에서 원본의 하늘은 지평선을 향해 원근 스케일링되어 있고
 포트의 하늘은 평평하다 [H: the HBlank handler `func_01ffcc30` updates the affine
 parameters per scanline; capture BG3 P*/X/Y per line and compare `tap-D63` 37,500 again].
+
+갱신 (SKY41): 스캔라인별 레지스터 캡처(HBlank 콜백이 BG3의 아핀 파라미터와
+BLDCNT/BLDALPHA를 줄마다 다시 쓴다)를 적용하면 37,500에서 포트의 하늘은 원본처럼
+지평선을 향해 평평해지고 배경(backdrop)으로 페이드된다 [E: `tap-D71`]
+[S: docs/log/cycle40-keyboard-gate-probe.md SKY41].

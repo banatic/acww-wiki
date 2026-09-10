@@ -23,4 +23,6 @@
 - [`text-and-messages.md`](text-and-messages.md) -- 메시지 시스템(bmg), 폰트,
   키보드 화면
 - [`graphics-pipeline.md`](graphics-pipeline.md) -- 2D 엔진, 3D 지오메트리 제출, VRAM
-  뱅크, 디스플레이 리스트
+  뱅크, 디스플레이 리스트, 그리고 포트 자체 렌더러가 하는 일과 그 비용 (PERF42, RENDER42)
+- [`interpreter-path.md`](interpreter-path.md) -- 하이브리드 런타임(`ACWW_INTERP=1`), 거부
+  목록, 그리고 네이티브 본체가 핫 패스를 얻게 되는 차등 검사 (단계 H5)

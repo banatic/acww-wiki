@@ -207,16 +207,16 @@ CARD40..SND40 `off-D36`].
 Run any recipe from `docs/kb/hybrid/recipes.md` and read the port's own interrupt instruments:
 `acww vblank: frame N OS_IRQTable[0] = <word>` prints the slot for the first frames and on
 every change, which separates "the handler was never registered" from "the slot was trampled"
-[S: `port/shim/os/vblank.c:104-127, 175-186`]; and
+[H: host/prose inference from `port/shim/os/vblank.c:104-127, 175-186`; verify against the ROM function or symbol table and this page's recipe]; and
 `acww vblank: handler runs interpreted, NDS <addr>` says the slot's host word was mapped back
-to a ROM function [S: `port/shim/os/vblank.c:158-168`]. An unanswered ARM7 tag names itself
+to a ROM function [H: host/prose inference from `port/shim/os/vblank.c:158-168`; verify against the ROM function or symbol table and this page's recipe]. An unanswered ARM7 tag names itself
 once, in the form `acww pxi: tag N word W accepted and dropped (no ARM7)`, so a later wait can
 be traced to the tag nobody answered [S: `docs/kb/hybrid/hardware-services.md` section 1].
 
 A frame loop that runs while the game does not advance is a distinct failure and looks
 identical from outside until the thread list is read: the diagnostic signature is thread 0
 waiting on a queue, the idle thread spinning through `OS_Halt`, and display registers that do
-not change from one frame to the next [E: `port/shim/os/vblank.c:58-64`].
+not change from one frame to the next [H: host-source account from `port/shim/os/vblank.c:58-64`; verify with a retained scripted run and frame using this page's recipe].
 
 ## Hypotheses
 

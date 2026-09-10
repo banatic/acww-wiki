@@ -125,6 +125,33 @@ literals].
 | `item_info/series.bin` 슬롯 | 2바이트, 아마도 세트 매칭 id | 패커 | 가구/인테리어 코드 [H] |
 | `menu/inventory/itmp/m%d.bch`, `w%d.bch` | 아이템별 인벤토리 그림 | 패커 | `ov094` [S: `extract/adm-kr/arm9_overlays/ov094.bin`] |
 
+### 주머니 슬롯이 담는 id와 그 세 표면 밴드
+
+등급 **A**. 세이브의 주머니와 가게 진열 칸이 담는 16비트 id는 **`0x1000` 더하기 `item_info`의
+1,536개 슬롯에 대한 인덱스**이다: 이 프로젝트가 라이브 게임에서 읽어 낸 모든 id -- 네 사이클에 걸쳐
+열두 개 -- 는 `0x1000`..`0x15ff`에 들어 있으며, 이는 정확히 그 범위이다
+[H: arithmetic over the four `item_info` sizes above; S for the ids themselves,
+`docs/log/cycle41-gameplay.md` GP54-8].
+
+그 안의 연속된 세 밴드는 이 페이지의 에셋 개수에서 저절로 나오며, 각각 게임(GAME)이 출력한 이름으로
+확인되므로, 밴드 경계는 가정된 것이 아니라 측정된 것이다:
+
+| 밴드 | 무엇이며 몇 개인가 | 증인 |
+|---|---|---|
+| `0x1100`..`0x1143` | 68개의 `wall/wall_%d.nsbtx` 벽지 | `0x111f` = `wall_31`이며, 너굴의 가게는 이를 `벽지`라고 부른다 — 벽지 |
+| `0x1144`..`0x1187` | 68개의 `carpet/floor_%d.nsbtx` 바닥재 | `0x114b` = `floor_7`이며, 가게는 이를 `바닥`이라고 부른다 — 바닥재 |
+| `0x1188`..`0x1287` | 256개의 `cloth/%d/cloth%03d.nsbtx` 셔츠 | `0x11a8` = `cloth032`이며, 세이브는 이를 착용 중인 셔츠(WORN SHIRT)로 읽는다 [S: `port/tools/savetool.py check`] |
+
+따라서 **`0x117c`는 `carpet/floor_56.nsbtx`**, 57번째 바닥재이다 — 이를 준 주민이 `바닥`이라고 부르는
+바로 그것이다. 네 번째 증인은 세이브 자체에서 나온다: 주민의 저장된 `wallpaper`와 `carpet` 바이트는
+68 미만의 원시 인덱스이므로, 주머니(POCKET)가 `base + index`를 보관하는 곳에서 세이브(SAVE)는
+인덱스를 보관한다 [S: `savetool.py check` on `scratchpad/gameplay54/town3.sav`].
+
+**이름은 KOR 메시지 아카이브에 없다.** `script/KOR/` 아래 91개 중 가장 큰 것은 256개 항목을 가지며
+1,536에 가까운 것은 하나도 없으므로, 아이템 이름 테이블은 `a_mes/`, `str/arc/` 또는 오버레이에 있고
+아직 발견되지 않았다 — `item_info` 슬롯 1351인 `0x1547`이 슬롯으로만 식별되는 이유이다
+[S: entry counts over every `script/KOR/**/*.bmg`].
+
 ## 확인 방법
 
 정적 확인부터. 가구 id 범위를 확인하려면:
@@ -144,7 +171,7 @@ PY
 실행하고(`../engine/file-system.md` 참조), 로더가 `ftr_info/dma.bin`을 저장하는 주소를 관찰하며, 연속된
 두 가구 조회 사이의 스트라이드를 기록한다. 포트는 이미 ROM 자체의 `FS_*` 경로를 통해 이 파일들을
 읽으므로 심(shim)은 필요 없다
-[S: `port/shim/fs/romfs.c`, header].
+[H: host/prose inference from `port/shim/fs/romfs.c`, header; verify against the ROM function or symbol table and this page's recipe].
 
 ## 가설
 
@@ -171,3 +198,54 @@ PY
 - `archives.md` — 각 에셋이 들어 있는 `NARC`와 `nsb*` 컨테이너.
 - `fish-and-bugs.md` — 같은 아이콘 시트 패턴을 쓰는 생물 계열.
 - `../engine/file-system.md` — `/ftr/1/0/0100.arc`가 어떻게 바이트가 되는가.
+
+## 아이템 이름 조회 (item-names-1)
+
+이 측정된 부록은 앞의 **이름** 문단에서 이곳의 어떤 테이블도 이름을 담지 않는다고 한 주장을
+대체한다. 이름은 `item_info/dma.bin`과 `ftr_info/dma.bin`에 UTF-16LE로 들어 있으며,
+오프라인 리더는 `port/tools/items.py`이다. 완전한 이름 테이블은 공개되어 있지 않다
+[S: `src/matched/func_02062cbc.c`, `func_02053ea4.c`, `func_02062ea4.c`;
+E: `scratchpad/handoff/item-names-1/evidence.json`, input hashes and six known-ID checks].
+
+인벤토리 호출자 `ov094:0x0229abf8`은 `main:0x02062ea4`를 호출하며, 이 함수는 먼저 `0x02061e2c`로
+ID를 정규화한 뒤 아이템 분기 또는 가구 분기를 선택한다. 아이템 조회 `0x02062a28`은
+`0x021cb5e0 + 0x38`의 DMA 핸들을 읽고, 하위 12비트로 인덱싱하며(`0x1000..0x10ff` 수량 그룹은
+3을 OR한다), 인덱스 `0x56d`에서 클램프한다. 가구 조회 `0x020537e8`은 `0x021c8c48 + 0x38`을 쓰고,
+인덱스는 `(id - 0x3000) >> 2`이며, `0x6e8`에서 클램프한다. 하위 12비트 규칙을 가구에 적용하면
+잘못된 이름이 나온다
+[S: `src/matched/func_ov094_0229abf8.c`, `func_02062ea4.c`, `func_02061e2c.c`,
+`func_02062a28.c`, `func_0204bc64.c`, `func_020537e8.c`, `func_0206e6e4.c`;
+E: `scratchpad/item-names-1/tests.stderr`, furniture negative control].
+
+초기화 함수는 always/indoor/DMA 스트라이드가 12/4/24바이트인 1,536개 아이템 슬롯과,
+스트라이드가 8/4/32바이트인 2,048개 가구 슬롯을 증명한다. 가구 이름은 `+0x16`의 가격
+하프워드 앞 첫 22바이트를 차지하고, 아이템 이름은 24바이트를 차지하며 가격 하프워드는 always
+`+0`에 있다. 시리즈 초기화는 별도로 **24바이트짜리 레코드 128개**이지, 증명된 1,536개 시리즈
+하프워드 배열이 아니다. `--count`는 3,159개의 정규 조회 쿼리(아이템 1,390 + 가구 1,769, 별칭/빈
+이름 포함)를 돌려주며, 이는 서로 다른 이름의 수나 모든 물리 슬롯의 수가 아니다
+[S: `src/matched/func_02062cbc.c`, `func_02053ea4.c`, `func_020628ac.c`,
+`func_02053e18.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, counts and decoded digest].
+
+| ID 밴드 | 측정된 구분 | 근거 |
+|---|---|---|
+| `0x00xx` | 필드 나무 ID를 포함한다; `0x0043/0x0044`는 아이템 이름 분기가 없다 | S: `src/matched/func_02061e2c.c`, `func_02062ea4.c`; E: `scratchpad/item-names-1/tests.stderr` |
+| `0x1100..0x1143`, `0x1144..0x1187` | 아이템 레코드 카테고리 1과 2; 후자는 아래의 측정된 바닥재 ID를 담는다 | S: `src/matched/func_02062870.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, category runs |
+| `0x11a8..0x12a7` | 착용물 범위, 카테고리 5; 따라서 `0x11xx`가 전부 옷은 아니다 | S: `src/matched/func_0204b2c8.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, category runs |
+| `0x14fe..0x1517` | 꽃/씨앗 카테고리 32, 측정된 `0x150a` 포함 | S: `src/matched/func_02062870.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, known-ID and category checks |
+| `0x1518..0x151c` | 과일 술어; 레코드 카테고리 33 | S: `src/matched/func_0204ca64.c`; E: `scratchpad/handoff/item-names-1/evidence.json`, category runs |
+| 상위 니블 `3` 또는 `4` | 정규화 후 가구 분기이며, 아이템 테이블 인덱스가 아니다 | S: `src/matched/func_0204bcdc.c`, `func_0204bc64.c`, `func_02061e2c.c` |
+
+- `0x117c`: **눈속임 바닥**, 아이템 인덱스 `0x17c`, 저장된 기본 가격 1,600벨 [E: `scratchpad/handoff/item-names-1/evidence.json`, known IDs].
+- `0x3508`: **흰꽃 테이블**, 가구 인덱스 `0x142`, 저장된 기본 가격 1,900벨 [E: `scratchpad/handoff/item-names-1/evidence.json`, known IDs].
+- `0x1547`: **품절 간판**, 아이템 인덱스 `0x547`, 저장된 기본 가격 0 [E: `scratchpad/handoff/item-names-1/evidence.json`, known IDs].
+
+"기본 가격"이라는 표기는 의도적이다: 오렌지 레코드는 2,000을 저장하지만, 특산 과일 갈래는 5로
+나누고 가게 판매 호출자는 4로 나눌 수 있다. 이 도구는 마을 상태를 읽지 않으며 실제 구매/판매
+견적을 약속하지 않는다. 브리프의 씨앗과 낚싯대 기본 가격은 80과 500이다
+[S: `src/matched/func_0204c878.c`, `func_ov049_02260cf8.c`;
+E: `scratchpad/handoff/item-names-1/evidence.json`, known-ID prices].
+
+`python port/tools/items.py 117c 3508 1547`, `--grep TEXT`, 또는 `--count`로 재현한다;
+`python port/tools/test_items.py`는 잘못되거나 잘린 입력의 거부도 요구한다. 입력 경로는 호출자의
+cwd와 무관하게 스크립트의 리포지토리 루트 기준 상대 경로이다
+[S: `port/tools/items.py`, `port/tools/test_items.py`].

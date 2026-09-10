@@ -91,16 +91,16 @@ v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답
 그럼에도 네 개의 작은 조각은 도달 가능하며, 각각은 스텁이 아니라 실제 응답이다.
 `port/shim/net/dwcinit.c`는 설정 저장소 초기화 결과를 2비트 코드로 좁히는 `func_0210172c`를
 대체하며, 항상 0(설정 유효, 지워진 것 없음)으로 응답한다
-[E: `port/shim/net/dwcinit.c`]. `port/shim/net/dwcbackup.c`는 SSID, WEP 키, DHCP 설정을 담는
+[H: host-source account from `port/shim/net/dwcinit.c`; verify with a retained scripted run and frame using this page's recipe]. `port/shim/net/dwcbackup.c`는 SSID, WEP 키, DHCP 설정을 담는
 저장소인 `DWCi_BACKUPlInit`, `DWCi_BACKUPlRead`, `DWCi_BACKUPlWriteAll`을 구현한다. 읽기는 모두 0인
 페이지를 반환하는데, 이는 한 번도 설정된 적 없는 공장 초기 상태의 본체이고, 쓰기는 수락된 뒤
-버려진다 [E: `port/shim/net/dwcbackup.c`].
+버려진다 [H: host-source account from `port/shim/net/dwcbackup.c`; verify with a retained scripted run and frame using this page's recipe].
 `port/shim/tu_wcm_bits.c`는 어셈블리로만 존재하며 무선을 꺼도 부팅 경로에 있는 두 libwcm 함수
 (`WcmCountBits`, 즉 popcount와 `func_ov065_0227029c`, 즉 선행 0 개수 세기)의 C 본체를 공급하는데,
-호스트 컴파일러가 mwcc `asm` 본체를 빌드할 수 없기 때문이다 [E: `port/shim/tu_wcm_bits.c`]. 그리고
+호스트 컴파일러가 mwcc `asm` 본체를 빌드할 수 없기 때문이다 [H: host-source account from `port/shim/tu_wcm_bits.c`; verify with a retained scripted run and frame using this page's recipe]. 그리고
 `port/shim/game/ov065thunks.c`는 *타이틀 메뉴*가 ov065의 로드된 이미지를 가리키는 잔존 vtable 슬롯을
 통해 도달하는 세 함수에 응답한다. 셋 모두 포트의 스텁 처리된 무선이 결코 채우지 않는 전역 함수
-포인터 슬롯을 검사하고 거절한다 [E: `port/shim/game/ov065thunks.c`].
+포인터 슬롯을 검사하고 거절한다 [H: host-source account from `port/shim/game/ov065thunks.c`; verify with a retained scripted run and frame using this page's recipe].
 
 이와 일관되게, 기록된 어떤 실행 로그에도 `DWC`나 `WM` 심볼은 나타나지 않는다. 유일하게 네트워크에
 인접한 PXI 트래픽은 태그 10(WM)이며, 포트는 이를 한 번 이름을 밝히고 버린다
@@ -130,16 +130,16 @@ v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답
 | `func_ov065_02274798` (`DWC_Auth_Prepare_FirstPost`) | ov065 | RTC에서 얻은 `devtime`을 포함해 WFC 인증 POST를 구성 | [S: `src/matched/func_ov065_02274798.c`] |
 | `DWCi_BACKUPlInit` / `_Read` / `_WriteAll` | libdwcac | 무선 설정 백업 저장소 | [S: `src/matched/DWC_BACKUPlCheckSsid.c`] [E: replaced by `port/shim/net/dwcbackup.c`] |
 | `DWCi_SNDlPlay`, `_Stop`, `_SetVolume`, `_SetPitch` | libdwcac | 네트워크 UI가 사운드 플레이어로 들어가는 훅 | [S: `src/matched/DWCi_SNDlPlay.c`] |
-| `func_0210172c` | autoload_2 | 설정 저장소 초기화 결과를 좁힘; 포트는 0으로 응답 | [E: `port/shim/net/dwcinit.c`] |
+| `func_0210172c` | autoload_2 | 설정 저장소 초기화 결과를 좁힘; 포트는 0으로 응답 | [H: host-source account from `port/shim/net/dwcinit.c`; verify with a retained scripted run and frame using this page's recipe] |
 
 ## 읽고 쓰는 데이터
 
 | 주소 또는 필드 | 의미 | 쓰는 쪽 | 읽는 쪽 |
 |---|---|---|---|
-| PXI 태그 10 | ARM7으로 가는 WM 채널 | ARM9 무선 매니저 | ARM7 (포트는 태그 이름을 한 번 밝히고 버린다) [E: `port/shim/os/pxisend.c`] |
+| PXI 태그 10 | ARM7으로 가는 WM 채널 | ARM9 무선 매니저 | ARM7 (포트는 태그 이름을 한 번 밝히고 버린다) [H: host-source account from `port/shim/os/pxisend.c`; verify with a retained scripted run and frame using this page's recipe] |
 | `DWCMatchControl.friendList` / `.friendIdxList` / `.evalCallback` | 세션이 실행되는 근거인 매치메이킹 상태 | `DWCi_MatchInit` | 매칭 계층 [S: `docs/kb/modules/ov065-dwc.md`] |
 | `DWCLoginControl` 사용자 id / 비밀번호 / 연결 플래그 / 인증 토큰 | POST가 담는 계정 자격 증명 | 인증 스레드 | `DWC_Auth_Prepare_FirstPost` [S: `docs/kb/modules/ov065-dwc.md`] |
-| DWC 백업 페이지 | SSID, WEP 키, DHCP 설정, CRC-16으로 검증됨 | `DWCi_BACKUPlWriteAll` (포트: 버림) | `DWCi_BACKUPlRead` (포트: 모두 0) [E: `port/shim/net/dwcbackup.c`] |
+| DWC 백업 페이지 | SSID, WEP 키, DHCP 설정, CRC-16으로 검증됨 | `DWCi_BACKUPlWriteAll` (포트: 버림) | `DWCi_BACKUPlRead` (포트: 모두 0) [H: host-source account from `port/shim/net/dwcbackup.c`; verify with a retained scripted run and frame using this page's recipe] |
 | `DWC_BM` 4페이지 맵 | `DWC_BM_Init`이 `MATH_CalcCRC16`으로 검증하고 복구하는 설정 저장소 | `DWC_BM_Init` | 설정 UI [S: `src/matched/func_02100830.c`] |
 
 ## 확인 방법

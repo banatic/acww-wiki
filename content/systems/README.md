@@ -30,15 +30,14 @@
 
 | 페이지 | 답하는 내용 |
 |---|---|
-| [`time-and-rtc.md`](time-and-rtc.md) | RTC 요청 프로토콜, BCD 디코드, 날짜 따라잡기 루프, 틱 타이머, 그리고 포트의 시계가 2005-06-15 10:00:00에 고정된 이유 |
-| [`save-data.md`](save-data.md) | 256 KB 플래시, 두 개의 `0x173fc`바이트 뱅크, 요청 타입 6/7/9, 256바이트 페이지 루프, 그리고 포트의 옵트인 `ACWW_SAVE` 저장소 |
+| [`time-and-rtc.md`](time-and-rtc.md) | RTC 요청 프로토콜, BCD 디코드, 날짜 따라잡기 루프, 틱 타이머, 그리고 포트의 프레임 구동 시계(RTC42 이후로 시계는 전진한다(ADVANCES); 2005-06-15 10:00:00은 부팅 시각이지 고정값이 아니다) |
+| [`save-data.md`](save-data.md) | 256 KB 플래시, 두 개의 `0x173fc`바이트 뱅크, 요청 타입 6/7/9, 256바이트 페이지 루프, 포트의 옵트인 `ACWW_SAVE` 저장소, 그리고 이사 모드 워드가 클리어된 뒤 게임이 스스로 쓰는 세이브 |
 | [`input-and-touch.md`](input-and-touch.md) | 두 개의 패드 레지스터와 `0x2fff` 마스크, 아홉 항목의 터치 링, 보정, `0x021fbde8`의 `TP_POINT`, 그리고 원본과의 측정된 1픽셀 / 1~2프레임 차이 |
 | [`rng.md`](rng.md) | 서로 무관한 세 개의 LCG와 그 상수, 두 엔트로피 소스, 그리고 게임플레이 생성기가 아직 발견되지 않았다는 사실 |
 | [`network.md`](network.md) | 로컬 무선과 Wi-Fi 커넥션 스택, `ov065`의 구성, 친구 코드, 그리고 포트가 이 모든 것에 "서비스 없음"으로 답하는 이유 |
-| [`audio.md`](audio.md) | 하나의 10.7 MB 아카이브, PXI 태그 7 명령 프로토콜, 공유 작업 영역 레이아웃, 그리고 아무 소리도 나지 않는 이유 |
+| [`audio.md`](audio.md) | 하나의 10.7 MB 아카이브, PXI 태그 7 명령 프로토콜, 공유 작업 영역 레이아웃, 그리고 이를 재생하는 호스트 ARM7 드라이버(`ACWW_SND=1`) |
 
-여기의 모든 페이지는 가설 섹션을 가지며 `../experiments/` 아래의 페이지로 링크한다. 일곱 개의
-실험 페이지 중 세 개는 실행되었고(`off-recipe`, `two-tap-town-recipe`,
-`touch-calibration`) 네 개는 설계만 되어 "아직 미실행"으로 표시되어 있다(`rtc-hour-sweep`,
-`save-store-probe`, `rng-determinism`, `silent-audio-probe`)
+여기의 모든 페이지는 가설 섹션을 가지며 `../experiments/` 아래의 페이지로 링크한다. 실험
+색인은 `../experiments/README.md`이며, 실행됨과 설계만 됨(아직 미실행)으로 나뉜다;
+2026-09-10 기준 아홉 개가 실행되었고 세 개는 아직 설계만 되어 있다
 [S: `../experiments/README.md`, its two tables].

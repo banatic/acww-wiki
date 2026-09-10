@@ -16,6 +16,29 @@ skips the per-polygon W normalisation), and the four effects the port declares b
 perform — fog, edge marking, toon and anti-aliasing.** Two of the twelve diagnostic notes are
 overloaded and mean something other than what they say.
 
+**Status since that reading (TOUCH41 relink, 2026-09-09).** Two of the three damaged areas have
+moved and this page's fix sections carry the numbers. **F3 is ON**: A3I5 and A5I3 polygons are
+treated as translucent, worth NCC 0.9958 -> 0.9985 at frame 9,000 and 0.9957 -> 0.9989 at
+12,000. **The perspective half of F2 is ON**: W-buffered depth goes through the perspective
+interpolator. **The per-polygon W normalisation is REJECTED** and off by default behind
+`ACWW_WNORM=1`, because on its own it costs 0.13 NCC — a polygon whose W is constant normalises
+to `0x8000` whatever its distance, so a normalised-W depth is ordered within a polygon and
+arbitrary between polygons. `port/tools/test_raster3d_depth.py` is the fixture that pins both
+answers, **54 checks** [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41;
+`docs/state/port-frontier.md`]. Nothing has moved on the translucent-blending group or on the
+four declared-but-unperformed effects.
+
+**Status, RENDER43 (2026-09-10, `6081a9a1` + this unit).** Two more rows moved, and one of them
+was a whole open break rather than a spec detail. **F15 is ON**: SWAP_BUFFERS is honoured at most
+once per frame and the rest are held, which is the `docs/log/cycle41-gameplay.md` GP42-6
+acre-ground dropout — nineteen swaps in one frame discarding eighteen display lists (new claim
+row **G4**). **F14 is ON**: the 3D layer is scrolled by BG0HOFS (row **G3**, "not implemented,
+not noted" since the audit), measured inert because ACWW writes zero. And row **E14b** corrects
+this page's own reading of the emulators' sample point: **DeSmuME 0.9.13 does not quantise
+vertices to whole pixels — melonDS does** — so `ACWW_SAMPLE_INT` is the whole rule and not half
+of a pair, and the reason it is still off is a frame-mapping artefact, not a missing change
+[`docs/kb/hybrid/render-fidelity-history.md` sections 2b, 4; `docs/kb/hybrid/render-fixes.md` section 3].
+
 **Method.** Read at the worktree head of `main` (`6ca48706`). Public sources were fetched, not
 remembered; every row names the page or file. No code was copied from any source. The game was
 not run and no measurement in this page is new — port-side numbers are cited from
@@ -40,7 +63,7 @@ whose rear plane is transparent and fog-flagged. Fog master enable (`DISP3DCNT` 
 set by this function; whether anything sets it later is open — see H3.
 
 Material census, from the port's own header comment over the ROM's 866 models
-[S: `port/render/raster3d.c` header]: all 2,040 materials are `GX_POLYGONMODE_MODULATE` (no
+[H: host/prose inference from `port/render/raster3d.c` header; verify against the ROM function or symbol table and this page's recipe]: all 2,040 materials are `GX_POLYGONMODE_MODULATE` (no
 decal, no toon, no shadow); 17,173 of 18,767 primitives are triangle strips.
 
 ---
@@ -118,19 +141,20 @@ file and function the claim lives in.
 | # | Claim | Public source | Verdict | What to change |
 |---|---|---|---|---|
 | E1 | Z-buffer depth is `(((z · 0x4000) / w) + 0x3FFF) · 0x200`, clamped to 24 bits [`to_screen`] | melonDS `GPU3D_Soft.cpp`, identical expression | agrees | nothing |
-| E2 | W-buffer depth is the clip `w`, clamped to 24 bits [`to_screen`] | melonDS `GPU3D.cpp`: "W is normalized, such that all the polygon's W values fit within 16 bits" — expanded upward when they fit in fewer bits, compressed when larger — and the **normalised** W is what W-buffering uses (but not the viewport transform) | disagrees | **ACWW is a W-buffer game** (`SWAP_BUFFERS = 3`). Without the per-polygon normalisation the depth values of a whole polygon land in the wrong part of the 24-bit range. See fix **F2** |
-| E3 | Depth is interpolated linearly across the span in both modes [`attr_lerp` on `a[0]`] | melonDS `GPU3D_Soft.h`, `InterpolateZ()`: Z-buffered depth is linear in screen space; **W-buffered depth goes through the perspective interpolator** | disagrees | again, ACWW's mode is the one that is wrong. A ground plane at a shallow angle has its depth wrong in the middle of every polygon. See fix **F2** |
+| E2 | *(as read at `6ca48706`; F2 has since landed — see the fix)* W-buffer depth is the clip `w`, clamped to 24 bits [`to_screen`] | melonDS `GPU3D.cpp`: "W is normalized, such that all the polygon's W values fit within 16 bits" — expanded upward when they fit in fewer bits, compressed when larger — and the **normalised** W is what W-buffering uses (but not the viewport transform) | disagrees | **ACWW is a W-buffer game** (`SWAP_BUFFERS = 3`). Without the per-polygon normalisation the depth values of a whole polygon land in the wrong part of the 24-bit range. See fix **F2** |
+| E3 | *(as read at `6ca48706`; F2 has since landed)* Depth is interpolated linearly across the span in both modes [`attr_lerp` on `a[0]`] | melonDS `GPU3D_Soft.h`, `InterpolateZ()`: Z-buffered depth is linear in screen space; **W-buffered depth goes through the perspective interpolator** | disagrees | again, ACWW's mode is the one that is wrong. A ground plane at a shallow angle has its depth wrong in the middle of every polygon. See fix **F2** |
 | E4 | The depth-equal tolerance is ±0x200 [`draw_poly`, `depth_equal`] | GBATEK, [DS 3D Polygon Attributes](https://problemkaputt.de/gbatek-ds-3d-polygon-attributes.htm): "±200h within the 24-bit range". melonDS splits it: **±0x200 in Z mode, ±0xFF in W mode** | disagrees (minor) | use 0xFF when `wbuffer_mode` is set |
 | E5 | The depth test is strict less-than [`(gu32)a.a[0] >= depth[off]` → reject] | melonDS `GPU3D_Soft.cpp` and blog "[The DS GPU and its fun quirks](https://melonds.kuribo64.net/comments.php?id=56)": the less-than compare "accepts equal depth values when drawing front-facing polygons over opaque **back-facing** pixels", and games rely on it for flat decals | disagrees | the port stores no facing bit per pixel, so it cannot reproduce this. Low priority for ACWW (no decal materials) but it is why a coplanar sticker can drop out |
 | E6 | Translucent polygons write depth only when `POLYGON_ATTR` bit 11 is set [`write_depth`] | GBATEK and both emulators | agrees | nothing |
-| E7 | A translucent pixel is rejected outright when the pixel already there was written by a translucent polygon of the **same** ID [`tattr`, `tmark`] | melonDS: `(dstattr & 0x007F0000) == (attr & 0x007F0000)` → discard; DeSmuME: "dont overwrite pixels on translucent polys with the same polyids" | agrees | nothing. The port's own counter says this fires 3 times in a 200-second taxi run, so it is correct and inert here |
+| E7 | A translucent pixel is rejected outright when the pixel already there was written by a translucent polygon of the **same** ID [`tattr`, `tmark`] | melonDS: `(dstattr & 0x007F0000) == (attr & 0x007F0000)` → discard; DeSmuME: "dont overwrite pixels on translucent polys with the same polyids" | agrees | nothing — but the "3 times in a 200-second taxi run, so it is inert" reading died with F3: once translucency is decided per FRAGMENT, the same recipe to frame 12,000 rejects 4,880,683 fragments, about 400 a frame. The rule is live |
 | E8 | Alpha blending is `dst = src·a + dst·(1−a)` with the destination alpha accumulated as `a + da·(1−a)` [`draw_poly`] | GBATEK, [DS 3D Toon, Edge, Fog, Alpha-Blending, Anti-Aliasing](https://problemkaputt.de/gbatek-ds-3d-toon-edge-fog-alpha-blending-anti-aliasing.htm): `FrameBuf[X] = (Poly[X]·(Poly[A]+1) + FrameBuf[X]·(31−Poly[A]))/32` and **`FrameBuf[A] = max(Poly[A], FrameBuf[A])`**; melonDS and DeSmuME agree | disagrees | the alpha must be a **maximum**, not an accumulation. Two overlapping translucent surfaces at alpha 16 leave the port at 88% opaque and hardware at 52%. See fix **F1** |
 | E9 | A translucent pixel blends against whatever is in the colour buffer, including the cleared rear plane [`draw_poly`] | GBATEK, same page: blending is **skipped** and the pixel simply overwrites when (a) alpha-blending is off, (b) `Poly[A] = 31`, or (c) **`FrameBuf[A] = 0`**; both emulators agree | disagrees | ACWW's clear alpha is 0, so every translucent polygon over the empty rear plane is blended against a black, zero-alpha destination — its RGB is multiplied by its alpha — and then the compositor multiplies by the alpha **again** when it lays the 3D layer over the 2D sky. **Every translucent surface in the taxi and the town is darkened twice.** See fix **F1** |
 | E10 | Alpha 0 means wireframe, and the port skips the polygon [`draw_poly`, `alpha5 == 0`] | GBATEK: alpha 0 draws the polygon's **edges only, at a fixed alpha of 31**; melonDS implements exactly that and forces alpha to 31 at the end. DeSmuME has no wireframe path at all | disagrees | ACWW has no wireframe materials by the port's census, so the cost is zero today. But the skip raises `GX_NOTE_BADCMD`, which reports as "an unknown command id reached the parser" — see §3 |
 | E11 | The alpha test keeps a texel whose alpha is non-zero; `ALPHA_TEST_REF` is not read [`draw_poly`] | GBATEK, [DS 3D Display Control](https://problemkaputt.de/gbatek-ds-3d-display-control.htm): a pixel is drawn only if its alpha is **greater than** `ALPHA_TEST_REF`, applied to the **final** pixel after texture blending; ref 0 is identical to the test being disabled | agrees for ACWW (ref 0), disagrees in general | read `ALPHA_TEST_REF` at `0x04000340` and compare against `fa`, not against the texel alpha. Three lines |
 | E12 | Two passes, opaque then translucent, both in submission order, because `SWAP_BUFFERS` bit 0 asks for manual sorting [`acww_nds3d_raster`] | melonDS `SortKey`: opaque first, then translucent; **opaque polygons are always Y-sorted**, and bit 0 decides only whether translucent ones join the Y sort | agrees for ACWW | the port never reads bit 0. Add a note when auto-sort is requested, so a later scene that wants it is not silently mis-ordered |
-| E13 | A polygon is "translucent" iff its `POLYGON_ATTR` alpha is not 31 [`trans` in `draw_poly`] | GBATEK, [DS 3D Texture Formats](https://problemkaputt.de/gbatek-ds-3d-texture-formats.htm): A3I5 (format 1) and A5I3 (format 6) are the "translucent" formats; melonDS decides translucency **per pixel** from the blended alpha, and notes "translucent polygons can have opaque pixels, and those follow the same rules as opaque polygons" | disagrees | an alpha-31 polygon carrying an A3I5 or A5I3 texture draws in the **opaque** pass in the port, writes depth, and is exempt from the same-ID rule. On hardware its partially-transparent texels are translucent fragments. This is the taxi's rain and window glass. See fix **F3** |
+| E13 | *(as read at `6ca48706`; F3 has since landed)* A polygon is "translucent" iff its `POLYGON_ATTR` alpha is not 31 [`trans` in `draw_poly`] | GBATEK, [DS 3D Texture Formats](https://problemkaputt.de/gbatek-ds-3d-texture-formats.htm): A3I5 (format 1) and A5I3 (format 6) are the "translucent" formats; melonDS decides translucency **per pixel** from the blended alpha, and notes "translucent polygons can have opaque pixels, and those follow the same rules as opaque polygons" | disagrees | an alpha-31 polygon carrying an A3I5 or A5I3 texture draws in the **opaque** pass in the port, writes depth, and is exempt from the same-ID rule. On hardware its partially-transparent texels are translucent fragments. This is the taxi's rain and window glass. See fix **F3** |
 | E14 | The span is filled where the pixel centre `(px·16 + 8)` lies in `[xL, xR)` and the sample row in `[ya, yb)` [`draw_poly`] | melonDS `GPU3D_Soft.h`/`.cpp`: the DS has explicit slope-based fill rules — "right edge is filled if slope > 1; left edge is filled if slope ≤ 1; edges with slope = 0 are always filled"; edges are **always** filled when AA or edge marking is on, when the pixel is translucent with blending on, or when the polygon is wireframe; and "right vertical edges are pushed 1px to the left" under stated conditions | disagrees | a sample-centre rule drops any polygon narrower or shorter than one pixel that misses the centre; hardware fills at least the edge. Thin fences, railings and distant detail vanish. Because ACWW has AA on, hardware's **edges are always filled** for its geometry, which makes the port systematically thinner. See fix **F9** |
+| E14b | *(RENDER43, and it corrects E14's "both emulators sample at the integer coordinate", which was the basis for the RENDER42 experiment)* The ORACLE's fill rule, clause by clause: sub-pixel coordinates are **12.4, rounded to nearest** (`rasterize.cpp` `_TransformVertices`: `vert.coord[0] = (float)iround(16.0f * vert.coord[0])`), the first scanline is `Ceil28_4(y_top)` and `Ceil28_4(v) = (v-1+16)/16 = ceil(v/16)`, the row range is `[ceil(y_top/16), ceil(y_bot/16)-1]`, the span is `[ceil(x_L/16), ceil(x_R/16)-1]` (`edge_fx_fl`, `_drawscanline`'s `width = pRight->X - XStart`), and the sample point is the pixel's INTEGER coordinate | DeSmuME 0.9.13, tag `release_0_9_13`, `desmume/src/rasterize.cpp` | the port's `ACWW_SAMPLE_INT=1` arm **agrees exactly**; the default (`soff = 8`, pixel centres) disagrees by half a pixel | **DeSmuME does NOT quantise vertices to whole pixels — melonDS does** (`GPU3D.cpp` `SubmitPolygon`, `FinalPosition[0] = posX & 0x1FF`). So there is no "pair" and `ACWW_SAMPLE_INT` is the whole rule. Still off by default: it clears the mean and the mae and loses ncc on 9 of 31 OFF frames, and the residual those nine measure is a whole-pixel VERTICAL phase difference (`render-fidelity-history.md` section 4). A CALIBRATED oracle set settles it |
 | E15 | Perspective correction is `q = (wmin << 14)/w`, with `s·q`, `t·q` and `q` interpolated linearly and divided per pixel [`draw_poly`] | melonDS `GPU3D_Soft.h`: the DS computes **one** perspective factor from the two W values, quantises it to 9 bits along an edge and 8 bits along a span, then applies that single factor linearly to every attribute; there is a special **linear** path when the two W values are equal after masking the low 7 bits | agrees in effect, disagrees in precision | the port is more accurate than hardware. Two consequences: DS texture stair-stepping is absent, and 2D quads drawn through the 3D engine will not be pixel-exact the way hardware's W-equal shortcut makes them. Record it; do not "fix" it before the oracle asks |
 | E16 | The clear depth is `(cd << 9)`, plus `0x1FF` **only** at `0x7FFF` [`clear_buffers`] | GBATEK, [DS 3D Rear-Plane](https://problemkaputt.de/gbatek-ds-3d-rear-plane.htm): `X = (X·200h) + ((X+1)/8000h)·1FFh` — the port matches this exactly. melonDS uses `(d & 0x7FFF)·0x200 + 0x1FF` unconditionally | agrees with GBATEK, disagrees with melonDS | no change: ACWW clears at `0x7FFF`, where the two are identical. Worth recording that the port followed GBATEK and the emulator did not |
 | E17 | The clear polygon ID and the clear fog flag are not stored per pixel [`clear_buffers`] | GBATEK: `CLEAR_COLOR` bits 24–29 are the clear polygon ID and bit 15 the rear-plane fog enable; melonDS writes both into the attribute buffer and additionally into a one-pixel border **outside** the visible area so border edge-marking works | disagrees | ACWW sets the ID to `0x3f` and fog to true. Blocks edge marking and rear-plane fog. Prerequisite for **F10** and **F11** |
@@ -152,7 +176,8 @@ file and function the claim lives in.
 |---|---|---|---|---|
 | G1 | The 3D output is engine A's BG0, composed at BG0's own priority, and enters the blend owner record as BG0 [`nds2d.c`, `K_3D` branch] | GBATEK, [DS 3D Final 2D Output](https://problemkaputt.de/gbatek-ds-3d-final-2d-output.htm) | agrees | nothing — and the comment about compositing it four times a frame is worth keeping |
 | G2 | The 3D layer blends over the 2D result with `dst = c·a + d·(1−a)` on 0..255 alpha [`acww_nds3d_compose`] | GBATEK, same page: per-pixel 3D blending uses **`EVA = A/2`, `EVB = 16 − A/2`** derived from the 3D pixel's own alpha, bypassing `BLDALPHA` | agrees in form, differs in quantisation | the 5-bit alpha becomes a 4-bit weight on hardware. Small; the compounding in **E9** is the real problem |
-| G3 | `BG0HOFS` scrolling of the 3D layer, and the fact that mosaic cannot apply to it | GBATEK, same page: 512-pixel span, 256 of image then 256 transparent, wrapping; no vertical scroll, no rotation | unspecified in the port | not implemented, not noted. Low priority; record it |
+| G3 | `BG0HOFS` scrolling of the 3D layer, and the fact that mosaic cannot apply to it | GBATEK, same page: 512-pixel span, 256 of image then 256 transparent, wrapping; no vertical scroll, no rotation | **FIXED (F14, RENDER43)** — was "unspecified in the port" | `acww_nds3d_compose_x` reads the 3D buffer through `BG0HOFS & 0x1FF` with the emulator's own wrap (a source column past 256 is DROPPED, not wrapped round), matching DeSmuME 0.9.13 `GPU.cpp` `RenderLine_Layer3D`. **melonDS does NOT do this** (`GPU2D_Soft.cpp` `DrawBG_3D` ignores `BGXPos`) — the two references disagree and the oracle is DeSmuME. MEASURED INERT: ACWW writes `BG0HOFS = 0` on both proof sets (`ACWW_REGDUMP`), 31/31 and 141/141 frames byte-identical. `ACWW_3D_HOFS=0` keeps the old arm |
+| G4 | *(RENDER43, new)* `SWAP_BUFFERS` swaps the display list **immediately**, on every command [`nds3d.c` `case 0x50`, as read at `6081a9a1`] | GBATEK, [DS 3D Display Control](https://problemkaputt.de/gbatek-ds-3d-display-control.htm): *"SwapBuffers isn't executed until next VBlank (Scanline 192) (the Geometry Engine is halted for that duration)"*; DeSmuME 0.9.13 `gfx3d.cpp` — `gfx3d_glFlush` only sets `isSwapBuffers`, `gfx3d_execute3D` returns while it is set ("3d engine is locked up"), `gfx3d_VBlankSignal` does the flush | **disagreed — FIXED (F15, RENDER43)** | at most ONE swap per frame; the rest are HELD, and their geometry accumulates into the list the next frame's swap latches. This was the acre-ground dropout: 19 swaps in one frame, 18 lists discarded, the last one empty. `swaps=N held=M` is on the standing report; `ACWW_SWAP_EVERY=1` keeps the old arm |
 
 ---
 
@@ -209,6 +234,33 @@ span in both modes. ACWW writes `SWAP_BUFFERS = 3`, so this is the mode every fr
 *Verify:* depth ordering where the ground plane meets buildings and the taxi's dashboard meets
 its window — `tap-town/shot_037500.bmp` around the town hall's base, and `tap-fullpad`
 frames 9,000–15,000. The port already carries `q` per vertex, so the machinery exists.
+*LANDED IN HALF, AND THE OTHER HALF IS THE FINDING.* Both changes were implemented and then
+measured apart on the tap-fullpad taxi recipe (frames 9,000 / 12,000, whole-frame NCC):
+
+| build | 9,000 | 12,000 |
+|---|---|---|
+| before F2/F3 | 0.9958 | 0.9957 |
+| F3 only | 0.9985 | 0.9989 |
+| **F3 + perspective W depth, no normalisation (the default now)** | **0.9986** | **0.9989** |
+| F3 + normalisation + perspective | 0.8710 | 0.8684 |
+| normalisation + perspective, no F3 | 0.8710 | 0.8685 |
+| F3 + normalisation, linear interpolation | 0.8715 | 0.8690 |
+
+E3 (perspective interpolation) is right and is on: `draw_poly` carries the depth as `z*q` and
+divides by the interpolated `q`, the same interpolator the texture coordinates use, with a
+per-polygon down-shift that keeps `z*q` inside a signed word. E2 (per-polygon normalisation)
+is implemented in `emit_poly` and **off by default behind `ACWW_WNORM=1`**, because on its own
+it costs 0.13 NCC and turns the taxi's interior 22 luminance units brighter. The mechanism is
+structural, not a coding slip, and the fixture shows it: a polygon whose w is constant
+normalises to exactly `0x8000` whatever its distance, so a normalised W depth is ordered
+*within* a polygon and arbitrary *between* polygons — distant surfaces draw over near ones.
+Either the emulator reading in E2 is wrong (the normalised W may be an interpolation-precision
+device that is undone before the depth buffer) or something else must change with it. Reopen
+by setting the variable; nothing needs reimplementing.
+
+`port/tools/test_raster3d_depth.py` is the fixture, and it pins both answers: two crossing
+quads whose crossing is at span `t = 0.6429` under the hardware's rule and `t = 0.5455` under
+the old linear-in-w one, probed at `t = 0.6016` where the two disagree, run once per mode.
 
 **F3 — treat A3I5 and A5I3 polygons as translucent.** `raster3d.c`, `draw_poly`, the `trans`
 and `write_depth` computation, and the two passes in `acww_nds3d_raster`.
@@ -219,6 +271,16 @@ nor blends against the same polygon ID.
 opaque pass and writes depth through its half-transparent texels.
 *Verify:* the taxi window and rain again — the port's own `nds3d tex` one-shot names a 64×64
 A5I3 material in that scene [E: `docs/log/2026-09-02.md`]. `tap-fullpad/shot_012000.bmp`.
+*LANDED, AND IT IS AN IMPROVEMENT: NCC 0.9958 → 0.9985 at frame 9,000 and 0.9957 → 0.9989 at
+12,000, MAE 5.76 → 4.02 and 6.17 → 4.16 (tap-fullpad, oracle `tap-fullpad`).*
+`acww_poly_translucent` decides pass membership from the alpha OR the texture format,
+and `draw_poly` classifies each FRAGMENT from its final alpha (`ftrans = fa < 255`, 255 being
+the only expansion of 5-bit 31): a translucent fragment meets the same-ID rule and writes depth
+only under `POLYGON_ATTR` bit 11, an opaque fragment of the same polygon does neither. The
+same-ID test moved after texturing because that is the earliest point the class is known; the
+only consequence is that `transid_rejects` now counts classified fragments. Two new counters in
+`acww_nds3d_report`: `transtex=` polygons this rule moved out of the opaque pass and
+`transfrag=` fragments that took the translucent rules, beside a `depth=W|Z` mode read-back.
 
 **F4 — raise a note when a texture cannot be sampled.** `tex3d.c`, `acww_gx_texel`, every
 `return 0` that follows a null `tex_addr` or `pltt_addr`.
@@ -248,6 +310,23 @@ spurious translation added.
 *Verify:* count polygons with `(tex_param >> 30) & 3` in {2,3} on the town recipe — the
 existing `nds3d poly-in` probe already prints `tex`. If the count is nonzero, the water and any
 environment-mapped surface in `tap-town` are the region.
+*LANDED, AND IT IS THE MOST VISIBLE 3D FIX SO FAR (RENDER42).* The count was taken with
+`ACWW_TEXTRACE_FRAME=6000` on the OFF recipe [H: `scratchpad/cycle40/runs/off-textrace42`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]:
+**one** polygon of 458 uses mode 2 and none uses mode 3 — the framed picture on the taxi's
+wall, texture `0x95230280`, a 32×32 format-5 material at screen x 164..195, y 6..22. The
+oracle draws a landscape there and the port drew black with coloured stripes, which is what a
+texture coordinate 16× too large samples out of a 32×32 image
+[O: `scratchpad/oracle/off/shot_006000.bmp`]
+[E: `scratchpad/render42/picture-frame-before-after.png`, oracle | before | after]. Both modes
+now take three terms and shift by 24 — the same shift for both only because `cur_normal` is
+the raw 10-bit value already `<< 3`, and the comment in `apply_texmtx` says so. Whole-frame on
+the OFF recipe's 31 frames: mean ncc 0.9970 → 0.9974, mean ncc-top 0.9774 → 0.9807, mae
+7.43 → 7.31, **no frame lost ncc**; in the picture's own box mae 45.8 → 35.9
+[H: `scratchpad/cycle40/runs/off-p10` vs `off-f6`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. `ACWW_TEXMTX23_OLD=1` keeps the old arm.
+Fixture: `port/tools/test_nds3d_texmtx.py` (new) — mode 0, mode 2 and mode 3 against
+arithmetic written out in Python, with a texture matrix whose fourth row is large on purpose,
+and a calibration that asserts the pre-F6 answer and must be caught
+[S: `docs/kb/hybrid/render-fixes.md` fix F6].
 
 **F7 — stop `gxstat_update()` clobbering `GXSTAT`.** `nds3d.c`, `gxstat_update`.
 *Spec:* bits 30–31 are the only writable field; 26 is FIFO-empty; 1 is the box-test result
@@ -267,6 +346,20 @@ what makes the ROM's spin terminate — the same argument says bit 26 must be **
 *Verify:* the horizon row in `tap-town/shot_037500.bmp` against `tap-D56` frame 37,500. A
 one-row shift is invisible to a human and obvious to a row-difference histogram. Do not change
 it on the algebra alone — `wiki/STYLE.md` rule 7 applies until the oracle answers.
+*THE ORACLE HAS ANSWERED, AND IT IS BOTH AXES, NOT ONE ROW (RENDER42).*
+`scratchpad/render42/shiftfit.py` fits a sub-pixel translation per quadrant. On the taxi's top
+screen the best fit is the SAME in all four quadrants — a translation, not a scale — at
+dx = **+1.00 px** and dy = +1.00..+2.00, moving mae 15.08 → 7.03 at OFF frame 6,000 and
+12.23 → 7.74 at 9,000; the 2D bottom screen fits at (0, 0), so the offset belongs to the 3D
+layer alone. The algebra in this row is NOT the cause: with ACWW's full-screen viewport
+(y1 = 0, y2 = 191) `(191 − y2)` and `y1` are both 0, so the two expressions agree. The
+suspect is the fill rule's sample point instead — see F9 — and the direction matches
+(a centre sample puts a feature half a pixel further left and up than an integer sample).
+`ACWW_3DBIAS_X`/`_Y` translate the geometry in sixteenths of a pixel FOR MEASUREMENT ONLY:
++0.5 px moves mean mae 7.66 → 6.92 and ncc-top 0.9787 → 0.9824 over OFF frames 4,500..6,000,
+but LOSES whole-frame ncc on 2 of 11 frames, so it is rejected as a fix — a translation is
+not a rule [H: `scratchpad/cycle40/runs/off-bias4040`, `off-bias4848`;
+S: `docs/kb/hybrid/render-fidelity-history.md` section 4; receipt lost with its worktree; repeat the named recipe and retain the stated frames].
 
 **F9 — fill the edges, and render 1-dot polygons.** `raster3d.c`, `draw_poly`; `nds3d.c`,
 `emit_poly` (the `area == 0` arm).
@@ -281,6 +374,20 @@ polygons are dropped into the `degenerate` counter.
 records that the dropped triangles are not truly flat, only flat after 12.4 truncation. Read the
 `degenerate` figure on the town recipe first; if it is large, distant town detail in
 `tap-town/shot_027000.bmp` is the region.
+*THE SAMPLE POINT IS NOW A VARIABLE, AND IT IS THE F8 SUSPECT (RENDER42).* `draw_poly` carries
+`soff`, the sample point inside a pixel in sixteenths, and every consumer — the scanline's Y,
+the row range, the span's first and last column, the span parameter's numerator — is expressed
+against it, so the two arms cannot drift apart. `ACWW_SAMPLE_INT=1` selects the integer sample
+point both emulators use; the default is unchanged at 8 (the centre). This is the RULE that
+F8's measured translation is a proxy for, and it MOVES THE MOST of anything measured in
+RENDER42 — over the OFF recipe's 31 frames, mean ncc 0.9974 → 0.9976, mean ncc-top
+0.9807 → **0.9833**, mean mae 7.31 → **6.66** — but it LOSES whole-frame ncc on **9 of the 31
+frames** (worst −0.0007), so it is REJECTED as a default by the frontier rule and left
+implemented and off [H: `scratchpad/cycle40/runs/off-final` vs `off-sampleint`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. There is a
+reading of the loss that says it should be there: the emulators also quantise the VERTEX
+position to a whole pixel before rasterising, and this arm changes only the sample point —
+half of a pair. The other half, measured the same way, is the next experiment. The edge-fill
+and 1-dot halves of F9 are still open.
 
 **F10 — fog.** `raster3d.c`, a post-pass over `colour[]` and `depth[]` before compose.
 *Spec:* fully documented in §2 F-fog; the port already holds the depth buffer and would need
@@ -308,6 +415,28 @@ anti-aliasing; on its own it changes nothing visible.
 tolerance in W mode (E4); `RAM_COUNT` and the `DISP3DCNT` bit 13 overflow flag (A12); the
 `MTX_STORE` slot-31 error (A7); a note when `SWAP_BUFFERS` bit 0 asks for auto-sort (E12).
 
+**F14 — the 3D layer is scrolled by BG0HOFS (G3). LANDED, RENDER43.** `raster3d.c`
+(`acww_nds3d_compose_x`), `nds2d.c` (`compose_hofs`). *Spec:* GBATEK,
+[DS 3D Final 2D Output](https://problemkaputt.de/gbatek-ds-3d-final-2d-output.htm) — a 512-pixel
+scroll region, 256 of image then 256 transparent, wrapping; no vertical scroll, no rotation.
+*Code, before:* composed at x = 0 unconditionally. *Now:* reads the 3D buffer through
+`BG0HOFS & 0x1FF`, with the emulator's own wrap — a source column past the image is DROPPED, not
+wrapped round (DeSmuME 0.9.13 `GPU.cpp`, `RenderLine_Layer3D`). melonDS does not implement this
+at all. *Verified:* MEASURED INERT — ACWW writes `BG0HOFS = 0` on both proof sets, so 31/31 and
+141/141 frames are byte-identical. A documented gap closed, not a fidelity gain.
+`ACWW_3D_HOFS=0` keeps the old arm.
+
+**F15 — one SWAP_BUFFERS per frame; hold the rest (G4). LANDED, RENDER43, and it is the
+acre-ground dropout.** `nds3d.c`, `case 0x50`. *Spec:* GBATEK, DS 3D Display Control — *"SwapBuffers
+isn't executed until next VBlank (Scanline 192) (the Geometry Engine is halted for that
+duration)"*; DeSmuME 0.9.13 `gfx3d.cpp` implements the stall literally. *Code, before:* swapped
+on every command, so a host frame carrying several logical frames' GX work latched and discarded
+several display lists. *Measured:* at the failure's edge, `swaps` goes 1 → **19** and the list
+goes 385 polys → **0**, with VRAMCNT, DISP3DCNT, CLEAR_COLOR, CLEAR_DEPTH and VIEWPORT all
+unchanged [E: `scratchpad/render43/gxwatch-58700-58790.txt`]. *Now:* at most one swap per frame;
+the geometry after a held swap accumulates into the list the next frame's swap latches.
+`swaps=N held=M` is on the standing report; `ACWW_SWAP_EVERY=1` keeps the old arm.
+
 ---
 
 ## 5. Hypotheses
@@ -332,9 +461,12 @@ tolerance in W mode (E4); `RAM_COUNT` and the `DISP3DCNT` bit 13 overflow flag (
   of `G3X_SetFog` appears in `src/matched/`, yet `G3X_SetClearColor` is called with `fog = TRUE`,
   which only matters if the master enable is on. *Experiment:* the per-frame report already
   prints `DISP3DCNT`; read bit 7 across the town and taxi recipes.
-- **H4 — modes 2 and 3 of the texture-coordinate transform are unused.** The port has never seen
-  them exercised and says so. *Experiment:* histogram `(tex_param >> 30) & 3` over the town
-  recipe. If it is zero, F6 becomes free correctness rather than a fix.
+- **H4 — modes 2 and 3 of the texture-coordinate transform are unused.** ~~The port has never
+  seen them exercised and says so.~~ **SETTLED, and FALSE (RENDER42).** The histogram was taken:
+  **one** polygon of 458 at OFF frame 6,000 uses mode 2 (none uses mode 3), and it is a visible
+  one -- the framed picture on the taxi's wall, which drew stripes and now draws the landscape.
+  So F6 was a fix and not free correctness. The town recipe has not been histogrammed
+  [E: `off-textrace42`; the F6 row above].
 - **H5 — the port's extra accuracy is a liability for the oracle comparison.** 8-bit colour
   channels (C7), full-precision perspective interpolation (E15) and a 64-bit divide (B11) all
   make the port *more* accurate than the DS. No frame will ever be byte-equal to the oracle, so
@@ -347,7 +479,8 @@ tolerance in W mode (E4); `RAM_COUNT` and the `DISP3DCNT` bit 13 overflow flag (
 - `hardware-services.md` — the same method applied to the rest of the port's hardware.
 - `port/render/selftest3d.c` — the existing checks. It covers parameter counts, the packed
   encoding, vertex formats, matrices, winding, clipping, wrapping, I4 and 4x4 texture decode,
-  depth ordering and one composition case. **It has no check for** fog, edge marking, toon, the
-  translucent-ID rule, W-buffered depth, the depth-equal test, wireframe, 1-dot polygons,
+  depth ordering and one composition case. `port/tools/test_raster3d_depth.py` now covers
+  W-buffered depth and the normalisation question (54 checks). **Neither has a check for** fog,
+  edge marking, toon, the translucent-ID rule, the depth-equal test, wireframe, 1-dot polygons,
   `POS_TEST`/`VEC_TEST`, `GXSTAT` preservation, A3I5/A5I3 alpha, or direct colour — which is the
   same list as §4, and is where a fix's regression test belongs.

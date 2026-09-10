@@ -5,8 +5,9 @@ clock chip that only the DS's ARM7 processor can read. The game asks for it thro
 asynchronous request, converts the chip's BCD digits to numbers, stores the answer in two
 globals, and compares that against the date its save was written on -- replaying every day it
 missed. A second, unrelated clock, the hardware tick counter, measures short intervals in
-frames rather than dates. The PC port supplies a *fixed* date, 2005-06-15 10:00:00, and does
-not let it advance.
+frames rather than dates. The PC port emulates the ARM7's side of the RTC: it starts at
+2005-06-15 10:00:00 and advances one second every 59.8261 frames, so game time passes while
+playing and is still a pure function of the frame count.
 
 ## What happens
 
@@ -90,6 +91,18 @@ scales it by 0x44445 >> 12, which is 4096/60 -- a fixed-point blend weight for t
 environment-light interpolation [S: `func_020bbb6c` / `func_0209def4`, main, quoted in
 `port/shim/os/rtcclock.c`].
 
+**The clock is what seeds the GAME's own random number generator, and that is what decides the
+town** (ORACLE46). `func_02061530` sets the state word at `0x021cb5a0` to `func_0209dbbc()`,
+which folds FOUR bytes of the globals above -- `minute | day<<8 | hour<<16 | second<<24`, from
+`0x021dc758`, `0x021dc74c`, `0x021dc754` and `0x021dc75c` -- and no year, month, weekday or
+tick [S: `src/matched/func_02061530.c`, `src/matched/func_0209dbbc.c`]. On the port a load
+watchpoint on that block names the three reading pcs (`0x0209dbc0`, `0x0209dbc4`, `0x0209dbcc`)
+at **frame 3**, seeing `0`, `0x0f`, `0x0a` -- seed `0x000a0f00` for the default instant -- and
+the same census over the two town-generation windows finds them absent, so the seeding happens
+once and never again on this path [E: `scratchpad/oracle46/RECEIPTS.md`, O46-1; `docs/log/cycle41-gameplay.md` ORACLE46]. **The practical
+consequence: a clock arm that takes effect after the first second cannot change the seed**, and
+one that changes the boot instant's minute, day, hour or second changes the whole town.
+
 Outside the game's own clock, the RTC is an entropy source. The Wi-Fi identity generator seeds
 a 16-bit LCG from the RTC date and time converted to seconds, salted with the tick counter if
 one is available [S: `func_02100cbc` (`DWCi_AUTH_GetNewWiFiInfo`), autoload_2,
@@ -117,33 +130,91 @@ The port drives the *registers* rather than shimming `OS_GetTick`, writing
 `OS_GetTickLo`, the alarm path and the thread-sleep path all read a consistent truth
 [E: `port/platform/tick.c`; the one-second wait in `func_020b5898` compares against 523,656,
 which is 8,728 x 60]. This is a clock that counts frames, not wall time: a port running at half
-speed sees time pass at half speed [E: `port/platform/tick.c`]. Before it existed, both reads
+speed sees time pass at half speed [H: host-source account from `port/platform/tick.c`; verify with a retained scripted run and frame using this page's recipe]. Before it existed, both reads
 answered zero, `func_020b5898`'s state 2 computed `now - saved == 0` forever, and the Nintendo
-logo screen at frame 900 was identical to frame 120 [E: `port/platform/tick.c`].
+logo screen at frame 900 was identical to frame 120 [H: host-source account from `port/platform/tick.c`; verify with a retained scripted run and frame using this page's recipe].
 
-The RTC is answered locally and does not advance. `RtcWaitBusy` returns immediately, and the
-three getters copy from a fixed date [E: `port/shim/os/rtc.c`, `port/shim/os/rtcclock.c`]. The
-default is 2005-06-15 10:00:00, a Wednesday, chosen because it is in-era, carries no seasonal
-event, has an hour that is daytime, and has minute 0 so the lighting blend weight lands exactly
-on a table entry [E: `port/shim/os/rtcclock.c`]. `ACWW_RTC_DATE=YYYYMMDD` and
-`ACWW_RTC_TIME=HHMMSS` move it; an out-of-range value is rejected as a whole with one printed
-line rather than half-applied, and the weekday is always computed by Sakamoto's method rather
-than taken from the environment [E: `port/shim/os/rtcclock.c`]. The oracle pins the same
-instant, `rtcStart 2005-06-15T10:00:00Z` in the generated movie
-[O: `port/tools/oracle/oracle.py`; `port/tools/oracle/README.md`, "How the RTC and the input
-recipe are enforced"].
+**The port is the ARM7 for the RTC, and the clock advances (RTC42).** On the interpreter path
+the three synchronous getters are denied from the host registry, so the ROM's own SDK code runs
+end to end: `RTC_GetDateTime` hands the caller's buffer to the async layer, `RtcSendPxiCommand`
+posts `(0x10 << 8)` on PXI tag 5, and the port's `PXI_SendWordByFifo` answers -- it packs the
+current instant into the two `RTCRawDate`/`RTCRawTime` words, writes them into the system work
+at `0x027ffde8`, and delivers `command << 8 | RTC_PXI_RESULT_SUCCESS` to the receive callback
+the ROM registered, so `RtcCommonCallback` does the BCD decoding
+[E: `port/shim/os/pxisend.c`, `rtc_request`; run `off-rtc42-on` -- its `acww rtc` lines are harvested as `scratchpad/rtc42/rtcline-off-rtc42-on.txt`, and `scratchpad/rtc42/README.md` indexes the arm; the run directory itself stayed in RTC42's worktree -- log line
+`acww rtc/arm7: command 0x10 raw date 0x03150605 time 0x00000010 -> callback`]. The reply is
+delivered synchronously, inside the send, and both halves of that are forced: `RtcWaitBusy`
+spins with no yield so nothing would ever advance to deliver a queued reply, and
+`RTC_GetDateTimeAsync` sets the lock, the sequence, both buffers and the callback BEFORE it
+sends, so an answer inside the send is safe -- the opposite of the touch panel's tag 6, where
+the SDK sets `command_flg` after the send returns
+[S: `src/matched/RtcWaitBusy.c`, `src/matched/RTC_GetDateTimeAsync.c`;
+E: `docs/kb/hybrid/hardware-services.md`, "Tag 5"]. On the NATIVE path there is no interpreted
+ROM to run, so the three getters still answer directly from the same model
+[H: source/log account from `port/shim/os/rtcclock.c`; verify with a retained run using this page's recipe].
 
-**Why a fixed clock and not the host's.** Before `rtcclock.c` existed the port dropped the PXI
+**How it advances.** One frame is 1/59.8261 s of emulated time -- 560190 cycles of the NDS's
+33.513982 MHz clock, the same pair the port's frame pacer uses -- and the instant is a PURE
+FUNCTION of the frame count, `boot + floor(frames * 560190 / 33513982)` seconds, with the
+midnight rollover, the month lengths, the leap day and the weekday computed from there
+[E: `port/shim/os/rtcclock.c`; `port/tools/test_rtc.py` calibrates fourteen cases including a
+leap day, three month ends and midnight]. That keeps the two properties that were in tension:
+game time passes while playing, and the same recipe run twice is still the same run, because
+nothing reads wall time. It is the same trade the tick makes -- a port running at half speed
+sees game time pass at half speed.
+
+The default boot instant is 2005-06-15 10:00:00, a Wednesday, chosen because it is in-era,
+carries no seasonal event, has an hour that is daytime, and has minute 0 so the lighting blend
+weight STARTS exactly on a table entry [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe].
+`ACWW_RTC_DATE=YYYYMMDD` and `ACWW_RTC_TIME=HHMMSS` move it; an out-of-range value is rejected
+as a whole with one printed line rather than half-applied, and the weekday is always computed
+by Sakamoto's method rather than taken from the environment. `ACWW_RTC_FREEZE=1` restores the
+pre-RTC42 frozen clock exactly, for a diagnostic that needs two runs of different lengths to
+see one instant [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. The clock is carried in the savestate -- the
+boot instant, the freeze flag and the "instant decided" flag -- so a resumed run keeps the
+clock it was snapshotted with instead of re-reading the loading shell's environment
+[E: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`].
+
+The oracle pins the same boot instant, `rtcStart 2005-06-15T10:00:00Z` in the generated movie,
+and DeSmuME advances its emulated chip with emulated time from there, which is why the two
+agree at a frame rather than only at boot [O: `port/tools/oracle/oracle.py`, `RTC_START`;
+`port/tools/oracle/README.md`].
+
+**The number that settled it.** At frame 53,100 of the walk-out arm the original's HUD panel
+reads `6/15 AM10:14` and the port's read `6/15 AM10:00`
+[O: `scratchpad/oracle/walkout/orig`, `side-by-side-53100.png`;
+E: `docs/log/cycle41-gameplay.md` ORACLE44 item 4]. 53,100 frames is 887 emulated seconds --
+14 minutes 47 seconds -- so 10:14:47, and the port now reads what the original reads
+[E: `port/tools/test_rtc.py`, case `oracle-53100`; the two zoomed HUD stills are
+`scratchpad/rtc42/port-53100-bot.png` and `orig-53100-bot.png`]. That closes ORACLE44's last
+open item, which had recorded the two HUDs parting at exactly this frame as the port's
+deliberate non-advance [O: `scratchpad/oracle/walkout/side-by-side-53100.png`;
+`docs/log/cycle41-gameplay.md` ORACLE44 item 4].
+
+**The consequence for every retained reference, and it applies to pages other than this one.**
+Frames now depend on the clock, because the minute drives `func_020bbb6c`'s day/night blend, so
+**a comparison against a run taken before RTC42 must set `ACWW_RTC_FREEZE=1`** -- with the clock
+running, every frame of the OFF recipe differs from the frozen build's, at unchanged mean ncc
+against the oracle (0.997413 both, worst frame -0.000008)
+[E: `scratchpad/rtc42/analyse.txt`; `docs/log/cycle41-gameplay.md` RTC42]. The freeze arm is
+also the receipt that the PXI rewrite itself is neutral: frozen, it is 31/31 identical to the
+pre-RTC42 build [E: same].
+
+**Why a frame-driven clock and not the host's.** Before `rtcclock.c` existed the port dropped the PXI
 request, so `func_0209e49c`'s locals were never written and the game's clock globals took host
 stack garbage. Measured with `ACWW_WATCH=0x021dc754`, `func_0209e49c` wrote `0x001afeb8` -- a
-stack address -- and then `0xb8` [E: `port/shim/os/rtcclock.c`, `ACWW_WATCH=0x021dc754`]. The
+stack address -- and then `0xb8` [H: host-source account from `port/shim/os/rtcclock.c`, `ACWW_WATCH=0x021dc754`; verify with a retained scripted run and frame using this page's recipe]. The
 lighting blend weight is the low byte of that address scaled by 4096/60, so it was constant
 within one executable and different between executables: 0x00000888, 0x00000955 and 0x000008cc
-were logged from three builds [E: `port/shim/os/rtcclock.c`]. Two executables differing only by
+were logged from three builds [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. Two executables differing only by
 dead code lit the world differently, which put a 20-26% pixel noise floor under every
 fixed-frame screenshot comparison and forced a published finding to be retracted
-[E: `port/shim/os/rtcclock.c`; M1]. A port that quietly tracked real time would reintroduce
-exactly that class of defect one level up.
+[E: `port/shim/os/rtcclock.c`; M1]. A port that quietly tracked HOST time would reintroduce
+exactly that class of defect one level up -- two runs of one recipe would differ because they
+were started at different times of day. Driving the clock from the FRAME COUNT keeps the
+determinism and gives the game its calendar back; the price is that two runs of DIFFERENT
+LENGTHS are no longer at the same instant, which is a real difference rather than a noise
+floor [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe].
 
 ## Where it lives
 
@@ -181,11 +252,26 @@ exactly that class of defect one level up.
 
 ## How to check it
 
-See `../experiments/rtc-hour-sweep.md` (designed, not yet run): the same recipe at four hours
-of the day, comparing the port against the oracle on the same instants. The instrument that
-already exists is the port's own boot line, `acww rtc: fixed clock year+2000=... hour=...`,
-printed once per run [E: `port/shim/os/rtcclock.c`; present in
-`scratchpad/cycle40/runs/tap-D56/tap-D56-run.log`].
+`python port/tools/test_rtc.py` compiles `port/shim/os/rtcclock.c` itself -- the shipped file,
+not a copy -- and drives fourteen calibration cases through it: the boot instant, midnight, a
+30-day and a 31-day month end, into and out of the 2004 leap day, the 2005 non-leap February,
+a year end, a full year of frames, the oracle's own frame 53,100, the frozen escape, and the
+afternoon bit. It decodes every packed word back with an independent transcription of the SDK's
+`RtcBCD2HEX` and the `RTCRawDate`/`RTCRawTime` bitfields, and statically checks that the pacer
+and the clock still divide the same second, that `pxisend.c` writes the raw block at
+`0x027ffde8`, that PXI tag 5 is dispatched, and that the clock is registered in the savestate
+[H: source/log account from `port/tools/test_rtc.py`; verify with a retained run using this page's recipe].
+
+In a run, three instruments: the boot line
+`acww rtc: frame-driven clock, 59.8261 frames = 1 s boot 2005-6-15 week=3 10:0:0` (or its
+`FROZEN` form), the ARM7's first four answers
+(`acww rtc/arm7: command 0x10 raw date ... -> callback`, which names the ARM9 callback slot as
+present or absent), and `ACWW_RTC_TRACE=1` for one line per in-game minute with the frame it
+turned on [E: `port/shim/os/rtcclock.c`, `port/shim/os/pxisend.c`;
+`scratchpad/rtc42/rtcline-off-rtc42-on.txt`, the harvested `acww rtc` lines of run `off-rtc42-on`].
+
+See also `../experiments/rtc-hour-sweep.md` (designed, not yet run): the same recipe at four
+hours of the day, comparing the port against the oracle on the same instants.
 
 ## Hypotheses
 
@@ -200,10 +286,19 @@ printed once per run [E: `port/shim/os/rtcclock.c`; present in
   ROM trusts the chip's three-bit field and the port computes Sakamoto's; they cannot disagree
   on the port, but they can on the oracle, whose emulated chip supplies its own. Settled by
   reading `0x021dc744+12` in oracle probe mode on a date whose weekday is known.
-- The clock never advancing is invisible to the game over a 90,000-frame run. Evidence for: no
-  fault and no stall to 90,000 frames [E: `scratchpad/cycle40/runs/tap-D59`, LONG41]. It stays
-  a hypothesis because nothing in that run was waiting on a minute boundary; settled by an
-  oracle comparison over a scene the game times in minutes, such as a shop closing.
+- **Retired by RTC42.** "The clock never advancing is invisible to the game over a
+  90,000-frame run" stood on no fault and no stall to 90,000 frames
+  [E: `scratchpad/cycle40/runs/tap-D59`, LONG41], and was already contradicted by the HUD
+  parting at frame 53,100. The clock now advances; the open question moved with it, below.
+- The port's advancing clock and the oracle's stay in step over a long run. The two rates are
+  not identical by construction: the port divides emulated frames by 33513982/560190, and
+  DeSmuME advances its emulated chip with ITS emulated time from the movie's start date. A
+  drift of one second per 206,000 frames would be invisible at 53,100 and visible at a day.
+  Settled by comparing the HUD at two frames far apart on one arm.
+- The game's own day rollover fires, and `func_0207b05c`'s catch-up runs, when the port's
+  clock crosses midnight. Nothing has yet run a port arm across a midnight -- 24 hours of game
+  time is 5.17 million frames, so it wants `ACWW_RTC_TIME=235900` and a short arm rather than
+  a long one. Settled by that arm plus `ACWW_SAVE`, watching `0x021dc744`.
 
 ## Related
 

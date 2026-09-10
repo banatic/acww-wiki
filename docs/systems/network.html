@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,7 +124,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>네트워크</span></div><header class="page-head"><h1>네트워크</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 43</span><span class="gchip g-E"><b>E</b> 11</span></div><div class="source-line">원문: <code>wiki/systems/network.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 놀러오세요 동물의 숲(Wild World)에는 완전히 별개인 두 개의 네트워킹 스택이 있다. 로컬
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>네트워크</span></div><header class="page-head"><h1>네트워크</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 43</span><span class="gchip g-E"><b>E</b> 4</span><span class="gchip g-H"><b>H</b> 7</span></div><div class="source-line">원문: <code>wiki/systems/network.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 놀러오세요 동물의 숲(Wild World)에는 완전히 별개인 두 개의 네트워킹 스택이 있다. 로컬
 무선(같은 방에 있는 두 대의 DS 본체)은 무선 매니저와 그 연결 매니저에서 멈추며 IP 주소를 전혀
 건드리지 않는다. 닌텐도 Wi-Fi 커넥션은 완전한 TCP/IP 스택, TLS, GameSpy의 매치메이킹 서버를
 거치며, 이 모든 것이 하나의 오버레이 <code>ov065</code>에 담겨 있다. 그 서버가 제공하던 서비스는 2014년에
@@ -185,16 +195,16 @@ v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답
 <p>그럼에도 네 개의 작은 조각은 도달 가능하며, 각각은 스텁이 아니라 실제 응답이다.
 <code>port/shim/net/dwcinit.c</code>는 설정 저장소 초기화 결과를 2비트 코드로 좁히는 <code>func_0210172c</code>를
 대체하며, 항상 0(설정 유효, 지워진 것 없음)으로 응답한다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcinit.c</code></span></span>. <code>port/shim/net/dwcbackup.c</code>는 SSID, WEP 키, DHCP 설정을 담는
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/net/dwcinit.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. <code>port/shim/net/dwcbackup.c</code>는 SSID, WEP 키, DHCP 설정을 담는
 저장소인 <code>DWCi_BACKUPlInit</code>, <code>DWCi_BACKUPlRead</code>, <code>DWCi_BACKUPlWriteAll</code>을 구현한다. 읽기는 모두 0인
 페이지를 반환하는데, 이는 한 번도 설정된 적 없는 공장 초기 상태의 본체이고, 쓰기는 수락된 뒤
-버려진다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcbackup.c</code></span></span>.
+버려진다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/net/dwcbackup.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.
 <code>port/shim/tu_wcm_bits.c</code>는 어셈블리로만 존재하며 무선을 꺼도 부팅 경로에 있는 두 libwcm 함수
 (<code>WcmCountBits</code>, 즉 popcount와 <code>func_ov065_0227029c</code>, 즉 선행 0 개수 세기)의 C 본체를 공급하는데,
-호스트 컴파일러가 mwcc <code>asm</code> 본체를 빌드할 수 없기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/tu_wcm_bits.c</code></span></span>. 그리고
+호스트 컴파일러가 mwcc <code>asm</code> 본체를 빌드할 수 없기 때문이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/tu_wcm_bits.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. 그리고
 <code>port/shim/game/ov065thunks.c</code>는 <em>타이틀 메뉴</em>가 ov065의 로드된 이미지를 가리키는 잔존 vtable 슬롯을
 통해 도달하는 세 함수에 응답한다. 셋 모두 포트의 스텁 처리된 무선이 결코 채우지 않는 전역 함수
-포인터 슬롯을 검사하고 거절한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/ov065thunks.c</code></span></span>.</p>
+포인터 슬롯을 검사하고 거절한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/ov065thunks.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
 <p>이와 일관되게, 기록된 어떤 실행 로그에도 <code>DWC</code>나 <code>WM</code> 심볼은 나타나지 않는다. 유일하게 네트워크에
 인접한 PXI 트래픽은 태그 10(WM)이며, 포트는 이를 한 번 이름을 밝히고 버린다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>; <code>docs/kb/hybrid/hardware-services.md</code> section 1, "Other tags"</span></span>.</p>
@@ -333,7 +343,7 @@ v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답
 <td><code>func_0210172c</code></td>
 <td>autoload_2</td>
 <td>설정 저장소 초기화 결과를 좁힘; 포트는 0으로 응답</td>
-<td><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcinit.c</code></span></span></td>
+<td><span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/net/dwcinit.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span></td>
 </tr>
 </tbody>
 </table></div>
@@ -352,7 +362,7 @@ v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답
 <td>PXI 태그 10</td>
 <td>ARM7으로 가는 WM 채널</td>
 <td>ARM9 무선 매니저</td>
-<td>ARM7 (포트는 태그 이름을 한 번 밝히고 버린다) <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span></td>
+<td>ARM7 (포트는 태그 이름을 한 번 밝히고 버린다) <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/os/pxisend.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span></td>
 </tr>
 <tr>
 <td><code>DWCMatchControl.friendList</code> / <code>.friendIdxList</code> / <code>.evalCallback</code></td>
@@ -370,7 +380,7 @@ v1은 인터페이스 뒤에서 이들 모두에 "서비스 없음"으로 응답
 <td>DWC 백업 페이지</td>
 <td>SSID, WEP 키, DHCP 설정, CRC-16으로 검증됨</td>
 <td><code>DWCi_BACKUPlWriteAll</code> (포트: 버림)</td>
-<td><code>DWCi_BACKUPlRead</code> (포트: 모두 0) <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/net/dwcbackup.c</code></span></span></td>
+<td><code>DWCi_BACKUPlRead</code> (포트: 모두 0) <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/net/dwcbackup.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span></td>
 </tr>
 <tr>
 <td><code>DWC_BM</code> 4페이지 맵</td>

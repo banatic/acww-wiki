@@ -15,7 +15,7 @@ the English ones later; the English page is the page of record.
 | `data/` | what the tables hold | item, villager, fish/bug, music and archive indices: structure, location, counts, how to read them |
 | `experiments/` | how a claim is checked | one reproducible recipe per page: environment, expected observations, evidence run |
 | `glossary.md` | words | terms used across pages, each with the function or address that defines it |
-| `audits/` | the wiki reading itself | one page per audit pass: every finding as page, sentence, problem, and the fix applied or the experiment needed |
+| `audits/` | the wiki reading itself | one page per audit pass: every finding as page, sentence, problem, and the fix applied or the experiment needed. `audits/night-2026-09-09.md` is a different shape -- an index of one night's fourteen units, what each settled and what each left open |
 
 ## Evidence grades (mandatory on every claim)
 
@@ -25,6 +25,7 @@ the English ones later; the English page is the page of record.
 | **E** experiment | observed in a scripted run of the port | the run directory under `scratchpad/` (or the `experiments/` page) and the frame |
 | **O** oracle | observed in the DeSmuME reference under the same recipe | the `scratchpad/oracle/<dir>` and the frame |
 | **H** hypothesis | inferred, not yet measured | what experiment would settle it |
+| **P** public record | read from a public specification or a public source mirror (GBATEK, the NitroSDK source, an emulator's source) | the page or heading, and the exact sentence where it matters. **P is weaker than S**: where the public record and this ROM's own image disagree, the image wins and the disagreement is content -- entry 0 of the decibel tables is -723 here and -32768 in the public SDK (`systems/audio.md`) |
 
 A claim with two grades (S+O, E+O) is stronger than one; S alone says what the code does,
 not that the game was seen doing it. A page section headed **Hypotheses** is the queue of

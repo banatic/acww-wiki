@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>난수 · ACWW 근거 위키</title>
-<meta name="description" content="이 ROM에는 단일한 난수 생성기가 없다. 매칭된 소스에는 서로 무관한 세 개의 선형 합동 생성기(LCG)가 있다: 네트워킹 코드가 사용하는 NitroSDK의 MATH_Rand16과 MATH_Rand32; 시각적 흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기">
+<meta name="description" content="이 ROM에는 단일한 난수 생성기가 없다. 알려진 것은 넷이다. 셋은 라이브러리 생성기다 -- 네트워킹 코드가 사용하는 NitroSDK의 MATH_Rand16과 MATH_Rand32; 시각적 흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기; 그리고 Wi-Fi ">
 <link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,13 +124,13 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>난수</span></div><header class="page-head"><h1>난수</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 37</span><span class="gchip g-E"><b>E</b> 4</span><span class="gchip g-O"><b>O</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/rng.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 이 ROM에는 단일한 난수 생성기가 없다. 매칭된 소스에는 서로 무관한 세 개의 선형
-합동 생성기(LCG)가 있다: 네트워킹 코드가 사용하는 NitroSDK의 <code>MATH_Rand16</code>과 <code>MATH_Rand32</code>;
-시각적 흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기; 그리고 Wi-Fi 설정 오버레이의
-독자적인 생성기. 이들 모두는 하드웨어 틱 카운터, 실시간 시계, 또는 둘 다로부터 시드된다.
-<strong>게임 자체가 게임플레이 결과 &ndash; 물고기, 곤충, 주민, 상점 재고 &ndash; 에 사용하는 생성기는 아직
-발견되지 않았다.</strong> 그것을 소비할 함수들이 아직 디컴파일되지 않았기 때문이다. 이 페이지는
-확립된 것을 기록하며 그 구멍에 대해 명시적으로 밝힌다.</p>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>난수</span></div><header class="page-head"><h1>난수</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 54</span><span class="gchip g-E"><b>E</b> 20</span></div><div class="source-line">원문: <code>wiki/systems/rng.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 이 ROM에는 단일한 난수 생성기가 없다. 알려진 것은 넷이다. 셋은 라이브러리
+생성기다 &ndash; 네트워킹 코드가 사용하는 NitroSDK의 <code>MATH_Rand16</code>과 <code>MATH_Rand32</code>; 시각적
+흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기; 그리고 Wi-Fi 설정 오버레이의 독자적인
+생성기 &ndash; 이며, 각각은 하드웨어 틱, 실시간 시계, 또는 둘 다로부터 시드된다. <strong>네 번째는
+게임 자체의 것이며, ORACLE46이 이를 찾아냈다</strong>: <code>0x021cb5a0</code>의 32비트 상태 워드 하나가
+<code>x = x * 0x19660d + 0x3c6ef35f</code>로 스텝되고, 부팅 시 실시간 시계의 네 바이트로 단 한 번
+시드되며, 이것이 마을의 id와 마을의 주민들을 뽑는 것이다.</p>
 <h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p><strong>이 페이지에 필요한 명명 주석.</strong> <code>MATH_Rand16</code>, <code>MATH_Rand32</code>, <code>MATH_InitRand16/32</code>,
 <code>OS_IsTickAvailable</code>은 NitroSDK 라이브러리 이름이지 이 ROM의 심볼 테이블에 있는 이름이
@@ -128,6 +138,71 @@
 <code>src/matched/</code>에서 <code>func_*</code> 이름으로 도달된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/**/symbols.txt</code>, name sweep</span></span>.
 <code>../STYLE.md</code> 규칙 2가 SDK 이름을 허용하기 때문에 여기서는 그 이름을 사용하며, <code>func_*</code> 이름이
 존재하는 곳에서는 함께 병기한다.</p>
+<h3 id="게임-자체의-생성기와-그-시드">게임 자체의 생성기와 그 시드</h3>
+<p><strong>상태는 <code>0x021cb5a0</code>의 워드 하나이며</strong> 스텝은 <code>func_020e92e8</code>이다:
+<code>x = x * 0x19660d + 0x3c6ef35f</code>, 상태는 다시 써지고 통째로 반환된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020e92e8.c</code></span></span>. 범위 제한 추출은 <code>func_020e92d0(state, n)</code>이며,
+<code>(n * x) &gt;&gt; 32</code>를 반환한다 &ndash; SDK 생성기들도 사용하는 상위 비트 형식이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020e92d0.c</code></span></span>. <strong><code>func_020644cc(n)</code>은 상태를 묶는 게임 전역
+래퍼다</strong>: 그 ARM 명령 세 개는 <code>ldr r12, [pc,#8]</code> -&gt; <code>func_020e92d0</code>,
+<code>mov r1, r0</code>, <code>ldr r0, [pc,#4]</code> -&gt; <code>0x021cb5a0</code>, <code>bx r12</code>이므로, <code>0x020644dc</code>와
+<code>0x020644e0</code>의 풀 워드는 각각 함수와 상태이며 어느 쪽도 추론이 아니다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code> at <code>0x020644cc</code>, read in ORACLE46; the matched file <code>src/matched/func_020644cc.c</code> spells both as placeholder names &ndash; D12</span></span>.</p>
+<p><strong>부팅 시 시계로부터 한 번 시드되며, 시드는 네 바이트다.</strong>
+<code>__sinit_020c5a78</code>은 상태를 1로 설정하고 콜백을 등록한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/__sinit_020c5a78.c</code></span></span>; 그 다음 <code>func_02061530</code>이
+<code>func_020e930c(0x021cb5a0, func_0209dbbc())</code>를 호출하며, <code>func_020e930c</code>는 두 명령짜리 저장이다 &ndash;
+이것이 <code>srand</code>다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02061530.c</code>, <code>src/matched/func_020e930c.c</code></span></span>.
+<code>func_0209dbbc</code>는 게임의 시계 전역 변수를 읽어 접어 넣는다:</p>
+<pre><code>seed = minute | (day &lt;&lt; 8) | (hour &lt;&lt; 16) | (second &lt;&lt; 24)
+</code></pre>
+<p><code>0x021dc758</code>, <code>0x021dc74c</code>, <code>0x021dc754</code>, <code>0x021dc75c</code>로부터다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209dbbc.c</code></span></span>. <strong>연도, 월, 요일은 여기에 들어 있지 않으며, 틱도
+들어 있지 않다.</strong> 포트에서 그 블록에 로드 워치포인트를 걸면 정확히 그 세 pc &ndash;
+<code>0x0209dbc0</code>, <code>0x0209dbc4</code>, <code>0x0209dbcc</code> &ndash; 가 <strong>프레임 3</strong>에서 발화하며 <code>0</code>, <code>0x0f</code>,
+<code>0x0a</code>를 읽는 것이 보인다: 기본 2005-06-15 10:00:00 순간에 대한 시드 <code>0x000a0f00</code>이다. 같은
+센서스를 두 생성 프레임에 창으로 걸면 그 pc들이 부재하므로, 아무것도 다시 시드하지 않는다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> ORACLE46, runs <code>scratchpad/oracle46/runs/o46-A</code>, <code>scratchpad/oracle46/runs/o46-D</code>, <code>scratchpad/oracle46/runs/o46-E</code></span></span>.</p>
+<p><strong>무엇을 뽑는가.</strong> 마을의 id는 <code>func_0206426c</code> = <code>func_020644cc(0x7fff) | 0x8000</code>이며,
+<code>func_02064244</code>에 의해 <code>0x021dc7aa</code>의 하프워드로 저장된다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0206426c.c</code>, <code>src/matched/func_02064244.c</code></span></span>; 주민 선택기
+<code>func_0207b594</code>는 같은 래퍼에서 뽑는다(<code>villagers.md</code>). 포트에서 끝에서 끝까지 측정한 결과:
+프레임 24,789에서 상태는 <code>0x010d14fa</code>로 읽히고 <code>0x8cdea011</code>로 스텝되며,
+<code>(0x7fff * 0x8cdea011) &gt;&gt; 32 = 0x466e</code>이고, 이를 <code>| 0x8000</code>하면 저장 워치포인트가 안착하는
+것을 보는 <code>0xc66e</code>다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE46 run <code>scratchpad/oracle46/runs/o46-F</code></span></span>.</p>
+<p><strong>마을의 ID와 마을의 지도는 스트림 위의 서로 다른 두 순간이며, 11,346 프레임
+떨어져 있다.</strong> id는 이름 확인 시점(포트 프레임 24,789, 추출 <strong>#2,667</strong>)에 뽑히고; 에이커
+지도, 아이템 레이어, 주민 명단은 모두 나중의 한 버스트 &ndash; 포트 프레임
+<strong>36,135</strong>, 추출 <strong>#3,783..#4,014</strong>, 모두 그 단일 프레임 안 &ndash; 에서 뽑히며; 원본은 같은
+버스트를 ~90 프레임에 걸쳐 펼친다. 지도는 두 번째로도 생성된다: 한 번은 부팅 시 280회 추출
+초기화 버스트 안에서(포트 프레임 758, 인덱스 0..280), 그 다음 진짜 생성 전에 <code>0x86</code> / <code>0xfff1</code>로
+리셋된다. 따라서 id 추출을 고정하는 레시피는 지도를 고정하지 않으며, 지도를 고정하는 레시피는
+같은 프레임이기 때문에 명단을 덤으로 얻는다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> ORACLE49 O49-1/O49-2</span></span>. <code>func_0209ccd4</code>의 6x6 루프 &ndash; 에이커당
+범위 제한 추출 하나, 36개 &ndash; 는 그 버스트 안에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209ccd4.c</code></span></span>.</p>
+<p><strong>시드는 견고하지만, 추출 횟수는 그렇지 않다.</strong> 시드는 실행의 첫 1초 안에 취해지기
+때문에, 나중 프레임부터만 시계를 붙드는 시계 조건은 이를 바꿀 수 없다:
+에뮬레이터는 <code>--rtc-freeze-until</code> 유무와 무관하게 프레임 44에서 <code>0x000a0f00</code>을 낸다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE46 <code>scratchpad/oracle46/runs/o46-seedarm2</code> / <code>scratchpad/oracle46/runs/o46-seedoff</code></span></span>. 두 마을을 가르는 것은
+그 시드와 id가 뽑히는 순간 사이에 몇 번의 추출이 소비되는가이며, 이는 그 사이에 실행이
+한 모든 일의 속성이다.</p>
+<h3 id="추출은-어디로-가며-두-생성자는-얼마나-떨어져-있는가">추출은 어디로 가며, 두 생성자는 얼마나 떨어져 있는가</h3>
+<p><strong>모든 추출은 단 하나의 명령을 거친다.</strong> 포트 실행의 세 개 별도 창에 걸쳐 <code>0x021cb5a0</code>에
+저장 워치포인트를 걸면 &ndash; 총 131회 저장 &ndash; pc <code>0x020e92f8</code>만 보고되고 다른 것은 없다:
+<code>func_020e92e8</code> 자신의 되쓰기다. 두 번째 기록자도 없고 생성자별 경로도 없으므로,
+이 ROM의 두 실행은 오직 그 하나의 스트림에서 얼마나 멀리 갔는가만 다르다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle47/RECEIPTS.md</code>, O47-2; <code>docs/log/cycle41-gameplay.md</code> ORACLE47 O47-2</span></span>.</p>
+<p><strong>추출은 프레임당 한 번이 아니라 메인 루프 본체당 한 번 소비된다.</strong> 포트에서 프레임
+852..1,002에 걸친 연속 51회 저장은 정확히 세 프레임 간격이며, 메인 루프는 포트와 원본
+양쪽에서 세 프레임에 한 번 돈다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same, and INPUT46 on <code>0x021fbdd0</code>, <code>docs/kb/hybrid/stall-playbook.md</code> case 70</span></span>. 비율은 씬에 따라 다르다 &ndash; 타이틀에서는 세
+프레임에 한 번, 마을 이름 페이지에서는 ~12 프레임에 한 번 &ndash; 이므로 <strong>씬에 일찍 도달하는
+실행은 더 적은 추출을 취한 채로 도착하며</strong>, 이것이 씬 시간에서 원본보다 ~280 프레임 앞선
+포트가 마을이 뽑힐 때 스트림 위치에서는 ~176 프레임 뒤처지는 이유다. LCG는 전단사이므로
+엿본 워드 하나가 자신의 인덱스를 스스로 말해 준다: <code>scratchpad/oracle47/lcg.py</code>는 시드를
+범위 안에서 앞으로 스텝하고, <code>draws.py</code>는 어느 생성자의 장부든 추출 횟수로 바꾼다.</p>
+<p><strong>모든 차분 실험에 대한 귀결.</strong> 두 생성자가 같은 마을을 뽑게 만드는 것은 시계를 바꾸는
+것이 아니라 추출을 촉발하는 입력을 옮기는 것이다: <code>port/tools/oracle/README.md</code>,
+"THE SHARED-TOWN RECIPE".</p>
 <h3 id="sdk-생성기">SDK 생성기</h3>
 <p><code>MATHRandContext32</code>는 세 필드 구조체 &ndash; 상태, 승수, 가수, 모두 64비트 &ndash; 이며, <code>MATH_Rand32</code>는
 이를 <code>x = mul * x + add</code>로 진행시키고 새 상태의 상위 32비트를 반환하거나, 범위 제한 추출의
@@ -172,25 +247,29 @@
 가능한 인프라로 읽힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence of callers in <code>src/matched</code></span></span>.</p>
 <h3 id="아직-발견되지-않은-것">아직 발견되지 않은 것</h3>
 <p>세이브 측이나 마을 측의 시드 필드는 없다. <code>src/matched</code> 전체에서 <code>SaveData</code>, <code>TownData</code>,
-<code>randomSeed</code>, <code>worldSeed</code>, <code>townSeed</code> 등을 검색해도 아무것도 나오지 않으며, 관측된 모든 시딩은
-세션 한정이거나, 세이브 블록에 기록되거나 거기서 복원되는 모습이 한 번도 보이지 않는 단일
-지연 초기화 전역 변수다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence in <code>src/matched</code></span></span>. 이것은 게임이 아니라 코퍼스에 대한
-진술이다: 마을별 시드를 소비할 법한 게임플레이 시스템 &ndash; 주민 행동, 물고기와 곤충 스폰, 상점
-재고, 마을 자체의 배치 &ndash; 은 <code>src/matched</code>에 전혀 디컴파일되어 있지 않으므로, 그 RNG 배관은
-단순히 아직 보이지 않는다.</p>
-<p>세이브 체크섬의 증거도 없다. 코퍼스의 모든 <code>crc</code>/<code>checksum</code> 심볼
-(<code>0x02128ac4</code>의 <code>MATH_CalcCRC8</code>, 다항식 <code>0xA001</code>의 <code>0x02128a90</code> <code>MATH_CalcCRC16</code>,
-다항식 <code>0xEDB88320</code>과 반전 출력의 <code>0x02128a58</code> <code>MATH_CalcCRC32</code>, 그리고
-<code>MBi_calc_cksum</code>과 <code>check_tcpudpsum</code>)은 무선, 소켓 또는 PPP/TCP 스택에 속하며, 그중 어느
-것에서도 세이브 경로로 이어지는 호출 간선이 없다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence of call edges in <code>src/matched</code>; see <code>save-data.md</code></span></span>.</p>
+<code>randomSeed</code>, <code>worldSeed</code>, <code>townSeed</code> 등을 검색해도 아무것도 나오지 않으며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence in <code>src/matched</code></span></span>,
+ORACLE46의 측정은 이 경로에서 찾을 것이 없다는 것과 일치한다: <code>0x021cb5a0</code>의 상태는
+부팅 시 시계로부터 시드되고 그저 돈다. 아직 열려 있는 것은 게임의 추출 중 어느 것이
+이 스트림에서 나오고 어느 것이 다른 스트림에서 나오는가이다 &ndash; 주민 선택기와
+마을 id는 확립되었고, 물고기, 곤충, 상점 재고는 그렇지 않다.</p>
+<p>세이브 체크섬은 <code>crc</code>/<code>checksum</code> 이름 검색에서 놓쳤다: 뱅크 폴러
+<code>func_020a1a40</code>은 16비트 랩어라운드 워드 합 <code>func_02050920</code>을 호출하고, <code>func_0209f180</code>의
+헤더 검사와 함께 합이 0인 경우만 받아들인다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>, <code>src/matched/func_02050920.c</code>, <code>src/matched/func_0209f180.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.
+GP45-5는 저장된 체크섬과 계산된 체크섬이 <code>0xbddf</code>, 잔차 <code>0x0000</code>인 완전한 세이브와,
+게임이 그 뱅크를 로드할 것이라고 보고하는 ROM 수용 테스트를 기록했다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/gameplay45/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.</p>
 <h3 id="포트">포트</h3>
-<p>포트는 이 생성기들 중 어느 것도 건드리지 않는다: 이들은 ROM 코드이며 나머지와 마찬가지로
-인터프리트되어 실행된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/runtime.md</code>'s registry policy; <code>scratchpad/cycle40/runs/tap-D56</code></span></span>.
-포트의 유일한 관련 효과는 두 엔트로피 소스가 <em>고정</em>된다는 것이다. 틱은 0부터 프레임당
-정확히 8,728 카운트씩 진행하고 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/tick.c</code></span></span>, RTC는 고정된 순간이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code></span></span>. 따라서 포트 실행은 어느 쪽에서든 시드되는 모든 생성기에서
-결정론적이며, 이것이 프레임 단위 오라클 비교를 애초에 의미 있게 만드는 것이다
-<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code>, where the two producers agree to whole-frame ncc 0.9920-0.9959 from 6000 to 24000</span></span>.</p>
+<p>고정 시계 조건은 다른 부팅 시드를 만들어 내지 않는다: ORACLE46은 <code>--rtc-freeze-until 48000</code>
+유무와 무관하게 포트에서는 프레임 3에, 원본에서는 프레임 44에 <code>0x000a0f00</code>을
+측정했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4</span></span>.
+ORACLE47은 조건 적용 원본과 미적용 원본이 프레임 1,000부터 10,000까지 같은 스트림
+위치에 있고, 10,000과 11,000 사이에서 처음 갈라지며, 확인 시점에는 적용 쪽이 14회 더
+추출한 채로 끝나는 것을 발견했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle47/RECEIPTS.md</code>, <code>scratchpad/oracle46/ledgers/o-townarm.jsonl</code>, <code>scratchpad/oracle46/ledgers/o-townoff.jsonl</code>; log: <code>docs/log/cycle41-gameplay.md</code> O47-3</span></span>.
+이 조건들은 마을 이름 페이지에서의 추출 소비가 다르므로, 부팅 시드를 공유하는 것만으로는
+공유 마을이 성립하지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>, <code>scratchpad/oracle47/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4, O47-3</span></span>.
+정방향 레시피는 측정된 빌드에서 id와 나중의 배치/명단 버스트를 정렬하고;
+역방향 레시피는 id는 정렬하지만 배치 버스트에 두 추출 일찍 도달한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-2, O49-4, O49-5</span></span>.</p>
 <h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
@@ -202,6 +281,42 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>func_020e92e8</code> <code>0x020e92e8</code></td>
+<td>main</td>
+<td><strong>게임의 LCG</strong>: 호출자의 상태 워드에 대해 <code>x = x * 0x19660d + 0x3c6ef35f</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020e92e8.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020e92d0</code> <code>0x020e92d0</code></td>
+<td>main</td>
+<td>범위 제한 추출 <code>(n * next) &gt;&gt; 32</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020e92d0.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_020644cc</code> <code>0x020644cc</code></td>
+<td>main</td>
+<td>상태 <code>0x021cb5a0</code>을 그 추출에 묶는다 &ndash; 게임 전역 <code>rand(n)</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code> at <code>0x020644cc</code>, pool words <code>0x020644dc</code>/<code>0x020644e0</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_02061530</code> <code>0x02061530</code> / <code>func_020e930c</code></td>
+<td>main</td>
+<td><code>srand</code>: 상태를 <code>func_0209dbbc()</code>로 설정</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02061530.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_0209dbbc</code> <code>0x0209dbbc</code></td>
+<td>main</td>
+<td>시드: <code>minute \| day&lt;&lt;8 \| hour&lt;&lt;16 \| second&lt;&lt;24</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209dbbc.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_0206426c</code> / <code>func_02064244</code></td>
+<td>main</td>
+<td>마을 id, <code>rand(0x7fff) \| 0x8000</code>, <code>0x021dc7aa</code>의 하프워드로</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0206426c.c</code></span></span></td>
+</tr>
 <tr>
 <td><code>MATH_Rand32</code> / <code>MATH_InitRand32</code> / <code>MATHRandContext32</code></td>
 <td>ov065</td>
@@ -283,8 +398,8 @@
 <tr>
 <td><code>MATH_CalcCRC8</code> / <code>CalcCRC16</code> / <code>CalcCRC32</code></td>
 <td>autoload_2</td>
-<td>CRC 헬퍼; 세이브가 아니라 네트워크 스택이 사용</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/MATH_CalcCRC32.c</code></span></span></td>
+<td>CRC 헬퍼; 세이브 폴러는 대신 <code>func_02050920</code>을 호출한다</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span></td>
 </tr>
 </tbody>
 </table></div>
@@ -299,6 +414,18 @@
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><code>0x021cb5a0</code></td>
+<td><strong>게임의 RNG 상태</strong>, 워드 하나</td>
+<td><code>func_020e930c</code>(시드), <code>func_020e92e8</code>(모든 추출)</td>
+<td><code>func_020e92e8</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE46 <code>scratchpad/oracle46/runs/o46-F</code>, <code>--peek 0x021cb5a0</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x021dc7aa</code></td>
+<td>마을 id 하프워드, <code>rand(0x7fff) \| 0x8000</code></td>
+<td><code>func_02064244</code>, pc <code>0x02064260</code>에서</td>
+<td>마을 레코드의 읽는 쪽들 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE46 <code>scratchpad/oracle46/runs/o46-A</code></span></span></td>
+</tr>
 <tr>
 <td><code>MATHRandContext32.x</code></td>
 <td>64비트 LCG 상태</td>
@@ -344,13 +471,20 @@
 것이 없다"를 분리하는데, 기존 실행으로는 불가능한 일이다.</p>
 <h2 id="가설">가설</h2>
 <ul>
-<li>게임플레이 RNG는 위 세 개 모두와 구별되는 네 번째 생성기로, 디컴파일되지 않은 <code>func_020*</code>
-  게임 글루 코드 안에 있다. ov004 또는 main 게임 코드 안에서 정적 워드에 대한 곱셈-덧셈의
-  호출자를 찾아 확정하며, <code>src/matched</code>의 어떤 검색도 아직 이를 찾아내지 못했다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence</span></span>.</li>
+<li><strong>확정됨 (ORACLE46).</strong> "게임플레이 RNG는 위 세 개 모두와 구별되는 네 번째 생성기로,
+  디컴파일되지 않은 <code>func_020*</code> 게임 글루 코드 안에 있다." 그것은 상태 워드 <code>0x021cb5a0</code>에
+  대한 <code>func_020e92e8</code>이며, 검색이 이를 놓친 이유는 곱셈-덧셈이 상태를 정적 워드가 아니라
+  호출자가 넘기는 포인터로 받는 세 줄짜리 매칭 파일 안에 있기 때문이다.</li>
 <li>마을의 배치는 세이브에 저장된 시드로부터 생성된다. 같은 고정 시계 아래 두 개의 새
   <code>ACWW_SAVE</code> 파일로 같은 실행을 두 번 하여 확정한다: 동일한 마을이면 시드는 세이브별이
-  아니고, 다른 마을이면 세이브별이다 (<code>save-data.md</code>가 먼저 지속되어야 한다).</li>
+  아니고, 다른 마을이면 세이브별이다 (<code>save-data.md</code>가 먼저 지속되어야 한다). ORACLE46은
+  첫 번째 쪽으로 기운다: 상태는 부팅 시 시계로부터 시드되며 세이브에서 읽는 것은 없다.</li>
+<li><strong>측정된 조건들에 대해 확정됨: 부팅 초를 공유해도 공유 마을이 보장되지 않는다.</strong>
+  ORACLE46의 생성자들은 시드를 공유하지만 서로 다른 스트림 위치에서 서로 다른 id를 뽑는다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4</span></span>.
+  id만 맞추는 것도 나중의 배치/명단 버스트를 고정하지 않는다: 역방향 조건은
+  거기에 두 추출 일찍 진입하는 반면, 정방향 레시피는 지도와 명단을 맞춘다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-2, O49-4, O49-5</span></span>.</li>
 <li><code>OS_GetLowEntropyData</code>는 이 ROM에서 죽은 코드다. 전체 마을 실행에 걸쳐 그 진입 주소에
   <code>ACWW_WATCH</code>를 걸어 확정한다.</li>
 <li>포트의 프레임 계수 틱과 에뮬레이터의 사이클 정확 틱은 네트워크 생성기를 다르게 시드하며,
@@ -360,9 +494,834 @@
 <h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>time-and-rtc.md</code> &ndash; 두 엔트로피 소스.</li>
-<li><code>save-data.md</code> &ndash; 마을별 시드가 있을 법한 곳, 그리고 체크섬이 발견되지 않은 이유.</li>
+<li><code>save-data.md</code> &ndash; 세이브 체크섬과 뱅크 수용 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.</li>
 <li><code>network.md</code> &ndash; 모든 SDK 생성기의 유일하게 확립된 소비자.</li>
-</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/input-and-touch.html"><small>◀ 이전</small>입력과 터치</a><a class="pn next" href="../systems/network.html"><small>다음 ▶</small>네트워크</a></nav>
+</ul>
+<h2 id="누가-뽑는가-draw-caller-1">누가 뽑는가 (<code>draw-caller-1</code>)</h2>
+<p><code>promote_record.py</code>의 커스텀 START 레시피는 레코더 비활성, 고정 RTC, 터치 없음,
+포트 프레임 3000에서 정지(종료 코드 100)한 상태에서 <strong>744회 저장: 시드 저장 2회와 추출 742회</strong>를
+낸다. 호출자 워치는 97개의 서로 다른 키를 가지며 오버플로는 없다; 모든 반환 주소는
+심볼에 대응하며, 오버레이 상주 여부는 그 실행의 로드 로그에서 취했다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/draw-caller-1/census.receipt.json</code>, <code>scratchpad/handoff/draw-caller-1/census-summary.json</code></span></span>.</p>
+<p>범위 제한 RNG의 리프 저장에서 LR은 <code>func_020e92d0</code> 안의 <code>0x020e92dc</code>이며; <code>sp+4</code>에 검증된
+저장 LR이 생성자를 말해 준다. <code>func_020644cc</code>는 그 범위 제한 추출을 꼬리 호출하므로
+스택 프레임을 더하지 않는다. 반면 원시 리프 호출은 LR에서 직접 호출자를 식별한다;
+LR2=0은 사용 불가를 뜻하지 주소 0의 호출자를 뜻하지 않는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_cpu.c</code> <code>watch_lr_parent</code>; E: <code>scratchpad/handoff/draw-caller-1/fixture-run.stdout.log</code></span></span>.</p>
+<p><strong>주기적 호출은 <code>func_ov068_0226c520</code>, 반환 주소 <code>0x0226c52d</code>다: 828, 831, ..., 1179에서
+118회 추출, 정확히 세 프레임에 한 번.</strong> 그 첫 표현식은 호출마다 무조건 범위 5 값을
+한 번 뽑으며; 이후의 분기는 그 지점을 반복하지 않는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov068_0226c520.cpp</code>; E: <code>scratchpad/handoff/draw-caller-1/caller-events.json</code></span></span>.
+브리프의 라벨 "title, 759..1600"은 이 레시피의 씬 구획이 아니다: ORACLE47은
+759..780을 남은 타이틀(우리 센서스도 거기서 추출 0을 찾는다)로, 780..1610을
+택시 대화로 부른다. 주기적 지점은 다른 생성자들과 함께 그 대화의 일부를 덮는다;
+요청된 전체 창의 모든 프레임에 추출이 하나씩 있다는 뜻은 아니다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> O47-1; <code>scratchpad/handoff/draw-caller-1/census-summary.json</code></span></span>.</p>
+<p><strong>프레임 758 버스트는 45개 함수의 61개 반환 지점에 퍼진 280회 추출이다.</strong> 여기에는
+마을 id 추출(<code>func_0206426c</code>)과 아래에 나열된 초기 선택기들이 포함되며; 하나의 직접
+생성자에 대한 280회 호출이 아니다. 가장 큰 직접 그룹은 <code>func_0209ccd4</code>다: 두 반환 지점에서
+27+9회 추출. 별도로 완료된 캡처는 <strong>한 번의 호출에서 36회 추출</strong>을 측정하며,
+이는 그 6x6 선택 루프와 일치한다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209ccd4.c</code>; E: <code>scratchpad/handoff/draw-caller-1/probe-summary.json</code></span></span>.
+광범위한 초기화기 <code>func_0209ebec</code>는 <code>0x0209e76c</code>에서 <code>func_0209e6ec</code>로부터 진입되지만,
+기존 레코더는 반환을 관측하기 전에 이벤트 상한과 400만 스텝 상한에 걸린다;
+그 프로브는 280회 추출 전부를 하나의 감싸는 호출에 배정할 수 없다. 아래의 정확한 집계는
+직접 호출 지점 기준이며; 감싸는 초기화기의 완전한 호출 횟수는 열린 문제로 남는다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/draw-caller-1/probe-summary.json</code></span></span>.</p>
+<p>모든 행은 <code>0x021cb5a0</code>을 폭 4로 감시한다. PC는 추출의 경우 <code>0x020e92f8</code>, 처음 두 시드 행의
+경우 <code>0x020e930c</code>다. "758"은 그 프레임만 세고; "합계"는 0..3000을 덮는다.
+함수 열은 가능하면 LR2 소유자를, 아니면 LR 소유자를 적는다; 주소는
+Thumb 반환 비트를 유지한다. 모든 행은 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/draw-caller-1/census-summary.json</code>, frames 0..3000</span></span>에서 측정되었다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>LR</th>
+<th>LR2</th>
+<th>생성자 함수</th>
+<th style="text-align: right;">합계</th>
+<th style="text-align: right;">첫 프레임</th>
+<th style="text-align: right;">758</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x020c5a85</code></td>
+<td><code>0x00000000</code></td>
+<td><code>__sinit_020c5a78</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x02061541</code></td>
+<td><code>0x00000000</code></td>
+<td><code>func_02061530</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204126f</code></td>
+<td><code>func_020411fc</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020ae69b</code></td>
+<td><code>func_020ae67c</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020ae05b</code></td>
+<td><code>func_020ae03c</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0206399f</code></td>
+<td><code>func_02063914</code></td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02063a9f</code></td>
+<td><code>func_02063914</code></td>
+<td style="text-align: right;">21</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020ae0d9</code></td>
+<td><code>func_020ae03c</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02063fe3</code></td>
+<td><code>func_02063f94</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020ae163</code></td>
+<td><code>func_020ae03c</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204111b</code></td>
+<td><code>func_02041110</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020410bd</code></td>
+<td><code>func_0204105c</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020ae1c5</code></td>
+<td><code>func_020ae190</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204e73b</code></td>
+<td><code>func_0204e728</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209c5c1</code></td>
+<td><code>func_0209c5b0</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209c7b5</code></td>
+<td><code>func_0209c618</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209c8a5</code></td>
+<td><code>func_0209c80c</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209cbbf</code></td>
+<td><code>func_0209cb88</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209cb13</code></td>
+<td><code>func_0209ca6c</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209cd37</code></td>
+<td><code>func_0209ccd4</code></td>
+<td style="text-align: right;">27</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">27</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209cd99</code></td>
+<td><code>func_0209ccd4</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02064277</code></td>
+<td><code>func_0206426c</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0207cc67</code></td>
+<td><code>func_0207cc54</code></td>
+<td style="text-align: right;">15</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0207c97b</code></td>
+<td><code>func_0207c8c8</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0209c4ef</code></td>
+<td><code>func_0209c4a8</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0207f439</code></td>
+<td><code>func_0207f414</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0207d67f</code></td>
+<td><code>func_0207d634</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0207bcab</code></td>
+<td><code>func_0207bbb8</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b38e9</code></td>
+<td><code>func_020b38dc</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b38f5</code></td>
+<td><code>func_020b38dc</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b3935</code></td>
+<td><code>func_020b38dc</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b398f</code></td>
+<td><code>func_020b38dc</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b388b</code></td>
+<td><code>func_020b3880</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02064113</code></td>
+<td><code>func_02064108</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204ce73</code></td>
+<td><code>func_0204ce64</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204cc57</code></td>
+<td><code>func_0204cc34</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048433</code></td>
+<td><code>func_02048418</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204843b</code></td>
+<td><code>func_02048418</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048445</code></td>
+<td><code>func_02048418</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048459</code></td>
+<td><code>func_02048418</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048d43</code></td>
+<td><code>func_02048d2c</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020483e1</code></td>
+<td><code>func_020483c4</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020483e9</code></td>
+<td><code>func_020483c4</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048b9f</code></td>
+<td><code>func_02048b54</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048c6f</code></td>
+<td><code>func_02048bc0</code></td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048b29</code></td>
+<td><code>func_02048b0c</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048b31</code></td>
+<td><code>func_02048b0c</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020482af</code></td>
+<td><code>func_02048298</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02048325</code></td>
+<td><code>func_0204830c</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020c15dd</code></td>
+<td><code>func_020c15c8</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020875b7</code></td>
+<td><code>func_02087500</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020875cd</code></td>
+<td><code>func_02087500</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020877eb</code></td>
+<td><code>func_020877dc</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0203a615</code></td>
+<td><code>func_0203a5f4</code></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02086ef5</code></td>
+<td><code>func_02086ee8</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02086f13</code></td>
+<td><code>func_02086ee8</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02086f1b</code></td>
+<td><code>func_02086ee8</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02086f23</code></td>
+<td><code>func_02086ee8</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0207a0a9</code></td>
+<td><code>func_0207a02c</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204711f</code></td>
+<td><code>func_02047114</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02087fc9</code></td>
+<td><code>func_02087f58</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020878eb</code></td>
+<td><code>func_0208786c</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020879bd</code></td>
+<td><code>func_02087950</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">758</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020bb91f</code></td>
+<td><code>func_020bb8e0</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b1795</code></td>
+<td><code>func_020b177c</code></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0202e387</code></td>
+<td><code>func_0202e364</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226d441</code></td>
+<td><code>func_ov068_0226d408</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226cbd3</code></td>
+<td><code>func_ov068_0226cbc8</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226ca45</code></td>
+<td><code>func_ov068_0226ca2c</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0201324f</code></td>
+<td><code>func_020131dc</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">822</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02082943</code></td>
+<td><code>func_02082904</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">823</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226c52d</code></td>
+<td><code>func_ov068_0226c520</code></td>
+<td style="text-align: right;">118</td>
+<td style="text-align: right;">828</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x02064627</code></td>
+<td><code>0x00000000</code></td>
+<td><code>func_0206461c</code></td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">828</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020645fd</code></td>
+<td><code>func_020645e0</code></td>
+<td style="text-align: right;">22</td>
+<td style="text-align: right;">828</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0204fbb3</code></td>
+<td><code>func_0204fb80</code></td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">828</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02227947</code></td>
+<td><code>func_ov003_0222793c</code></td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">828</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x0226bcd9</code></td>
+<td><code>0x00000000</code></td>
+<td><code>func_ov068_0226bc1c</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">831</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02012aa9</code></td>
+<td><code>func_02012a98</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">849</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x02012adf</code></td>
+<td><code>0x00000000</code></td>
+<td><code>func_02012a98</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">849</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02012af9</code></td>
+<td><code>func_02012a98</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">849</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02012b05</code></td>
+<td><code>func_02012a98</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">849</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02012b0f</code></td>
+<td><code>func_02012a98</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">849</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b1831</code></td>
+<td><code>func_020b1800</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">921</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b183d</code></td>
+<td><code>func_020b1800</code></td>
+<td style="text-align: right;">9</td>
+<td style="text-align: right;">921</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020b184f</code></td>
+<td><code>func_020b1800</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">948</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0222d399</code></td>
+<td><code>func_ov003_0222d388</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1005</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0222d129</code></td>
+<td><code>func_ov003_0222cf60</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1005</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0222c69b</code></td>
+<td><code>func_ov003_0222c68c</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1005</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02230c4f</code></td>
+<td><code>func_ov003_02230c3c</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1011</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02230ccb</code></td>
+<td><code>func_ov003_02230cc0</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1011</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x02230c87</code></td>
+<td><code>func_ov003_02230c3c</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1011</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020950df</code></td>
+<td><code>func_020950d4</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1182</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226dc97</code></td>
+<td><code>func_ov068_0226dc64</code></td>
+<td style="text-align: right;">51</td>
+<td style="text-align: right;">1188</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226dc3b</code></td>
+<td><code>func_ov068_0226dc08</code></td>
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">1188</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x020bb7c5</code></td>
+<td><code>func_020bb7a0</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1194</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0226daf3</code></td>
+<td><code>func_ov068_0226dabc</code></td>
+<td style="text-align: right;">23</td>
+<td style="text-align: right;">1230</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr>
+<td><code>0x020e92dc</code></td>
+<td><code>0x0201a7a3</code></td>
+<td><code>func_0201a798</code></td>
+<td style="text-align: right;">46</td>
+<td style="text-align: right;">1392</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table></div></div><nav class="prevnext"><a class="pn prev" href="../systems/input-and-touch.html"><small>◀ 이전</small>입력과 터치</a><a class="pn next" href="../systems/network.html"><small>다음 ▶</small>네트워크</a></nav>
     </div>
     <footer class="foot">
       <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
@@ -370,7 +1329,7 @@
     </footer>
   </main>
 
-  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#sdk-생성기">SDK 생성기</a></li><li><a href="#시드는-어디에서-오는가">시드는 어디에서 오는가</a></li><li><a href="#아직-발견되지-않은-것">아직 발견되지 않은 것</a></li><li><a href="#포트">포트</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#게임-자체의-생성기와-그-시드">게임 자체의 생성기와 그 시드</a></li><li><a href="#추출은-어디로-가며-두-생성자는-얼마나-떨어져-있는가">추출은 어디로 가며, 두 생성자는 얼마나 떨어져 있는가</a></li><li><a href="#sdk-생성기">SDK 생성기</a></li><li><a href="#시드는-어디에서-오는가">시드는 어디에서 오는가</a></li><li><a href="#아직-발견되지-않은-것">아직 발견되지 않은 것</a></li><li><a href="#포트">포트</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li><li><a href="#누가-뽑는가-draw-caller-1">누가 뽑는가 (draw-caller-1)</a></li></ul></nav></aside>
 </div>
 <div class="backdrop" id="backdrop"></div>
 

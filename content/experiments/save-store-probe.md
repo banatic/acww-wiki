@@ -1,13 +1,21 @@
 # 세이브 저장소 프로브
 <!-- source: wiki/experiments/save-store-probe.md -->
 
-**상태: 설계만 됨, 아직 미실행.**
+**상태: 조건 A와 B는 측정됨(SAVEFLOW41); 조건 C는 미실행. 결과와 아래 세 질문에 대한 답은
+`save-and-reload.md`에 있다 -- 이 페이지를 다시 실행하기보다 그 페이지를 읽을 것.** 요컨대,
+마을 레시피는 746번의 백업 읽기와 정확히 한 번의 쓰기, 즉 `0x3fffc`의 1바이트 쓰기를 발행한다;
+파일은 그 외에는 여전히 0xFF이다; 그리고 정직한 0xFF 소거 읽기는 인터프리터 경로에서
+`unimplemented: func_02225a90` 정지를 재현하지 않는다(NOT)
+[E: `scratchpad/saveflow/runs/town1`; arm A `scratchpad/saveflow/runs/town-nosave`,
+6,000..27,000, as recorded in `save-and-reload.md`]. 정지 프레임에서 심이 출력하는 센서스가
+이 페이지의 표가 설명하는 요청 타입당 한 줄짜리 도구를 대체했다.
 
-## 목적
+## 원래의 목적 (SAVEFLOW41과 SAVE43 이전)
 
-포트는 `ACWW_SAVE` 뒤에 실제 256 KB 백업 저장소를 가지고 있으며, 기록상 게임 실행에서
-단 한 바이트도 영속화한 적이 없다. 심(shim)은 쓴 바이트를 세어 합계를 출력하므로, 이
-질문은 직접 답할 수 있다 [E: `port/shim/fs/cardreq.c`]. 세 가지를 분리할 가치가 있으며,
+이 실험이 제안될 당시에는 보관된 게임 실행 중 어느 것도 영속성을 입증하지 못했다.
+그 뒤 SAVEFLOW41이 위의 1바이트 쓰기를 측정했고, SAVE43은 저장된 마을이 다시 로드되는
+것을 입증했다 [E: `scratchpad/save43/RECEIPTS.md`, `gp-S3`, `boot-A` and `boot-B`;
+`docs/log/cycle42-save.md` SAVE43]. 아래의 원래 질문들은 역사로서 남겨 둔다. 세 가지를 분리할 가치가 있으며,
 오직 도구만이 이들을 분리할 수 있다:
 
 1. 게임이 마을 회관으로 가는 길에 백업 요청을 *발행*하는가(요청 타입 6, 그리고 혹시
@@ -18,7 +26,7 @@
 세 번째는 이미 절반이 측정되어 있다: 읽기 채움(read fill)을 켠 상태에서 키 입력 START
 실행은 프레임 10 근처에서 `unimplemented: func_02225a90`에 멈췄고(심볼 테이블은 이를
 `func_ov003_02225a90`, `ov003`으로 명명한다 [S: `config/adm-kr/arm9/overlays/ov003/symbols.txt`]),
-채움을 끈 같은 빌드는 깨끗하게 실행된다 [E: `port/shim/fs/cardreq.c`]. 이는 정직한 답이
+채움을 끈 같은 빌드는 깨끗하게 실행된다 [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe]. 이는 정직한 답이
 부팅을 포트가 아직 따라갈 수 없는 경로로 옮긴다는 뜻이다 -- 어느 경로인지는 말해 주지
 않는다.
 
@@ -46,11 +54,11 @@
 
 **조건 C -- 0으로 채운 저장소.** 같은 실행을, 256 KB의 `0x00`으로 만든 파일에 대해
 수행한다. 이는 의도적으로 손상된 세이브 분기이다: 0으로 채운 블록은 세이브 부재가
-아니라, 헤더와 체크섬이 0인 세이브이다 [E: `port/shim/fs/cardreq.c`].
+아니라, 헤더와 체크섬이 0인 세이브이다 [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe].
 
 ## 예상 관측
 
-도구들, 모두 실행 로그에 있다 [E: `port/shim/fs/cardreq.c`]:
+도구들, 모두 실행 로그에 있다 [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe]:
 
 | 줄 | 의미 |
 |---|---|
@@ -89,7 +97,7 @@
 - `persisted` 줄의 부재를 "포트는 저장할 수 없다"로 읽는 것. 그것은 이 레시피가 저장하지
   않았다는 뜻이다. 발화할 수 없는 도구는 발화하되 아무것도 바꾸지 않는 도구와 구별할 수
   없다 -- 이 심이 이미 가졌던 두 상수 결함이 정확히 그 모양이었다
-  [E: `port/shim/fs/cardreq.c`].
+  [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe].
 
 ## 관련 문서
 

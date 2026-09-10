@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,7 +124,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>아이템과 가구</span></div><header class="page-head"><h1>아이템과 가구</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 21</span><span class="gchip g-H"><b>H</b> 5</span></div><div class="source-line">원문: <code>wiki/data/items.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ACWW는 "물건"을 병렬 저장 구조를 가진 두 계열로 나눈다. 가구는 <code>0x0000</code>-<code>0x06e8</code> 범위의
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>아이템과 가구</span></div><header class="page-head"><h1>아이템과 가구</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 28</span><span class="gchip g-E"><b>E</b> 3</span><span class="gchip g-H"><b>H</b> 7</span></div><div class="source-line">원문: <code>wiki/data/items.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ACWW는 "물건"을 병렬 저장 구조를 가진 두 계열로 나눈다. 가구는 <code>0x0000</code>-<code>0x06e8</code> 범위의
 16비트 id이며, <code>ftr/</code> 아래에 모델과 텍스처 세트를 가지고, <code>ftr_info/</code>의 세 테이블로 기술된다. 그 외의
 모든 것 — 도구, 옷, 과일, 화석, 편지지 — 은 <em>아이템</em> 계열로, <code>item_info/</code>의 네 테이블로 기술되며
 모델이 아닌 아이콘 시트에서 그려진다. 양쪽의 이름은 테이블이 아니라 메시지 시스템에서 나온다.</p>
@@ -326,6 +336,47 @@ SRT 애니메이션을 담으며, <code>/PItm/Mdl%d/%d.nsbmd</code>, <code>/PItm
 </tr>
 </tbody>
 </table></div>
+<h3 id="주머니-슬롯이-담는-id와-그-세-표면-밴드">주머니 슬롯이 담는 id와 그 세 표면 밴드</h3>
+<p>등급 <strong>A</strong>. 세이브의 주머니와 가게 진열 칸이 담는 16비트 id는 <strong><code>0x1000</code> 더하기 <code>item_info</code>의
+1,536개 슬롯에 대한 인덱스</strong>이다: 이 프로젝트가 라이브 게임에서 읽어 낸 모든 id &ndash; 네 사이클에 걸쳐
+열두 개 &ndash; 는 <code>0x1000</code>..<code>0x15ff</code>에 들어 있으며, 이는 정확히 그 범위이다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">arithmetic over the four <code>item_info</code> sizes above; S for the ids themselves, <code>docs/log/cycle41-gameplay.md</code> GP54-8</span></span>.</p>
+<p>그 안의 연속된 세 밴드는 이 페이지의 에셋 개수에서 저절로 나오며, 각각 게임(GAME)이 출력한 이름으로
+확인되므로, 밴드 경계는 가정된 것이 아니라 측정된 것이다:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>밴드</th>
+<th>무엇이며 몇 개인가</th>
+<th>증인</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x1100</code>..<code>0x1143</code></td>
+<td>68개의 <code>wall/wall_%d.nsbtx</code> 벽지</td>
+<td><code>0x111f</code> = <code>wall_31</code>이며, 너굴의 가게는 이를 <code>벽지</code>라고 부른다 — 벽지</td>
+</tr>
+<tr>
+<td><code>0x1144</code>..<code>0x1187</code></td>
+<td>68개의 <code>carpet/floor_%d.nsbtx</code> 바닥재</td>
+<td><code>0x114b</code> = <code>floor_7</code>이며, 가게는 이를 <code>바닥</code>이라고 부른다 — 바닥재</td>
+</tr>
+<tr>
+<td><code>0x1188</code>..<code>0x1287</code></td>
+<td>256개의 <code>cloth/%d/cloth%03d.nsbtx</code> 셔츠</td>
+<td><code>0x11a8</code> = <code>cloth032</code>이며, 세이브는 이를 착용 중인 셔츠(WORN SHIRT)로 읽는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/savetool.py check</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>따라서 <strong><code>0x117c</code>는 <code>carpet/floor_56.nsbtx</code></strong>, 57번째 바닥재이다 — 이를 준 주민이 <code>바닥</code>이라고 부르는
+바로 그것이다. 네 번째 증인은 세이브 자체에서 나온다: 주민의 저장된 <code>wallpaper</code>와 <code>carpet</code> 바이트는
+68 미만의 원시 인덱스이므로, 주머니(POCKET)가 <code>base + index</code>를 보관하는 곳에서 세이브(SAVE)는
+인덱스를 보관한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>savetool.py check</code> on <code>scratchpad/gameplay54/town3.sav</code></span></span>.</p>
+<p><strong>이름은 KOR 메시지 아카이브에 없다.</strong> <code>script/KOR/</code> 아래 91개 중 가장 큰 것은 256개 항목을 가지며
+1,536에 가까운 것은 하나도 없으므로, 아이템 이름 테이블은 <code>a_mes/</code>, <code>str/arc/</code> 또는 오버레이에 있고
+아직 발견되지 않았다 — <code>item_info</code> 슬롯 1351인 <code>0x1547</code>이 슬롯으로만 식별되는 이유이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">entry counts over every <code>script/KOR/**/*.bmg</code></span></span>.</p>
 <h2 id="확인-방법">확인 방법</h2>
 <p>정적 확인부터. 가구 id 범위를 확인하려면:</p>
 <pre><code class="language-bash">python - &lt;&lt;'PY'
@@ -340,7 +391,7 @@ PY
 실행하고(<code>../engine/file-system.md</code> 참조), 로더가 <code>ftr_info/dma.bin</code>을 저장하는 주소를 관찰하며, 연속된
 두 가구 조회 사이의 스트라이드를 기록한다. 포트는 이미 ROM 자체의 <code>FS_*</code> 경로를 통해 이 파일들을
 읽으므로 심(shim)은 필요 없다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/romfs.c</code>, header</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/shim/fs/romfs.c</code>, header; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
 <h2 id="가설">가설</h2>
 <ul>
 <li><strong><code>item_info/</code>는 12/24/4/2바이트의 1,536개 슬롯을, <code>ftr_info/</code>는 8/32/4바이트의 2,048개 슬롯을
@@ -366,7 +417,80 @@ PY
 <li><code>archives.md</code> — 각 에셋이 들어 있는 <code>NARC</code>와 <code>nsb*</code> 컨테이너.</li>
 <li><code>fish-and-bugs.md</code> — 같은 아이콘 시트 패턴을 쓰는 생물 계열.</li>
 <li><code>../engine/file-system.md</code> — <code>/ftr/1/0/0100.arc</code>가 어떻게 바이트가 되는가.</li>
-</ul></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../data/villagers.html"><small>다음 ▶</small>주민과 특수 캐릭터</a></nav>
+</ul>
+<h2 id="아이템-이름-조회-item-names-1">아이템 이름 조회 (item-names-1)</h2>
+<p>이 측정된 부록은 앞의 <strong>이름</strong> 문단에서 이곳의 어떤 테이블도 이름을 담지 않는다고 한 주장을
+대체한다. 이름은 <code>item_info/dma.bin</code>과 <code>ftr_info/dma.bin</code>에 UTF-16LE로 들어 있으며,
+오프라인 리더는 <code>port/tools/items.py</code>이다. 완전한 이름 테이블은 공개되어 있지 않다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02062cbc.c</code>, <code>func_02053ea4.c</code>, <code>func_02062ea4.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, input hashes and six known-ID checks</span></span>.</p>
+<p>인벤토리 호출자 <code>ov094:0x0229abf8</code>은 <code>main:0x02062ea4</code>를 호출하며, 이 함수는 먼저 <code>0x02061e2c</code>로
+ID를 정규화한 뒤 아이템 분기 또는 가구 분기를 선택한다. 아이템 조회 <code>0x02062a28</code>은
+<code>0x021cb5e0 + 0x38</code>의 DMA 핸들을 읽고, 하위 12비트로 인덱싱하며(<code>0x1000..0x10ff</code> 수량 그룹은
+3을 OR한다), 인덱스 <code>0x56d</code>에서 클램프한다. 가구 조회 <code>0x020537e8</code>은 <code>0x021c8c48 + 0x38</code>을 쓰고,
+인덱스는 <code>(id - 0x3000) &gt;&gt; 2</code>이며, <code>0x6e8</code>에서 클램프한다. 하위 12비트 규칙을 가구에 적용하면
+잘못된 이름이 나온다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov094_0229abf8.c</code>, <code>func_02062ea4.c</code>, <code>func_02061e2c.c</code>, <code>func_02062a28.c</code>, <code>func_0204bc64.c</code>, <code>func_020537e8.c</code>, <code>func_0206e6e4.c</code>; E: <code>scratchpad/item-names-1/tests.stderr</code>, furniture negative control</span></span>.</p>
+<p>초기화 함수는 always/indoor/DMA 스트라이드가 12/4/24바이트인 1,536개 아이템 슬롯과,
+스트라이드가 8/4/32바이트인 2,048개 가구 슬롯을 증명한다. 가구 이름은 <code>+0x16</code>의 가격
+하프워드 앞 첫 22바이트를 차지하고, 아이템 이름은 24바이트를 차지하며 가격 하프워드는 always
+<code>+0</code>에 있다. 시리즈 초기화는 별도로 <strong>24바이트짜리 레코드 128개</strong>이지, 증명된 1,536개 시리즈
+하프워드 배열이 아니다. <code>--count</code>는 3,159개의 정규 조회 쿼리(아이템 1,390 + 가구 1,769, 별칭/빈
+이름 포함)를 돌려주며, 이는 서로 다른 이름의 수나 모든 물리 슬롯의 수가 아니다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02062cbc.c</code>, <code>func_02053ea4.c</code>, <code>func_020628ac.c</code>, <code>func_02053e18.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, counts and decoded digest</span></span>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID 밴드</th>
+<th>측정된 구분</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x00xx</code></td>
+<td>필드 나무 ID를 포함한다; <code>0x0043/0x0044</code>는 아이템 이름 분기가 없다</td>
+<td>S: <code>src/matched/func_02061e2c.c</code>, <code>func_02062ea4.c</code>; E: <code>scratchpad/item-names-1/tests.stderr</code></td>
+</tr>
+<tr>
+<td><code>0x1100..0x1143</code>, <code>0x1144..0x1187</code></td>
+<td>아이템 레코드 카테고리 1과 2; 후자는 아래의 측정된 바닥재 ID를 담는다</td>
+<td>S: <code>src/matched/func_02062870.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, category runs</td>
+</tr>
+<tr>
+<td><code>0x11a8..0x12a7</code></td>
+<td>착용물 범위, 카테고리 5; 따라서 <code>0x11xx</code>가 전부 옷은 아니다</td>
+<td>S: <code>src/matched/func_0204b2c8.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, category runs</td>
+</tr>
+<tr>
+<td><code>0x14fe..0x1517</code></td>
+<td>꽃/씨앗 카테고리 32, 측정된 <code>0x150a</code> 포함</td>
+<td>S: <code>src/matched/func_02062870.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, known-ID and category checks</td>
+</tr>
+<tr>
+<td><code>0x1518..0x151c</code></td>
+<td>과일 술어; 레코드 카테고리 33</td>
+<td>S: <code>src/matched/func_0204ca64.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, category runs</td>
+</tr>
+<tr>
+<td>상위 니블 <code>3</code> 또는 <code>4</code></td>
+<td>정규화 후 가구 분기이며, 아이템 테이블 인덱스가 아니다</td>
+<td>S: <code>src/matched/func_0204bcdc.c</code>, <code>func_0204bc64.c</code>, <code>func_02061e2c.c</code></td>
+</tr>
+</tbody>
+</table></div>
+<ul>
+<li><code>0x117c</code>: <strong>눈속임 바닥</strong>, 아이템 인덱스 <code>0x17c</code>, 저장된 기본 가격 1,600벨 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/item-names-1/evidence.json</code>, known IDs</span></span>.</li>
+<li><code>0x3508</code>: <strong>흰꽃 테이블</strong>, 가구 인덱스 <code>0x142</code>, 저장된 기본 가격 1,900벨 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/item-names-1/evidence.json</code>, known IDs</span></span>.</li>
+<li><code>0x1547</code>: <strong>품절 간판</strong>, 아이템 인덱스 <code>0x547</code>, 저장된 기본 가격 0 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/item-names-1/evidence.json</code>, known IDs</span></span>.</li>
+</ul>
+<p>"기본 가격"이라는 표기는 의도적이다: 오렌지 레코드는 2,000을 저장하지만, 특산 과일 갈래는 5로
+나누고 가게 판매 호출자는 4로 나눌 수 있다. 이 도구는 마을 상태를 읽지 않으며 실제 구매/판매
+견적을 약속하지 않는다. 브리프의 씨앗과 낚싯대 기본 가격은 80과 500이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0204c878.c</code>, <code>func_ov049_02260cf8.c</code>; E: <code>scratchpad/handoff/item-names-1/evidence.json</code>, known-ID prices</span></span>.</p>
+<p><code>python port/tools/items.py 117c 3508 1547</code>, <code>--grep TEXT</code>, 또는 <code>--count</code>로 재현한다;
+<code>python port/tools/test_items.py</code>는 잘못되거나 잘린 입력의 거부도 요구한다. 입력 경로는 호출자의
+cwd와 무관하게 스크립트의 리포지토리 루트 기준 상대 경로이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/items.py</code>, <code>port/tools/test_items.py</code></span></span>.</p></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../data/villagers.html"><small>다음 ▶</small>주민과 특수 캐릭터</a></nav>
     </div>
     <footer class="foot">
       <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
@@ -374,7 +498,7 @@ PY
     </footer>
   </main>
 
-  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#가구">가구</a></li><li><a href="#아이템">아이템</a></li><li><a href="#착용물과-표면">착용물과 표면</a></li><li><a href="#이름">이름</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#가구">가구</a></li><li><a href="#아이템">아이템</a></li><li><a href="#착용물과-표면">착용물과 표면</a></li><li><a href="#이름">이름</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a><ul><li><a href="#주머니-슬롯이-담는-id와-그-세-표면-밴드">주머니 슬롯이 담는 id와 그 세 표면 밴드</a></li></ul></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li><li><a href="#아이템-이름-조회-item-names-1">아이템 이름 조회 (item-names-1)</a></li></ul></nav></aside>
 </div>
 <div class="backdrop" id="backdrop"></div>
 

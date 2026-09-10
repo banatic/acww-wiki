@@ -22,4 +22,6 @@ Written:
 - [`text-and-messages.md`](text-and-messages.md) -- the message system (bmg), fonts, the
   keyboard screens
 - [`graphics-pipeline.md`](graphics-pipeline.md) -- 2D engines, 3D geometry submission, VRAM
-  banks, the display lists
+  banks, the display lists, and what the port's own renderer does and costs (PERF42, RENDER42)
+- [`interpreter-path.md`](interpreter-path.md) -- the hybrid runtime (`ACWW_INTERP=1`), the deny
+  list, and the differential check by which a native body earns the hot path (phase H5)

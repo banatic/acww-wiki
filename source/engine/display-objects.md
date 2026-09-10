@@ -52,7 +52,7 @@ what the fourth parameter receives [S: `port/shim/gfx/dispsteppers.c:32-38`].
 
 Byte matching cannot settle which pool word is which, because the harness masks literal-pool
 relocations: a function that loads three data addresses from its pool is byte-identical under
-any permutation of the three names [S: `port/shim/gfx/dispsteppers.c:8-14`].
+any permutation of the three names [H: host/prose inference from `port/shim/gfx/dispsteppers.c:8-14`; verify against the ROM function or symbol table and this page's recipe].
 
 ### The walk itself
 
@@ -171,7 +171,7 @@ ROM's or the port's, never half of each [E: `docs/kb/hybrid/runtime.md` section 
 
 The measured symptom of the update list dying is quiet: a run where the update list is walked
 once at frame 0 and never again while the town keeps drawing
-[E: `port/shim/gfx/pmflist.c:696-700`, the per-list pass counters].
+[H: host-source account from `port/shim/gfx/pmflist.c:696-700`, the per-list pass counters; verify with a retained scripted run and frame using this page's recipe].
 
 ## Where it lives
 
@@ -193,7 +193,7 @@ once at frame 0 and never again while the town keeps drawing
 | `func_02055e7c` / `func_02055e10` / `func_02055e04` | main | set camera state, then draw | [S: `port/shim/gfx/drawobj.c` header] |
 | `NNS_G3dGlbFlushP` | main | uploads camera and projection to the geometry engine | [S: `port/shim/gfx/drawobj.c:11-13`] |
 | `func_0203c610` | main | the field camera's draw slot: projection and view | [S: `port/shim/gfx/pmflist.c:59-61`] |
-| vtable `0x022382ac` | ov003 | channel 189's object — the SNOWMAN, not the field renderer | [E: `port/BOOT-STATE.md:1159-1171`] |
+| vtable `0x022382ac` | ov003 | channel 189's object — the SNOWMAN, not the field renderer | [H: source/log account from `port/BOOT-STATE.md:1159-1171`; verify with a retained run using this page's recipe] |
 
 ## Data it reads and writes
 
@@ -227,7 +227,7 @@ is not main RAM [S: `port/shim/gfx/pmflist.c:731-757`]; and `acww camnf: obj ...
 
 The falsifying observation for "the framework is running" is the update-list counter: if
 `update=` stops advancing while `draw=` continues, objects are being drawn and nothing is
-being stepped [E: `port/shim/gfx/pmflist.c:696-700`].
+being stepped [H: host-source account from `port/shim/gfx/pmflist.c:696-700`; verify with a retained scripted run and frame using this page's recipe].
 
 ## Hypotheses
 

@@ -1,19 +1,41 @@
 # RNG 결정성
 <!-- source: wiki/experiments/rng-determinism.md -->
 
-**상태: 설계만 됨, 아직 미실행.**
+**상태:** 원래의 A/B/C 스크린샷 실험은 제안으로 남아 있다 [H: no A/B/C receipt is supplied here].
++아래의 후속 드로우 위치(draw-position) 조건들은 ORACLE47..49에서 측정되었다 [E: `scratchpad/oracle47/RECEIPTS.md`, `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O47-4, O49-1..5].
 
 ## 목적
 
-포트는 ROM의 두 엔트로피 원천을 모두 고정한다: 틱은 0에서 시작해 프레임당 정확히 8,728
-카운트씩 전진하고 [E: `port/platform/tick.c`] RTC는 고정된 시각이다
-[E: `port/shim/os/rtcclock.c`]. 따라서 포트 실행은 자기 자신과 비트 단위로 동일*해야* 한다.
-이것은 독립된 주장으로 확인된 적이 없다 -- 그 위에 세워진 모든 비교가 늘 가정만 해 왔다.
+부팅 시드와 생성 시점의 스트림 위치를 분리한다: 시계 시드는
+`minute | day<<8 | hour<<16 | second<<24`를 접으므로(fold), 1초를 바꾸면 시드 바이트 하나가
+바뀌지만, 연도나 월만 바꾸면 이 접기는 바뀌지 않는다
+[S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
+그 소스 사실만으로는 프레임 전체의 동일성이나, 바뀐 모든 시드가 다른 마을을 준다는 것을
+증명하지 못한다 [H: the A/B/C experiment below is not a retained result].
+ORACLE46은 같은 시드 `0x000a0f00`을 원본의 동결 조건 유무에서 측정했다;
+ORACLE47은 그 조건의 추가 드로우 소비가 프레임 10,000 이후에 있음을 찾아냈으며, 확정 시점까지
+14개의 추가 드로우에 도달했다 [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`;
+log: `docs/log/cycle41-gameplay.md` O46-4, O47-3].
 
-후반부가 흥미로운 쪽이다. 시계를 1초 옮겨도 아무것도 바뀌지 않는다면, 마을 회관으로
-가는 경로의 어떤 것도 시계로 시드된 난수를 소비하지 않으며, 결정성은 자명하게 참이다.
-무엇인가 바뀐다면 소비자를 찾은 것이다 -- 그리고 `src/matched`에서는 게임플레이 쪽
-생성기가 전혀 발견되지 않았다 [S: absence; see `../systems/rng.md`].
+## 측정된 조건들: id, 레이아웃, 명단은 별개의 검사이다
+
+| 조건 / 비교 | 측정 결과 | 등급과 출처 절 |
+|---|---|---|
+| ORACLE47 포트 확정 타이밍만 | `24700`은 `0xc66e`; `24907`과 `24908`은 `0x8365`; `24909`는 그 빌드에서 `0xe767` | [E: `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O47-4] |
+| ORACLE49 부팅 대조, 탭 없음 | 마을 `0xd391`; 4,617 워드 비교, 0개 상이 | [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-3] |
+| ORACLE49 정방향: 포트 `ACWW_TOUCH2_AT=24908`, `ACWW_RTC_FREEZE_UNTIL=48000`; 원본 `--touch2-at 24700`, 조건 없음 | 마을 `0x8365`; 36 에이커 바이트와 열일곱 건물 셀 전부 동일; 프레임 48,000에서 2,057 맵 워드 중 떨어진 아이템 1개 상이 | [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-4] |
+| ORACLE49 역방향: 원본 `24315`에 48000까지 동결; 포트 `24700` | 양쪽 모두 id 드로우 #2,667; 원본은 3,780에서, 포트는 3,782에서 레이아웃 버스트에 진입 | [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2] |
+
+새 게임 경로는 두 번 생성한다: 포트의 부팅 마을은 프레임 758에 있고, 그 뒤 맵이 리셋된
+다음 실제 맵, 아이템 레이어, 명단이 프레임 36,135에 함께 쓰이는데, 이는 프레임 24,789의
+id 드로우로부터 11,346 프레임 뒤이다 [E: `scratchpad/oracle49/RECEIPTS.md`;
+log: `docs/log/cycle41-gameplay.md` O49-1].
+대조 포트는 인덱스 3,782에서 실제 버스트에 진입하며, 첫 레이아웃 드로우는 #3,783이고
+한 프레임에 232 드로우이다 [E: `scratchpad/oracle49/RECEIPTS.md`; log:
+`docs/log/cycle41-gameplay.md` O49-2].
+ORACLE49는 그 빌드에서 정방향 탭 창을 24,907..24,909로 재보정했으므로, 옛
+24,907..24,908 구간은 이식 가능한 상수가 아니라 역사적 값이다
+[E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-4].
 
 ## 레시피
 
@@ -39,13 +61,13 @@
 비교한다. 이는 `iterate.sh`가 OFF 레시피에 대해 이미 수행하는 것과 같은 비교이다
 [E: `scratchpad/cycle40/iterate.sh`].
 
-## 예상 관측
+## 원래의 A/B/C 예측, 측정된 결과가 아님
 
 | 비교 | 예측 | 틀렸을 때의 의미 |
 |---|---|---|
-| A 대 B | 29 중 29 동일 | 포트가 결정적이지 않다; 무엇인가 호스트를 읽는다 -- 주소 공간 레이아웃, 벽시계, 또는 초기화되지 않은 버퍼로, 정확히 `rtcclock.c`가 제거하려고 쓰인 결함 부류이다 |
-| A 대 C | 29 중 29 동일 | 이 경로의 어떤 것도 초 단위 해상도의 시계 난수를 소비하지 않는다; 고정된 시계는 조명 이외에는 아무 일도 하지 않는다 |
-| A 대 C | 일부 프레임이 다름 | 소비자가 존재하며, 처음 달라지는 프레임이 대략 어디인지를 알려 준다 |
+| A 대 B | 29 중 29 동일 [H: proposed repeat test, not an ORACLE47..49 result] | 원인을 귀속하기 전에 달라진 입력이나 비결정성을 조사한다 [H] |
+| A 대 C | 마을부터 프레임이 다를 수 있음 [H: proposed test] | 초는 시드의 최상위 바이트를 바꾸지만, 프레임 동일성만으로는 그 접기를 반증하지 못한다 [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
+| 네 번째 조건, `ACWW_RTC_DATE=20060615` (연도만) | 같은 부팅 시드; 프레임 전체의 동일성은 미측정 [H: proposed test] | 연도는 이 접기에 없다; 다른 연도 의존 동작은 배제되지 않는다 [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
 
 조건이 이미 있으므로 저렴한, 유용한 세 번째 비교: A와 B의 두 로그를 정규화하여 diff한다.
 깨끗한 실행에서 예상되는 유일한 차이는 호스트 주소 공간 레이아웃 블록과 릴리스 줄이다 --

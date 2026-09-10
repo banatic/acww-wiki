@@ -35,12 +35,14 @@ SECTIONS = [
      ["items", "villagers", "fish-and-bugs", "music", "archives", "rom-layout"]),
     ("engine", "엔진", "⚙️", "프로그램이 어떻게 만들어졌는가 — 부팅, 오버레이, 씬, 메모리, 스레드, 그래픽스, 텍스트",
      ["boot-and-entry", "overlays", "scenes-and-channels", "display-objects", "memory-map",
-      "threads-and-interrupts", "file-system", "graphics-pipeline", "text-and-messages"]),
+      "threads-and-interrupts", "file-system", "graphics-pipeline", "text-and-messages", "interpreter-path"]),
     ("experiments", "실험", "🔬", "주장을 어떻게 확인하는가 — 재현 가능한 레시피와 실행 기록",
-     ["off-recipe", "two-tap-town-recipe", "touch-calibration", "rtc-hour-sweep",
+     ["off-recipe", "two-tap-town-recipe", "gameplay-walkthrough", "live-play", "save-and-reload",
+      "savestate-resume", "run-stability", "touch-calibration", "touch-latency", "rtc-hour-sweep",
       "save-store-probe", "rng-determinism", "silent-audio-probe"]),
     ("audits", "감사", "🔍", "위키가 위키를 읽는다 — 감사 패스별 발견 사항과 적용된 수정",
-     ["consistency", "game-systems", "data-formats", "hardware-services", "3d-engine", "sdk-names"]),
+     ["consistency", "game-systems", "data-formats", "save-records", "hardware-services", "3d-engine",
+      "audio-design", "sdk-names", "night-2026-09-09"]),
 ]
 TOP_PAGES = [("glossary", "용어집", "📖"), ("about", "이 위키에 대하여", "🍃"), ("style", "문서 규칙", "✏️")]
 TOP_DESC = {"glossary": "위키 전반에서 쓰는 용어와 그것을 정의하는 함수·주소",
@@ -256,6 +258,8 @@ def build():
 
     pages: dict[str, Page] = {}
     for src in sorted(CONTENT.rglob("*.md")):
+        if ".part" in src.name:
+            continue
         p = Page(src)
         pages[p.rel.as_posix()] = p
 

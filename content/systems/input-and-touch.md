@@ -6,9 +6,11 @@
 비트는 공유 하프워드를 통해 ARM7에서 온다; 그리고 스타일러스는 ARM7이 채우는 링 버퍼에 원시
 아날로그-디지털 변환 카운트로 도착하며, ARM9는 이를 본체 소유자가 몇 년 전에 기록한 보정으로
 화면 픽셀로 변환한다. 동물의 숲은 이 모든 것을 프레임당 한 번 읽어 하나의 터치 지점을
-`0x021fbde8`에 다시 게시하고, 하류의 모든 것이 그것을 소비한다. PC 포트는 보정의 *출력*에
-마우스를 주입하며, 이것이 포트의 탭과 원본의 탭이 1픽셀과 약 2프레임만큼 다른 이유다 -- 이
-프로젝트에서 가장 잘 측정된 불일치다.
+`0x021fbde8`에 다시 게시하고, 하류의 모든 것이 그것을 소비한다. PC 포트의 네이티브 경로는
+보정의 *출력*에 마우스를 주입하며, 이것이 포트의 탭과 원본의 탭이 1픽셀과 약 2프레임만큼
+달랐던 이유다 -- 오랫동안 이 프로젝트에서 단연 가장 잘 측정된 불일치였다. 인터프리터
+경로에서는 그 간극이 닫혔다: ROM 자신의 프레임별 게시가 실행되고 포트는 대신 ARM7의 링을
+채우며, 1프레임의 지연까지 그대로다.
 
 ## 무슨 일이 일어나는가
 
@@ -62,6 +64,18 @@ validity가 0인 항목이 아니라 0이 아닌 항목을 건너뛴다
 시스템 작업 영역에서 패킹된 비트필드(x:12, y:12, touch:1, validity:2)를 푼다
 [S: `TPi_TpCallback`, autoload_2, `src/matched/TPi_TpCallback.c`].
 
+펜이 떨어져 있을 때 ARM7은 x=0, y=0, touch=0, validity=3(INVALID_XY)을 쓴다; 펜 다운 샘플은
+압력 검사가 거부하지 않는 한 validity 0과 함께 원시 카운트를 담는다
+[S: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c` (public source, `TP_ExecSampling`)].
+게임의 프레임별 샘플 `func_020e9314`는 최신 항목 이전의 네 항목을 읽고, 연속된 세 항목이
+터치되고 유효할 때에만 -- 그 가운데 것을 -- 게시하며, 아무것도 터치되지 않았으면
+x=y=0xff를 쓴다; 그 외에는 이전 지점을 그대로 둔다
+[S: `func_020e9314`, autoload_2, disassembly at 0x020e9314..0x020e9470]. 원본의 1~2프레임
+스타일러스 지연은 여기서 온다: 프레임당 네 샘플이면, 프레임 중간에 시작된 접촉은 다음
+프레임에 게시된다 [E: `scratchpad/cycle40/runs/tap-T41pd`,
+contact scheduled at 8,700, TP_POINT set at 8,701]. 포트는 인터프리터 경로에서 ARM7을 이런
+방식으로 모델링한다(`port/shim/os/pxisend.c`, TOUCH41) [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41].
+
 보정은 12비트 ADC 카운트를 픽셀로 바꾼다. 본체 소유자는 펌웨어 설정 중 두 개의 십자 표시를
 터치했다; `TP_GetUserInfo`는 그 두 개의 원시/표시 지점 쌍을 NVRAM에서 읽고,
 `TP_CalcCalibrateParam`은 선형 보간으로 축마다 원점과 픽셀당 카운트 기울기를 도출하며, 각각을
@@ -80,8 +94,11 @@ autoload_2, `src/matched/TP_CalcCalibrateParam.c`]. 이어서 `TP_SetCalibratePa
 항목을 읽고, invalid 하프워드가 0인 것들을 복사한 뒤, 세 분기 중 하나를 탄다: 가장 최신으로
 끝나는 세 개의 정상 샘플이 있으면 최신 샘플을 보정해 `0x021fbde8`에 쓴다; 하나 더 오래된
 것으로 끝나는 세 개의 정상 샘플이 있으면 그것을 보정한다; 유효한 것이 없으면 터치 없음
-상태, 즉 x = y = 0xffff에 두 플래그 모두 0을 쓴다 [S: `func_020e9314`, autoload_2, read
-from its literal pool and transcribed in `port/shim/input/touch.c`]. 어느 분기가 실행되었든
+상태, 즉 **x = y = 0x00ff**에 두 플래그 모두 0을 쓴다 -- `0x020e941c`의 `mov r1,#0xff`와
+`strh`이며, 포트의 첫 전사가 가정했던 0xffff가 아니다; ROM의 값은 이제 전사되어
+`port/tools/test_scheduled_touch.py`에 고정되어 있다
+[S: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`;
+`docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. 어느 분기가 실행되었든
 꼬리는 같다: 눌림 플래그를 이전 프레임의 것과 XOR하여 `0x021fbddc`에 트리거 바이트를 만들고,
 `0x021fbdd8`의 이전 플래그를 갱신하며, x와 y를 `0x021fbde0`과 `0x021fbde4`에 다시 게시한다
 [S: transcribed in `port/shim/input/touch.c`].
@@ -93,21 +110,33 @@ recorded in `port/shim/input/touch.c`].
 
 ### 포트는 대신 무엇을 하는가
 
+**두 경로가 있고, 여기서 갈린다.** 인터프리터 경로에서는 -- TOUCH41 이후의 기록용 경로 --
+`port/shim/input/touch.c`가 호스트 본체 레지스트리에서 DENIED 처리되어(89개 항목 -> 88개),
+ROM 자신의 `func_020e9314`가 실행되고 포트는 대신 ARM7 역할을 한다: `pxisend.c`는 AUTO_ON
+요청을 기록해 두고 VBlank마다 `frequence`개의 샘플을 `0x02206134`에 있는 ROM 자신의
+`tpState`에 쓰며, `TPi_TpCallback`의 AUTO_SAMPLING 단계를 호스트에서 수행하고, 이때
+`port/shim/boot/usersettings.c`가 게시하는 항등 보정(raw = pixel x 16)을 따른다. 샘플은 ROM의
+VBlank 핸들러 **뒤에** 도착하며, 이것이 하드웨어의 순서다
+[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41, TOUCH42;
+see `../experiments/touch-latency.md`]. 이 섹션의 나머지는 NATIVE 경로를 설명하며, 이는
+`ACWW_INTERP=1` 없이 실행할 때 여전히 돌아가는 경로다.
+
 패널도 ARM7도 없으므로, 포트는 `func_020e9314`를 터치 없음 분기와 주입 지점으로 대체하고,
 보정의 입력이 아니라 **출력**에 주입한다. 링을 합성 ADC 카운트로 채워서 꾸며낸 보정이
 그것을 우리가 시작한 픽셀로 도로 변환하게 하는 것은 아무 이득 없이 두 SDK 함수를 왕복하는
-일이다 [E: `port/shim/input/touch.c`]. 창 아래 절반에 대한 호스트 마우스 클릭은 그 픽셀에서
+일이다 [H: host-source account from `port/shim/input/touch.c`; verify with a retained scripted run and frame using this page's recipe]. 창 아래 절반에 대한 호스트 마우스 클릭은 그 픽셀에서
 `touch = 1, validity = 0`이 된다; 위 절반은 터치가 아닌데, 디지타이저가 아래 화면 아래에만
-있기 때문이다 [E: `port/shim/input/touch.c`, `port/render/window.c`].
+있기 때문이다 [H: host-source account from `port/shim/input/touch.c`, `port/render/window.c`; verify with a retained scripted run and frame using this page's recipe].
 
 패드는 에지에서가 아니라 매 프레임 기록되며, 메인 루프 본문이 아니라 `port/platform/frame.c`의
 프레임 경계에서 기록된다 -- 본문은 약 3프레임에 한 번 실행되는 것으로 측정되었고, 이는 20 Hz
-키보드가 될 것이다 [E: `port/platform/hostinput.c`]. 매핑은 D-패드에 화살표, Z=A, X=B, A=Y, S=X,
-Enter 또는 Space=START, Backspace 또는 오른쪽 Shift=SELECT, Q=L, W=R, 아래 화면 왼쪽 클릭이
-스타일러스, Escape가 종료다 [E: `port/platform/hostinput.c`]. `ACWW_KEYS`가 `0x2fff` 공간에서 0이
-아닌 마스크를 지정하거나 `ACWW_KEYS3_ENABLE`이 설정되면, 스크립트 경로가 레지스터를 소유하고
-실시간 키보드는 완전히 무시된다; 실행은 어느 쪽인지를 한 줄의 안내 라인으로 알린다
-[E: `port/platform/hostinput.c`].
+키보드가 될 것이다 [H: host-source account from `port/platform/hostinput.c`; verify with a retained scripted run and frame using this page's recipe].
+매핑은 D-패드에 화살표, Z=A, X=B, A=Y, S=X, Enter 또는 Space=START, Backspace 또는
+오른쪽 Shift=SELECT, Q=L, W=R, 아래 화면 왼쪽 클릭이 스타일러스, Escape가 종료다
+[H: host-source account from `port/platform/hostinput.c`; verify with a retained scripted run and frame using this page's recipe]. `ACWW_KEYS`가 `0x2fff` 공간에서 0이 아닌 마스크를 지정하거나
+`ACWW_KEYS3_ENABLE`이 설정되면, 스크립트 경로가 레지스터를 소유하고 실시간 키보드는
+완전히 무시된다; 실행은 어느 쪽인지를 한 줄의 안내 라인으로 알린다
+[H: host-source account from `port/platform/hostinput.c`; verify with a retained scripted run and frame using this page's recipe].
 
 예약된 접촉은 모든 터치 측정이 사용하는 계측 수단이다:
 `ACWW_TOUCH_ENABLE`, `_X`, `_Y`, `_AT`, `_FOR`, 그리고 `_EVERY`(반복 주기, `_FOR`보다 커야 함)와
@@ -116,7 +145,23 @@ Enter 또는 Space=START, Backspace 또는 오른쪽 Shift=SELECT, Q=L, W=R, 아
 `docs/kb/hybrid/hardware-services.md` section 6]. 설정은 `GetEnvironmentVariableA`를 직접 통해
 한 번 파싱되는데, 포트 자신의 `acww_env_dec`는 미설정, 파싱 불가, 0을 하나의 답으로 접어
 버리기 때문이다; 완전히 유효한 설정에 못 미치는 것은 무엇이든 한 줄의 거부 메시지를
-출력하고 그 실행 동안 비활성으로 남는다 [E: `port/shim/input/touch.c`].
+출력하고 그 실행 동안 비활성으로 남는다 [H: host-source account from `port/shim/input/touch.c`; verify with a retained scripted run and frame using this page's recipe].
+
+`ACWW_PADSCRIPT=<file>`은 네 번째 스크립트 입력이며, 펄스 생성기가 아니라 TIMELINE인 유일한
+입력이다: 한 줄에 한 행, 패드는 `<frame> <mask> <frames>`, 스타일러스는
+`<frame> T <x> <y> <frames>`, 숫자는 `0x` 접두사가 없으면 십진수이며, 겹치는 패드 행은 OR로
+합쳐지고 스타일러스 행은 처음 일치하는 것이 이긴다
+[H: source/log account from `port/platform/hostinput.c`; verify with a retained run using this page's recipe]. 스크립트가 살아 있는 동안에는 프레임 경계에서 두 패드
+레지스터를 모두 소유하고 `port/shim/gfx/frameswap.c`는 어느 쪽도 쓰지 않는데,
+`frameswap.c`의 phase2와 phase3가 세이브스테이트에서 옛 스케줄이 여전히 무장된 채로 블롭으로
+되돌아오기 때문이다
+[E: `port/platform/hostinput.c`; `port/shim/gfx/frameswap.c`;
+S: `docs/kb/hybrid/savestate.md` section 4]. 그 스타일러스 행은 `ACWW_TOUCH*` 스케줄보다
+먼저, 그리고 마우스보다 먼저 질의된다 [H: source/log account from `port/shim/input/touch.c`; verify with a retained run using this page's recipe]. 설정하지 않으면 아무것도
+바꾸지 않는다: 이것을 실은 빌드에서의 OFF 레시피는 손대지 않은 HEAD의 재링크와 31/31
+바이트 단위로 동일하다 [H: `scratchpad/cycle40/runs/off-ps` vs `off-base`;
+`docs/log/cycle41-gameplay.md`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. 이것이 스크립트 플레이어가 마을 회관을 걸어 나와
+마을을 돌아다닐 수 있게 한 것이다 [E: `wiki/experiments/gameplay-walkthrough.md`].
 
 ## 포트와 원본은 측정 가능하게 불일치한다
 
@@ -140,9 +185,13 @@ Enter 또는 Space=START, Backspace 또는 오른쪽 Shift=SELECT, Q=L, W=R, 아
 그 2프레임 차이는 두 생산자 사이에서 실재하고, 측정되었으며, 피할 수 없는 것이고, 한쪽에서만
 동작하는 모든 탭에 대한 상시 후보 설명이다 [O: same].
 
-계측 수단 자체에 대한 한 가지 주의: 그 Lua 빌드의 `memory.readword`는 ROM이 0xffff를 쓰는
-곳에서 255를 반환했으므로 하위 8비트만 전달하는 것으로 보인다. 탭/비탭 구분과 좌표는 영향을
-받지 않는다; 16비트 값들은 검증되지 않았다 [O: same; M1].
+계측 수단 자체에 대한 한 가지 주의로, 이후 정정되었다: 그 Lua 빌드의 `memory.readword`는
+터치 없음 행에서 255를 반환했는데, 이는 0xffff를 쓰던 포트 전사에 비추어 하위 8비트 절단처럼
+보였다. ROM 자신의 터치 없음 값은 **0x00ff**이므로 프로브의 255는 옳다
+[S: `func_020e9314`, disassembly `0x020e9314`..`0x020e9470`;
+`docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. 그 Lua 빌드의 `readword`가 일반적으로
+16비트 폭인지는 아직 검증되지 않았으며, 어느 쪽이든 표의 모든 값은 256 미만이다
+[O: same; M1].
 
 이것이 설명할 수 있을 불일치는 두 번째 키보드다. 마을 레시피에서 포트와 원본은 프레임
 6000부터 24000까지 한 걸음 한 걸음 같은 화면에 있다 -- 샘플링된 아홉 프레임에서 전체 프레임
@@ -190,35 +239,64 @@ ncc 0.9920에서 0.9959 -- 그리고 `TOUCH2` 창 안의 25,500에서 갈라진�
 
 ## 확인 방법
 
-`../experiments/touch-calibration.md`는 위의 측정이며, 그 레시피와 음성 대조군을 포함한다.
-`../experiments/two-tap-town-recipe.md`는 모든 하류 터치 관측이 이루어지는 실행이다.
-`../experiments/off-recipe.md`는 둘 모두가 비교 대상으로 삼는 대조 실행이다.
+`../experiments/touch-latency.md`는 타이밍 측정이다 -- 샘플링 링, 세 샘플 규칙, 1프레임의
+지연, VBlank 핸들러에 대한 순서 -- 세 가지 조건과 각각의 레시피를 포함한다.
+`../experiments/touch-calibration.md`는 위의 좌표 측정이며, 그 레시피와 음성 대조군을
+포함한다. `../experiments/two-tap-town-recipe.md`는 모든 하류 터치 관측이 이루어지는
+실행이다. `../experiments/off-recipe.md`는 둘 모두가 비교 대상으로 삼는 대조 실행이다.
+
+## 확정됨 (기록용으로 보존)
+
+이것들은 TOUCH41과 TOUCH42가 닫기 전까지 이 페이지의 가설 섹션이었다. 부정 결과도 긍정
+결과만큼 비용이 들었기에 보존한다.
+
+- **확정된 부정.** 1픽셀 오프셋은 원본이 두 번째 키보드의 확인 버튼을 거부하게 만들지
+  않는다. 접촉을 222,182 -- 원본의 게임이 실제로 보는 좌표 -- 로 옮겨 포트를 다시
+  실행했더니 탭은 여전히 `acww touch: DOWN x=222 y=182`로 도착했고, 접촉 네 번,
+  27,000프레임에서 exit 100이었다
+  [E: `scratchpad/cycle40/runs/tap-D61`, `ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182`];
+  `scratchpad/oracle/tap-220`에 대해 양쪽은 여전히 갈라진다
+  [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42].
+- **확정된 긍정.** 프레임이 원인이며, 지연이 프레임이 중요한 이유다. 탭을 KEYS3 A 누름
+  프레임에서 24,700으로 옮기면 양쪽 모두 확정하고 일치한다
+  [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
+  O: `scratchpad/oracle/tap-24700`].
+- **확정된 긍정 (TOUCH41/TOUCH42).** 레시피가 지연을 피하게 하기보다 포트가 지연을
+  모델링해야 하며, 실제로 그렇게 한다. ROM 자신의 `func_020e9314`가 이제 인터프리터 경로에서
+  실행되고 포트는 ARM7의 링을 ROM의 VBlank 핸들러 *뒤에* 채운다 -- 그리고 24,600 레시피는
+  원본과 같이 동작한다 [E: `scratchpad/cycle40/runs/tap-T42b`]
+  [O: `scratchpad/oracle/tap-window`]. `../experiments/touch-latency.md`와 아래 결과 섹션을
+  보라.
+- **확정됨.** 첫 번째 탭이 결코 확정하지 않는 이유는 히트 테스트가 아니라 모드 전환이다:
+  키보드는 첫 번째 접촉을 PAD에서 스타일러스로의 모드 변경으로 소비하고, 스타일러스 모드 창
+  안의 두 번째 접촉만이 확인 버튼에 도달한다
+  [E: `docs/log/cycle40-keyboard-gate-probe.md` H4 RESULT and TAP40;
+  `scratchpad/cycle40/runs/tap-native`, `tap-interp`].
+- 키보드를 가진 사람은 스크립트 레시피가 할 수 없는 곳에서 마을 회관을 걸어 나갈 수 있다
+  [E: `scratchpad/cycle40/runs/tap-D59`, 90,000 frames of talking to Pelly again].
 
 ## 가설
 
-- 1픽셀 오프셋이 원본이 두 번째 키보드의 확인 버튼을 거부하게 만드는 원인이다. 반대 근거:
-  접촉을 222,182 -- 원본의 게임이 실제로 보는 좌표 -- 로 옮겨 포트를 다시 실행했더니 탭은
-  여전히 `acww touch: DOWN x=222 y=182`로 도착했고, 접촉 네 번, 27,000프레임에서 exit 100이었다
-  [E: `scratchpad/cycle40/runs/tap-D61`, `ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182`]. **부정으로
-  확정(ORACLE42)**: `tap-D61`과 `scratchpad/oracle/tap-220`은 여전히 갈라지므로, 픽셀은 원인이
-  아니다 [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42].
-- 대신 1~2프레임의 스타일러스 지연이 원인이다. **긍정으로 확정(ORACLE42)**: 탭을 KEYS3 A 누름
-  프레임에서 24,700으로 옮기면 양쪽 모두 확정하고 일치한다
-  [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-  O: `scratchpad/oracle/tap-24700`]. 남은 미결 사항은 레시피가 지연을 피하는 대신 포트가
-  지연을 모델링해야 하는가이다 -- 결과 섹션을 보라.
-- 유지 시간은 레버가 아니다. 네이티브 경로에서 측정: 같은 프레임과 좌표에서 `FOR=10`과
-  `FOR=90`은 샘플링된 아홉 프레임 모두에서 바이트 단위로 동일한 이미지를 만들었다
-  [E: `docs/kb/port/input-save-audio.md`, TOUCH39]. 키보드가 심이 아니라 ROM 코드로 구동되는
-  인터프리터 경로에서는 가설로 남는다.
-- 첫 번째 탭이 결코 확정하지 않는 이유는 히트 테스트가 아니라 모드 전환이다: 키보드는 첫
-  번째 접촉을 PAD에서 스타일러스로의 모드 변경으로 소비하고, 스타일러스 모드 창 안의 두 번째
-  접촉만이 확인 버튼에 도달한다
-  [E: `docs/log/cycle40-keyboard-gate-probe.md` H4 RESULT and TAP40;
-  `scratchpad/cycle40/runs/tap-native`, `tap-interp`]. 화면이 아니라 키보드 자신의 상태 워드를
-  프로브하여 더 확정한다.
-- 키보드를 가진 사람은 스크립트 레시피가 할 수 없는 곳에서 마을 회관을 걸어 나갈 수 있다
-  [E: `scratchpad/cycle40/runs/tap-D59`, 90,000 frames of talking to Pelly again].
+- **인터프리트된 콜백 이상 현상.** [H] ARM7의 프레임당 네 샘플을 인터프리트된 PXI 호출로
+  ROM 자신의 `TPi_TpCallback`에 전달하는 것은 호스트 채움과 데이터가 동일한데도 게임을
+  바꾼다: 택시 대화가 스크립트 입력 없이 진행되고 두 이름 키보드 모두 왼쪽 위 키를 여덟 번
+  입력하고 확정한다
+  [E: `scratchpad/cycle40/runs/tap-T41j`, `tap-T41q8705` against `tap-T41pd`;
+  S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; `docs/kb/hybrid/stall-playbook.md`
+  case 42]. 호스트 채움이 출하되고 `ACWW_TP_PXI=1`은 추적을 위해 인터프리트 경로를 남겨 둔다.
+  접촉을 DISABLED로 두고 `ACWW_TP_PXI=1`로 실행하여 확정한다. 그러면 프레임당 네 번의
+  인터프리트된 콜백은 펜 업 샘플만 나르므로, 게임이 여전히 앞서 달린다면 부작용은 터치
+  데이터가 아니라 `acww_interp_irq_run`에 있다 --
+  `../experiments/touch-latency.md`, 미결 항목.
+- **인터프리터 경로에서의 유지 시간.** [H] 같은 프레임과 좌표에서 `FOR=10`과 `FOR=90`은
+  *네이티브* 경로에서 샘플링된 아홉 프레임 모두에서 바이트 단위로 동일한 이미지를 만들었다
+  [E: `docs/kb/port/input-save-audio.md`, TOUCH39]. ROM 자신의 게시가 넘겨받은 이후로는 다시
+  측정되지 않았다. 그 쌍을 `ACWW_INTERP=1`로 반복하여 확정한다.
+- **오라클 프로브의 `memory.readword`는 16비트 폭인가?** [H] 의심할 이유는 사라졌다 --
+  터치 없음 행에서 반환한 255는 ROM 자신의 0x00ff이지 0xffff의 절단이 아니다
+  [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41] -- 하지만 이 접근자가 255를 넘는
+  값을 반환하는 것을 긍정적으로 보여 준 것은 아직 없다. 모든 필드가 256 미만인 이 페이지에서는
+  어느 것에도 영향이 없다. ROM이 16비트 폭으로 쓰는 주소를 프로브하여 확정한다.
 
 
 ## 결과 (ORACLE42, 이 페이지의 초안 작성 이후)
@@ -232,11 +310,60 @@ ncc 0.9920에서 0.9959 -- 그리고 `TOUCH2` 창 안의 25,500에서 갈라진�
 [S: docs/log/cycle40-keyboard-gate-probe.md ORACLE42]. `ACWW_TOUCH2_AT=24700`으로 하면 양쪽
 모두 확정하고 일치한다: 24000..27000의 11프레임에서 평균 ncc 0.9955, 위 화면 1.0000
 [E: `tap-D62`] [O: `scratchpad/oracle/tap-24700`]. 기록용 레시피는 24,700을 사용한다.
-미결 가설: port/shim/input/touch.c에서 1-2프레임 스타일러스 지연을 모델링한다
-[H: rerun the 24,600 recipe after the change and compare with `scratchpad/oracle/tap-fullpad` at 25,500].
+지연은 이제 모델링되었다(TOUCH41): ROM의 `func_020e9314`가 인터프리터 경로에서 실행되고
+포트는 ARM7의 링을 채운다 [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41].
+이 모델 아래에서 24,600에 예약된 접촉은 24,601에 TP_POINT에 도달하며, 포트는 원본이
+확정하지 않는 곳에서 여전히 마을 이름을 확정한다 [E: `scratchpad/cycle40/runs/tap-T41h`]
+[O: `scratchpad/oracle/tap-window`]; 24,700 레시피는 24,000..27,000에서 0.9986을 기록한다
+[E: `tap-T41i`] [O: `scratchpad/oracle/tap-24700`]. **확정됨 (TOUCH42)**: ROM의 VBlank 핸들러에
+대한 샘플의 위치가 같은 프레임의 누름과 탭의 순서를 정한다. 네 샘플을 핸들러 뒤에
+전달하면(하드웨어의 순서: 핸들러는 VBlank에서 패드를 읽고, ARM7은 그 다음 프레임 동안
+패널을 샘플링한다) 포트는 원본처럼 24,600에서 키보드에 남는다 -- 24,000..27,000의
+11프레임에서 ncc 0.9981 [E: `scratchpad/cycle40/runs/tap-T42b`]
+[O: `scratchpad/oracle/tap-window`] [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42].
+
+## 결과 (INPUT46): 원본에 대해 측정한 스크립트 패드
+
+패드 경로는 스타일러스처럼 원본에 대해 채점된 적이 없었다. 이제는 그림이 아니라 ROM 자신의
+워드로 채점되었다: 포트의 영역 장부(`ACWW_ORACLE_ADDRESS=0x021fbdd0 _LENGTH=120`)와
+`oracle.py --peek 0x021fbdd0:1,0x021fbe38:4`가 같은 120바이트 -- ROM의 프레임별 카운터,
+`g_021fbe3c`와 `g_021fbe40`의 `{held, trigger, table}` -- 를 하나의 레시피 아래 두 생산자
+모두에서 택시 대화 내내 읽었다
+[E: `scratchpad/input46/RECEIPTS.md`; `docs/log/cycle40-keyboard-gate-probe.md` INPUT46].
+
+- **누르고 있는 키는 양쪽 모두에서 ONE 트리거다.** `ACWW_KEYS=9 _FOR=10 _EVERY=30`으로,
+  `0x021fbe42`의 ROM `changed` 워드는 펄스당 정확히 한 번 올라간다: 매 프레임 샘플링한 포트에서
+  35펄스 중 34, 같은 대화를 2프레임마다 샘플링한 원본에서 24 중 24(그리고 패드 페이즈를
+  비활성화하여 열차가 멈추지 않게 하면 51 중 51)
+  [E: `scratchpad/input46/w-port1.txt`] [O: `scratchpad/input46/w-full.txt`].
+- **패드는 메인 루프 반복당 한 번 읽히며, 그것은 두 생산자 모두에서 THREE 프레임당 한
+  번이다** -- `0x021fbdd0`은 포트에서 30프레임당 정확히 10, 원본에서 100프레임당 33 증가한다.
+  게임의 키 경로는 어느 기계에서도 VBlank당 경로가 아니다
+  [S: `func_0206e63c`'s `data_021fbdd0++`, `port/shim/gfx/frameswap.c`].
+- **포트의 스크립트 누름은 3프레임 늦게 도착하고 10프레임이 아니라 12프레임 유지된다.**
+  `frameswap.c`는 두 패드 레지스터를 `func_0206e63c`의 END에서, 즉 메인 루프 BODY당 한 번
+  쓰므로, 마스크는 한 프레임에 계산되어 다음 본문에서 소비된다; 원본의 ROM은 실제 하드웨어를
+  읽어 펄스 시작 +2..+4에 누름을 보고 8..10프레임 유지한다. 30프레임 주기에서는 어떤 에지도
+  바꾸지 않으며 모델링되지 않았다
+  [E: `scratchpad/input46/w-port1.txt` frames 780..795] [O: `scratchpad/input46/w-orig.txt` frames 1,080..1,092].
+- **따라서 택시 대화는 ORIGINAL의 속도로 진행된다.** 28번의 메시지 박스 다시 그리기는 같은
+  순서의 같은 이벤트이며 일정한 +270프레임 차이이고, 포트는 같은 펄스 열로 택시 시작부터
+  키보드 시작까지를 830프레임에 걸치며 원본은 810프레임이다 [E: `scratchpad/input46/table.txt`; `docs/log/cycle40-keyboard-gate-probe.md` INPUT46]. **CARD45의 "포트는 택시 대화를
+  1.8배 빠르게 진행한다"는 RETRACTED되었다** (`docs/log/cycle40-keyboard-gate-probe.md`, INPUT46, "The answer in one paragraph"): 포트는 택시에서 약 280프레임 이르므로
+  `ACWW_KEYS2`가 프레임 1,800에서 30프레임 열차를 멈추기 전에 끝나는 반면, 원본은 이벤트 넷이
+  모자라 `ACWW_KEYS3`의 첫 A를 700프레임 기다린다.
+
+**`ACWW_PAD_SAMPLE`은 이 중 어느 것도 목격할 수 없었고, 삭제되었다.** `port/shim/probe_pad.c`는
+`func_020e9548`을 오버라이드하며 링크되어 있지만, 인터프리터는 REGISTERED 함수에 대해서만
+네이티브 본체로 들어가고 이 함수는 부팅 라인이 이름 대는 85개에 들지 않으므로, 인터프리터
+실행에서는 그 심의 어느 부분도 실행되지 않는다 -- 측정 결과, 목격자를 완전히 설정한 실행은
+샘플도 심 자신의 상한 있는 레지스터 로그도 출력하지 않았다. 설정으로 등록할 수도 없다.
+대신 영역 장부로 RAM에서 세 워드를 읽어라
+[S: `docs/kb/hybrid/stall-playbook.md` case 71; `docs/kb/hybrid/instruments.md` section 3d].
 
 ## 관련 문서
 
-- `../experiments/touch-calibration.md`, `../experiments/two-tap-town-recipe.md`,
-  `../experiments/off-recipe.md`.
+- `../experiments/touch-latency.md`, `../experiments/touch-calibration.md`,
+  `../experiments/two-tap-town-recipe.md`, `../experiments/off-recipe.md`.
+- `../engine/interpreter-path.md` -- ROM 자신의 게시를 핫 패스에 되돌려 놓는 거부 목록.
 - `time-and-rtc.md` -- 모든 `_AT`가 표현되는 프레임 카운터.

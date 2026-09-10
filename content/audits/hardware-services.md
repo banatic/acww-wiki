@@ -7,10 +7,31 @@ BIOS — 를 GBATEK, 공개 NitroSDK 소스 미러, 에뮬레이터 소스와 �
 서른한 개의 주장을 점검했다. 스물두 개는 공개 기록과 일치하고, 여섯 개는 불일치하며, 세 개는
 미규정이다. 여섯 개의 불일치는 작고 국소적이며 각각 이름 붙은 수정안이 있다. 그중 둘
 (CpuFastSet의 올림과 262번 라인의 VBlank 플래그)은 인용된 스펙 문장에 비추어 명백히 틀렸고,
-하나(스타일러스 지연)는 포트가 원본에서 벗어난 것으로 측정된 가장 큰 차이이며 버그가 아닌
-설계상의 선택이다. Animal Crossing의 디컴파일은 공개된 것이 없다. 반면 완전한 NitroSDK와
+하나(스타일러스 지연)는 포트가 원본에서 벗어난 것으로 측정된 가장 큰 차이였으며 버그가 아닌
+설계상의 선택이었다 — **이제 닫혔다**: 수정안 P1이 TOUCH41과 TOUCH42에서 반영되었고, 포트와
+원본은 같은 프레임의 누름과 탭을 같은 방식으로 순서 짓는다
+[E: `scratchpad/cycle40/runs/tap-T42b`] [O: `scratchpad/oracle/tap-window`;
+`../experiments/touch-latency.md`]. Animal Crossing의 디컴파일은 공개된 것이 없다. 반면 완전한 NitroSDK와
 NitroSystem 소스 트리는 공개되어 있으며, 이 저장소가 아직 `func_XXXXXXXX`라고 부르는 것들의
 상당 부분에 이름을 붙여 줄 수 있다.
+
+**수정안의 현황, 2026-09-10.** 열세 개 중 네 개가 이 감사가 쓰인 이후 반영되거나 닫혔고,
+이 감사가 제기하지 않은 가설 하나가 감사 밖의 유닛에 의해 닫혔다. 아래 항목별 현황 문단이
+권위이며, 이 표는 색인이다.
+
+| 항목 | 현황 | 어디에 |
+|---|---|---|
+| **P1** 스타일러스 지연 | **반영됨(LANDED)** (TOUCH41 `d1fb25b7`, TOUCH42 `4edc3f6b`) — 더 강한 형태로 적용됨: ARM7의 샘플은 ROM의 VBlank 핸들러 뒤에 도착한다 | `../experiments/touch-latency.md`, 아래 H1 |
+| **P10** 5비트 색상 효과 | **반영됨, 모든 오라클 프레임에서 무효(INERT)로 측정됨** (RENDER42 `b1080164`); 픽스처가 근거의 전부이다 | 아래 P10 |
+| **P11** 반투명 OBJ | **무효로 측정됨, 만들지 않음** (RENDER42): 두 레시피 모두에서 모집단이 0이므로 가드는 죽은 코드일 수밖에 없다 | 아래 P11 |
+| **P13** PXI 상수 인용 | **부분적으로 추월됨** (RTC42 `ef890990`): 태그 5는 이제 바꿔 말하기가 아니라 SDK 자체의 의미론으로 응답되며, 태그 표의 RTC 행은 S 등급이다; 태그 6과 8은 여전히 이 항목이 다루는 하드코딩된 비트 위치를 지니고 있다 | `../systems/time-and-rtc.md`; 아래 H5 |
+| P2, P3, P4, P5, P6, P7, P8, P9, P12 | **열림(OPEN)**, 변경 없음 | 아래 |
+| 여기의 항목이 아님: 포트의 종료 코드 | **확정됨(SETTLED)** (STAB42 `0bc59cc0`): `acww.exe`는 exit 1로 종료할 수 없다; exit 1은 외부의 `TerminateProcess`이다 | `../experiments/run-stability.md` |
+**현황, RENDER43 (2026-09-10).** 새 행 하나와 새로 반영된 수정안 하나, 둘 다 같은 것에 관한
+것이다: **BACKDROP은 프레임당 상수가 아니다.** 행 **F5b**와 수정안 **P14** — ACWW는 거의 모든
+스캔라인에서 BG 팔레트 항목 0을 다시 쓰며, 그 하프워드 하나가 마을 하늘의 수직 그라디언트이다.
+이 감사는 효과 유닛이 백드롭으로 무엇을 하는지는 점검했지만 백드롭 자체가 움직이는지는 묻지
+않았다.
 
 **방법.** 커밋 `470df4ac`에서 읽었다. 공개 소스는 기억이 아니라 실제로 가져왔으며, 아래 각 행은
 URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드를 복사하지 않았다. 게임은 실행하지
@@ -32,7 +53,7 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 | A2 | 보정은 ADC 카운트에서 픽셀로 가는 2점 선형 사상이다 | GBATEK, 같은 페이지, "Converting ADC Position to Screen Position": `scr.x = (adc.x-adc.x1) * (scr.x2-scr.x1) / (adc.x2-adc.x1) + (scr.x1-1)` | 일치 | 없음 — 다만 **`-1`** 항에 주목하라. 픽셀→ADC→픽셀 왕복은 항등이 아니며, 이것이 탭이 한 픽셀 어긋나 돌아오는 문서화된 이유이다 |
 | A3 | 오라클에서 측정된 1픽셀 오프셋(221,181 입력 → 222,182 출력)은 에뮬레이터가 픽셀을 ADC 카운트로 변환하고 `TP_GetCalibratedPoint`가 다시 되돌리는 과정의 인공물이다 [`input-and-touch.md`, "The port and the original disagree"] | melonDS [`src/SPI.cpp`](https://github.com/melonDS-emu/melonDS/blob/master/src/SPI.cpp), TSC `SetTouchCoords`: 호스트 좌표는 `TouchX <<= 4`, 즉 픽셀×16으로 저장되며 보정 역변환은 전혀 없다 | 일치, 단 정정 있음 | 에뮬레이터는 펌웨어 보정을 역변환하지 **않는다** — 16을 곱할 뿐이다. 따라서 ±1은 기울기가 정확히 16이 아닌 보정값에 대한 `TP_GetCalibratedPoint` 자체의 역수-시프트 연산에서 나온다. 위키 페이지에서 "화면 픽셀을 원시 ADC 카운트로 변환한다" 대신 이렇게 서술하라 |
 | A4 | 원본은 포트보다 탭을 1–2프레임 늦게 전달하며, 한 프레임 더 오래 유지한다 [`input-and-touch.md`; ORACLE42] | melonDS `src/SPI.cpp`: "터치 좌표 설정과 ARM7의 읽기 가능 사이에 지연 없음" — 에뮬레이터는 아무 지연도 더하지 않는다 | 일치, 그리고 원인이 이제 명명됨 | 지연은 **전적으로 ROM 자신의 ARM7 + PXI + `func_020e9314` 체인** 때문이지 에뮬레이터 랙이 아니다. 따라서 포트에서 재현 가능하다. 수정안 **P1**을 보라 |
-| A5 | ACWW는 "샘플링 주기 4"로 아홉 항목짜리 링을 돌린다 [`input-and-touch.md`, "The stylus"] | NitroSDK, [`include/nitro/spi/ARM9/tp.h`](https://github.com/ntrtwl/NitroSDK/blob/main/include/nitro/spi/ARM9/tp.h): `TP_RequestAutoSamplingStartAsync(u16 vcount, u16 frequence, TPData bufs[], u16 bufSize)` 및 `TP_SAMPLING_FREQUENCY_MAX` | 미규정 (헤더에 주석 없음) | 두 번째 인자는 `frequence`이지 주기가 아니다. 문서화된 최댓값이 16이고 ACWW가 4를 넘기므로, 자연스러운 해석은 **프레임당 네 샘플**이며, 이는 아홉 항목 링을 2.25프레임 깊이로 만들고 `func_020e9314`의 "마지막 네 항목"을 정확히 한 프레임 분량으로 만든다. 페이지를 고쳐 쓰고 ARM7 쪽을 읽을 때까지 H 등급으로 표시하라 |
+| A5 | ACWW는 "샘플링 주기 4"로 아홉 항목짜리 링을 돌린다 [`input-and-touch.md`, "The stylus"] | NitroSDK, [`include/nitro/spi/ARM9/tp.h`](https://github.com/ntrtwl/NitroSDK/blob/main/include/nitro/spi/ARM9/tp.h): `TP_RequestAutoSamplingStartAsync(u16 vcount, u16 frequence, TPData bufs[], u16 bufSize)` 및 `TP_SAMPLING_FREQUENCY_MAX` | 미규정 (헤더에 주석 없음) | 두 번째 인자는 `frequence`이지 주기가 아니다. 문서화된 최댓값이 16이고 ACWW가 4를 넘기므로, 자연스러운 해석은 **프레임당 네 샘플**이며, 이는 아홉 항목 링을 2.25프레임 깊이로 만들고 `func_020e9314`의 "마지막 네 항목"을 정확히 한 프레임 분량으로 만든다. **확정됨(TOUCH41)**: ARM7 쪽을 공개된 `libraries/spi/src/ARM7/tp/tp_sampling.c`에서 읽었고 포트는 이제 VBlank당 네 샘플을 구동한다; `input-and-touch.md`는 "프레임당 네 샘플"이라고 읽힌다 |
 | A6 | `validity`는 오류 코드이며 0은 샘플이 정상임을 뜻한다 | NitroSDK `tp.h`: `TP_VALIDITY_VALID`, `TP_VALIDITY_INVALID_X`, `_INVALID_Y`, `_INVALID_XY` | 일치 | 없음 |
 | A7 | `TPCalibrateParam`은 원점과 축별 도트 크기이다 | NitroSDK `tp.h`: `struct NvTpData { s16 x0, y0, xDotSize, yDotSize; }` | 일치 | 없음 |
 
@@ -97,6 +118,7 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 | F3 | 반투명 OBJ(attr0 모드 1)는 항상 첫 번째 타깃이며 항상 알파 블렌딩을 사용한다 | GBATEK, 같은 페이지: *"OBJs that are defined as 'Semi-Transparent' in OAM memory are always selected as 1st Target (regardless of BLDCNT Bit 4), and are always using Alpha Blending mode (regardless of BLDCNT Bit 6-7)"* | 전반부는 일치, 후반부는 **불일치** | `apply_color_effects`의 세 번째 분기는 아래 레이어가 두 번째 타깃이 아니고 OBJ가 우연히 BLDCNT 첫 번째 타깃일 때 반투명 OBJ에 *밝기* 효과를 적용할 수 있다. GBATEK의 "regardless of Bit 6-7"은 그래서는 안 된다고 말한다. 에뮬레이터들은 여기서 서로 다르다. 수정안 **P11**, 낮은 우선순위 |
 | F4 | 블렌드는 보이는 픽셀과 바로 아래의 픽셀을 소비한다 | GBATEK, 같은 페이지 (첫 번째/두 번째 타깃 쌍) | 일치 | 없음. `nds2d.c`의 2단 깊이 소유자 레코드는 올바른 형태이다 |
 | F5 | 백드롭은 알파의 첫 번째 타깃으로서 비활성이다 | — | 구성상 일치 | 없음 |
+| F5b | *(RENDER43, 신규)* 백드롭은 BG 팔레트 항목 0이며 프레임당 한 번만 읽힌다 [`nds2d.c`, the fill, as read at `6081a9a1`] | GBATEK, [LCD I/O BG Control](https://problemkaputt.de/gbatek-lcd-i-o-bg-control.htm) 및 팔레트 맵: 항목 0은 백드롭이며 일반 팔레트 RAM으로서 언제든 — HBlank 핸들러에서도 — 쓸 수 있다 | **불일치 — 수정됨(P14, RENDER43)** | ACWW는 거의 모든 스캔라인에서 항목 0을 다시 쓰며 그것이 바로 마을 하늘의 수직 그라디언트이다: 마을 프레임 37,500의 엔진 B는 0번 라인의 `7084`에서 176번 라인의 `79e4`까지, 5비트 녹색 4 → 15로 달리는 반면 항목 1..31은 전혀 움직이지 않는다(`ACWW_REGDUMP`, `scratchpad/render43/regdump-town37500.txt`). `struct LineRegs`는 이제 `bd`를 지니고 `fill_backdrop`이 라인별로 칠한다. 픽스처 `port/tools/test_nds2d_backdrop.py`; `ACWW_FLATBD=1`은 옛 조건을 유지한다 |
 | F6 | 아핀 BG 행렬 항목 PA..PD는 부호 있는 8.8이다 | GBATEK, [LCD I/O BG Rotation/Scaling](https://problemkaputt.de/gbatek-lcd-i-o-bg-rotation-scaling.htm): *"Bit 0-7 Fractional portion (8 bits); Bit 8-14 Integer portion (7 bits); Bit 15 Sign"* | 일치 | 없음 |
 | F7 | 기준점은 20.8이며 부호는 비트 27에 있다 [`nds2d.c:770`; `wiki/engine/graphics-pipeline.md`] | GBATEK, 같은 페이지: *"Bit 0-7 Fractional (8); Bit 8-26 Integer portion (19 bits); Bit 27 Sign; Bit 28-31 Not used"* | 일치, 표현은 제외 | 이 필드는 **19.8 더하기 부호**, 즉 부호 있는 28비트이다 — `sext(v, 28)`이 하는 일이 정확히 그것이다. 그래픽스 페이지의 "20.8" 표현을 "부호 있는 28비트, 소수부 8비트"로 고쳐라 |
 | F8 | 스캔라인마다 레이어는 `ref + PB*y`(행)와 `+PA*x`(열)에서 샘플링된다 [`draw_affine_bg`] | GBATEK, 같은 페이지: *"The above reference points are automatically copied to internal registers during each vblank … The internal registers are then incremented by dmx and dmy after each scanline"* | 일치 | 없음. 게임이 프레임 중간에 BGxX를 쓰지 않는 한, `x0 + pb*y`는 대수적으로 그 누적과 정확히 같다 |
@@ -144,6 +166,17 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 **수정.** `func_020e9314` 안에 최근 세 프레임의 접촉 상태를 담는 작은 시프트 레지스터를 둔다. 셋 모두 down일 때만 `touch = 1`을 게시하고(시작이 두 프레임 지연), 가장 새로운 샘플이 up으로 바뀐 뒤 한 프레임 동안 `touch = 1`을 유지한다(해제가 한 프레임 지연). 기존의 모든 측정이 비교 가능하도록 한 주기 동안은 기본값 **off**인 `ACWW_TOUCH_LATENCY=0|1` 뒤에서 수행한 뒤, 기본값을 뒤집는다.
 
 **검증.** 픽스처는 이미 존재한다. ORACLE42가 24,700으로 옮기기 전에 어긋났던 24,600 레시피를 지연을 모델링한 채 다시 실행하고, 25,500 프레임에서 `scratchpad/oracle/tap-fullpad`와 비교한다. 성공은 포트가 원본과 정확히 같은 방식으로 마을 이름 확정에 실패하는 것이다. 이는 `wiki/systems/input-and-touch.md` 끝의 열린 가설이며 이 수정안이 그 실험이다.
+
+**현황 (TOUCH41, d1fb25b7).** 위의 수정안보다 더 강한 형태로 적용되었다: 전사 과정 안의
+시프트 레지스터 대신 ROM 자신의 `func_020e9314`가 실행되고(인터프리터 경로에서 touch.c를
+거부), `port/shim/os/pxisend.c`가 ARM7의 링을 VBlank당 네 샘플로, ARM7의 펜 업 인코딩(validity
+INVALID_XY)으로 채운다. 한 프레임의 지연이 측정되었다(접촉 8,700 → TP_POINT 8,701)
+[E: `scratchpad/cycle40/runs/tap-T41pd`]. 검증 단계는 지금까지 **부정적**이다: 24,600 레시피는
+원본이 확정하지 않는 곳에서 여전히 확정한다 [E: `tap-T41h`] [O: `scratchpad/oracle/tap-window`];
+24,700 레시피는 0.9986을 기록한다 [E: `tap-T41i`]. **TOUCH42로 닫힘**: 네 샘플을 ROM의 VBlank
+핸들러 뒤에(하드웨어의 순서) 전달하면 24,600 레시피가 원본처럼 키보드에 머문다
+[E: `tap-T42b`] [O: `scratchpad/oracle/tap-window`, ncc 0.9981 over 24,000..27,000]
+[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42].
 
 ### P2 — DISPSTAT의 VBlank 라인 범위, V-카운트 일치, HBlank (`port/interp/interp_boot.c`, `dispstat_load`)
 
@@ -235,6 +268,21 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 
 **검증.** `port/render/selftest.c`에는 이미 블렌드 픽스처가 있다(SKY40이 통과를 기록한다). 손으로 계산한 5비트 기댓값을 가진 세 가지 경우를 추가한다: 알려진 두 BGR555 색상에 대한 EVA=9/EVB=7, EVY=5 증가, EVY=5 감소. 그런 다음 `tap-D62`의 샘플링된 아홉 프레임에서 `scratchpad/oracle/tap-24700`에 대한 ncc 비교를 다시 실행하고 평균이 떨어지지 않는지 확인한다.
 
+**현황: 반영됨(RENDER42), 그리고 모든 오라클 프레임에서 무효로 측정됨.** `chan_mix`와
+`brighten`은 이제 `>>3`으로 5비트로 내려가 산술을 수행하고, 31에서 클램프하고,
+`(c<<3)|(c>>2)`로 확장한다. 픽스처는 `selftest.c`가 아니라 `port/tools/test_nds2d_blend.py`이다:
+그 `mix`/`brighter`/`darker`는 5비트 정의역으로 다시 쓰였고 위 문단이 요구하는 세 가지 경우가
+추가되었다 — 27개 검사와 두 보정 모두 잡아냈다. 세 경우 각각이 두 정의역을 분리한다(파랑 위
+빨강에 대한 EVA=9/EVB=7은 8비트 산술로 143, 하드웨어의 산술로 140)므로, 픽스처는 P10 이전
+렌더러에서 실패한다.
+픽셀은 움직이지 않았다: OFF 레시피의 31프레임과 마을 레시피의 42프레임은 전후로
+**바이트 단위로 동일**하다 [H: `scratchpad/cycle40/runs/off-base42` vs `off-p10`,
+`tap-base42` vs `tap-p10`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. 그 이유는 이 레시피들이 도달하는 효과 상태가
+두 정의역이 일치하는 상태 — `EVY`가 0 또는 16, 그리고 피연산자 중 하나가 검정인 알파
+블렌드 — 이기 때문이며, 편향이 드러나려면 0이 아닌 두 색상에 대한 중간 범위의 계수가 필요하다.
+따라서 픽스처가 근거의 전부이다
+[S: `docs/kb/hybrid/render-fidelity.md` section 3].
+
 ### P11 — 반투명 OBJ는 절대 밝기 경로를 타지 않아야 한다 (`port/render/nds2d.c`, `apply_color_effects`)
 
 **스펙.** GBATEK, 같은 페이지: 반투명 OBJ는 *"are always using Alpha Blending mode (regardless of BLDCNT Bit 6-7)"*이다.
@@ -244,6 +292,18 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 **수정.** 밝기 분기를 `!own_semi[i]`로 가드한다. 낮은 우선순위이며 먼저 측정할 가치가 있다: 에뮬레이터들은 여기서 GBATEK의 문자 그대로의 문장과 다르며, 포트의 카운터는 이미 두 모집단을 분리한다(`px_obj_semi` 대 `px_bright`).
 
 **검증.** 먼저 마을 실행에서 `px_obj_semi`와 `px_bright`를 읽는다. 반투명 픽셀에서 `px_bright`가 0이면 이 변경은 무의미하므로 하지 않아야 한다.
+
+**현황: 무효로 측정됨, 만들지 않음(RENDER42).** 포트는 두 레시피 어느 쪽에서도 attr0 모드 1
+스프라이트를 전혀 그리지 않으므로, 수정안이 움직일 모집단은 비어 있고 가드는 죽은 코드일
+수밖에 없다. `nds2d: colour special effects`는 OFF 레시피의 끝에서
+[H: `scratchpad/cycle40/runs/off-base42`; receipt lost with its worktree; repeat the named recipe and retain the stated frames] 그리고 48,000프레임 마을 레시피의 끝에서
+[E: `scratchpad/cycle40/runs/tap-D63`] `semi-transparent OBJ=00000000`과
+`semi-transparent sprites with a non-identity EVA/EVB=00000000`을 보고하는 반면,
+`brightness (modes 2/3)`는 각각 2.8M과 5.0M 픽셀을 센다 — 두 모집단은 깔끔하게 분리되며
+반투명 쪽은 0이다. 이는 부정적 결과로 닫힌다: 가드는 인용된 문장에 비추어 옳지만 그 근거만으로
+추가해서는 안 된다. 여기의 어떤 것도 그것을 실행시킬 수 없고, 테스트할 수 없는 분기는 부채이기
+때문이다. `px_obj_semi`가 0이 아닌 씬이 발견될 때만 다시 연다
+[S: `docs/kb/hybrid/render-fidelity.md` section 3].
 
 ### P12 — GXSTAT: empty 비트를 설정하고 FIFO-IRQ 모드를 지우지 않는다 (`port/render/nds3d.c`, `gxstat_update`)
 
@@ -264,6 +324,36 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 **수정.** 두 헤더를 읽고, 주석에 상수 이름을 명시하며, 헤더를 출처로 삼아 태그 표를 E에서 S로 승격한다. PXI 데이터 필드가 비트 25보다 좁은 것으로 드러나면, 터치 응답 워드는 포트가 콜백을 직접 호출하기 때문에 현재로서는 문제를 일으키지 못할 뿐인 방식으로 틀린 것이다.
 
 **검증.** 문서와 주석; 그런 다음 한 번 실행하여 `acww pxi:` 줄이 하나도 바뀌지 않았음을 확인한다.
+
+**현황: 부분적으로 추월됨(RTC42, `ef890990`).** 태그 5는 더 이상 바꿔 말하기가 아니다:
+`pxisend.c`는 이를 SDK 자체의 방식으로 응답하여, `RTCRawDate`/`RTCRawTime`을 `0x027ffde8`의
+시스템 워크에 패킹하고 `command << 8 | RTC_PXI_RESULT_SUCCESS`를 **송신 안에서** 전달한다.
+`RtcWaitBusy`가 양보 없는 어셈블리 스핀이고 `RTC_GetDateTimeAsync`가 송신 전에 락, 버퍼, 콜백을
+준비하기 때문이다 — 태그 6의 규칙과 정반대이며, 두 방향 모두 선택된 것이 아니라 ROM 자신의
+코드에 의해 강제된다 [S: `src/matched/RtcWaitBusy.c`,
+`src/matched/RTC_GetDateTimeAsync.c`; E: `../systems/time-and-rtc.md`]. `port/tools/test_rtc.py`는
+원시 블록이 그 주소에 쓰이고 태그 5가 디스패치되는지를 정적으로 검사한다. 이 항목은 닫히지
+**않았다**: 태그 6과 8은 여전히 하드코딩된 `1<<25`, `1<<24`, `0x8000`을 지니고 있으며,
+태그 표는 그들에 대해 여전히 E 등급이다.
+### P14 — 백드롭은 스캔라인 단위이다 (`port/render/nds2d.c`, `capture_line_regs` 및 `fill_backdrop`) — **반영됨, RENDER43**
+
+**스펙.** BG 팔레트 항목 0은 백드롭이며 일반 팔레트 RAM이다: 게임은 HBlank 핸들러에서 이를 쓸
+수 있고, ACWW는 거의 모든 라인에서 실제로 그렇게 한다.
+
+**코드, 이전.** `capture_line_regs`는 BLDCNT/BLDALPHA/BLDY와 BG2/BG3 아핀 매개변수를 라인마다
+스냅샷했고(SKY41) PALETTE는 그리기 시점에 한 번만 읽었다 — 192번의 핸들러 호출이 모두 실행된
+뒤이므로, 프레임 전체가 **191번 라인의** 백드롭으로 칠해졌다.
+
+**수정.** `struct LineRegs`가 `bd`를 지닌다; `fill_backdrop`이 그로부터 한 라인씩 백드롭을
+칠하고 소유자 레코드를 함께 리셋한다. `own_reset`은 사라졌다(호출자가 하나뿐이었고, 백드롭이
+무엇인지 말하는 두 가지 방식은 서로 어긋날 수 있다).
+
+**검증 — 완료.** OFF 레시피 31/31 SHA256 동일(택시의 백드롭은 라인별로 움직이지 않는다);
+마을 실행의 141개 스틸 중 야외 아홉 개만 바뀐다; tap-town 37,500 ncc-top −0.0957 →
++0.1058, mae 29.50 → 22.39; ORACLE44 걸어 나가기 세트의 야외 27프레임 평균 ncc-top 0.1544
+→ 0.2679, mae 27.92 → 22.85, **어떤 지표에서도 나빠진 프레임 없음**. 픽스처
+`port/tools/test_nds2d_backdrop.py`, 12개 검사와 2개 보정. 전체 기록과 레지스터 덤프:
+`docs/kb/hybrid/render-fidelity.md` section 3.
 
 ---
 
@@ -306,10 +396,16 @@ ACWW 모딩 프로젝트는 존재하지만 코드 심볼은 담고 있지 않�
 
 ## 4. 이 감사가 제기하는 가설
 
-- **H1.** 1–2프레임의 스타일러스 랙은 "프레임당 네 샘플에서 연속된 세 개의 정상 샘플"로
-  완전히 설명된다. P1으로 확정된다: 정확히 그것을 모델링하여 24,600에서의 원본의 거부와
-  24,700에서의 수락이 재현되면 메커니즘이 옳은 것이며 `input-and-touch.md`의 미해결 질문이
-  닫힌다.
+- **H1. 확정됨(TOUCH42), 단 정정 있음.** "프레임당 네 샘플에서 연속된 세 개의 정상 샘플"을
+  모델링하면 한 프레임의 지연이 재현되지만 [E: `scratchpad/cycle40/runs/tap-T41pd`,
+  접촉 8,700 -> `TP_POINT` 8,701] **그것만으로는 충분하지 않았다**: 샘플을 ROM의 VBlank
+  핸들러 앞에 전달하면 포트는 24,600에서 여전히 마을 이름을 확정했다
+  [E: `tap-T41h`] [O: `scratchpad/oracle/tap-window`]. 메커니즘의 나머지 절반은
+  순서이다: 핸들러가 패드를 샘플링하므로, 같은 프레임의 누름과 탭이 누름 먼저의 순서로 게임에
+  도달하는 것은 샘플이 그 뒤에 도착할 때뿐이다 — 하드웨어의 순서. 그렇게 하면 24,600은
+  원본처럼 동작하고 [E: `tap-T42b`, ncc 0.9981 over 24,000..27,000] 24,700은 여전히 일치한다
+  [E: `tap-T42c`, ncc 0.9987] [O: `scratchpad/oracle/tap-24700`].
+  `../experiments/touch-latency.md`를 보라.
 - **H2.** ACWW의 어떤 레이어도 VBlank 밖에서 `BGxX`/`BGxY`를 다시 쓰지 않으며, 이것이
   `draw_affine_bg`의 닫힌 형식을 정확하게 만든다. 마을 레시피에 걸쳐 `0x04000038`과
   `0x0400003C`에 `ACWW_INTERP_WATCH`를 걸어 합성 VCOUNT가 192 미만인 쓰기를 보고하게 하여 확정된다.
@@ -326,6 +422,7 @@ ACWW 모딩 프로젝트는 존재하지만 코드 심볼은 담고 있지 않�
 
 - `../engine/graphics-pipeline.md`, `../engine/threads-and-interrupts.md`
 - `../systems/input-and-touch.md`, `../systems/time-and-rtc.md`, `../systems/audio.md`
+- `../experiments/touch-latency.md` — P1의 실험 페이지, 세 조건 모두의 레시피 포함
 - `../../docs/kb/hybrid/hardware-services.md` — 이 주장들이 유래한 구현 측 페이지
 - `../../docs/rules/D-defects.md` — D12(잘못 입력된 대상을 인코딩한 이름)는 C2가 속하는 부류이다
 - `../../docs/rules/M-method.md` — M1(측정을 의심하라)은 B4 행이 그렇게 읽히는 이유이다

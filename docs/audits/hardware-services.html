@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li class="active"><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,16 +124,87 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 하드웨어 서비스와 공개 기록의 대조</span></div><header class="page-head"><h1>감사(audit): 하드웨어 서비스와 공개 기록의 대조</h1><div class="source-line">원문: <code>wiki/audits/hardware-services.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 포트가 ROM 아래에 공급하는 모든 하드웨어 서비스 — ARM7 대역, DMA,
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 하드웨어 서비스와 공개 기록의 대조</span></div><header class="page-head"><h1>감사(audit): 하드웨어 서비스와 공개 기록의 대조</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 4</span><span class="gchip g-E"><b>E</b> 10</span><span class="gchip g-O"><b>O</b> 5</span><span class="gchip g-H"><b>H</b> 2</span></div><div class="source-line">원문: <code>wiki/audits/hardware-services.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 포트가 ROM 아래에 공급하는 모든 하드웨어 서비스 — ARM7 대역, DMA,
 나눗셈/제곱근 유닛, 디스플레이 카운터, 2D 효과 유닛, 지오메트리 엔진, 그리고
 BIOS — 를 GBATEK, 공개 NitroSDK 소스 미러, 에뮬레이터 소스와 대조하여 점검했다.
 서른한 개의 주장을 점검했다. 스물두 개는 공개 기록과 일치하고, 여섯 개는 불일치하며, 세 개는
 미규정이다. 여섯 개의 불일치는 작고 국소적이며 각각 이름 붙은 수정안이 있다. 그중 둘
 (CpuFastSet의 올림과 262번 라인의 VBlank 플래그)은 인용된 스펙 문장에 비추어 명백히 틀렸고,
-하나(스타일러스 지연)는 포트가 원본에서 벗어난 것으로 측정된 가장 큰 차이이며 버그가 아닌
-설계상의 선택이다. Animal Crossing의 디컴파일은 공개된 것이 없다. 반면 완전한 NitroSDK와
+하나(스타일러스 지연)는 포트가 원본에서 벗어난 것으로 측정된 가장 큰 차이였으며 버그가 아닌
+설계상의 선택이었다 — <strong>이제 닫혔다</strong>: 수정안 P1이 TOUCH41과 TOUCH42에서 반영되었고, 포트와
+원본은 같은 프레임의 누름과 탭을 같은 방식으로 순서 짓는다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T42b</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code>; <code>../experiments/touch-latency.md</code></span></span>. Animal Crossing의 디컴파일은 공개된 것이 없다. 반면 완전한 NitroSDK와
 NitroSystem 소스 트리는 공개되어 있으며, 이 저장소가 아직 <code>func_XXXXXXXX</code>라고 부르는 것들의
 상당 부분에 이름을 붙여 줄 수 있다.</p>
+<p><strong>수정안의 현황, 2026-09-10.</strong> 열세 개 중 네 개가 이 감사가 쓰인 이후 반영되거나 닫혔고,
+이 감사가 제기하지 않은 가설 하나가 감사 밖의 유닛에 의해 닫혔다. 아래 항목별 현황 문단이
+권위이며, 이 표는 색인이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>현황</th>
+<th>어디에</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P1</strong> 스타일러스 지연</td>
+<td><strong>반영됨(LANDED)</strong> (TOUCH41 <code>d1fb25b7</code>, TOUCH42 <code>4edc3f6b</code>) — 더 강한 형태로 적용됨: ARM7의 샘플은 ROM의 VBlank 핸들러 뒤에 도착한다</td>
+<td><code>../experiments/touch-latency.md</code>, 아래 H1</td>
+</tr>
+<tr>
+<td><strong>P10</strong> 5비트 색상 효과</td>
+<td><strong>반영됨, 모든 오라클 프레임에서 무효(INERT)로 측정됨</strong> (RENDER42 <code>b1080164</code>); 픽스처가 근거의 전부이다</td>
+<td>아래 P10</td>
+</tr>
+<tr>
+<td><strong>P11</strong> 반투명 OBJ</td>
+<td><strong>무효로 측정됨, 만들지 않음</strong> (RENDER42): 두 레시피 모두에서 모집단이 0이므로 가드는 죽은 코드일 수밖에 없다</td>
+<td>아래 P11</td>
+</tr>
+<tr>
+<td><strong>P13</strong> PXI 상수 인용</td>
+<td><strong>부분적으로 추월됨</strong> (RTC42 <code>ef890990</code>): 태그 5는 이제 바꿔 말하기가 아니라 SDK 자체의 의미론으로 응답되며, 태그 표의 RTC 행은 S 등급이다; 태그 6과 8은 여전히 이 항목이 다루는 하드코딩된 비트 위치를 지니고 있다</td>
+<td><code>../systems/time-and-rtc.md</code>; 아래 H5</td>
+</tr>
+<tr>
+<td>P2, P3, P4, P5, P6, P7, P8, P9, P12</td>
+<td><strong>열림(OPEN)</strong>, 변경 없음</td>
+<td>아래</td>
+</tr>
+<tr>
+<td>여기의 항목이 아님: 포트의 종료 코드</td>
+<td><strong>확정됨(SETTLED)</strong> (STAB42 <code>0bc59cc0</code>): <code>acww.exe</code>는 exit 1로 종료할 수 없다; exit 1은 외부의 <code>TerminateProcess</code>이다</td>
+<td><code>../experiments/run-stability.md</code></td>
+</tr>
+<tr>
+<td><strong>현황, RENDER43 (2026-09-10).</strong> 새 행 하나와 새로 반영된 수정안 하나, 둘 다 같은 것에 관한</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>것이다: <strong>BACKDROP은 프레임당 상수가 아니다.</strong> 행 <strong>F5b</strong>와 수정안 <strong>P14</strong> — ACWW는 거의 모든</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>스캔라인에서 BG 팔레트 항목 0을 다시 쓰며, 그 하프워드 하나가 마을 하늘의 수직 그라디언트이다.</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>이 감사는 효과 유닛이 백드롭으로 무엇을 하는지는 점검했지만 백드롭 자체가 움직이는지는 묻지</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>않았다.</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
 <p><strong>방법.</strong> 커밋 <code>470df4ac</code>에서 읽었다. 공개 소스는 기억이 아니라 실제로 가져왔으며, 아래 각 행은
 URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드를 복사하지 않았다. 게임은 실행하지
 않았다. 한 가지 주장(BIOS CRC16)은 세 후보 알고리즘을 모두 다시 구현하고 수치적으로 비교하여
@@ -177,7 +258,7 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 <td>ACWW는 "샘플링 주기 4"로 아홉 항목짜리 링을 돌린다 [<code>input-and-touch.md</code>, "The stylus"]</td>
 <td>NitroSDK, <a href="https://github.com/ntrtwl/NitroSDK/blob/main/include/nitro/spi/ARM9/tp.h"><code>include/nitro/spi/ARM9/tp.h</code></a>: <code>TP_RequestAutoSamplingStartAsync(u16 vcount, u16 frequence, TPData bufs[], u16 bufSize)</code> 및 <code>TP_SAMPLING_FREQUENCY_MAX</code></td>
 <td>미규정 (헤더에 주석 없음)</td>
-<td>두 번째 인자는 <code>frequence</code>이지 주기가 아니다. 문서화된 최댓값이 16이고 ACWW가 4를 넘기므로, 자연스러운 해석은 <strong>프레임당 네 샘플</strong>이며, 이는 아홉 항목 링을 2.25프레임 깊이로 만들고 <code>func_020e9314</code>의 "마지막 네 항목"을 정확히 한 프레임 분량으로 만든다. 페이지를 고쳐 쓰고 ARM7 쪽을 읽을 때까지 H 등급으로 표시하라</td>
+<td>두 번째 인자는 <code>frequence</code>이지 주기가 아니다. 문서화된 최댓값이 16이고 ACWW가 4를 넘기므로, 자연스러운 해석은 <strong>프레임당 네 샘플</strong>이며, 이는 아홉 항목 링을 2.25프레임 깊이로 만들고 <code>func_020e9314</code>의 "마지막 네 항목"을 정확히 한 프레임 분량으로 만든다. <strong>확정됨(TOUCH41)</strong>: ARM7 쪽을 공개된 <code>libraries/spi/src/ARM7/tp/tp_sampling.c</code>에서 읽었고 포트는 이제 VBlank당 네 샘플을 구동한다; <code>input-and-touch.md</code>는 "프레임당 네 샘플"이라고 읽힌다</td>
 </tr>
 <tr>
 <td>A6</td>
@@ -523,6 +604,13 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 <td>없음</td>
 </tr>
 <tr>
+<td>F5b</td>
+<td><em>(RENDER43, 신규)</em> 백드롭은 BG 팔레트 항목 0이며 프레임당 한 번만 읽힌다 [<code>nds2d.c</code>, the fill, as read at <code>6081a9a1</code>]</td>
+<td>GBATEK, <a href="https://problemkaputt.de/gbatek-lcd-i-o-bg-control.htm">LCD I/O BG Control</a> 및 팔레트 맵: 항목 0은 백드롭이며 일반 팔레트 RAM으로서 언제든 — HBlank 핸들러에서도 — 쓸 수 있다</td>
+<td><strong>불일치 — 수정됨(P14, RENDER43)</strong></td>
+<td>ACWW는 거의 모든 스캔라인에서 항목 0을 다시 쓰며 그것이 바로 마을 하늘의 수직 그라디언트이다: 마을 프레임 37,500의 엔진 B는 0번 라인의 <code>7084</code>에서 176번 라인의 <code>79e4</code>까지, 5비트 녹색 4 → 15로 달리는 반면 항목 1..31은 전혀 움직이지 않는다(<code>ACWW_REGDUMP</code>, <code>scratchpad/render43/regdump-town37500.txt</code>). <code>struct LineRegs</code>는 이제 <code>bd</code>를 지니고 <code>fill_backdrop</code>이 라인별로 칠한다. 픽스처 <code>port/tools/test_nds2d_backdrop.py</code>; <code>ACWW_FLATBD=1</code>은 옛 조건을 유지한다</td>
+</tr>
+<tr>
 <td>F6</td>
 <td>아핀 BG 행렬 항목 PA..PD는 부호 있는 8.8이다</td>
 <td>GBATEK, <a href="https://problemkaputt.de/gbatek-lcd-i-o-bg-rotation-scaling.htm">LCD I/O BG Rotation/Scaling</a>: <em>"Bit 0-7 Fractional portion (8 bits); Bit 8-14 Integer portion (7 bits); Bit 15 Sign"</em></td>
@@ -707,6 +795,16 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 <p><strong>코드.</strong> <code>touch_scheduled</code>는 정확히 <code>[AT, AT+FOR)</code> 구간의 프레임에 대해 "down"을 반환하고 <code>func_020e9314</code>는 그 프레임에 게시한다.</p>
 <p><strong>수정.</strong> <code>func_020e9314</code> 안에 최근 세 프레임의 접촉 상태를 담는 작은 시프트 레지스터를 둔다. 셋 모두 down일 때만 <code>touch = 1</code>을 게시하고(시작이 두 프레임 지연), 가장 새로운 샘플이 up으로 바뀐 뒤 한 프레임 동안 <code>touch = 1</code>을 유지한다(해제가 한 프레임 지연). 기존의 모든 측정이 비교 가능하도록 한 주기 동안은 기본값 <strong>off</strong>인 <code>ACWW_TOUCH_LATENCY=0|1</code> 뒤에서 수행한 뒤, 기본값을 뒤집는다.</p>
 <p><strong>검증.</strong> 픽스처는 이미 존재한다. ORACLE42가 24,700으로 옮기기 전에 어긋났던 24,600 레시피를 지연을 모델링한 채 다시 실행하고, 25,500 프레임에서 <code>scratchpad/oracle/tap-fullpad</code>와 비교한다. 성공은 포트가 원본과 정확히 같은 방식으로 마을 이름 확정에 실패하는 것이다. 이는 <code>wiki/systems/input-and-touch.md</code> 끝의 열린 가설이며 이 수정안이 그 실험이다.</p>
+<p><strong>현황 (TOUCH41, d1fb25b7).</strong> 위의 수정안보다 더 강한 형태로 적용되었다: 전사 과정 안의
+시프트 레지스터 대신 ROM 자신의 <code>func_020e9314</code>가 실행되고(인터프리터 경로에서 touch.c를
+거부), <code>port/shim/os/pxisend.c</code>가 ARM7의 링을 VBlank당 네 샘플로, ARM7의 펜 업 인코딩(validity
+INVALID_XY)으로 채운다. 한 프레임의 지연이 측정되었다(접촉 8,700 → TP_POINT 8,701)
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T41pd</code></span></span>. 검증 단계는 지금까지 <strong>부정적</strong>이다: 24,600 레시피는
+원본이 확정하지 않는 곳에서 여전히 확정한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T41h</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span>;
+24,700 레시피는 0.9986을 기록한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T41i</code></span></span>. <strong>TOUCH42로 닫힘</strong>: 네 샘플을 ROM의 VBlank
+핸들러 뒤에(하드웨어의 순서) 전달하면 24,600 레시피가 원본처럼 키보드에 머문다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42b</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code>, ncc 0.9981 over 24,000..27,000</span></span>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH42</span></span>.</p>
 <h3 id="p2-dispstat의-vblank-라인-범위-v-카운트-일치-hblank-portinterpinterp-bootc-dispstat-load">P2 — DISPSTAT의 VBlank 라인 범위, V-카운트 일치, HBlank (<code>port/interp/interp_boot.c</code>, <code>dispstat_load</code>)</h3>
 <p><strong>스펙.</strong> GBATEK, <a href="http://problemkaputt.de/gbatek-ds-video-stuff.htm">DS Video Stuff</a>: <em>"the VBlank flag isn't set in the last line (ie. only in lines 192..261, but not in line 262)"</em>. <a href="http://problemkaputt.de/gbatek-lcd-i-o-interrupts-and-status.htm">LCD I/O Interrupts and Status</a>: 비트 2는 V-카운터 일치 플래그로, VCOUNT가 DISPSTAT 비트 8–15와 7의 비교값과 같을 때 설정된다; 비트 1은 HBlank 플래그이며 <em>"toggled in all lines"</em>이다.</p>
 <p><strong>코드.</strong> <code>return ((v &gt;= 192u ? 1u : 0u) | (page &amp; 0xfff8u)) | (v &lt;&lt; 16);</code> — VBlank는 192..262, 비트 1은 항상 0, 비트 2는 항상 0.</p>
@@ -752,11 +850,35 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 <p><strong>코드.</strong> 둘 다 8비트로 확장된 채널에서 동작하며 255에서 클램프한다.</p>
 <p><strong>수정.</strong> BGR555→BGRA 확장 전에 5비트 채널 값으로 산술을 수행하거나, 동등하게 <code>&gt;&gt;3</code>, 블렌드, 31에서 클램프, <code>&lt;&lt;3</code>. 눈에 보이는 차이는 채널당 기껏해야 몇 레벨이지만 오라클에 대한 체계적 편향이며 제거하는 데 비용이 들지 않는다.</p>
 <p><strong>검증.</strong> <code>port/render/selftest.c</code>에는 이미 블렌드 픽스처가 있다(SKY40이 통과를 기록한다). 손으로 계산한 5비트 기댓값을 가진 세 가지 경우를 추가한다: 알려진 두 BGR555 색상에 대한 EVA=9/EVB=7, EVY=5 증가, EVY=5 감소. 그런 다음 <code>tap-D62</code>의 샘플링된 아홉 프레임에서 <code>scratchpad/oracle/tap-24700</code>에 대한 ncc 비교를 다시 실행하고 평균이 떨어지지 않는지 확인한다.</p>
+<p><strong>현황: 반영됨(RENDER42), 그리고 모든 오라클 프레임에서 무효로 측정됨.</strong> <code>chan_mix</code>와
+<code>brighten</code>은 이제 <code>&gt;&gt;3</code>으로 5비트로 내려가 산술을 수행하고, 31에서 클램프하고,
+<code>(c&lt;&lt;3)|(c&gt;&gt;2)</code>로 확장한다. 픽스처는 <code>selftest.c</code>가 아니라 <code>port/tools/test_nds2d_blend.py</code>이다:
+그 <code>mix</code>/<code>brighter</code>/<code>darker</code>는 5비트 정의역으로 다시 쓰였고 위 문단이 요구하는 세 가지 경우가
+추가되었다 — 27개 검사와 두 보정 모두 잡아냈다. 세 경우 각각이 두 정의역을 분리한다(파랑 위
+빨강에 대한 EVA=9/EVB=7은 8비트 산술로 143, 하드웨어의 산술로 140)므로, 픽스처는 P10 이전
+렌더러에서 실패한다.
+픽셀은 움직이지 않았다: OFF 레시피의 31프레임과 마을 레시피의 42프레임은 전후로
+<strong>바이트 단위로 동일</strong>하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/off-base42</code> vs <code>off-p10</code>, <code>tap-base42</code> vs <code>tap-p10</code>; receipt lost with its worktree; repeat the named recipe and retain the stated frames</span></span>. 그 이유는 이 레시피들이 도달하는 효과 상태가
+두 정의역이 일치하는 상태 — <code>EVY</code>가 0 또는 16, 그리고 피연산자 중 하나가 검정인 알파
+블렌드 — 이기 때문이며, 편향이 드러나려면 0이 아닌 두 색상에 대한 중간 범위의 계수가 필요하다.
+따라서 픽스처가 근거의 전부이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/render-fidelity.md</code> section 3</span></span>.</p>
 <h3 id="p11-반투명-obj는-절대-밝기-경로를-타지-않아야-한다-portrendernds2dc-apply-color-effects">P11 — 반투명 OBJ는 절대 밝기 경로를 타지 않아야 한다 (<code>port/render/nds2d.c</code>, <code>apply_color_effects</code>)</h3>
 <p><strong>스펙.</strong> GBATEK, 같은 페이지: 반투명 OBJ는 <em>"are always using Alpha Blending mode (regardless of BLDCNT Bit 6-7)"</em>이다.</p>
 <p><strong>코드.</strong> <code>own_semi[i]</code>가 설정되었지만 아래 레이어가 두 번째 타깃이 아닐 때, OBJ가 BLDCNT 첫 번째 타깃이면 픽셀이 밝기 분기로 떨어질 수 있다.</p>
 <p><strong>수정.</strong> 밝기 분기를 <code>!own_semi[i]</code>로 가드한다. 낮은 우선순위이며 먼저 측정할 가치가 있다: 에뮬레이터들은 여기서 GBATEK의 문자 그대로의 문장과 다르며, 포트의 카운터는 이미 두 모집단을 분리한다(<code>px_obj_semi</code> 대 <code>px_bright</code>).</p>
 <p><strong>검증.</strong> 먼저 마을 실행에서 <code>px_obj_semi</code>와 <code>px_bright</code>를 읽는다. 반투명 픽셀에서 <code>px_bright</code>가 0이면 이 변경은 무의미하므로 하지 않아야 한다.</p>
+<p><strong>현황: 무효로 측정됨, 만들지 않음(RENDER42).</strong> 포트는 두 레시피 어느 쪽에서도 attr0 모드 1
+스프라이트를 전혀 그리지 않으므로, 수정안이 움직일 모집단은 비어 있고 가드는 죽은 코드일
+수밖에 없다. <code>nds2d: colour special effects</code>는 OFF 레시피의 끝에서
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/off-base42</code>; receipt lost with its worktree; repeat the named recipe and retain the stated frames</span></span> 그리고 48,000프레임 마을 레시피의 끝에서
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D63</code></span></span> <code>semi-transparent OBJ=00000000</code>과
+<code>semi-transparent sprites with a non-identity EVA/EVB=00000000</code>을 보고하는 반면,
+<code>brightness (modes 2/3)</code>는 각각 2.8M과 5.0M 픽셀을 센다 — 두 모집단은 깔끔하게 분리되며
+반투명 쪽은 0이다. 이는 부정적 결과로 닫힌다: 가드는 인용된 문장에 비추어 옳지만 그 근거만으로
+추가해서는 안 된다. 여기의 어떤 것도 그것을 실행시킬 수 없고, 테스트할 수 없는 분기는 부채이기
+때문이다. <code>px_obj_semi</code>가 0이 아닌 씬이 발견될 때만 다시 연다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/render-fidelity.md</code> section 3</span></span>.</p>
 <h3 id="p12-gxstat-empty-비트를-설정하고-fifo-irq-모드를-지우지-않는다-portrendernds3dc-gxstat-update">P12 — GXSTAT: empty 비트를 설정하고 FIFO-IRQ 모드를 지우지 않는다 (<code>port/render/nds3d.c</code>, <code>gxstat_update</code>)</h3>
 <p><strong>스펙.</strong> GBATEK, <a href="https://problemkaputt.de/gbatek-ds-3d-status.htm">DS 3D Status</a>: <em>"25 Command FIFO Less Than Half Full"</em>, <em>"26 Command FIFO Empty"</em>, <em>"30-31 Command FIFO IRQ"</em>. <code>NNS_G3dInit</code>는 기동 시 비트 30–31을 쓴다 [<code>src/matched/NNS_G3dInit.c</code>].</p>
 <p><strong>코드.</strong> <code>v |= 1u &lt;&lt; 25;</code>뿐이며, <code>wr32(GX_GXSTAT, v | (old &amp; 0x8000u))</code>는 스택 오류 비트 외에는 아무것도 유지하지 않는다.</p>
@@ -767,6 +889,30 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 <p><strong>코드.</strong> <code>pxisend.c:8-22</code>는 기억에 의존해 <code>pm_common.h</code>를 언급하고 <code>1&lt;&lt;25</code>, <code>1&lt;&lt;24</code>, <code>0x8000</code>을 하드코딩한다. <code>hardware-services.md</code>의 태그 표는 E 등급 — 읽은 것이 아니라 관측된 것이다.</p>
 <p><strong>수정.</strong> 두 헤더를 읽고, 주석에 상수 이름을 명시하며, 헤더를 출처로 삼아 태그 표를 E에서 S로 승격한다. PXI 데이터 필드가 비트 25보다 좁은 것으로 드러나면, 터치 응답 워드는 포트가 콜백을 직접 호출하기 때문에 현재로서는 문제를 일으키지 못할 뿐인 방식으로 틀린 것이다.</p>
 <p><strong>검증.</strong> 문서와 주석; 그런 다음 한 번 실행하여 <code>acww pxi:</code> 줄이 하나도 바뀌지 않았음을 확인한다.</p>
+<p><strong>현황: 부분적으로 추월됨(RTC42, <code>ef890990</code>).</strong> 태그 5는 더 이상 바꿔 말하기가 아니다:
+<code>pxisend.c</code>는 이를 SDK 자체의 방식으로 응답하여, <code>RTCRawDate</code>/<code>RTCRawTime</code>을 <code>0x027ffde8</code>의
+시스템 워크에 패킹하고 <code>command &lt;&lt; 8 | RTC_PXI_RESULT_SUCCESS</code>를 <strong>송신 안에서</strong> 전달한다.
+<code>RtcWaitBusy</code>가 양보 없는 어셈블리 스핀이고 <code>RTC_GetDateTimeAsync</code>가 송신 전에 락, 버퍼, 콜백을
+준비하기 때문이다 — 태그 6의 규칙과 정반대이며, 두 방향 모두 선택된 것이 아니라 ROM 자신의
+코드에 의해 강제된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/RtcWaitBusy.c</code>, <code>src/matched/RTC_GetDateTimeAsync.c</code>; E: <code>../systems/time-and-rtc.md</code></span></span>. <code>port/tools/test_rtc.py</code>는
+원시 블록이 그 주소에 쓰이고 태그 5가 디스패치되는지를 정적으로 검사한다. 이 항목은 닫히지
+<strong>않았다</strong>: 태그 6과 8은 여전히 하드코딩된 <code>1&lt;&lt;25</code>, <code>1&lt;&lt;24</code>, <code>0x8000</code>을 지니고 있으며,
+태그 표는 그들에 대해 여전히 E 등급이다.</p>
+<h3 id="p14-백드롭은-스캔라인-단위이다-portrendernds2dc-capture-line-regs-및-fill-backdrop-반영됨-render43">P14 — 백드롭은 스캔라인 단위이다 (<code>port/render/nds2d.c</code>, <code>capture_line_regs</code> 및 <code>fill_backdrop</code>) — <strong>반영됨, RENDER43</strong></h3>
+<p><strong>스펙.</strong> BG 팔레트 항목 0은 백드롭이며 일반 팔레트 RAM이다: 게임은 HBlank 핸들러에서 이를 쓸
+수 있고, ACWW는 거의 모든 라인에서 실제로 그렇게 한다.</p>
+<p><strong>코드, 이전.</strong> <code>capture_line_regs</code>는 BLDCNT/BLDALPHA/BLDY와 BG2/BG3 아핀 매개변수를 라인마다
+스냅샷했고(SKY41) PALETTE는 그리기 시점에 한 번만 읽었다 — 192번의 핸들러 호출이 모두 실행된
+뒤이므로, 프레임 전체가 <strong>191번 라인의</strong> 백드롭으로 칠해졌다.</p>
+<p><strong>수정.</strong> <code>struct LineRegs</code>가 <code>bd</code>를 지닌다; <code>fill_backdrop</code>이 그로부터 한 라인씩 백드롭을
+칠하고 소유자 레코드를 함께 리셋한다. <code>own_reset</code>은 사라졌다(호출자가 하나뿐이었고, 백드롭이
+무엇인지 말하는 두 가지 방식은 서로 어긋날 수 있다).</p>
+<p><strong>검증 — 완료.</strong> OFF 레시피 31/31 SHA256 동일(택시의 백드롭은 라인별로 움직이지 않는다);
+마을 실행의 141개 스틸 중 야외 아홉 개만 바뀐다; tap-town 37,500 ncc-top −0.0957 →
++0.1058, mae 29.50 → 22.39; ORACLE44 걸어 나가기 세트의 야외 27프레임 평균 ncc-top 0.1544
+→ 0.2679, mae 27.92 → 22.85, <strong>어떤 지표에서도 나빠진 프레임 없음</strong>. 픽스처
+<code>port/tools/test_nds2d_backdrop.py</code>, 12개 검사와 2개 보정. 전체 기록과 레지스터 덤프:
+<code>docs/kb/hybrid/render-fidelity.md</code> section 3.</p>
 <hr />
 <h2 id="3-func-xxxxxxxx에-이름을-붙여-줄-수-있는-공개-참고-자료">3. <code>func_XXXXXXXX</code>에 이름을 붙여 줄 수 있는 공개 참고 자료</h2>
 <p>요청대로 URL만 나열한다; 이 중 어느 것도 저장소에 복사되지 않았다.</p>
@@ -803,10 +949,15 @@ ACWW 모딩 프로젝트는 존재하지만 코드 심볼은 담고 있지 않�
 <hr />
 <h2 id="4-이-감사가-제기하는-가설">4. 이 감사가 제기하는 가설</h2>
 <ul>
-<li><strong>H1.</strong> 1–2프레임의 스타일러스 랙은 "프레임당 네 샘플에서 연속된 세 개의 정상 샘플"로
-  완전히 설명된다. P1으로 확정된다: 정확히 그것을 모델링하여 24,600에서의 원본의 거부와
-  24,700에서의 수락이 재현되면 메커니즘이 옳은 것이며 <code>input-and-touch.md</code>의 미해결 질문이
-  닫힌다.</li>
+<li><strong>H1. 확정됨(TOUCH42), 단 정정 있음.</strong> "프레임당 네 샘플에서 연속된 세 개의 정상 샘플"을
+  모델링하면 한 프레임의 지연이 재현되지만 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T41pd</code>, 접촉 8,700 -&gt; <code>TP_POINT</code> 8,701</span></span> <strong>그것만으로는 충분하지 않았다</strong>: 샘플을 ROM의 VBlank
+  핸들러 앞에 전달하면 포트는 24,600에서 여전히 마을 이름을 확정했다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T41h</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span>. 메커니즘의 나머지 절반은
+  순서이다: 핸들러가 패드를 샘플링하므로, 같은 프레임의 누름과 탭이 누름 먼저의 순서로 게임에
+  도달하는 것은 샘플이 그 뒤에 도착할 때뿐이다 — 하드웨어의 순서. 그렇게 하면 24,600은
+  원본처럼 동작하고 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42b</code>, ncc 0.9981 over 24,000..27,000</span></span> 24,700은 여전히 일치한다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42c</code>, ncc 0.9987</span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-24700</code></span></span>.
+  <code>../experiments/touch-latency.md</code>를 보라.</li>
 <li><strong>H2.</strong> ACWW의 어떤 레이어도 VBlank 밖에서 <code>BGxX</code>/<code>BGxY</code>를 다시 쓰지 않으며, 이것이
   <code>draw_affine_bg</code>의 닫힌 형식을 정확하게 만든다. 마을 레시피에 걸쳐 <code>0x04000038</code>과
   <code>0x0400003C</code>에 <code>ACWW_INTERP_WATCH</code>를 걸어 합성 VCOUNT가 192 미만인 쓰기를 보고하게 하여 확정된다.</li>
@@ -823,10 +974,11 @@ ACWW 모딩 프로젝트는 존재하지만 코드 심볼은 담고 있지 않�
 <ul>
 <li><code>../engine/graphics-pipeline.md</code>, <code>../engine/threads-and-interrupts.md</code></li>
 <li><code>../systems/input-and-touch.md</code>, <code>../systems/time-and-rtc.md</code>, <code>../systems/audio.md</code></li>
+<li><code>../experiments/touch-latency.md</code> — P1의 실험 페이지, 세 조건 모두의 레시피 포함</li>
 <li><code>../../docs/kb/hybrid/hardware-services.md</code> — 이 주장들이 유래한 구현 측 페이지</li>
 <li><code>../../docs/rules/D-defects.md</code> — D12(잘못 입력된 대상을 인코딩한 이름)는 C2가 속하는 부류이다</li>
 <li><code>../../docs/rules/M-method.md</code> — M1(측정을 의심하라)은 B4 행이 그렇게 읽히는 이유이다</li>
-</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/data-formats.html"><small>◀ 이전</small>감사(audit): 공개 사양 대비 데이터 포맷</a><a class="pn next" href="../audits/3d-engine.html"><small>다음 ▶</small>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></nav>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../audits/save-records.html"><small>◀ 이전</small>감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a><a class="pn next" href="../audits/3d-engine.html"><small>다음 ▶</small>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></nav>
     </div>
     <footer class="foot">
       <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
@@ -834,7 +986,7 @@ ACWW 모딩 프로젝트는 존재하지만 코드 심볼은 담고 있지 않�
     </footer>
   </main>
 
-  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#1-주장-표">1. 주장 표</a><ul><li><a href="#a-스타일러스-샘플링과-tsc-변환">A. 스타일러스 샘플링과 TSC 변환</a></li><li><a href="#b-bios-swi-목록">B. BIOS SWI 목록</a></li><li><a href="#c-dma">C. DMA</a></li><li><a href="#d-나눗셈-및-제곱근-유닛">D. 나눗셈 및 제곱근 유닛</a></li><li><a href="#e-dispstat와-vcount">E. DISPSTAT와 VCOUNT</a></li><li><a href="#f-2d-색상-효과와-아핀-배경">F. 2D 색상 효과와 아핀 배경</a></li><li><a href="#g-지오메트리-엔진">G. 지오메트리 엔진</a></li><li><a href="#h-pxi-fifo-프로토콜">H. PXI FIFO 프로토콜</a></li></ul></li><li><a href="#2-구체적인-포트-수정안-우선순위-순">2. 구체적인 포트 수정안, 우선순위 순</a><ul><li><a href="#p1-스타일러스의-12프레임-지연을-모델링한다-portshiminputtouchc-func-020e9314">P1 — 스타일러스의 1–2프레임 지연을 모델링한다 (port/shim/input/touch.c, func_020e9314)</a></li><li><a href="#p2-dispstat의-vblank-라인-범위-v-카운트-일치-hblank-portinterpinterp-bootc-dispstat-load">P2 — DISPSTAT의 VBlank 라인 범위, V-카운트 일치, HBlank (port/interp/interp_boot.c, dispstat_load)</a></li><li><a href="#p3-mi-dmacopy32mi-dmacopy16mi-dmafill32는-gx-fifo-목적지를-인식해야-한다-portshimosdmac">P3 — MI_DmaCopy32/MI_DmaCopy16/MI_DmaFill32는 GX FIFO 목적지를 인식해야 한다 (port/shim/os/dma.c)</a></li><li><a href="#p4-cpufastset은-nds에서-올림하지-않아야-한다-portinterpinterp-biosc-case-0x0c">P4 — CpuFastSet은 NDS에서 올림하지 않아야 한다 (port/interp/interp_bios.c, case 0x0c)</a></li><li><a href="#p5-dma-제어-워드-주석을-고친다-portshimosdmac-dma-raw-위">P5 — DMA 제어 워드 주석을 고친다 (port/shim/os/dma.c, dma_raw 위)</a></li><li><a href="#p6-빠진-압축-해제-swi를-선제한다-portinterpinterp-biosc">P6 — 빠진 압축 해제 SWI를 선제한다 (port/interp/interp_bios.c)</a></li><li><a href="#p7-div0-플래그-portinterpinterp-bootc-io-load">P7 — DIV0 플래그 (port/interp/interp_boot.c, io_load)</a></li><li><a href="#p8-getcrc16-길이-portinterpinterp-biosc-case-0x0e">P8 — GetCRC16 길이 (port/interp/interp_bios.c, case 0x0e)</a></li><li><a href="#p9-io-페이지의-바이트-읽기가-합성-훅을-우회한다-portinterpinterp-cpuc-ld8">P9 — I/O 페이지의 바이트 읽기가 합성 훅을 우회한다 (port/interp/interp_cpu.c, ld8)</a></li><li><a href="#p10-색상-효과를-5비트-정의역에서-적용한다-portrendernds2dc-chan-mix-및-brighten">P10 — 색상 효과를 5비트 정의역에서 적용한다 (port/render/nds2d.c, chan_mix 및 brighten)</a></li><li><a href="#p11-반투명-obj는-절대-밝기-경로를-타지-않아야-한다-portrendernds2dc-apply-color-effects">P11 — 반투명 OBJ는 절대 밝기 경로를 타지 않아야 한다 (port/render/nds2d.c, apply_color_effects)</a></li><li><a href="#p12-gxstat-empty-비트를-설정하고-fifo-irq-모드를-지우지-않는다-portrendernds3dc-gxstat-update">P12 — GXSTAT: empty 비트를 설정하고 FIFO-IRQ 모드를 지우지 않는다 (port/render/nds3d.c, gxstat_update)</a></li><li><a href="#p13-pxi-프로토콜-상수를-바꿔-말하지-말고-인용한다-portshimospxisendc">P13 — PXI 프로토콜 상수를 바꿔 말하지 말고 인용한다 (port/shim/os/pxisend.c)</a></li></ul></li><li><a href="#3-func-xxxxxxxx에-이름을-붙여-줄-수-있는-공개-참고-자료">3. func_XXXXXXXX에 이름을 붙여 줄 수 있는 공개 참고 자료</a></li><li><a href="#4-이-감사가-제기하는-가설">4. 이 감사가 제기하는 가설</a></li><li><a href="#5-관련-문서">5. 관련 문서</a></li></ul></nav></aside>
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#1-주장-표">1. 주장 표</a><ul><li><a href="#a-스타일러스-샘플링과-tsc-변환">A. 스타일러스 샘플링과 TSC 변환</a></li><li><a href="#b-bios-swi-목록">B. BIOS SWI 목록</a></li><li><a href="#c-dma">C. DMA</a></li><li><a href="#d-나눗셈-및-제곱근-유닛">D. 나눗셈 및 제곱근 유닛</a></li><li><a href="#e-dispstat와-vcount">E. DISPSTAT와 VCOUNT</a></li><li><a href="#f-2d-색상-효과와-아핀-배경">F. 2D 색상 효과와 아핀 배경</a></li><li><a href="#g-지오메트리-엔진">G. 지오메트리 엔진</a></li><li><a href="#h-pxi-fifo-프로토콜">H. PXI FIFO 프로토콜</a></li></ul></li><li><a href="#2-구체적인-포트-수정안-우선순위-순">2. 구체적인 포트 수정안, 우선순위 순</a><ul><li><a href="#p1-스타일러스의-12프레임-지연을-모델링한다-portshiminputtouchc-func-020e9314">P1 — 스타일러스의 1–2프레임 지연을 모델링한다 (port/shim/input/touch.c, func_020e9314)</a></li><li><a href="#p2-dispstat의-vblank-라인-범위-v-카운트-일치-hblank-portinterpinterp-bootc-dispstat-load">P2 — DISPSTAT의 VBlank 라인 범위, V-카운트 일치, HBlank (port/interp/interp_boot.c, dispstat_load)</a></li><li><a href="#p3-mi-dmacopy32mi-dmacopy16mi-dmafill32는-gx-fifo-목적지를-인식해야-한다-portshimosdmac">P3 — MI_DmaCopy32/MI_DmaCopy16/MI_DmaFill32는 GX FIFO 목적지를 인식해야 한다 (port/shim/os/dma.c)</a></li><li><a href="#p4-cpufastset은-nds에서-올림하지-않아야-한다-portinterpinterp-biosc-case-0x0c">P4 — CpuFastSet은 NDS에서 올림하지 않아야 한다 (port/interp/interp_bios.c, case 0x0c)</a></li><li><a href="#p5-dma-제어-워드-주석을-고친다-portshimosdmac-dma-raw-위">P5 — DMA 제어 워드 주석을 고친다 (port/shim/os/dma.c, dma_raw 위)</a></li><li><a href="#p6-빠진-압축-해제-swi를-선제한다-portinterpinterp-biosc">P6 — 빠진 압축 해제 SWI를 선제한다 (port/interp/interp_bios.c)</a></li><li><a href="#p7-div0-플래그-portinterpinterp-bootc-io-load">P7 — DIV0 플래그 (port/interp/interp_boot.c, io_load)</a></li><li><a href="#p8-getcrc16-길이-portinterpinterp-biosc-case-0x0e">P8 — GetCRC16 길이 (port/interp/interp_bios.c, case 0x0e)</a></li><li><a href="#p9-io-페이지의-바이트-읽기가-합성-훅을-우회한다-portinterpinterp-cpuc-ld8">P9 — I/O 페이지의 바이트 읽기가 합성 훅을 우회한다 (port/interp/interp_cpu.c, ld8)</a></li><li><a href="#p10-색상-효과를-5비트-정의역에서-적용한다-portrendernds2dc-chan-mix-및-brighten">P10 — 색상 효과를 5비트 정의역에서 적용한다 (port/render/nds2d.c, chan_mix 및 brighten)</a></li><li><a href="#p11-반투명-obj는-절대-밝기-경로를-타지-않아야-한다-portrendernds2dc-apply-color-effects">P11 — 반투명 OBJ는 절대 밝기 경로를 타지 않아야 한다 (port/render/nds2d.c, apply_color_effects)</a></li><li><a href="#p12-gxstat-empty-비트를-설정하고-fifo-irq-모드를-지우지-않는다-portrendernds3dc-gxstat-update">P12 — GXSTAT: empty 비트를 설정하고 FIFO-IRQ 모드를 지우지 않는다 (port/render/nds3d.c, gxstat_update)</a></li><li><a href="#p13-pxi-프로토콜-상수를-바꿔-말하지-말고-인용한다-portshimospxisendc">P13 — PXI 프로토콜 상수를 바꿔 말하지 말고 인용한다 (port/shim/os/pxisend.c)</a></li><li><a href="#p14-백드롭은-스캔라인-단위이다-portrendernds2dc-capture-line-regs-및-fill-backdrop-반영됨-render43">P14 — 백드롭은 스캔라인 단위이다 (port/render/nds2d.c, capture_line_regs 및 fill_backdrop) — 반영됨, RENDER43</a></li></ul></li><li><a href="#3-func-xxxxxxxx에-이름을-붙여-줄-수-있는-공개-참고-자료">3. func_XXXXXXXX에 이름을 붙여 줄 수 있는 공개 참고 자료</a></li><li><a href="#4-이-감사가-제기하는-가설">4. 이 감사가 제기하는 가설</a></li><li><a href="#5-관련-문서">5. 관련 문서</a></li></ul></nav></aside>
 </div>
 <div class="backdrop" id="backdrop"></div>
 

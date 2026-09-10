@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,7 +124,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>씬과 채널</span></div><header class="page-head"><h1>씬과 채널</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 64</span><span class="gchip g-E"><b>E</b> 11</span><span class="gchip g-H"><b>H</b> 4</span></div><div class="source-line">원문: <code>wiki/engine/scenes-and-channels.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 디스플레이 오브젝트 프레임워크 위에는 씬(scene) 머신이 있다 — 각 씬이 "채널"의 목록을
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>씬과 채널</span></div><header class="page-head"><h1>씬과 채널</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 63</span><span class="gchip g-E"><b>E</b> 8</span><span class="gchip g-H"><b>H</b> 8</span></div><div class="source-line">원문: <code>wiki/engine/scenes-and-channels.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 디스플레이 오브젝트 프레임워크 위에는 씬(scene) 머신이 있다 — 각 씬이 "채널"의 목록을
 소유하는 번호가 매겨진 상태 머신이다. 채널(channel)은 번호가 매겨진 기능(지면, 필드 렌더러,
 파티클 시스템, 위젯)으로, 세 단계 시퀀스를 통해 열리고 이중 간접 핸들러 테이블을 통해
 디스패치된다. 야외 필드 씬인 씬 6은 필요한 만큼의 프레임에 걸쳐 여섯 스테이지로 로드되며,
@@ -128,7 +138,7 @@
 <code>func_020a6688</code>이고 게터는 <code>func_020a6684</code>인데, 게터는 매 스텝마다 호출되므로
 머신의 틱을 보는 유일한 장소다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/scenestate.c:30-40</code></span></span>.
 관측된 상태의 순서는 16, 그다음 0, 1, 2, 그리고 위로 올라간다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/scenestate.c</code> header, from the port's <code>acww scenest:</code> trace</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/scenestate.c</code> header, from the port's <code>acww scenest:</code> trace; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
 <p>상태 16의 본체 전체는 하나의 가드다: 씬 id <code>data_020e3c80</code>이
 5와 같지 않으면 반환한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/scenestate.c:31-34</code></span></span>. 따라서 하나의 상태를 설정하고 멈추는
 머신은 결코 열리지 않는 가드를 가진 것이며, 상태 트레이스가 어느 것인지 이름 짓는다
@@ -140,7 +150,7 @@
 포인터이며, 스테이지 카운터는 <code>0x021f42f0</code>의 바이트로 씬에 진입할 때 <code>func_020a5598</code>이
 지운다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/scene6init.c</code> header</span></span>.</p>
 <p>스테이지 4는 채널을 여는 서브스테이지 목록이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/game/chanvector.c</code> header, narrowed by elimination on the native path</span></span>.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/game/chanvector.c</code> header, narrowed by elimination on the native path; verify with a retained scripted run and frame using this page's recipe</span></span>.
 스테이지 5는 <code>func_020b0b00</code>을 실행하는데, 이는 리소스 항목을 순회하며 각 항목에 대해
 <code>data_020e41ec[e-&gt;b0]</code>를 디스패치하는 루프다; 0을 반환하는 핸들러는 "끝나지 않았으니 다음 프레임에
 다시 오라"는 뜻이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020b0b00</code>, main, <code>port/shim/game/stageloop.c</code> header, body from <code>src/matched/func_020b0b00.c</code></span></span>. 스테이지 6은 ROM에서 시퀀서 메일박스를 지우는 유일한 것으로,
@@ -207,7 +217,7 @@ ROM은 전역 변수의 값을 역참조하고, 인덱싱하고, 호출 전에 �
 <p><code>func_020edbbc</code>에 전달되는 서로 다른 핸들러 id의 집합이 곧 한 부팅이 여는 채널의 집합인데,
 첫 번째 인자가 테이블을 인덱싱하는 id이기 때문이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/chanopen.c:40-56</code></span></span>. 지금까지 이름이 붙은 id: 채널 1은 타이틀 씬
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/gfx/dispjoin.c</code> header</span></span>; 채널 13은 마을의 지면으로, 레코드는
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/gfx/dispjoin.c</code> header; verify with a retained scripted run and frame using this page's recipe</span></span>; 채널 13은 마을의 지면으로, 레코드는
 <code>0x02239a2c</code>에 있고 생성자 <code>func_ov003_0221fe10</code>은 vtable 슬롯 0에 에이커 모델 및 텍스처 로더를
 가진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/chanopen.c:41-45</code></span></span>; 채널 189의 객체는 <code>0x022382ac</code>의 vtable 슬롯 9에
 모델 그리기를 가지며, 포트의 심 헤더들이 여전히 부르는 이름인 필드 렌더러가 아니라
@@ -432,7 +442,7 @@ ROM은 전역 변수의 값을 역참조하고, 인덱싱하고, 호출 전에 �
 그 줄들에 <code>ACWW_TRACE_STATE</code>가 필요하다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/chanopen.c:38</code></span></span>.</p>
 <p>"채널 목록이 짧다"와 "순회가 프레임 예산을 다 썼다"를 구분하려면, 출력된 개수를
 <code>acww chanstage</code> 줄의 수와 비교한다 — 순회는 40 ms로 제한되며
-다음 프레임에 재개된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/chanlist.c</code> header</span></span>.</p>
+다음 프레임에 재개된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/shim/game/chanlist.c</code> header; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
 <h2 id="가설">가설</h2>
 <ul>
 <li><code>0x021c75b8</code>과 <code>0x021c75b0</code>의 두 바이트는 채널 핸들러가 아니라 씬 진입 경로가

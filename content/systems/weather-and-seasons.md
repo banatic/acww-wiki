@@ -52,7 +52,7 @@
 [E: port/BOOT-STATE.md, bind log] [S: ov003 pool words, docs/kb/modules/ov003-068.md]. 오랜 작업 동안 지형으로 취급되었던 53폴리곤 곡면은 알고 보니 눈덩이였다 [E: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"].
 
 비는 파일이 아니다(NOT). `m_rainA`, `m_rainB`, `m_splash`는 이미 로드된 `obj_taxi` 모델 안의 모델 노드 또는 애니메이션 이름이며, 파일 시스템에서 `*rain*`을 검색하면 BMG 메시지 파일 열두 개만 나온다 -- 따라서 빠진 비 에셋은 없으며 아무도 그것을 찾아 헤맬 필요가 없다
-[S: port/VISIBLE-STATE.md, filesystem search]. ov003의 풀은 택시 객체들 옆에 이들의 이름을 두고 있다
+[H: host/prose inference from port/VISIBLE-STATE.md, filesystem search; verify against the ROM function or symbol table and this page's recipe]. ov003의 풀은 택시 객체들 옆에 이들의 이름을 두고 있다
 [S: ov003 pool words, docs/kb/modules/ov003-068.md]. 비는 인터프리터 경로에서 프레임 4,500의 택시 실내에서 실제로 보인다(IS)
 [E: docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51].
 

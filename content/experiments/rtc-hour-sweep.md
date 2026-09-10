@@ -10,13 +10,13 @@
 [E: `port/shim/os/rtcclock.c`; `scratchpad/cycle40/runs/tap-D56`]. 조명이 보간하는 블렌드
 가중치는 `0x021dc758`의 분(minute) 바이트를 4096/60으로 스케일링한 값이며, 이를 호스트
 스택 쓰레기 값에서 읽었던 적이 있어 이 포트의 모든 스크린샷 비교에 20-26%의 픽셀 노이즈
-바닥이 깔린 적이 있다 [E: `port/shim/os/rtcclock.c`]. 이 실험은 두 가지를 한꺼번에 묻는다:
+바닥이 깔린 적이 있다 [H: source/log account from `port/shim/os/rtcclock.c`; verify with a retained run using this page's recipe]. 이 실험은 두 가지를 한꺼번에 묻는다:
 시각이 씬을 눈에 띄게 바꾸는가, 그리고 포트와 원본이 같은 방식으로 바뀌는가.
 
 또한 더 작은 질문 하나를 결론짓는다. `ACWW_RTC_TIME=000000`은 예전에는 "기본값을
 사용한다"는 뜻이었는데, 포트의 옛 파서가 미설정, 파싱 불가, 0을 하나의 답으로 합쳤기
 때문이다 -- 그래서 자정 프로브는 10:00 프로브와 바이트 단위로 동일하게 돌아왔고, 이는
-답처럼 보이는 측정이다 [E: `port/shim/os/rtcclock.c`]. 현재 파서는 이들을 구별한다; 이
+답처럼 보이는 측정이다 [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. 현재 파서는 이들을 구별한다; 이
 실행은 실제로 그러한지 확인하는 것이다.
 
 ## 레시피
@@ -77,7 +77,7 @@ O: `scratchpad/oracle/tap-24700`]. **위의 포트 조건과 오라클 조건 �
 
 모든 로그에서 확인할 부팅 줄은 `acww rtc: fixed clock year+2000=5 month=6 day=f
 week=3 hour=... min=0 sec=0`이다 -- 값은 16진수로 출력된다
-[E: `port/shim/os/rtcclock.c`]. week 3은 수요일이며, 계산된 값이지 환경에서 가져온
+[H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. week 3은 수요일이며, 계산된 값이지 환경에서 가져온
 값이 아니다.
 
 반증 가능한 예측: 네 조건 모두 37,500에서 바이트 단위로 동일한 이미지를 만든다면,

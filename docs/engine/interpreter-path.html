@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법 · ACWW 근거 위키</title>
+<meta name="description" content="PC 포트에는 게임을 실행하는 두 가지 방법이 있다. 네이티브 경로는 포트 자체의 C 본체를 실행한다; 인터프리터 경로(ACWW_INTERP=1)는 ROM 자체의 ARM 및 Thumb 코드를 프로세스 안에서 실행하고, 호스트 본체가 등록된 곳에서만 그것을 호출한다. 인">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li class="active"><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</span></div><header class="page-head"><h1>인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 2</span></div><div class="source-line">원문: <code>wiki/engine/interpreter-path.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> PC 포트에는 게임을 실행하는 두 가지 방법이 있다. 네이티브 경로는 포트 자체의 C
+본체를 실행한다; 인터프리터 경로(<code>ACWW_INTERP=1</code>)는 ROM 자체의 ARM 및 Thumb 코드를 프로세스
+안에서 실행하고, 호스트 본체가 등록된 곳에서만 그것을 호출한다. 인터프리터 경로가 이
+프로젝트의 기본 방향인데, "ROM의 바이트"가 아직 아무도 작성하지 않은 모든 함수의 올바른
+구현이기 때문이다. 그래서 흥미로운 질문은 예전 질문의 역이 된다: <em>이 함수를 우리가 쓸 수
+있는가</em>가 아니라, <em>이 네이티브 본체가 게임의 동작을 바꾸지 않고 ROM의 바이트를 대체해도
+되는가</em>이다. 그 답은 실제 기록된 호출에 대한 함수별 차분 검사이며, 이 페이지는 그 검사의
+통과가 어느 정도의 가치를 갖는지를 말한다.</p>
+<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p><code>ACWW_INTERP=1</code>은 한 번 읽혀 캐시되고, 두 가지 일을 한다: 포트는 자신의 네이티브 브링업,
+네이티브 정적 초기화자, 네이티브 사운드 부팅을 건너뛰고, 대신 인터프리터가 ROM 자체의
+<code>Entry</code> 순서를 실행한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c</code>; <code>port/platform/win32.c</code>; <code>boot-and-entry.md</code> 참조</span></span>. 나머지 전부 &ndash; 로더, 렌더러, 심(shim), 도구들 &ndash; 는 같은
+바이너리다.</p>
+<p>어느 함수가 호스트 본체이고 어느 함수가 ROM 바이트인지는 빌드 시점에
+<code>port/tools/interp_registry.py</code>가 결정하는데, 이 스크립트는 호스트 본체의 레지스트리를
+생성하고 자신의 <code>DENY_FILES</code> 목록에 있는 베이스네임의 등록을 거부한다 &ndash; TOUCH41 기준 심
+파일 50개, 더하기 <code>DENY_FUNCS = {func_020b1b84}</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/interp_registry.py</code>; <code>wiki/glossary.md</code>, "deny list"</span></span>. 각 거부 항목은 그것을 강제한 실행(run)을 옆의 주석에
+싣고 있으므로, 이 목록은 어느 서브시스템의 절반만 승격했을 때 어느 것이 갈라지는지의
+기록이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/stall-playbook.md</code>, "The deny list is the record of this table"</span></span>. 터치 입력 파일이 가장 분명한 사례다: <code>port/shim/input/touch.c</code>를 거부한
+것(레지스트리 89 -&gt; 88)이 ROM 자체의 프레임별 스타일러스 게시(publish)를 돌게 만들었고,
+그것이 원본의 지연 시간을 재현한 것이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41; <code>../experiments/touch-latency.md</code> 참조</span></span>.</p>
+<h3 id="승격-검사-하이브리드-계획-h5">승격 검사 (하이브리드 계획 H5)</h3>
+<p>네이티브 본체는 지어낸 호출이 아니라 <strong>실제</strong> 호출에 대한 차분 검사로 핫 패스를 얻는다.
+실행이 게임이 실제로 하는 호출을 기록하고, 각 호출은 같은 호출 전 메모리에서 두 번
+재생된다 &ndash; 한 번은 인터프리터(ROM의 바이트)를 통해, 한 번은 네이티브 본체를 통해 &ndash; 그리고
+반환값과 쓰기 집합을 비교한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code></span></span>. 세 부분이 이를 수행한다:
+<code>port/interp/interp_record.c</code>(기록기, <code>ACWW_INTERP_RECORD</code>로 활성화되며 그 외에는 비활성 &ndash;
+전역 로드 한 번과 분기하지 않는 분기 하나), CRT 없는 픽스처를 갖춘 <code>port/tools/promote.py</code>,
+그리고 기록 실행을 수행하는 추적되는 러너 <code>port/tools/promote_record.py</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>.</p>
+<p>각 레코드는 r0-r3와 네 개의 AAPCS 스택 워드, 처음 접근 시 및 모든 스토어 이전에 스냅샷된
+<strong>호출 전 페이지 이미지</strong>(이것이 재생을 근사가 아니라 정확하게 만드는 요소다), 유한한 링에
+담긴 모든 로드와 스토어, 그리고 반환 시의 r0, r1과 인터프리터 스텝 수를 싣는다. 중첩된
+<code>acww_interp_call</code> &ndash; 인터럽트 핸들러, 스레드 프로시저 &ndash; 은 더 깊은 깊이에서 실행되고 그
+메모리는 제외되는데, 이 호출의 쓰기 집합이 아니기 때문이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>. 기록기가 숨기기를
+거부하는 세 가지가 각각 플래그로 있다: 등록된 호스트 본체가 호출 안에서 실행됨, I/O 페이지
+주소가 접근됨, 한계가 넘침. <code>promote.py</code>는 그런 호출을 비교하지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>.</p>
+<p>비교는 <strong>스토어 로그가 아니라 최종 상태 diff</strong>다 &ndash; 올바른 두 본체가 다른 순서로 저장하거나
+스크래치 값을 덮어쓸 수 있으며, 호출자가 사후에 관측할 수 있는 것만이 계약이다. 진입 스택
+포인터 아래의 죽은 프레임은 의도적으로 제외한다(인터프리터 재생은 기록된 NDS 스택에,
+네이티브 본체는 호스트의 스택에 푸시한다); 네 개의 스택 인자 워드는 비교한다. 그리고
+네이티브 본체를 판정하기 전에, 인터프리터 재생이 먼저 기록의 반환값을 재현해야 한다 &ndash;
+그러지 못하면 결과는 <code>REPLAY-MISMATCH</code>이며, 이는 하네스의 입력에 대한 진술이지 본체에 대한
+진술은 결코 아니다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>. 종료 코드: 0은 전부 일치, 1은 불일치(발견 사항), 2는 하네스가
+판정을 거부함, 3은 일치했으나 일부 호출이 거부됨.</p>
+<h3 id="agree가-증명하지-않는-것">"AGREE"가 증명하지 않는 것</h3>
+<p>무엇이든 승격하기 전에 읽어야 할 부분이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code> section 3</span></span>:</p>
+<ul>
+<li><strong>커버리지는 기록된 호출뿐, 그 외에는 아무것도 아니다.</strong> 실행이 삼백만 번 호출하는 함수의
+  여덟 번의 호출은 여덟 번의 호출이다. 요약이 <code>calls-that-wrote=</code>와 <code>distinct-returns=</code>를
+  출력하는 이유가 그것이다: 모두 같은 값을 반환하고 아무것도 쓰지 않은 호출들에 대한 일치는
+  근거가 아니다(M1).</li>
+<li><strong>콜백은 따라가지 않는다.</strong> ROM 함수가 함수 포인터를 통해 호출하면, 인터프리터 재생은 ROM의
+  피호출자를 실행하고 네이티브 본체는 링크가 준 것이 무엇이든 그것을 실행한다. 픽스처는
+  정확히 하나의 네이티브 본체만 링크하므로, 네이티브 피호출자를 가진 본체는 링크에 실패한다
+  &ndash; 조용히 달라지는 대신 시끄럽게.</li>
+<li><strong>타이밍, 인터럽트, 순서는 모델링되지 않는다.</strong> 재생은 조용한 프로세스 안의 단일 호출이다.
+  고립된 상태에서는 올바르지만 더 오래 걸리거나 재진입되기 때문에 틀린 본체는 여기서 보이지
+  않는다. (TOUCH41의 인터프리터 콜백 이상 현상이 정확히 그 부류의 결함이고, 어떤 승격 검사도
+  그것을 보지 못했을 것이다 &ndash; <code>../experiments/touch-latency.md</code>, Open.)</li>
+<li><strong>접근된 페이지 밖의 상태는 보이지 않는다.</strong> 기록된 호출이 접근한 페이지만 매핑되고
+  diff된다; ROM이 한 번도 접근하지 않은 곳에 쓰는 네이티브 본체는 깔끔한 불일치를 내는 대신
+  픽스처를 크래시시킨다.</li>
+<li><strong>승격은 등록이 아니다.</strong> 일치한다는 것은 그 함수가 호스트 코드여야 <em>하는지</em>에 대해 아무
+  말도 하지 않는다. 그것이 거부 목록(deny list)의 역할이다.</li>
+</ul>
+<h3 id="세-가지-결과-그리고-더-중요한-보정">세 가지 결과, 그리고 더 중요한 보정</h3>
+<p>커스텀 START 레시피, <code>ACWW_INTERP=1</code>, <code>ACWW_STOP_FRAME=3000</code>, 각각 8회 호출, 런당 약 80초로
+기록됨 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code> section 4</span></span>:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수</th>
+<th>위치</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FX_MulFunc</code> <code>0x01ffcb0c</code></td>
+<td>itcm, ARM, 순수 함수</td>
+<td><strong>AGREE 8/8</strong>, 호출당 7 스텝, 서로 다른 반환값 6개, 쓰기 0</td>
+</tr>
+<tr>
+<td><code>func_0204f800</code> <code>0x0204f800</code></td>
+<td>main, Thumb, out 파라미터를 통한 스토어 두 개</td>
+<td><strong>AGREE 8/8</strong>, 12 스텝, 8회 호출 모두 씀</td>
+</tr>
+<tr>
+<td><code>MTX_Concat43</code> <code>0x01ffb94c</code></td>
+<td>itcm, ARM, 48바이트 쓰기</td>
+<td><strong>AGREE 8/8</strong>, 136 스텝, 호출당 기록된 스토어 32개 &ndash; 그러나 관측 가능한 바이트 변화를 낸 것은 <strong>8회 중 2회</strong>뿐; 나머지 여섯은 이미 있던 값을 썼다</td>
+</tr>
+<tr>
+<td><code>_s32_div_f</code> <code>0x021367a8</code></td>
+<td>autoload_2, 그 실행에서 세 번째로 뜨거운 pc</td>
+<td>기록은 정상, <strong>REFUSED (exit 2): 네이티브 본체 없음.</strong> 손으로 쓴 CodeWarrior 어셈블리; 승격할 것이 없음</td>
+</tr>
+<tr>
+<td><code>func_02050c58</code></td>
+<td>main</td>
+<td>레시피 3,000프레임 동안 <strong>한 번도 호출되지 않음</strong> &ndash; 기록할 것이 없음</td>
+</tr>
+</tbody>
+</table></div>
+<p>보정이야말로 이 표를 읽는 방식을 바꾸는 결과다. 의도적으로 틀리게 만든 두 본체를
+<code>func_0204f800</code> 트레이스에 대해 돌렸다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code> section 5</span></span>:</p>
+<ol>
+<li>두 out 파라미터를 <strong>맞바꿈</strong> &ndash; <strong>AGREE로 보고됨</strong>, 기록된 여덟 호출 모두가 우연히
+   <code>x == y</code>이고 <code>offset_x == offset_y</code>였기 때문이다. 커버리지 주의사항이 경고가 아니라
+   측정으로 도착한 것;</li>
+<li>두 번째 스토어의 값을 하위 두 바이트를 맞바꿔 씀 &ndash; <strong>8/8에서 DISAGREE로 보고됨, exit 1</strong>,
+   달라진 스토어와 그 주소를 지목.</li>
+</ol>
+<p>그러므로 AGREE는 정확히 그 대조(control)의 가치만큼의 가치를 가지며, 대조의 오류는 기록된
+인자가 숨길 수 없는 것이어야 한다 &ndash; 어느 포인터로 가는지만이 아니라 저장되는 <strong>값</strong>을
+바꿔라.</p>
+<h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>acww_interp_boot</code></td>
+<td>port</td>
+<td>훅을 설치한 뒤 ROM의 <code>Entry</code> 순서를 실행한다</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c</code>; <code>boot-and-entry.md</code></span></span></td>
+</tr>
+<tr>
+<td><code>run_loop</code></td>
+<td>port</td>
+<td>명령어 루프; 세이브스테이트가 찍히는 곳이기도 하다, 가장 바깥의 인터프리터 프레임에서</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_cpu.c</code>; <code>docs/kb/hybrid/savestate.md</code> section 2</span></span></td>
+</tr>
+<tr>
+<td><code>acww_interp_call</code>, <code>acww_interp_irq_run</code></td>
+<td>port</td>
+<td>호출 경계와 IRQ 컨텍스트 진입점</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_cpu.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>interp_registry.py</code> <code>DENY_FILES</code></td>
+<td>build</td>
+<td>ROM 바이트로 남는 심 베이스네임 50개</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/interp_registry.py</code></span></span></td>
+</tr>
+<tr>
+<td><code>interp_record.c</code></td>
+<td>port</td>
+<td>호출 기록기; <code>ACWW_INTERP_RECORD</code>가 설정되지 않으면 비활성</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code></span></span></td>
+</tr>
+<tr>
+<td><code>promote.py</code>, <code>promote_main.c</code></td>
+<td>tools</td>
+<td>재생과 판정; CRT 없음, ROM 이미지는 NDS 주소에 매핑됨</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span></td>
+</tr>
+<tr>
+<td><code>promote_record.py</code></td>
+<td>tools</td>
+<td>추적되는 기록 러너, 출력은 <code>scratchpad/promote/&lt;name&gt;/</code> 아래</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>변수 또는 파일</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ACWW_INTERP</code></td>
+<td>1이면 인터프리터 경로 선택; 부팅 시 한 번 읽혀 캐시됨</td>
+<td>운영자</td>
+<td><code>acww_interp_boot</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_boot.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>ACWW_INTERP_RECORD=&lt;hex addr&gt;[,&lt;count&gt;]</code></td>
+<td>한 함수에 호출 기록기를 활성화; count 기본값은 8</td>
+<td>운영자(또는 <code>promote_record.py</code>)</td>
+<td><code>acww_interp_boot</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code> section 1</span></span></td>
+</tr>
+<tr>
+<td><code>ACWW_INTERP_RECORD_OUT=&lt;path&gt;</code></td>
+<td>바이너리 트레이스; 기록기가 활성화되면 필수</td>
+<td>같음</td>
+<td>기록기 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span></td>
+</tr>
+<tr>
+<td><code>scratchpad/promote/&lt;name&gt;/&lt;name&gt;.rec</code></td>
+<td>트레이스 하나: 호출당 경계 워드 여덟 개, 호출 전 4 KB 페이지 이미지, 유한한 로드/스토어 링, 그리고 반환값</td>
+<td><code>interp_record.c</code></td>
+<td><code>promote.py</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span></td>
+</tr>
+<tr>
+<td><code>scratchpad/promote/&lt;fn&gt;/receipt.json</code></td>
+<td>판정: 트레이스, 소스, 인터프리터, 픽스처 해시, 반환 마스크, 그리고 모든 호출의 인자, 스텝, 반환값</td>
+<td><code>promote.py</code></td>
+<td>독자 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/promote/FX_MulFunc/receipt.json</code></span></span></td>
+</tr>
+<tr>
+<td><code>port/tools/interp_registry.py</code> -&gt; <code>interp_registry.c</code></td>
+<td>생성된 호스트 본체 레지스트리; 그 엔트리 수는 세이브스테이트의 링크 정체성의 일부</td>
+<td>빌드</td>
+<td>인터프리터, 그리고 <code>state.c</code>의 헤더 검사 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/savestate.md</code> section 5</span></span></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="확인-방법">확인 방법</h2>
+<pre><code>python port/tools/promote_record.py fxmul 0x01ffcb0c 8
+python port/tools/promote.py --trace scratchpad/promote/fxmul/fxmul.rec --name FX_MulFunc
+</code></pre>
+<p>러너가 기록 디렉터리의 이름을 정한다(<code>scratchpad/promote/fxmul/</code>, 트레이스, 실행 로그, 그리고
+exe 해시와 환경 전체를 담은 영수증을 보관); <code>promote.py</code>는 판정 영수증을 함수(FUNCTION)의
+이름 아래에 쓴다(<code>scratchpad/promote/FX_MulFunc/receipt.json</code>, 트레이스, 소스, 인터프리터,
+픽스처 해시, 반환 마스크, 그리고 기록된 모든 호출의 인자, 스텝, 반환값을 싣는다).</p>
+<p>그런 다음, 매번, 본체를 복사하고, 기록된 인자가 숨길 수 없는 방식으로 망가뜨린 뒤,
+<code>--source &lt;망가뜨린 복사본&gt;</code>으로 다시 돌린다; DISAGREE를 보고하고 스토어를 지목해야 한다.
+판정을 읽기 전에 <code>calls-that-wrote=</code>와 <code>distinct-returns=</code>를 먼저 읽어라
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/promotion.md</code> section 6</span></span>.</p>
+<p>영수증에 관한 주의사항. 원래의 세 검사가 실행된 워크트리는 머지 후 제거되었고, 무시(ignored)
+대상이던 <code>scratchpad/promote/</code>를 함께 가져갔다 &ndash; 브리프가 지명한 러너와 영수증 둘 다.
+<code>port/tools/promote_record.py</code>가 추적되는 대체물이며 그것들을 다시 만든다; 머지된 트리에서
+<code>FX_MulFunc</code>에 대해 다시 돌리면 8회 호출, <strong>AGREE 8/8</strong>, distinct-returns 6을 준다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/promote/FX_MulFunc/receipt.json</code> &ndash; <code>"verdict": "AGREE"</code>, exit 0 &ndash; 그리고 기록 실행 <code>scratchpad/promote/fxmul/receipt.json</code>, 76초에 3,000프레임에서 exit 100; S: <code>docs/log/cycle40-keyboard-gate-probe.md</code>, "H5 follow-up"</span></span>. <code>func_0204f800</code>,
+<code>MTX_Concat43</code>, <code>_s32_div_f</code>의 영수증은 이 트리에 존재하지 <strong>않는다</strong>; 위의 숫자들은
+인계 문서의 것이며, 실행 디렉터리에 대한 등급 E가 아니라 <code>docs/kb/hybrid/promotion.md</code>
+section 4에 대한 등급 S다. 다시 돌리는 것은 각각 명령 하나다.</p>
+<h2 id="가설">가설</h2>
+<ul>
+<li>[H] 일치한 세 본체 중 어느 것이라도 실제로 등록되어야 하는지. AGREE는 동작에 대한 근거이지
+  아키텍처에 대한 근거가 아니다; <code>MTX_Concat43</code>을 승격하면 전체 실행에 무슨 일이 생기는지는
+  아무것도 측정하지 않았다. 하나를 등록하고 마을 실행을 등록하지 않은 같은 실행과
+  프레임 단위로 비교하면 확정된다.</li>
+<li>[H] <code>MTX_Concat43</code>의 일치가 도대체 무슨 의미가 있는지, 여덟 호출 중 여섯이 이미 있던 값을
+  쓴 것을 감안하면. 행렬이 서로 다른 호출 지점에서 기록하면 확정된다 &ndash; 요약 줄의
+  <code>calls-that-wrote=</code>가 움직여야 할 숫자다.</li>
+<li>[H] <code>port/interp/interp_cpu.c</code>와 <code>interp_bios.c</code>에 대한, 현재는 검사가 아니라 관례인 규칙:
+  <strong>플랫폼 심볼 금지, 훅만 사용.</strong> 첫 번째 읽기 워치포인트 버전은 <code>acww_frame_count</code>와
+  <code>acww_out</code> 참조를 <code>interp_cpu.c</code>에 넣었는데, <code>promote.py</code>는 이를 플랫폼이 없는 픽스처로
+  컴파일하므로 픽스처가 링크에 실패했다(<code>undefined symbol _acww_frame_count</code>); 워치는 이제
+  <code>interp_boot.c</code>가 설치한 훅을 통해 보고한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code>, "H5 follow-up"</span></span>. 기억에 의존하는 대신 게이트 안의 픽스처 링크 검사로 확정된다.</li>
+</ul>
+<h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><code>boot-and-entry.md</code> &ndash; 인터프리터 경로가 어떻게 부팅하는지, 그리고 그 위에서 프레임이 무엇인지</li>
+<li><code>../experiments/savestate-resume.md</code> &ndash; 이 경로의 실행을 스냅샷하기</li>
+<li><code>../experiments/touch-latency.md</code> &ndash; 도구로 쓰인 거부 목록</li>
+<li><code>../../docs/kb/hybrid/promotion.md</code>, <code>../../docs/HYBRID-PLAN.md</code> phase H5</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../engine/text-and-messages.html"><small>◀ 이전</small>텍스트와 메시지</a><span class="pn"></span></nav>
+    </div>
+    <footer class="foot">
+      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#승격-검사-하이브리드-계획-h5">승격 검사 (하이브리드 계획 H5)</a></li><li><a href="#agree가-증명하지-않는-것">"AGREE"가 증명하지 않는 것</a></li><li><a href="#세-가지-결과-그리고-더-중요한-보정">세 가지 결과, 그리고 더 중요한 보정</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

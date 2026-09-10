@@ -27,7 +27,7 @@
 
 포트 쪽은 마을 레시피의 환경(`two-tap-town-recipe.md`)에서 같은 창을 관찰하며, 포트의
 `acww touch:` 줄을 읽는다. 이 줄은 변경 시에만 출력되므로 개수 제한이 없다
-[E: `port/shim/input/touch.c`].
+[H: host-source account from `port/shim/input/touch.c`; verify with a retained scripted run and frame using this page's recipe].
 
 ## 예상 관측
 
@@ -53,9 +53,10 @@
    따라서 두 생산자는 구조상 어떤 예약된 탭에서든 최대 1픽셀 차이가 난다 [O: same; E: `port/shim/input/touch.c`].
 3. **게임은 접촉을 1~2 프레임 늦게 보고 1 프레임 더 길게 유지한다**, ARM7의 자동 샘플링
    링이 ARM9가 읽기 한 프레임 전에 채워지기 때문이다. `FOR=10` 접촉은 게임 RAM에서 약 2
-   프레임 밀린 대략 10 프레임의 `touch = 1`이다. 포트는 정확한 프레임에 공개한다. 이는
-   실제로 측정된, 피할 수 없는 차이이며, 한쪽에서만 동작하는 모든 탭에 대한 상시 후보
-   설명이다 [O: same].
+   프레임 밀린 대략 10 프레임의 `touch = 1`이다. 포트의 NATIVE 경로는 정확한 프레임에
+   공개하며, 그것이 차이였다; 인터프리터 경로에서는 이제 포트가 그 지연과 순서를
+   재현한다 [E: `scratchpad/cycle40/runs/tap-T41pd`,
+   contact 8,700 -> `TP_POINT` 8,701; `touch-latency.md`] [O: same].
 
 게이트 워드는 모든 프레임에서 `2c00` -- 비트 15 클리어 -- 로 읽히며, 이는 포트의
 `hostinput.c`와 `frameswap.c`가 세워 두는 값과 같으므로, 게이트가 열려 있다는 데 원본은
@@ -75,7 +76,7 @@
   DeSmuME의 십진 리더는 숫자가 아닌 구분자를 건너뛴다; 그래도 도구는 파이프 없는 형태를
   쓰는데, DeSmuME 자체의 덤퍼가 만들어 내는 것이 그 형태이기 때문이다.
 
-[O: same; both controls in `scratchpad/oracle/negctl.py`, throwaway].
+[O: same; the retained control script is `scratchpad/oracle/tool-updates/negctl.py`, throwaway].
 
 패드 열 매핑도 읽는 대신 같은 방식으로 측정했다: 13개 열 `RLDUTSBAYXWEG`의 뻔한 해석은
 틀렸다 -- **열 `T`가 SELECT이고 열 `S`가 START이다** -- 첫 키 입력 실행에서 입력 계약이
@@ -110,15 +111,21 @@
 - 접촉 창 내내 `0x021fbde8`가 255, 255, 0, 0에 머무는 프로브 실행: 탭이 에뮬레이터의 입력
   계층에는 도달하지만 게임에는 도달하지 않으며, 그 위에 세운 모든 비교는 무효이다.
 - 게이트 워드가 비트 15가 세팅된 값으로 읽히는 것. 어느 쪽에서든 터치가 죽는다면, 다른
-  무엇보다 먼저 그 비트를 확인한다 [E: `port/shim/input/touch.c`].
+  무엇보다 먼저 그 비트를 확인한다 [H: host-source account from `port/shim/input/touch.c`; verify with a retained scripted run and frame using this page's recipe].
 - (실행됨, 그리고 실제로 이렇게 되었다.) `tap-D61` 대 `tap-220` 비교는 여전히 25,500에서
   갈라졌고, 이는 1픽셀을 배제하고 1~2 프레임 지연을 설명으로 남겼다 -- 탭을 A 누름
   프레임에서 옮겨 확인했다. 아래의 결과 절을 볼 것.
 
-도구에 관한 주의 사항 하나, 관측되었으나 설명되지 않음: 그 Lua 빌드의 `memory.readword`는
-ROM이 0xffff를 쓰는 곳에서 255를 반환했으므로, 하위 8비트만 전달하는 것으로 보인다.
-탭/비탭 구별과 좌표는 영향받지 않는다 -- 둘 다 256 미만이다 -- 그러나 그 숫자들을 검증된
-16비트 값으로 읽지 말 것 [O: `port/tools/oracle/README.md`; M1].
+도구에 관한 주의 사항 하나, 이 페이지 초안 당시에는 "설명되지 않음"으로 기록되었고 지금은
+부분적으로 설명됨: 그 Lua 빌드의 `memory.readword`는 비터치 행에서 255를 반환했고, 이는
+0xffff를 쓰는 포트 쪽 전사(transcription)에 비추어 "하위 8비트만 전달한다"로 읽혔다.
+TOUCH41은 대신 ROM을 읽었다 -- `mov r1,#0xff`와 `0x020e941c`의 `strh` -- 따라서 ROM 자체의
+비터치 값은 **0x00ff**이며, 프로브의 255는 잘린 값이 아니라 올바른 답이다
+[S: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`;
+`docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. 이로써 그 행들을 의심할 이유는 사라졌다;
+그 Lua 빌드의 `readword`가 일반적으로 16비트 폭인지는 시험되지 않았으며 여기서는 필요하지도
+않은데, 표의 모든 값이 256 미만이기 때문이다
+[O: `port/tools/oracle/README.md`; M1].
 
 **프레임 매핑, 명시:** 에뮬레이터 프레임 N은 포트 프레임 N, 오프셋 0으로 간주한다. `--offset`은
 무비의 탭을 누름 및 스크린샷과 함께 이동시키므로 이 가정은 단일 손잡이(knob)이지만, 도구
@@ -139,10 +146,14 @@ ROM이 0xffff를 쓰는 곳에서 255를 반환했으므로, 하위 8비트만 �
 [S: docs/log/cycle40-keyboard-gate-probe.md ORACLE42]. `ACWW_TOUCH2_AT=24700`으로 하면 양쪽
 모두 확정하고 일치한다: 24000..27000의 11 프레임에서 평균 ncc 0.9955, 위 화면 1.0000
 [E: `tap-D62`] [O: `scratchpad/oracle/tap-24700`]. 공식 레시피는 24,700을 사용한다.
-열린 가설: port/shim/input/touch.c에서 1-2 프레임 스타일러스 지연을 모델링한다
-[H: rerun the 24,600 recipe after the change and compare with `scratchpad/oracle/tap-fullpad` at 25,500].
+**그 뒤 결론남 (TOUCH41, TOUCH42):** 지연은 회피되지 않고 모델링된다. ROM 자체의
+`func_020e9314`가 인터프리터 경로에서 실행되고 포트는 ROM의 VBlank 핸들러 뒤에 ARM7의
+링을 채운다; 그러면 24,600 레시피는 원본과 정확히 같이 키보드에 머무른다
+[E: `scratchpad/cycle40/runs/tap-T42b`] [O: `scratchpad/oracle/tap-window`]. 타이밍
+측정은 이제 자체 페이지를 가진다: `touch-latency.md`.
 
 ## 관련 문서
 
 - `../systems/input-and-touch.md`
+- `touch-latency.md` -- 같은 파이프라인의 타이밍 절반
 - `two-tap-town-recipe.md`, `off-recipe.md`

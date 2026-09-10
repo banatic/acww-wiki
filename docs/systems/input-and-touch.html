@@ -80,12 +80,19 @@
 <li><a href="../engine/file-system.html">파일 시스템</a></li>
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
 <li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
 <li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
 <li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
 <li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
@@ -96,9 +103,12 @@
 <li><a href="../audits/consistency.html">일관성 감사</a></li>
 <li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
 <li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
 <li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
 <li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
 <li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
 </ul></details>
 <ul class="nav-top">
 <li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
@@ -114,14 +124,16 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>입력과 터치</span></div><header class="page-head"><h1>입력과 터치</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 44</span><span class="gchip g-E"><b>E</b> 15</span><span class="gchip g-O"><b>O</b> 9</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/input-and-touch.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> DS는 게임에 두 개의 입력 장치를 제공하며 ARM9는 그 어느 쪽도 혼자서 완전히 읽을
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>입력과 터치</span></div><header class="page-head"><h1>입력과 터치</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 54</span><span class="gchip g-E"><b>E</b> 21</span><span class="gchip g-O"><b>O</b> 15</span><span class="gchip g-H"><b>H</b> 9</span></div><div class="source-line">원문: <code>wiki/systems/input-and-touch.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> DS는 게임에 두 개의 입력 장치를 제공하며 ARM9는 그 어느 쪽도 혼자서 완전히 읽을
 수 없다. 열 개의 버튼 중 여덟 개는 ARM9가 직접 읽을 수 있는 레지스터에 있다; X, Y와 디버그
 비트는 공유 하프워드를 통해 ARM7에서 온다; 그리고 스타일러스는 ARM7이 채우는 링 버퍼에 원시
 아날로그-디지털 변환 카운트로 도착하며, ARM9는 이를 본체 소유자가 몇 년 전에 기록한 보정으로
 화면 픽셀로 변환한다. 동물의 숲은 이 모든 것을 프레임당 한 번 읽어 하나의 터치 지점을
-<code>0x021fbde8</code>에 다시 게시하고, 하류의 모든 것이 그것을 소비한다. PC 포트는 보정의 <em>출력</em>에
-마우스를 주입하며, 이것이 포트의 탭과 원본의 탭이 1픽셀과 약 2프레임만큼 다른 이유다 &ndash; 이
-프로젝트에서 가장 잘 측정된 불일치다.</p>
+<code>0x021fbde8</code>에 다시 게시하고, 하류의 모든 것이 그것을 소비한다. PC 포트의 네이티브 경로는
+보정의 <em>출력</em>에 마우스를 주입하며, 이것이 포트의 탭과 원본의 탭이 1픽셀과 약 2프레임만큼
+달랐던 이유다 &ndash; 오랫동안 이 프로젝트에서 단연 가장 잘 측정된 불일치였다. 인터프리터
+경로에서는 그 간극이 닫혔다: ROM 자신의 프레임별 게시가 실행되고 포트는 대신 ARM7의 링을
+채우며, 1프레임의 지연까지 그대로다.</p>
 <h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <h3 id="패드">패드</h3>
 <p><code>func_020e9548</code>은 게임의 키 경로 전부이며, 두 워드를 읽는다:</p>
@@ -161,6 +173,16 @@ validity가 0인 항목이 아니라 0이 아닌 항목을 건너뛴다
 이루어진다: <code>TPi_TpCallback</code>은 <code>tpState.index</code>를 버퍼 크기로 나눈 나머지로 증가시킨 뒤 공유
 시스템 작업 영역에서 패킹된 비트필드(x:12, y:12, touch:1, validity:2)를 푼다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>TPi_TpCallback</code>, autoload_2, <code>src/matched/TPi_TpCallback.c</code></span></span>.</p>
+<p>펜이 떨어져 있을 때 ARM7은 x=0, y=0, touch=0, validity=3(INVALID_XY)을 쓴다; 펜 다운 샘플은
+압력 검사가 거부하지 않는 한 validity 0과 함께 원시 카운트를 담는다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">NitroSDK <code>libraries/spi/src/ARM7/tp/tp_sampling.c</code> (public source, <code>TP_ExecSampling</code>)</span></span>.
+게임의 프레임별 샘플 <code>func_020e9314</code>는 최신 항목 이전의 네 항목을 읽고, 연속된 세 항목이
+터치되고 유효할 때에만 &ndash; 그 가운데 것을 &ndash; 게시하며, 아무것도 터치되지 않았으면
+x=y=0xff를 쓴다; 그 외에는 이전 지점을 그대로 둔다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020e9314</code>, autoload_2, disassembly at 0x020e9314..0x020e9470</span></span>. 원본의 1~2프레임
+스타일러스 지연은 여기서 온다: 프레임당 네 샘플이면, 프레임 중간에 시작된 접촉은 다음
+프레임에 게시된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T41pd</code>, contact scheduled at 8,700, TP_POINT set at 8,701</span></span>. 포트는 인터프리터 경로에서 ARM7을 이런
+방식으로 모델링한다(<code>port/shim/os/pxisend.c</code>, TOUCH41) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41</span></span>.</p>
 <p>보정은 12비트 ADC 카운트를 픽셀로 바꾼다. 본체 소유자는 펌웨어 설정 중 두 개의 십자 표시를
 터치했다; <code>TP_GetUserInfo</code>는 그 두 개의 원시/표시 지점 쌍을 NVRAM에서 읽고,
 <code>TP_CalcCalibrateParam</code>은 선형 보간으로 축마다 원점과 픽셀당 카운트 기울기를 도출하며, 각각을
@@ -176,7 +198,10 @@ validity가 0인 항목이 아니라 0이 아닌 항목을 건너뛴다
 항목을 읽고, invalid 하프워드가 0인 것들을 복사한 뒤, 세 분기 중 하나를 탄다: 가장 최신으로
 끝나는 세 개의 정상 샘플이 있으면 최신 샘플을 보정해 <code>0x021fbde8</code>에 쓴다; 하나 더 오래된
 것으로 끝나는 세 개의 정상 샘플이 있으면 그것을 보정한다; 유효한 것이 없으면 터치 없음
-상태, 즉 x = y = 0xffff에 두 플래그 모두 0을 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020e9314</code>, autoload_2, read from its literal pool and transcribed in <code>port/shim/input/touch.c</code></span></span>. 어느 분기가 실행되었든
+상태, 즉 <strong>x = y = 0x00ff</strong>에 두 플래그 모두 0을 쓴다 &ndash; <code>0x020e941c</code>의 <code>mov r1,#0xff</code>와
+<code>strh</code>이며, 포트의 첫 전사가 가정했던 0xffff가 아니다; ROM의 값은 이제 전사되어
+<code>port/tools/test_scheduled_touch.py</code>에 고정되어 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020e9314</code>, autoload_2, disassembly <code>0x020e9314</code>..<code>0x020e9470</code>; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41</span></span>. 어느 분기가 실행되었든
 꼬리는 같다: 눌림 플래그를 이전 프레임의 것과 XOR하여 <code>0x021fbddc</code>에 트리거 바이트를 만들고,
 <code>0x021fbdd8</code>의 이전 플래그를 갱신하며, x와 y를 <code>0x021fbde0</code>과 <code>0x021fbde4</code>에 다시 게시한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">transcribed in <code>port/shim/input/touch.c</code></span></span>.</p>
@@ -184,27 +209,50 @@ validity가 0인 항목이 아니라 0이 아닌 항목을 건너뛴다
 게시되는 x가 0..255이고 y가 0..191인 이유다. <strong>이 함수는 <code>0x027fffa8</code>의 비트 15가 0일 때에만
 <code>func_020e9314</code>를 호출한다</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020b9280</code>, main, <code>src/matched/func_020b9280.c</code>, as recorded in <code>port/shim/input/touch.c</code></span></span>.</p>
 <h3 id="포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</h3>
+<p><strong>두 경로가 있고, 여기서 갈린다.</strong> 인터프리터 경로에서는 &ndash; TOUCH41 이후의 기록용 경로 &ndash;
+<code>port/shim/input/touch.c</code>가 호스트 본체 레지스트리에서 DENIED 처리되어(89개 항목 -&gt; 88개),
+ROM 자신의 <code>func_020e9314</code>가 실행되고 포트는 대신 ARM7 역할을 한다: <code>pxisend.c</code>는 AUTO_ON
+요청을 기록해 두고 VBlank마다 <code>frequence</code>개의 샘플을 <code>0x02206134</code>에 있는 ROM 자신의
+<code>tpState</code>에 쓰며, <code>TPi_TpCallback</code>의 AUTO_SAMPLING 단계를 호스트에서 수행하고, 이때
+<code>port/shim/boot/usersettings.c</code>가 게시하는 항등 보정(raw = pixel x 16)을 따른다. 샘플은 ROM의
+VBlank 핸들러 <strong>뒤에</strong> 도착하며, 이것이 하드웨어의 순서다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41, TOUCH42; see <code>../experiments/touch-latency.md</code></span></span>. 이 섹션의 나머지는 NATIVE 경로를 설명하며, 이는
+<code>ACWW_INTERP=1</code> 없이 실행할 때 여전히 돌아가는 경로다.</p>
 <p>패널도 ARM7도 없으므로, 포트는 <code>func_020e9314</code>를 터치 없음 분기와 주입 지점으로 대체하고,
 보정의 입력이 아니라 <strong>출력</strong>에 주입한다. 링을 합성 ADC 카운트로 채워서 꾸며낸 보정이
 그것을 우리가 시작한 픽셀로 도로 변환하게 하는 것은 아무 이득 없이 두 SDK 함수를 왕복하는
-일이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/input/touch.c</code></span></span>. 창 아래 절반에 대한 호스트 마우스 클릭은 그 픽셀에서
+일이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/input/touch.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. 창 아래 절반에 대한 호스트 마우스 클릭은 그 픽셀에서
 <code>touch = 1, validity = 0</code>이 된다; 위 절반은 터치가 아닌데, 디지타이저가 아래 화면 아래에만
-있기 때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/input/touch.c</code>, <code>port/render/window.c</code></span></span>.</p>
+있기 때문이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/input/touch.c</code>, <code>port/render/window.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
 <p>패드는 에지에서가 아니라 매 프레임 기록되며, 메인 루프 본문이 아니라 <code>port/platform/frame.c</code>의
 프레임 경계에서 기록된다 &ndash; 본문은 약 3프레임에 한 번 실행되는 것으로 측정되었고, 이는 20 Hz
-키보드가 될 것이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/hostinput.c</code></span></span>. 매핑은 D-패드에 화살표, Z=A, X=B, A=Y, S=X,
-Enter 또는 Space=START, Backspace 또는 오른쪽 Shift=SELECT, Q=L, W=R, 아래 화면 왼쪽 클릭이
-스타일러스, Escape가 종료다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/hostinput.c</code></span></span>. <code>ACWW_KEYS</code>가 <code>0x2fff</code> 공간에서 0이
-아닌 마스크를 지정하거나 <code>ACWW_KEYS3_ENABLE</code>이 설정되면, 스크립트 경로가 레지스터를 소유하고
-실시간 키보드는 완전히 무시된다; 실행은 어느 쪽인지를 한 줄의 안내 라인으로 알린다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/hostinput.c</code></span></span>.</p>
+키보드가 될 것이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/platform/hostinput.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.
+매핑은 D-패드에 화살표, Z=A, X=B, A=Y, S=X, Enter 또는 Space=START, Backspace 또는
+오른쪽 Shift=SELECT, Q=L, W=R, 아래 화면 왼쪽 클릭이 스타일러스, Escape가 종료다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/platform/hostinput.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. <code>ACWW_KEYS</code>가 <code>0x2fff</code> 공간에서 0이 아닌 마스크를 지정하거나
+<code>ACWW_KEYS3_ENABLE</code>이 설정되면, 스크립트 경로가 레지스터를 소유하고 실시간 키보드는
+완전히 무시된다; 실행은 어느 쪽인지를 한 줄의 안내 라인으로 알린다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/platform/hostinput.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
 <p>예약된 접촉은 모든 터치 측정이 사용하는 계측 수단이다:
 <code>ACWW_TOUCH_ENABLE</code>, <code>_X</code>, <code>_Y</code>, <code>_AT</code>, <code>_FOR</code>, 그리고 <code>_EVERY</code>(반복 주기, <code>_FOR</code>보다 커야 함)와
 <code>_REPEAT</code>(접촉 횟수; 없으면 무한), 그리고 같은 여섯 필드를 가진 독립적인 두 번째 접촉
 <code>ACWW_TOUCH2_*</code>. <strong>두 번째 접촉이 먼저 검사되며 자신의 창에서 이긴다</strong> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/input/touch.c</code>; <code>docs/kb/hybrid/hardware-services.md</code> section 6</span></span>. 설정은 <code>GetEnvironmentVariableA</code>를 직접 통해
 한 번 파싱되는데, 포트 자신의 <code>acww_env_dec</code>는 미설정, 파싱 불가, 0을 하나의 답으로 접어
 버리기 때문이다; 완전히 유효한 설정에 못 미치는 것은 무엇이든 한 줄의 거부 메시지를
-출력하고 그 실행 동안 비활성으로 남는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/input/touch.c</code></span></span>.</p>
+출력하고 그 실행 동안 비활성으로 남는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/input/touch.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
+<p><code>ACWW_PADSCRIPT=&lt;file&gt;</code>은 네 번째 스크립트 입력이며, 펄스 생성기가 아니라 TIMELINE인 유일한
+입력이다: 한 줄에 한 행, 패드는 <code>&lt;frame&gt; &lt;mask&gt; &lt;frames&gt;</code>, 스타일러스는
+<code>&lt;frame&gt; T &lt;x&gt; &lt;y&gt; &lt;frames&gt;</code>, 숫자는 <code>0x</code> 접두사가 없으면 십진수이며, 겹치는 패드 행은 OR로
+합쳐지고 스타일러스 행은 처음 일치하는 것이 이긴다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source/log account from <code>port/platform/hostinput.c</code>; verify with a retained run using this page's recipe</span></span>. 스크립트가 살아 있는 동안에는 프레임 경계에서 두 패드
+레지스터를 모두 소유하고 <code>port/shim/gfx/frameswap.c</code>는 어느 쪽도 쓰지 않는데,
+<code>frameswap.c</code>의 phase2와 phase3가 세이브스테이트에서 옛 스케줄이 여전히 무장된 채로 블롭으로
+되돌아오기 때문이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/hostinput.c</code>; <code>port/shim/gfx/frameswap.c</code>; S: <code>docs/kb/hybrid/savestate.md</code> section 4</span></span>. 그 스타일러스 행은 <code>ACWW_TOUCH*</code> 스케줄보다
+먼저, 그리고 마우스보다 먼저 질의된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source/log account from <code>port/shim/input/touch.c</code>; verify with a retained run using this page's recipe</span></span>. 설정하지 않으면 아무것도
+바꾸지 않는다: 이것을 실은 빌드에서의 OFF 레시피는 손대지 않은 HEAD의 재링크와 31/31
+바이트 단위로 동일하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/off-ps</code> vs <code>off-base</code>; <code>docs/log/cycle41-gameplay.md</code>; receipt lost with its worktree; repeat the named recipe and retain the stated frames</span></span>. 이것이 스크립트 플레이어가 마을 회관을 걸어 나와
+마을을 돌아다닐 수 있게 한 것이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>wiki/experiments/gameplay-walkthrough.md</code></span></span>.</p>
 <h2 id="포트와-원본은-측정-가능하게-불일치한다">포트와 원본은 측정 가능하게 불일치한다</h2>
 <p>오라클의 프로브 모드는 원본에서 ROM 자신의 <code>TP_POINT</code>를 <code>0x021fbde8</code>에서 읽는다. 접촉을
 221,181에서 10프레임 동안 60프레임마다 두 번, 프레임 1000부터 예약하면:</p>
@@ -252,9 +300,12 @@ Enter 또는 Space=START, Backspace 또는 오른쪽 Shift=SELECT, Q=L, W=R, 아
 읽기 한 프레임 전에 링이 채워지는 반면 포트는 정확한 프레임에 게시하기 때문이다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same</span></span>.
 그 2프레임 차이는 두 생산자 사이에서 실재하고, 측정되었으며, 피할 수 없는 것이고, 한쪽에서만
 동작하는 모든 탭에 대한 상시 후보 설명이다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same</span></span>.</p>
-<p>계측 수단 자체에 대한 한 가지 주의: 그 Lua 빌드의 <code>memory.readword</code>는 ROM이 0xffff를 쓰는
-곳에서 255를 반환했으므로 하위 8비트만 전달하는 것으로 보인다. 탭/비탭 구분과 좌표는 영향을
-받지 않는다; 16비트 값들은 검증되지 않았다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same; M1</span></span>.</p>
+<p>계측 수단 자체에 대한 한 가지 주의로, 이후 정정되었다: 그 Lua 빌드의 <code>memory.readword</code>는
+터치 없음 행에서 255를 반환했는데, 이는 0xffff를 쓰던 포트 전사에 비추어 하위 8비트 절단처럼
+보였다. ROM 자신의 터치 없음 값은 <strong>0x00ff</strong>이므로 프로브의 255는 옳다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020e9314</code>, disassembly <code>0x020e9314</code>..<code>0x020e9470</code>; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41</span></span>. 그 Lua 빌드의 <code>readword</code>가 일반적으로
+16비트 폭인지는 아직 검증되지 않았으며, 어느 쪽이든 표의 모든 값은 256 미만이다
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same; M1</span></span>.</p>
 <p>이것이 설명할 수 있을 불일치는 두 번째 키보드다. 마을 레시피에서 포트와 원본은 프레임
 6000부터 24000까지 한 걸음 한 걸음 같은 화면에 있다 &ndash; 샘플링된 아홉 프레임에서 전체 프레임
 ncc 0.9920에서 0.9959 &ndash; 그리고 <code>TOUCH2</code> 창 안의 25,500에서 갈라진다: 포트의 두 탭은 마을
@@ -440,32 +491,58 @@ ncc 0.9920에서 0.9959 &ndash; 그리고 <code>TOUCH2</code> 창 안의 25,500�
 </tbody>
 </table></div>
 <h2 id="확인-방법">확인 방법</h2>
-<p><code>../experiments/touch-calibration.md</code>는 위의 측정이며, 그 레시피와 음성 대조군을 포함한다.
-<code>../experiments/two-tap-town-recipe.md</code>는 모든 하류 터치 관측이 이루어지는 실행이다.
-<code>../experiments/off-recipe.md</code>는 둘 모두가 비교 대상으로 삼는 대조 실행이다.</p>
-<h2 id="가설">가설</h2>
+<p><code>../experiments/touch-latency.md</code>는 타이밍 측정이다 &ndash; 샘플링 링, 세 샘플 규칙, 1프레임의
+지연, VBlank 핸들러에 대한 순서 &ndash; 세 가지 조건과 각각의 레시피를 포함한다.
+<code>../experiments/touch-calibration.md</code>는 위의 좌표 측정이며, 그 레시피와 음성 대조군을
+포함한다. <code>../experiments/two-tap-town-recipe.md</code>는 모든 하류 터치 관측이 이루어지는
+실행이다. <code>../experiments/off-recipe.md</code>는 둘 모두가 비교 대상으로 삼는 대조 실행이다.</p>
+<h2 id="확정됨-기록용으로-보존">확정됨 (기록용으로 보존)</h2>
+<p>이것들은 TOUCH41과 TOUCH42가 닫기 전까지 이 페이지의 가설 섹션이었다. 부정 결과도 긍정
+결과만큼 비용이 들었기에 보존한다.</p>
 <ul>
-<li>1픽셀 오프셋이 원본이 두 번째 키보드의 확인 버튼을 거부하게 만드는 원인이다. 반대 근거:
-  접촉을 222,182 &ndash; 원본의 게임이 실제로 보는 좌표 &ndash; 로 옮겨 포트를 다시 실행했더니 탭은
-  여전히 <code>acww touch: DOWN x=222 y=182</code>로 도착했고, 접촉 네 번, 27,000프레임에서 exit 100이었다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D61</code>, <code>ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182</code></span></span>. <strong>부정으로
-  확정(ORACLE42)</strong>: <code>tap-D61</code>과 <code>scratchpad/oracle/tap-220</code>은 여전히 갈라지므로, 픽셀은 원인이
-  아니다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42</span></span>.</li>
-<li>대신 1~2프레임의 스타일러스 지연이 원인이다. <strong>긍정으로 확정(ORACLE42)</strong>: 탭을 KEYS3 A 누름
+<li><strong>확정된 부정.</strong> 1픽셀 오프셋은 원본이 두 번째 키보드의 확인 버튼을 거부하게 만들지
+  않는다. 접촉을 222,182 &ndash; 원본의 게임이 실제로 보는 좌표 &ndash; 로 옮겨 포트를 다시
+  실행했더니 탭은 여전히 <code>acww touch: DOWN x=222 y=182</code>로 도착했고, 접촉 네 번,
+  27,000프레임에서 exit 100이었다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D61</code>, <code>ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182</code></span></span>;
+  <code>scratchpad/oracle/tap-220</code>에 대해 양쪽은 여전히 갈라진다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42</span></span>.</li>
+<li><strong>확정된 긍정.</strong> 프레임이 원인이며, 지연이 프레임이 중요한 이유다. 탭을 KEYS3 A 누름
   프레임에서 24,700으로 옮기면 양쪽 모두 확정하고 일치한다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42; E: <code>tap-D62</code>; O: <code>scratchpad/oracle/tap-24700</code></span></span>. 남은 미결 사항은 레시피가 지연을 피하는 대신 포트가
-  지연을 모델링해야 하는가이다 &ndash; 결과 섹션을 보라.</li>
-<li>유지 시간은 레버가 아니다. 네이티브 경로에서 측정: 같은 프레임과 좌표에서 <code>FOR=10</code>과
-  <code>FOR=90</code>은 샘플링된 아홉 프레임 모두에서 바이트 단위로 동일한 이미지를 만들었다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code>, TOUCH39</span></span>. 키보드가 심이 아니라 ROM 코드로 구동되는
-  인터프리터 경로에서는 가설로 남는다.</li>
-<li>첫 번째 탭이 결코 확정하지 않는 이유는 히트 테스트가 아니라 모드 전환이다: 키보드는 첫
-  번째 접촉을 PAD에서 스타일러스로의 모드 변경으로 소비하고, 스타일러스 모드 창 안의 두 번째
-  접촉만이 확인 버튼에 도달한다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> H4 RESULT and TAP40; <code>scratchpad/cycle40/runs/tap-native</code>, <code>tap-interp</code></span></span>. 화면이 아니라 키보드 자신의 상태 워드를
-  프로브하여 더 확정한다.</li>
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> ORACLE42; E: <code>tap-D62</code>; O: <code>scratchpad/oracle/tap-24700</code></span></span>.</li>
+<li><strong>확정된 긍정 (TOUCH41/TOUCH42).</strong> 레시피가 지연을 피하게 하기보다 포트가 지연을
+  모델링해야 하며, 실제로 그렇게 한다. ROM 자신의 <code>func_020e9314</code>가 이제 인터프리터 경로에서
+  실행되고 포트는 ARM7의 링을 ROM의 VBlank 핸들러 <em>뒤에</em> 채운다 &ndash; 그리고 24,600 레시피는
+  원본과 같이 동작한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T42b</code></span></span>
+  <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span>. <code>../experiments/touch-latency.md</code>와 아래 결과 섹션을
+  보라.</li>
+<li><strong>확정됨.</strong> 첫 번째 탭이 결코 확정하지 않는 이유는 히트 테스트가 아니라 모드 전환이다:
+  키보드는 첫 번째 접촉을 PAD에서 스타일러스로의 모드 변경으로 소비하고, 스타일러스 모드 창
+  안의 두 번째 접촉만이 확인 버튼에 도달한다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> H4 RESULT and TAP40; <code>scratchpad/cycle40/runs/tap-native</code>, <code>tap-interp</code></span></span>.</li>
 <li>키보드를 가진 사람은 스크립트 레시피가 할 수 없는 곳에서 마을 회관을 걸어 나갈 수 있다
   <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D59</code>, 90,000 frames of talking to Pelly again</span></span>.</li>
+</ul>
+<h2 id="가설">가설</h2>
+<ul>
+<li><strong>인터프리트된 콜백 이상 현상.</strong> [H] ARM7의 프레임당 네 샘플을 인터프리트된 PXI 호출로
+  ROM 자신의 <code>TPi_TpCallback</code>에 전달하는 것은 호스트 채움과 데이터가 동일한데도 게임을
+  바꾼다: 택시 대화가 스크립트 입력 없이 진행되고 두 이름 키보드 모두 왼쪽 위 키를 여덟 번
+  입력하고 확정한다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T41j</code>, <code>tap-T41q8705</code> against <code>tap-T41pd</code>; S: <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41; <code>docs/kb/hybrid/stall-playbook.md</code> case 42</span></span>. 호스트 채움이 출하되고 <code>ACWW_TP_PXI=1</code>은 추적을 위해 인터프리트 경로를 남겨 둔다.
+  접촉을 DISABLED로 두고 <code>ACWW_TP_PXI=1</code>로 실행하여 확정한다. 그러면 프레임당 네 번의
+  인터프리트된 콜백은 펜 업 샘플만 나르므로, 게임이 여전히 앞서 달린다면 부작용은 터치
+  데이터가 아니라 <code>acww_interp_irq_run</code>에 있다 &ndash;
+  <code>../experiments/touch-latency.md</code>, 미결 항목.</li>
+<li><strong>인터프리터 경로에서의 유지 시간.</strong> [H] 같은 프레임과 좌표에서 <code>FOR=10</code>과 <code>FOR=90</code>은
+  <em>네이티브</em> 경로에서 샘플링된 아홉 프레임 모두에서 바이트 단위로 동일한 이미지를 만들었다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code>, TOUCH39</span></span>. ROM 자신의 게시가 넘겨받은 이후로는 다시
+  측정되지 않았다. 그 쌍을 <code>ACWW_INTERP=1</code>로 반복하여 확정한다.</li>
+<li><strong>오라클 프로브의 <code>memory.readword</code>는 16비트 폭인가?</strong> [H] 의심할 이유는 사라졌다 &ndash;
+  터치 없음 행에서 반환한 255는 ROM 자신의 0x00ff이지 0xffff의 절단이 아니다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41</span></span> &ndash; 하지만 이 접근자가 255를 넘는
+  값을 반환하는 것을 긍정적으로 보여 준 것은 아직 없다. 모든 필드가 256 미만인 이 페이지에서는
+  어느 것에도 영향이 없다. ROM이 16비트 폭으로 쓰는 주소를 프로브하여 확정한다.</li>
 </ul>
 <h2 id="결과-oracle42-이-페이지의-초안-작성-이후">결과 (ORACLE42, 이 페이지의 초안 작성 이후)</h2>
 <p>1픽셀 테스트는 부정이다: 접촉을 222,182에 둔 포트는 여전히 마을 이름을 확정하고(<code>tap-D61</code>,
@@ -477,12 +554,59 @@ ncc 0.9920에서 0.9959 &ndash; 그리고 <code>TOUCH2</code> 창 안의 25,500�
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md ORACLE42</span></span>. <code>ACWW_TOUCH2_AT=24700</code>으로 하면 양쪽
 모두 확정하고 일치한다: 24000..27000의 11프레임에서 평균 ncc 0.9955, 위 화면 1.0000
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-D62</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-24700</code></span></span>. 기록용 레시피는 24,700을 사용한다.
-미결 가설: port/shim/input/touch.c에서 1-2프레임 스타일러스 지연을 모델링한다
-<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">rerun the 24,600 recipe after the change and compare with <code>scratchpad/oracle/tap-fullpad</code> at 25,500</span></span>.</p>
+지연은 이제 모델링되었다(TOUCH41): ROM의 <code>func_020e9314</code>가 인터프리터 경로에서 실행되고
+포트는 ARM7의 링을 채운다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41</span></span>.
+이 모델 아래에서 24,600에 예약된 접촉은 24,601에 TP_POINT에 도달하며, 포트는 원본이
+확정하지 않는 곳에서 여전히 마을 이름을 확정한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T41h</code></span></span>
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span>; 24,700 레시피는 24,000..27,000에서 0.9986을 기록한다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T41i</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-24700</code></span></span>. <strong>확정됨 (TOUCH42)</strong>: ROM의 VBlank 핸들러에
+대한 샘플의 위치가 같은 프레임의 누름과 탭의 순서를 정한다. 네 샘플을 핸들러 뒤에
+전달하면(하드웨어의 순서: 핸들러는 VBlank에서 패드를 읽고, ARM7은 그 다음 프레임 동안
+패널을 샘플링한다) 포트는 원본처럼 24,600에서 키보드에 남는다 &ndash; 24,000..27,000의
+11프레임에서 ncc 0.9981 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-T42b</code></span></span>
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH42</span></span>.</p>
+<h2 id="결과-input46-원본에-대해-측정한-스크립트-패드">결과 (INPUT46): 원본에 대해 측정한 스크립트 패드</h2>
+<p>패드 경로는 스타일러스처럼 원본에 대해 채점된 적이 없었다. 이제는 그림이 아니라 ROM 자신의
+워드로 채점되었다: 포트의 영역 장부(<code>ACWW_ORACLE_ADDRESS=0x021fbdd0 _LENGTH=120</code>)와
+<code>oracle.py --peek 0x021fbdd0:1,0x021fbe38:4</code>가 같은 120바이트 &ndash; ROM의 프레임별 카운터,
+<code>g_021fbe3c</code>와 <code>g_021fbe40</code>의 <code>{held, trigger, table}</code> &ndash; 를 하나의 레시피 아래 두 생산자
+모두에서 택시 대화 내내 읽었다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/input46/RECEIPTS.md</code>; <code>docs/log/cycle40-keyboard-gate-probe.md</code> INPUT46</span></span>.</p>
+<ul>
+<li><strong>누르고 있는 키는 양쪽 모두에서 ONE 트리거다.</strong> <code>ACWW_KEYS=9 _FOR=10 _EVERY=30</code>으로,
+  <code>0x021fbe42</code>의 ROM <code>changed</code> 워드는 펄스당 정확히 한 번 올라간다: 매 프레임 샘플링한 포트에서
+  35펄스 중 34, 같은 대화를 2프레임마다 샘플링한 원본에서 24 중 24(그리고 패드 페이즈를
+  비활성화하여 열차가 멈추지 않게 하면 51 중 51)
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/input46/w-port1.txt</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/input46/w-full.txt</code></span></span>.</li>
+<li><strong>패드는 메인 루프 반복당 한 번 읽히며, 그것은 두 생산자 모두에서 THREE 프레임당 한
+  번이다</strong> &ndash; <code>0x021fbdd0</code>은 포트에서 30프레임당 정확히 10, 원본에서 100프레임당 33 증가한다.
+  게임의 키 경로는 어느 기계에서도 VBlank당 경로가 아니다
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0206e63c</code>'s <code>data_021fbdd0++</code>, <code>port/shim/gfx/frameswap.c</code></span></span>.</li>
+<li><strong>포트의 스크립트 누름은 3프레임 늦게 도착하고 10프레임이 아니라 12프레임 유지된다.</strong>
+  <code>frameswap.c</code>는 두 패드 레지스터를 <code>func_0206e63c</code>의 END에서, 즉 메인 루프 BODY당 한 번
+  쓰므로, 마스크는 한 프레임에 계산되어 다음 본문에서 소비된다; 원본의 ROM은 실제 하드웨어를
+  읽어 펄스 시작 +2..+4에 누름을 보고 8..10프레임 유지한다. 30프레임 주기에서는 어떤 에지도
+  바꾸지 않으며 모델링되지 않았다
+  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/input46/w-port1.txt</code> frames 780..795</span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/input46/w-orig.txt</code> frames 1,080..1,092</span></span>.</li>
+<li><strong>따라서 택시 대화는 ORIGINAL의 속도로 진행된다.</strong> 28번의 메시지 박스 다시 그리기는 같은
+  순서의 같은 이벤트이며 일정한 +270프레임 차이이고, 포트는 같은 펄스 열로 택시 시작부터
+  키보드 시작까지를 830프레임에 걸치며 원본은 810프레임이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/input46/table.txt</code>; <code>docs/log/cycle40-keyboard-gate-probe.md</code> INPUT46</span></span>. <strong>CARD45의 "포트는 택시 대화를
+  1.8배 빠르게 진행한다"는 RETRACTED되었다</strong> (<code>docs/log/cycle40-keyboard-gate-probe.md</code>, INPUT46, "The answer in one paragraph"): 포트는 택시에서 약 280프레임 이르므로
+  <code>ACWW_KEYS2</code>가 프레임 1,800에서 30프레임 열차를 멈추기 전에 끝나는 반면, 원본은 이벤트 넷이
+  모자라 <code>ACWW_KEYS3</code>의 첫 A를 700프레임 기다린다.</li>
+</ul>
+<p><strong><code>ACWW_PAD_SAMPLE</code>은 이 중 어느 것도 목격할 수 없었고, 삭제되었다.</strong> <code>port/shim/probe_pad.c</code>는
+<code>func_020e9548</code>을 오버라이드하며 링크되어 있지만, 인터프리터는 REGISTERED 함수에 대해서만
+네이티브 본체로 들어가고 이 함수는 부팅 라인이 이름 대는 85개에 들지 않으므로, 인터프리터
+실행에서는 그 심의 어느 부분도 실행되지 않는다 &ndash; 측정 결과, 목격자를 완전히 설정한 실행은
+샘플도 심 자신의 상한 있는 레지스터 로그도 출력하지 않았다. 설정으로 등록할 수도 없다.
+대신 영역 장부로 RAM에서 세 워드를 읽어라
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/stall-playbook.md</code> case 71; <code>docs/kb/hybrid/instruments.md</code> section 3d</span></span>.</p>
 <h2 id="관련-문서">관련 문서</h2>
 <ul>
-<li><code>../experiments/touch-calibration.md</code>, <code>../experiments/two-tap-town-recipe.md</code>,
-  <code>../experiments/off-recipe.md</code>.</li>
+<li><code>../experiments/touch-latency.md</code>, <code>../experiments/touch-calibration.md</code>,
+  <code>../experiments/two-tap-town-recipe.md</code>, <code>../experiments/off-recipe.md</code>.</li>
+<li><code>../engine/interpreter-path.md</code> &ndash; ROM 자신의 게시를 핫 패스에 되돌려 놓는 거부 목록.</li>
 <li><code>time-and-rtc.md</code> &ndash; 모든 <code>_AT</code>가 표현되는 프레임 카운터.</li>
 </ul></div><nav class="prevnext"><a class="pn prev" href="../systems/dialogue.html"><small>◀ 이전</small>대화</a><a class="pn next" href="../systems/rng.html"><small>다음 ▶</small>난수</a></nav>
     </div>
@@ -492,7 +616,7 @@ ncc 0.9920에서 0.9959 &ndash; 그리고 <code>TOUCH2</code> 창 안의 25,500�
     </footer>
   </main>
 
-  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#패드">패드</a></li><li><a href="#스타일러스">스타일러스</a></li><li><a href="#프레임별-게시">프레임별 게시</a></li><li><a href="#포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</a></li></ul></li><li><a href="#포트와-원본은-측정-가능하게-불일치한다">포트와 원본은 측정 가능하게 불일치한다</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#결과-oracle42-이-페이지의-초안-작성-이후">결과 (ORACLE42, 이 페이지의 초안 작성 이후)</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#패드">패드</a></li><li><a href="#스타일러스">스타일러스</a></li><li><a href="#프레임별-게시">프레임별 게시</a></li><li><a href="#포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</a></li></ul></li><li><a href="#포트와-원본은-측정-가능하게-불일치한다">포트와 원본은 측정 가능하게 불일치한다</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#확정됨-기록용으로-보존">확정됨 (기록용으로 보존)</a></li><li><a href="#가설">가설</a></li><li><a href="#결과-oracle42-이-페이지의-초안-작성-이후">결과 (ORACLE42, 이 페이지의 초안 작성 이후)</a></li><li><a href="#결과-input46-원본에-대해-측정한-스크립트-패드">결과 (INPUT46): 원본에 대해 측정한 스크립트 패드</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
 </div>
 <div class="backdrop" id="backdrop"></div>
 

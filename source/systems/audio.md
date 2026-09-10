@@ -4,9 +4,12 @@
 mixed by the processor the game runs on. The ARM9 builds a linked list of commands, hands the
 list's address to the ARM7 through a single FIFO word, and waits for a counter in shared memory
 to advance; the ARM7 owns the sequencer, the channels, the envelopes and the sound hardware.
-The PC port answers that protocol and plays nothing: it walks the command list, completes every
-command silently and bumps the counter. That is enough to keep the game running for 90,000
-frames and is not a step toward audio.
+**The PC port is now that ARM7.** With `ACWW_SND=1` it keeps sixteen players, thirty-two
+tracks, a sixteen-channel mixer, two capture units and the output selector, steps them at the
+ARM7's own 192 Hz, and hands 32,768 Hz stereo to a host sink -- the game's own music and
+effects, out of the ROM's own archive. With the switch absent it walks the list and completes
+every command silently, exactly as before. Everything below the summary that says "nothing
+plays" has been retracted; the retraction is dated and cited.
 
 ## What happens
 
@@ -14,7 +17,7 @@ frames and is not a step toward audio.
 
 There is exactly one sound file: `sound_data.sdat`, 10,704,768 bytes, SHA-256
 `d89a5d75307a0c8bbb355b82d5a5189ac0938f348fffafc859fa588127edc1f5`
-[S: operator extraction, recorded in `docs/kb/port/input-save-audio.md`]. Parsing its INFO and
+[H: host/prose inference from operator extraction, recorded in `docs/kb/port/input-save-audio.md`; verify against the ROM function or symbol table and this page's recipe]. Parsing its INFO and
 FAT blocks directly gives 376 SEQ table slots but only 342 defined records and 336 distinct
 physical sequence files; 216 sequence archives holding 5,550 entries; 943 banks; 14 wave
 archives; and 2 streams [S: same]. **Those are three different denominators and "376 SEQ
@@ -85,17 +88,20 @@ a capture thread that applies an output effect to the final mix
 
 The ARM9 half is ROM code and runs. The contiguous SDK library blocks resolve 257 of 257 matched
 symbols -- 187 NNS sound, 69 Nitro SND and one ITCM alarm handler -- though the game glue above
-them is not thereby complete [S: `docs/kb/port/input-save-audio.md`].
+them is not thereby complete [H: host/prose inference from `docs/kb/port/input-save-audio.md`; verify against the ROM function or symbol table and this page's recipe].
 `extract/adm-kr/arm7/arm7.bin` exists, 166,392 bytes, and **the port does not package, load or
 execute it**; `fsimage.py` publishes zero ARM7 ROM offset and size
-[S: `docs/kb/port/input-save-audio.md`].
+[H: host/prose inference from `docs/kb/port/input-save-audio.md`; verify against the ROM function or symbol table and this page's recipe].
 
-On the interpreter path the whole ARM7 sound processor is one function. `snd_arm7` walks the
-command list from the word the ARM9 sent, reads each node's id, records the shared-work address
-when it sees id 29, prints `acww snd7: command id N completed silently` for the first twelve,
-and then increments the shared work's first word once -- the finished tag the ARM9 waits on. A
-zero word is the request-processor's wake and does nothing
-[E: `port/shim/os/pxisend.c`; `docs/kb/hybrid/hardware-services.md` section 1, tag 7].
+On the interpreter path the ARM7's sound processor is a host one. Until AUDIO6 it was a single
+function: `snd_arm7` walked the command list from the word the ARM9 sent, read each node's id,
+recorded the shared-work address when it saw id 29, printed
+`acww snd7: command id N completed silently` for the first twelve, and incremented the shared
+work's first word once -- the finished tag the ARM9 waits on. A zero word is the
+request-processor's wake and does nothing
+[E: `port/shim/os/pxisend.c`; `docs/kb/hybrid/hardware-services.md` section 1, tag 7]. That
+silent walk is still what runs with `ACWW_SND` absent, and it is still the whole of the native
+path.
 
 The ARM9 command layer itself is deliberately *not* replaced: `sndcmd.c`, `sndflush.c` and
 `sndtag.c` are on the deny list so the ROM's own `SND_*Command` functions run, and an earlier
@@ -104,10 +110,11 @@ guard that accepted only id 29 aborted the boot [E: `port/tools/interp_registry.
 rather than from a host facade, and that too was forced: the host sound facade answered "no
 archive", the ROM's `func_020f4b1c` got NULL back from `NNS_SndArcGetSeqArcParam`, called the
 ROM's own fatal path `func_0206e3ec`, and the ROM's crash screen looped from frame ~830 with
-both screens black [E: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40]. Fourteen sound files are denied in all so the ROM's own bodies are used: eleven archive,
-player and heap files (`sndinit.c`, `sndfacade.c`, `sndframe.c`, `sndstart.c`, `sndplay.c`,
-`snd_playeropen.c`, `sequpdate.c`, `arcinfofamily.c`, `arcbankinfo.c`, `arcseqinfo.c`,
-`sndheapstate.c`) plus the three command-layer files above
+both screens black [E: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40]. Fourteen sound
+files are denied in all so the ROM's own bodies are used: eleven archive, player and heap files
+(`sndinit.c`, `sndfacade.c`, `sndframe.c`, `sndstart.c`, `sndplay.c`, `snd_playeropen.c`,
+`sequpdate.c`, `arcinfofamily.c`, `arcbankinfo.c`, `arcseqinfo.c`, `sndheapstate.c`) plus the
+three command-layer files above
 [S: `port/tools/interp_registry.py`, `DENY_FILES`, counted].
 
 On the older native path, tag 7 instead reaches a narrow service that keeps real free, reserve
@@ -115,23 +122,123 @@ and pending lists matching the SDK's shared-work layout but recognises only id 2
 everything else [E: `port/shim/os/pxisend.c`, `port/shim/audio/w12_sndservice.h`;
 `docs/kb/port/input-save-audio.md`].
 
-**Nothing plays.** The knowledge base states the boundary precisely: transport alone cannot
-interpret a sequence, resolve a bank or wave archive, allocate channels, advance envelopes and
-timers, or produce PCM [S: `docs/kb/port/input-save-audio.md`].
+### The host ARM7 sound driver (`ACWW_SND=1`)
 
-### The smallest audible slice, and why it has not been taken
+~~**Nothing plays.**~~ **Retracted 2026-09-09 (AUDIO6, `115984f9`; AUDIO7, `36ee5abe`).** The
+port plays the game's own music and sound effects. `port/shim/audio/driver.c` is the ARM7
+command processor over the SNDWork blocks the ROM sends on tag 7; `port/shim/audio/capture.c`
+is the two capture units, the output selector and the surround decay;
+`port/shim/audio/sink_win32.c` is a WASAPI (waveOut fallback) sink pulled by a host thread; the
+mixer is rendered per frame from the frame boundary at the ARM7's own 192 Hz
+[E: `docs/kb/hybrid/audio.md` sections 1, 6 and 7]. **There is no host archive**: the ROM's own
+`NNS_SndArcInit` opens `/sound_data.sdat` through the port's virtual cartridge, and the pointers
+`PREPARE_SEQ` carries are NDS addresses, so `sdat.c` stays out of the link
+[E: same, section 2]. The first silent run was `swav.c` reading `waveOffset[]` as file offsets
+where this ROM's WAVEARC flag `0x01` makes them NDS addresses
+[S: `src/matched/SND_GetWaveDataAddress.c`'s branch].
 
-Archive 0, index 121 is the identified candidate: sequence-archive 0 entry 121 is eight
-sequence bytes (rest, program, one note, end), selects bank 154, then wave archive 4 and wave
-42, one 6,020-byte DS ADPCM payload [S: `docs/kb/port/input-save-audio.md`]. Static
-reachability finds `func_020089dc -> func_020f1fb4(..., 0x79) -> func_020eede8 ->
-func_020eedb8`, encoding handle `0x021fd04c`, archive 0, index 121 -- but it did not execute in
-the measured cold START run through frame 12,000, its selector staying zero
-[S: `docs/kb/port/input-save-audio.md`]. Two offline decoders disagree on whether the ADPCM
-predictor header is an emitted sample, 12,033 samples against 12,032, so neither is a fidelity
-golden [S: same]. The planning estimates recorded are 2-4 weeks for a first command-service
-audible slice and 7-12 weeks for a robust host emulation, with hosting the real ARM7 a 1-2 week
-feasibility study and an 8-14+ week route [S: same; they are estimates and were not calibrated].
+**The command census.** The instrument it replaced printed twelve lines and stopped, so every
+`PREPARE_SEQ` the game ever sent was invisible and the audit's own hypothesis could not be
+tested at all -- an artefact of the instrument, not of the game (M1)
+[E: `docs/kb/hybrid/audio.md` section 3]. The census is uncapped now and runs whether or not the
+driver is on. Ids 0-4, 6-17, 19-33 are dispatched; `SKIP_SEQ` (5) and `SETUP_ALARM` (18) are
+logged only, `SETUP_ALARM` because firing it sends a word back into game code over PXI and so
+changes the game rather than the sound [E: same]. **This ROM never sends id 33**
+`READ_DRIVER_INFO`: the uncapped census over the 9,000-frame OFF recipe lists ids 0-32 and no 33
+[E: same, section 10; `scratchpad/audio7/`].
+
+**The bring-up, as the ROM sends it**, printed from a bounded per-id argument log rather than
+predicted [E: `docs/kb/hybrid/audio.md` section 7; `scratchpad/audio7/args/run-tail.log`, frame 3]:
+`SURROUND_DECAY 0x3000`, then `LOCK_CHANNEL 0x000a` -- channels 1 and 3 out of the allocator --
+then those two channels programmed as PCM at timer 512, hard left and hard right, over two
+512-word buffers; then two `SETUP_CAPTURE` on **the same two buffers** from the MIXER with the
+loop bit set; then `SETUP_ALARM` at half the buffer's duration; then
+**`OUTPUT_SELECTOR 1 2 1 1`** -- left from Ch1, right from Ch3, both bypassing the mixer -- and
+`START_TIMER`. The replay channels and the capture units share one buffer and one clock, so the
+speakers hear the mixer delayed by exactly one buffer, re-panned hard left and hard right, while
+the surround decay attenuates every channel EXCEPT 1 and 3. That is the DS's pseudo-surround
+[E: same; P: GBATEK, "the sample frequency of Channel 1/3 is shared for Capture 0/1"].
+
+**The receipt that the selector is obeyed** is a cross-correlation between the same binary with
+`ACWW_SND_CAPTURE=0` and with it default: the peak is at **lag 1,025 samples = 31.28 ms,
+coefficient 0.9962**, against 0.2530 at lag zero. The arithmetic predicts 1,024 (512 words at
+timer 512) and the extra sample is the read preceding the write inside one mixer step. A driver
+that ignored the selector would correlate 1.0000 at lag 0 and nothing anywhere else
+[E: `scratchpad/audio7/wavcmp-nocap-vs-on.txt`; `docs/kb/hybrid/audio.md` section 8].
+
+**The tables are read from this ROM's own images, not reconstructed.** `AttackCoeffTable` is at
+`arm7.bin+0xf2e0` and `SNDi_DecibelSquareTable` at `arm7.bin+0xf1cc`; `SNDi_DecibelTable` is at
+`unk_autoload_2.bin+0x54dcc` [S: those images; `port/tools/test_sndrender.py` re-reads all three
+at pinned offsets on every run]. Two of the three grade-H reconstructions were byte-identical;
+**the error was not a table but WHICH table** -- velocity, both track volumes, the player volume
+and the envelope's sustain level all go through `SND_CalcDecibelSquare`, not `SND_CalcDecibel`,
+and the two curves are four decibels apart mid-scale (volume 64 is -239 tenths in the square
+table against -60 in the plain one) [S: the ROM images; P: NitroSDK `snd_seq.c`,
+`snd_exchannel.c`]. **Entry 0 of both tables is -723 in this ROM where the public NitroSDK has
+-32768**; that is a different revision of the library, and the disagreement is content, not
+noise -- a driver built on the public value clamps a chain containing a zero term to silence
+where this ROM does not (STYLE rule 7) [S: the images vs P: the public source]. The allocator
+walks channels in the library's own order `{4,5,6,7, 2,0, 3,1, 8,9,10,11, 14,12,15,13}` and
+breaks ties on the QUIETER channel's hardware volume word, not on allocation age -- which is
+what keeps ordinary notes off channels 0..3 while any of 4..7 is free, exactly the quartet the
+capture path uses [P: NitroSDK `snd_exchannel.c`, `SND_AllocExChannel` and
+`CompareExChannelVolume`; E: `port/shim/audio/driver.c` walks that order, and
+`port/tools/test_sndrender.py` holds the 418/418 note count across the change].
+
+**Publishing `playerStatus` changed what the game does, and that is the finding.**
+`NNSi_SndPlayerMain` shuts a player down the moment `playerStatus` does not carry its bit
+[S: `src/matched/NNSi_SndPlayerMain.c`]. Against the silent ARM7 that bit was never set, so
+**every piece of music the game started was torn down and restarted for the whole run** -- 967
+`PREPARE_SEQ` where 371 suffice, and 590 bank invalidations where 6 suffice. The port had been
+doing that all along and nothing showed it [E: `docs/kb/hybrid/audio.md` section 8(c)].
+`ACWW_SND_SHARED=0` is the escape, and it exists because publishing status is a change to what
+the game can SEE.
+
+**What it does not change: the picture.** OFF recipe, four arms one environment variable apart
+(the untouched build, `ACWW_SND=0`, `ACWW_SND=1` with the capture path off, and with it on):
+**31 of 31 frames exact (RGB) in every pairing**, mean ncc 1.0000
+[E: `scratchpad/audio7/frame-exactness.txt`]. Over the whole 48,000-frame town recipe,
+`ACWW_SND` unset against `ACWW_SND=1` is **15 of 15 shots byte-identical**, both exit 100
+[E: `scratchpad/stab42/`; STAB42]. With `ACWW_SND` unset the sink thread is never created at
+all.
+
+**The milestones, and what each closed.** Milestone 6 is the driver and the sink (AUDIO6,
+`115984f9`); milestone 7 is the capture path, which removed milestone 6's one deliberate
+deviation -- the port had played the mixer straight and ignored the output selector; milestone 8
+is `READ_DRIVER_INFO` and the differential (both AUDIO7, `36ee5abe`). All eight steps of the
+audit's build order are done [S: `../audits/audio-design.md` section 2, "Build order"].
+Fixtures: `port/tools/test_sndrender.py` 22/22 (three of them grade S against this ROM's
+images), `port/tools/test_snddispatch.py` 31/31 with three calibrations -- one of which replays
+the ROM's own twelve bring-up commands and requires the speakers to go to **peak 0** when the
+one `START_TIMER` bit that starts the capture units is removed, because the replay channels are
+then reading a buffer nothing fills. A driver that ignored the selector is equally loud in both
+[E: `docs/kb/hybrid/audio.md` section 8(d)].
+
+**Not receipted: the sink itself.** On this machine `waveOutGetNumDevs()` returns 0 and WASAPI's
+`GetDefaultAudioEndpoint` returns `ERROR_NOT_FOUND`, although the machine has nine audio devices
+and Audiosrv is running; `CoCreateInstance` on `MMDeviceEnumerator` succeeds, so the COM path up
+to the endpoint is exercised and nothing past it is. Every failing step prints its HRESULT, and
+`scratchpad/audio6/sinktest.py` pushes a square wave through the sink alone
+[E: `docs/kb/hybrid/audio.md` section 8].
+
+### The smallest audible slice -- taken, and the whole archive with it
+
+Archive 0, index 121 was the identified candidate and it is still the fixture's spine: sequence
+archive 0 entry 121 is eight sequence bytes (rest, program, one note, end), bank 154, wave
+archive 4, wave 42, one 6,020-byte DS ADPCM payload [S: `docs/kb/port/input-save-audio.md`;
+confirmed field by field in `../audits/audio-design.md` section 3]. The two offline decoders
+that disagreed on 12,033 samples against 12,032 were settled by GBATEK against the ADPCM header:
+**12,032**, and SWAV 42 is now asserted sample for sample by the fixture
+[P: `gbatek-ds-sound-channels-0-15.htm`; S: `../audits/audio-design.md` section 3].
+
+~~The planning estimates recorded are 2-4 weeks for a first command-service audible slice and
+7-12 weeks for a robust host emulation.~~ **Overtaken by events**: the driver, the capture path
+and the differential's tooling were built in one night
+[E: `docs/log/cycle40-keyboard-gate-probe.md` AUDIO6 and AUDIO7]. On the OFF recipe the port
+sounded **418 notes of 418 attempted, none dropped**, across 371 sequences, 16 channels at once,
+28,877 driver frames for 9,000 game frames (192/59.8261 x 9,000 = 28,884), first sound at frame
+36-38, and wrote a 150.40 s WAV against the 150.44 s the recipe asks for
+[E: `scratchpad/audio7/on/capture.wav`; `docs/kb/hybrid/audio.md` section 8(a)].
 
 ## Where it lives
 
@@ -156,6 +263,11 @@ feasibility study and an 8-14+ week route [S: same; they are estimates and were 
 | `PXI_SendWordByFifo` | autoload_2 | the FIFO word send tag 7 rides on | [S: `src/matched/PXI_SendWordByFifo.c`] [E: replaced by `port/shim/os/pxisend.c`] |
 | `DWCi_SNDlPlay`, `_Stop`, `_SetVolume`, `_SetPitch` | libdwcac | the network UI's hooks into the same player path | [S: `src/matched/DWCi_SNDlPlay.c`] |
 | `func_020eedb8`, `func_020f609c`, `func_020f6350`, `func_020f7bc4` | main | the four game-glue callers of the start boundary; not decompiled | [S: `docs/kb/port/input-save-audio.md`] |
+| `acww_snd_command` (`driver.c`) | port | the host ARM7: sixteen players, thirty-two tracks, a sixteen-channel mixer, the census | [E: `port/shim/audio/driver.c`; `docs/kb/hybrid/audio.md` section 3] |
+| `capture.c` | port | the two capture units, `OUTPUT_SELECTOR`, the surround decay, the hardware channels | [E: `port/shim/audio/capture.c`; `docs/kb/hybrid/audio.md` section 7] |
+| `sink_win32.c` | port | the only thread boundary: a 65,536-frame lock-free ring into WASAPI, waveOut fallback | [H: host-source account from `port/shim/audio/sink_win32.c`; verify with a retained scripted run and frame using this page's recipe] |
+| `SND_CalcDecibelSquare` `arm7.bin+0xf1cc` (table) | ARM7 image | the table velocity, both track volumes, the player volume and the sustain level go through | [S: `extract/adm-kr/arm7/arm7.bin`, re-read by `port/tools/test_sndrender.py`] |
+| `SNDi_DecibelTable` `unk_autoload_2.bin+0x54dcc`, `AttackCoeffTable` `arm7.bin+0xf2e0` | images | the other two constant tables; entry 0 of both decibel tables is **-723** in this ROM | [S: the same two images] |
 
 ## Data it reads and writes
 
@@ -168,30 +280,71 @@ feasibility study and an 8-14+ week route [S: same; they are estimates and were 
 | `0x022045d0` / `0x022045d4` | reserve-list head and end | `SND_PushCommand` | `SND_FlushCommand` [S: same] |
 | `0x022045dc` / `0x022045e0` / `0x022045e4` | pending read index, write index, batch count | `SND_FlushCommand` | the reply path [S: same] |
 | `0x022045cc` / `0x022045e8` | reclaimed tag and current submission tag | the reply path / `SND_FlushCommand` | `SND_WaitForCommandProc` [S: same] |
-| node `+0x00` / `+0x04` / `+0x08` | next pointer, command id, first argument | `SND_AllocCommand` and the builders | the ARM7 (the port reads all three) [E: `port/shim/os/pxisend.c`] |
-| PXI tag 7 | the one word carrying the command list's address | `SND_FlushCommand` | `snd_arm7` [E: `port/shim/os/pxisend.c`] |
+| node `+0x00` / `+0x04` / `+0x08` | next pointer, command id, first argument | `SND_AllocCommand` and the builders | the ARM7 (the port reads all three) [H: source/log account from `port/shim/os/pxisend.c`; verify with a retained run using this page's recipe] |
+| PXI tag 7 | the one word carrying the command list's address | `SND_FlushCommand` | `snd_arm7` [H: source/log account from `port/shim/os/pxisend.c`; verify with a retained run using this page's recipe] |
 | `sound_data.sdat` | the whole archive: 336 sequences, 216 sequence archives, 943 banks, 14 wave archives, 2 streams | the ROM image | `NNS_SndArc*` through the filesystem [S: `docs/kb/port/input-save-audio.md`] |
+| shared work `+0x04` `playerStatus` | which of the sixteen players is live | the ARM7 (the port, inside `PREPARE_SEQ` / `STOP_SEQ`) | `NNSi_SndPlayerMain`, which SHUTS a player down when its bit is clear [S: `src/matched/NNSi_SndPlayerMain.c`; E: `docs/kb/hybrid/audio.md` section 5] |
+| shared work `+0x08` / `+0x0a` `channelStatus` / `captureStatus` | which channels and capture units are running | the ARM7 (the port) | ARM9 sound code; the only ARM7 state the rest of the machine can see [S: `src/matched/SND_GetPlayerStatus.c`] |
+| the two 512-word buffers at `0x02143420` / `0x02143c20` | one per capture unit, shared with replay channels 1 and 3 | capture unit 0/1 (the port's `capture.c`) | channels 1 and 3, one buffer behind [E: `scratchpad/audio7/args/run-tail.log`] |
 
 ## How to check it
 
-`../experiments/silent-audio-probe.md` (designed, not yet run) reads the `acww snd7:` lines out
-of a town run and asks which command ids the game actually emits on the way to the town hall --
-which is the cheapest way to find out whether 2, 9, 6 and 3 are ever reached, and therefore how
-much of a host sequencer a first audible slice would need.
+`../experiments/silent-audio-probe.md` asked which command ids the game actually emits. That is
+answered: run the OFF recipe (`off-recipe.md`) with the driver on and read the census the run
+prints at its stop.
+
+    # every run prints `acww snd7 census:` whether or not the driver is on
+    ACWW_SND=1 ACWW_SND_NOSINK=1 ACWW_SND_WAV=<path>.wav <the OFF recipe>
+
+`ACWW_SND_CAPTURE=0` is the arm that turns milestone 7 back off, which is what the before/after
+receipt is measured across; `ACWW_SND_SHARED=0` stops the port publishing status back to the
+ARM9; `ACWW_SND_DUMP=<frames>:<path>` writes the port's half of the milestone-8 differential
+[E: `docs/kb/hybrid/audio.md` section 6]. Without a ROM at all,
+`python port/tools/test_snddispatch.py` (31 checks, three calibrations) and
+`python port/tools/test_sndrender.py` (22 checks, three of them against this ROM's images) are
+the fixtures [E: same, section 8(d)].
 
 ## Hypotheses
 
-- The silent ARM7 is adequate for the game's logic indefinitely. Evidence for: 90,000 frames
-  with no re-entry into the ROM's fatal path [E: `scratchpad/cycle40/runs/tap-D59`, LONG41]. It
-  remains a hypothesis because the ROM's sound stack runs against a consumer that never reports
-  a real player state, so a sequence whose progression the game waits on would stall. Settled by
-  an oracle comparison over a scene with music-driven timing
-  [S: `docs/kb/hybrid/hardware-services.md` section 7].
+- ~~The silent ARM7 is adequate for the game's logic indefinitely.~~ **Settled 2026-09-09
+  (AUDIO6), and it was not.** The mechanism named here was the right one: against a consumer
+  that never set `playerStatus`, `NNSi_SndPlayerMain` tore every started sequence down and the
+  game restarted it -- 967 `PREPARE_SEQ` over the OFF recipe where 371 suffice, and 590 bank
+  invalidations where 6 suffice. Nothing STALLED, so the 90,000-frame evidence stands; what was
+  wrong was "adequate" [E: `docs/kb/hybrid/audio.md` section 8(c);
+  S: `src/matched/NNSi_SndPlayerMain.c`].
+- **H: the mix is CORRECT, not merely present.** Nothing has yet compared the port's driver
+  state against the original's. `SNDSharedWork` is the only comparable part -- it is in main RAM
+  because the ARM9 owns it, and it is also the only part of the driver game code can see;
+  `SNDi_Work` and the sixteen SOUNDxCNT registers are ARM7-side and DeSmuME 0.9.13's Lua reaches
+  neither, and nothing can inject an ARM9 `READ_DRIVER_INFO` into a running emulator. Both
+  halves of the tooling exist (`ACWW_SND_DUMP`, `oracle.py --snd-dump/--snd-shared`,
+  `port/tools/oracle/snddiff.py`); **the emulator would not start in the session milestone 8 was
+  written in** -- three attempts, each leaving the process alive, responding, and having used
+  1.1 s of CPU in 675 s, with the pre-milestone-8 observer too, so it is an environment fact and
+  not a Lua one. Settled by running `port/tools/oracle/oracle.py --frames 100` unchanged and
+  finding out why [E: `docs/kb/hybrid/audio.md` section 10].
+- **H: channels 6 and 7 looping is closer to hardware than not playing them.** From frame 819
+  the game programs them as hardware PCM -- NitroSDK's streamed path -- and with `SETUP_ALARM`
+  not fired nothing advances the stream's buffer, so they replay whatever the ARM9 last wrote.
+  Milestone 6 played them not at all, milestone 7 plays them looping; which is right is not
+  established. Settled by the differential above, pointed at those two channels first
+  [E: `docs/kb/hybrid/audio.md` section 7].
+- **H: 24 MB of decoded-wave arena is enough for a long session.** The arena is a bump
+  allocator; when it fills, every channel is stopped, the cache is dropped and it is rewound --
+  one click rather than permanent silence. The OFF recipe recycles it zero times. Settled by a
+  long live session with the run report's recycle counter read at the end
+  [E: `docs/kb/hybrid/audio.md` section 11].
 - ACWW selects background music by the hour, as the series does. **No such table or function was
   found** among matched, sound-named symbols, and the RTC files reference no sound symbol
   [S: absence in `src/matched`]. If it exists it is inside one of the four undecompiled callers
   of the start boundary. Settled by disassembling `func_020f1fb4` and looking for a hour-indexed
   table feeding its index argument.
+- ~~Archive 0 index 121 is reachable in ordinary play and would make the first sound.~~ **The
+  second half is settled and false**: the first sound of an OFF run happens at frame 36-38 and
+  418 notes sound over 9,000 frames, so whatever plays first, it is not waiting on that chain
+  [E: `docs/kb/hybrid/audio.md` section 8(a)]. Whether index 121 is reached at all is still
+  open, and the uncapped census is now the instrument for it. The original wording follows.
 - Archive 0 index 121 is reachable in ordinary play and would make the first sound. It was not
   requested in the measured cold START run through frame 12,000 -- but that run sampled only 19
   of at least 128 requests, so general sampling cannot establish its absence
@@ -205,5 +358,11 @@ much of a host sequencer a first audible slice would need.
 
 ## Related
 
-- `../experiments/silent-audio-probe.md`, `../experiments/two-tap-town-recipe.md`.
+- `../experiments/silent-audio-probe.md`, `../experiments/two-tap-town-recipe.md`,
+  `../experiments/off-recipe.md` -- the control every audio receipt is taken on.
+- `../audits/audio-design.md` -- the command table, the archive's claims table and the
+  eight-step build order, all eight steps of which are done.
+- `../audits/night-2026-09-09.md` -- AUDIO6 and AUDIO7 in the night's index.
 - `network.md` -- `DWCi_SNDl*` is the other consumer of the player path.
+- `docs/kb/hybrid/audio.md` -- the implementation page: what is dispatched, what is a
+  deliberate no-op, what is only logged, and every receipt behind this page.
