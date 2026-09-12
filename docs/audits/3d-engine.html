@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</span></div><header class="page-head"><h1>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 5</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-O"><b>O</b> 1</span><span class="gchip g-H"><b>H</b> 5</span></div><div class="source-line">원문: <code>wiki/audits/3d-engine.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 포트의 소프트웨어 지오메트리 엔진(<code>port/render/nds3d.c</code>)과 래스터라이저
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</span></div><header class="page-head"><h1>감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 5</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-O"><b>O</b> 1</span><span class="gchip g-H"><b>H</b> 5</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/audits/3d-engine.md"><code>wiki/audits/3d-engine.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/audits/3d-engine.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="audit-the-ports-3d-engine-against-the-public-record"></span><p><strong>요약.</strong> 포트의 소프트웨어 지오메트리 엔진(<code>port/render/nds3d.c</code>)과 래스터라이저
 (<code>port/render/raster3d.c</code>), 그리고 커맨드 파서(<code>gxfifo.c</code>)와 텍스처 유닛(<code>tex3d.c</code>)을
 GBATEK의 DS 3D 장(章)과 두 개의 정확한 소프트웨어 에뮬레이터, 즉 melonDS의 <code>GPU3D.cpp</code> /
 <code>GPU3D_Soft.cpp</code> 및 DeSmuME의 <code>gfx3d.cpp</code> / <code>rasterize.cpp</code>에 대해 주장 하나하나 대조하여
@@ -144,7 +156,8 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 정규화는 기각되었고</strong> <code>ACWW_WNORM=1</code> 뒤에서 기본 꺼짐이다. 그것만으로 0.13 NCC의 비용이 들기
 때문이다 — W가 상수인 폴리곤은 거리와 무관하게 <code>0x8000</code>으로 정규화되므로, 정규화된 W 깊이는
 폴리곤 내부에서는 순서가 있고 폴리곤 사이에서는 임의적이다. <code>port/tools/test_raster3d_depth.py</code>가
-두 답을 모두 고정하는 픽스처이며, <strong>54개 검사</strong>다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41; <code>docs/state/port-frontier.md</code></span></span>. 반투명 블렌딩 그룹과 선언되었으나 수행되지 않는 네 효과에
+두 답을 모두 고정하는 픽스처이며, <strong>54개 검사</strong>다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> TOUCH41;
+<code>docs/state/port-frontier.md</code></span></span>. 반투명 블렌딩 그룹과 선언되었으나 수행되지 않는 네 효과에
 대해서는 아무것도 움직이지 않았다.</p>
 <p><strong>현황, RENDER43(2026-09-10, <code>6081a9a1</code> + 이 유닛).</strong> 두 행이 더 움직였고, 그중 하나는 스펙
 세부가 아니라 완전히 열려 있던 파손이었다. <strong>F15는 켜져 있다</strong>: SWAP_BUFFERS는 프레임당 최대
@@ -161,7 +174,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 실행하지 않았고 이 페이지의 어떤 측정도 새로운 것이 아니다 — 포트 쪽 수치는 <code>docs/log/</code>와 이미
 디스크에 있는 오라클 비교에서 인용했다.</p>
 <hr />
-<h2 id="1-게임이-실제로-엔진에-요구하는-것">1. 게임이 실제로 엔진에 요구하는 것</h2>
+<span class="source-anchor" id="1-what-the-game-actually-asks-the-engine-for"></span><h2 id="1-게임이-실제로-엔진에-요구하는-것">1. 게임이 실제로 엔진에 요구하는 것</h2>
 <p>이것이 어떤 행이 중요한지를 결정한다. <code>func_02002f68</code>은 게임의 3D 초기화(bring-up)이고
 매칭된 소스이므로, 이는 등급 S다.</p>
 <div class="table-wrap"><table>
@@ -202,10 +215,10 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/render/raster3d.c</code> header; verify against the ROM function or symbol table and this page's recipe</span></span>: 2,040개 재질 전부가 <code>GX_POLYGONMODE_MODULATE</code>다(데칼
 없음, 툰 없음, 섀도우 없음); 18,767개 프리미티브 중 17,173개가 트라이앵글 스트립이다.</p>
 <hr />
-<h2 id="2-주장-표">2. 주장 표</h2>
+<span class="source-anchor" id="2-claims-table"></span><h2 id="2-주장-표">2. 주장 표</h2>
 <p>판정은 <strong>일치(agrees)</strong> / <strong>불일치(disagrees)</strong> / <strong>미명시(unspecified)</strong> / <strong>모순(contradiction)</strong>
 이다. "포트"는 해당 주장이 있는 파일과 함수를 가리킨다.</p>
-<h3 id="a-커맨드-스트림-행렬과-스택">A. 커맨드 스트림, 행렬과 스택</h3>
+<span class="source-anchor" id="a-command-stream-matrices-and-the-stacks"></span><h3 id="a-커맨드-스트림-행렬과-스택">A. 커맨드 스트림, 행렬과 스택</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -303,7 +316,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tr>
 </tbody>
 </table></div>
-<h3 id="b-버텍스-프리미티브-클리핑과-뷰포트">B. 버텍스, 프리미티브, 클리핑과 뷰포트</h3>
+<span class="source-anchor" id="b-vertices-primitives-clipping-and-the-viewport"></span><h3 id="b-버텍스-프리미티브-클리핑과-뷰포트">B. 버텍스, 프리미티브, 클리핑과 뷰포트</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -408,7 +421,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tr>
 </tbody>
 </table></div>
-<h3 id="c-조명과-재질">C. 조명과 재질</h3>
+<span class="source-anchor" id="c-lighting-and-materials"></span><h3 id="c-조명과-재질">C. 조명과 재질</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -471,7 +484,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tr>
 </tbody>
 </table></div>
-<h3 id="d-텍스처-유닛">D. 텍스처 유닛</h3>
+<span class="source-anchor" id="d-the-texture-unit"></span><h3 id="d-텍스처-유닛">D. 텍스처 유닛</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -562,7 +575,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tr>
 </tbody>
 </table></div>
-<h3 id="e-깊이-채우기와-반투명-래스터라이저">E. 깊이, 채우기와 반투명 — 래스터라이저</h3>
+<span class="source-anchor" id="e-depth-fill-and-translucency--the-rasteriser"></span><span class="source-anchor" id="e-depth-fill-and-translucency-the-rasteriser"></span><h3 id="e-깊이-채우기와-반투명-래스터라이저">E. 깊이, 채우기와 반투명 — 래스터라이저</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -709,7 +722,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tr>
 </tbody>
 </table></div>
-<h3 id="f-포트가-선언하지만-수행하지-않는-효과">F. 포트가 선언하지만 수행하지 않는 효과</h3>
+<span class="source-anchor" id="f-the-effects-the-port-declares-and-does-not-perform"></span><h3 id="f-포트가-선언하지만-수행하지-않는-효과">F. 포트가 선언하지만 수행하지 않는 효과</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -752,7 +765,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tr>
 </tbody>
 </table></div>
-<h3 id="g-2d-엔진과의-합성">G. 2D 엔진과의 합성</h3>
+<span class="source-anchor" id="g-composition-with-the-2d-engines"></span><h3 id="g-2d-엔진과의-합성">G. 2D 엔진과의 합성</h3>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -795,7 +808,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 </tbody>
 </table></div>
 <hr />
-<h2 id="3-열두-개의-노트-그리고-그중-두-개가-실제로-뜻하는-것">3. 열두 개의 노트, 그리고 그중 두 개가 실제로 뜻하는 것</h2>
+<span class="source-anchor" id="3-the-twelve-notes-and-what-two-of-them-actually-mean"></span><h2 id="3-열두-개의-노트-그리고-그중-두-개가-실제로-뜻하는-것">3. 열두 개의 노트, 그리고 그중 두 개가 실제로 뜻하는 것</h2>
 <p><code>acww_nds3d_report()</code>는 열두 개의 노트 문자열을 출력한다. 두 개는 과적재되어 있어, 이를
 문자 그대로 받아들이는 독자는 엉뚱한 것을 조사하게 된다(M1).</p>
 <div class="table-wrap"><table>
@@ -837,7 +850,7 @@ W 버퍼 게임인데 포트는 W를 선형 보간하고 폴리곤별 W 정규�
 <p>수정: 데칼, 와이어프레임, <code>POS/VEC_TEST</code>에 각자의 비트를 준다. 노트 워드에는 빈 비트가 네 개
 있고 보고 루프는 리터럴 <code>12</code>다.</p>
 <hr />
-<h2 id="4-수정-목록-우선순위-순">4. 수정 목록, 우선순위 순</h2>
+<span class="source-anchor" id="4-fix-list-in-priority-order"></span><h2 id="4-수정-목록-우선순위-순">4. 수정 목록, 우선순위 순</h2>
 <p>우선순위는 마을과 택시 씬이 정한다. 각 항목은 파일과 함수, 스펙이 말하는 것, 코드가 하는 것,
 그리고 바뀔 프레임과 영역을 명시한다. 오라클 프레임은
 <code>scratchpad/oracle/tap-town/shot_0NNNNN.bmp</code>(마을, 27,000–48,000, 1,500 간격)와
@@ -1011,7 +1024,8 @@ dy = +1.00..+2.00이며, OFF 프레임 6,000에서 mae 15.08 → 7.03, 9,000에�
 <code>ACWW_3DBIAS_X</code>/<code>_Y</code>는 지오메트리를 픽셀의 16분의 1 단위로 이동시키며 측정 전용이다:
 +0.5 px는 OFF 프레임 4,500..6,000에 걸쳐 평균 mae 7.66 → 6.92, ncc-top 0.9787 → 0.9824로
 움직이지만, 11개 프레임 중 2개에서 전체 프레임 ncc를 잃으므로 수정으로는 기각된다 — 이동은
-규칙이 아니다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/off-bias4040</code>, <code>off-bias4848</code>; S: <code>docs/kb/hybrid/render-fidelity-history.md</code> section 4; receipt lost with its worktree; repeat the named recipe and retain the stated frames</span></span>.</p>
+규칙이 아니다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/off-bias4040</code>, <code>off-bias4848</code>;
+S: <code>docs/kb/hybrid/render-fidelity-history.md</code> section 4; receipt lost with its worktree; repeat the named recipe and retain the stated frames</span></span>.</p>
 <p><strong>F9 — 엣지를 채우고, 1도트 폴리곤을 렌더링한다.</strong> <code>raster3d.c</code>, <code>draw_poly</code>; <code>nds3d.c</code>,
 <code>emit_poly</code>(<code>area == 0</code> 분기).
 <em>스펙:</em> DS는 기울기 규칙에 따라 엣지 픽셀을 채우며, "edges are always filled if
@@ -1080,7 +1094,7 @@ duration)"</em>; DeSmuME 0.9.13 <code>gfx3d.cpp</code>는 이 정지를 문자 �
 스왑; 보류된 스왑 이후의 지오메트리는 다음 프레임의 스왑이 래치하는 리스트에 누적된다.
 <code>swaps=N held=M</code>이 상시 보고서에 있다; <code>ACWW_SWAP_EVERY=1</code>은 옛 분기를 유지한다.</p>
 <hr />
-<h2 id="5-가설">5. 가설</h2>
+<span class="source-anchor" id="5-hypotheses"></span><h2 id="5-가설">5. 가설</h2>
 <ul>
 <li><strong>H1 — <code>VTX_DIFF</code>: 포트와 오라클이 둘 다 옳을 수는 없다.</strong> GBATEK과 DeSmuME는
   10비트 델타를 왼쪽으로 3 시프트되어 1.3.12 좌표에 들어가는 1.0.9 소수로 만든다; 포트는
@@ -1113,7 +1127,7 @@ duration)"</em>; DeSmuME 0.9.13 <code>gfx3d.cpp</code>는 이 정지를 문자 �
   프레임도 오라클과 바이트 단위로 같아지지 않을 것이므로, 감사 방법은 정확 일치가 아니라
   구조적(NCC, 영역 마스크)으로 남아야 한다.</li>
 </ul>
-<h2 id="6-관련-문서">6. 관련 문서</h2>
+<span class="source-anchor" id="6-related"></span><h2 id="6-관련-문서">6. 관련 문서</h2>
 <ul>
 <li><code>../engine/graphics-pipeline.md</code> — 리소스 경로, 레지스터와 VRAM 뱅크.</li>
 <li><code>../data/archives.md</code> — 이 텍스처들이 담겨 오는 <code>nsbmd</code>/<code>nsbtx</code> 컨테이너.</li>
@@ -1127,7 +1141,7 @@ duration)"</em>; DeSmuME 0.9.13 <code>gfx3d.cpp</code>는 이 정지를 문자 �
 </ul></div><nav class="prevnext"><a class="pn prev" href="../audits/hardware-services.html"><small>◀ 이전</small>감사(audit): 하드웨어 서비스와 공개 기록의 대조</a><a class="pn next" href="../audits/audio-design.html"><small>다음 ▶</small>감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

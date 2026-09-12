@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li class="active"><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,21 +136,21 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>난수</span></div><header class="page-head"><h1>난수</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 54</span><span class="gchip g-E"><b>E</b> 20</span></div><div class="source-line">원문: <code>wiki/systems/rng.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 이 ROM에는 단일한 난수 생성기가 없다. 알려진 것은 넷이다. 셋은 라이브러리
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>난수</span></div><header class="page-head"><h1>난수</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 50</span><span class="gchip g-E"><b>E</b> 18</span><span class="gchip g-H"><b>H</b> 7</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/rng.md"><code>wiki/systems/rng.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/rng.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="random-numbers"></span><p><strong>요약.</strong> 이 ROM에는 단일한 난수 생성기가 없다. 알려진 것은 넷이다. 셋은 라이브러리
 생성기다 &ndash; 네트워킹 코드가 사용하는 NitroSDK의 <code>MATH_Rand16</code>과 <code>MATH_Rand32</code>; 시각적
 흔들림에 사용되는 SPL 파티클 라이브러리 자체의 생성기; 그리고 Wi-Fi 설정 오버레이의 독자적인
 생성기 &ndash; 이며, 각각은 하드웨어 틱, 실시간 시계, 또는 둘 다로부터 시드된다. <strong>네 번째는
 게임 자체의 것이며, ORACLE46이 이를 찾아냈다</strong>: <code>0x021cb5a0</code>의 32비트 상태 워드 하나가
 <code>x = x * 0x19660d + 0x3c6ef35f</code>로 스텝되고, 부팅 시 실시간 시계의 네 바이트로 단 한 번
 시드되며, 이것이 마을의 id와 마을의 주민들을 뽑는 것이다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p><strong>이 페이지에 필요한 명명 주석.</strong> <code>MATH_Rand16</code>, <code>MATH_Rand32</code>, <code>MATH_InitRand16/32</code>,
 <code>OS_IsTickAvailable</code>은 NitroSDK 라이브러리 이름이지 이 ROM의 심볼 테이블에 있는 이름이
 아니다: 어떤 <code>config/adm-kr/arm9/**/symbols.txt</code>에도 그런 심볼은 존재하지 않으며, 이들 모두는
-<code>src/matched/</code>에서 <code>func_*</code> 이름으로 도달된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/**/symbols.txt</code>, name sweep</span></span>.
+<code>src/matched/</code>에서 <code>func_*</code> 이름으로 도달된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>config/adm-kr/arm9/**/symbols.txt</code>, name sweep; direct ROM-source provenance unresolved</span></span>.
 <code>../STYLE.md</code> 규칙 2가 SDK 이름을 허용하기 때문에 여기서는 그 이름을 사용하며, <code>func_*</code> 이름이
 존재하는 곳에서는 함께 병기한다.</p>
-<h3 id="게임-자체의-생성기와-그-시드">게임 자체의 생성기와 그 시드</h3>
+<span class="source-anchor" id="the-games-own-generator-and-its-seed"></span><h3 id="게임-자체의-생성기와-그-시드">게임 자체의 생성기와 그 시드</h3>
 <p><strong>상태는 <code>0x021cb5a0</code>의 워드 하나이며</strong> 스텝은 <code>func_020e92e8</code>이다:
 <code>x = x * 0x19660d + 0x3c6ef35f</code>, 상태는 다시 써지고 통째로 반환된다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020e92e8.c</code></span></span>. 범위 제한 추출은 <code>func_020e92d0(state, n)</code>이며,
@@ -147,7 +159,8 @@
 래퍼다</strong>: 그 ARM 명령 세 개는 <code>ldr r12, [pc,#8]</code> -&gt; <code>func_020e92d0</code>,
 <code>mov r1, r0</code>, <code>ldr r0, [pc,#4]</code> -&gt; <code>0x021cb5a0</code>, <code>bx r12</code>이므로, <code>0x020644dc</code>와
 <code>0x020644e0</code>의 풀 워드는 각각 함수와 상태이며 어느 쪽도 추론이 아니다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code> at <code>0x020644cc</code>, read in ORACLE46; the matched file <code>src/matched/func_020644cc.c</code> spells both as placeholder names &ndash; D12</span></span>.</p>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code> at <code>0x020644cc</code>, read in ORACLE46; the matched file
+<code>src/matched/func_020644cc.c</code> spells both as placeholder names &ndash; D12</span></span>.</p>
 <p><strong>부팅 시 시계로부터 한 번 시드되며, 시드는 네 바이트다.</strong>
 <code>__sinit_020c5a78</code>은 상태를 1로 설정하고 콜백을 등록한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/__sinit_020c5a78.c</code></span></span>; 그 다음 <code>func_02061530</code>이
@@ -178,7 +191,7 @@
 초기화 버스트 안에서(포트 프레임 758, 인덱스 0..280), 그 다음 진짜 생성 전에 <code>0x86</code> / <code>0xfff1</code>로
 리셋된다. 따라서 id 추출을 고정하는 레시피는 지도를 고정하지 않으며, 지도를 고정하는 레시피는
 같은 프레임이기 때문에 명단을 덤으로 얻는다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> ORACLE49 O49-1/O49-2</span></span>. <code>func_0209ccd4</code>의 6x6 루프 &ndash; 에이커당
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> ORACLE49 O49-1/O49-2; current receipt locator: <code>scratchpad/oracle49/RECEIPTS.md</code></span></span>. <code>func_0209ccd4</code>의 6x6 루프 &ndash; 에이커당
 범위 제한 추출 하나, 36개 &ndash; 는 그 버스트 안에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209ccd4.c</code></span></span>.</p>
 <p><strong>시드는 견고하지만, 추출 횟수는 그렇지 않다.</strong> 시드는 실행의 첫 1초 안에 취해지기
 때문에, 나중 프레임부터만 시계를 붙드는 시계 조건은 이를 바꿀 수 없다:
@@ -186,7 +199,7 @@
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE46 <code>scratchpad/oracle46/runs/o46-seedarm2</code> / <code>scratchpad/oracle46/runs/o46-seedoff</code></span></span>. 두 마을을 가르는 것은
 그 시드와 id가 뽑히는 순간 사이에 몇 번의 추출이 소비되는가이며, 이는 그 사이에 실행이
 한 모든 일의 속성이다.</p>
-<h3 id="추출은-어디로-가며-두-생성자는-얼마나-떨어져-있는가">추출은 어디로 가며, 두 생성자는 얼마나 떨어져 있는가</h3>
+<span class="source-anchor" id="where-the-draws-go-and-how-far-apart-two-producers-are"></span><h3 id="추출은-어디로-가며-두-생성자는-얼마나-떨어져-있는가">추출은 어디로 가며, 두 생성자는 얼마나 떨어져 있는가</h3>
 <p><strong>모든 추출은 단 하나의 명령을 거친다.</strong> 포트 실행의 세 개 별도 창에 걸쳐 <code>0x021cb5a0</code>에
 저장 워치포인트를 걸면 &ndash; 총 131회 저장 &ndash; pc <code>0x020e92f8</code>만 보고되고 다른 것은 없다:
 <code>func_020e92e8</code> 자신의 되쓰기다. 두 번째 기록자도 없고 생성자별 경로도 없으므로,
@@ -194,7 +207,8 @@
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle47/RECEIPTS.md</code>, O47-2; <code>docs/log/cycle41-gameplay.md</code> ORACLE47 O47-2</span></span>.</p>
 <p><strong>추출은 프레임당 한 번이 아니라 메인 루프 본체당 한 번 소비된다.</strong> 포트에서 프레임
 852..1,002에 걸친 연속 51회 저장은 정확히 세 프레임 간격이며, 메인 루프는 포트와 원본
-양쪽에서 세 프레임에 한 번 돈다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same, and INPUT46 on <code>0x021fbdd0</code>, <code>docs/kb/hybrid/stall-playbook.md</code> case 70</span></span>. 비율은 씬에 따라 다르다 &ndash; 타이틀에서는 세
+양쪽에서 세 프레임에 한 번 돈다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle41-gameplay.md</code> ORACLE47, and INPUT46 on <code>0x021fbdd0</code>,
+<code>docs/kb/hybrid/stall-playbook.md</code> case 70; receipt provenance unresolved</span></span>. 비율은 씬에 따라 다르다 &ndash; 타이틀에서는 세
 프레임에 한 번, 마을 이름 페이지에서는 ~12 프레임에 한 번 &ndash; 이므로 <strong>씬에 일찍 도달하는
 실행은 더 적은 추출을 취한 채로 도착하며</strong>, 이것이 씬 시간에서 원본보다 ~280 프레임 앞선
 포트가 마을이 뽑힐 때 스트림 위치에서는 ~176 프레임 뒤처지는 이유다. LCG는 전단사이므로
@@ -203,13 +217,13 @@
 <p><strong>모든 차분 실험에 대한 귀결.</strong> 두 생성자가 같은 마을을 뽑게 만드는 것은 시계를 바꾸는
 것이 아니라 추출을 촉발하는 입력을 옮기는 것이다: <code>port/tools/oracle/README.md</code>,
 "THE SHARED-TOWN RECIPE".</p>
-<h3 id="sdk-생성기">SDK 생성기</h3>
+<span class="source-anchor" id="the-sdk-generators"></span><h3 id="sdk-생성기">SDK 생성기</h3>
 <p><code>MATHRandContext32</code>는 세 필드 구조체 &ndash; 상태, 승수, 가수, 모두 64비트 &ndash; 이며, <code>MATH_Rand32</code>는
 이를 <code>x = mul * x + add</code>로 진행시키고 새 상태의 상위 32비트를 반환하거나, 범위 제한 추출의
 경우 <code>(top32 * max) &gt;&gt; 32</code>를 반환한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>MATH_Rand32</code>, ov065, <code>src/matched/func_ov065_0227ef00.c</code></span></span>. 상수는 승수
 <code>0x5D588B656C078965</code>와 가수 <code>0x269EC3</code>이다; 승수는 소스에
-<code>(1566083941 &lt;&lt; 32) + 1812433253</code>으로 적혀 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same</span></span>.</p>
+<code>(1566083941 &lt;&lt; 32) + 1812433253</code>으로 적혀 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227ef00.c</code>; historical account: <code>src/matched/func_ov065_0227ef00.c</code></span></span>.</p>
 <p><code>MATHRandContext16</code>은 같은 계열을 절단한 것이다: 32비트 상태, 승수 <code>0x5D588B65</code> &ndash; 정확히
 64비트 승수의 상위 절반 &ndash; 가수 <code>0x269EC3</code>, 출력은 상위 16비트
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>MATH_Rand16</code> / <code>MATH_InitRand16</code>, autoload_2, <code>src/matched/func_02100cbc.c</code></span></span>. 하위 비트가
@@ -225,7 +239,7 @@
 <p>ov001의 <code>AOSS_Rand</code>는 SDK를 호출하는 대신 16비트 상수를 자신만의 독립적인 32비트 LCG로
 재사용하는 네 번째 구현이며, <code>(0x7fff * (v &gt;&gt; 16)) &gt;&gt; 16</code>으로 15비트 값을 반환한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>AOSS_Rand</code>, ov001, <code>src/matched/AOSS_Rand.c</code></span></span>.</p>
-<h3 id="시드는-어디에서-오는가">시드는 어디에서 오는가</h3>
+<span class="source-anchor" id="where-the-seeds-come-from"></span><h3 id="시드는-어디에서-오는가">시드는 어디에서 오는가</h3>
 <p>두 소스가 있으며 둘 다 시계다.</p>
 <p><code>OS_GetTick</code>이 지배적인 소스다. <code>func_ov065_0227876c</code>(임시 로그인 id를 꾸며내는 데 쓰이는
 일회용 컨텍스트)와 <code>func_021013d0</code>(틱을 읽고, LCG 한 스텝을 손으로 돌리며, 곱의 상위 32비트만
@@ -239,38 +253,45 @@
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02100cbc.c</code>, <code>src/matched/func_02100b18.c</code></span></span>. <code>AOSS_Rand</code>는 첫 호출 시
 <code>hour &lt;&lt; 10 + minute &lt;&lt; 3 + second</code>를 시드에 접어 넣으며, RTC 읽기가 실패하면 시드 0으로
 대체한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>AOSS_Rand</code>, ov001, <code>src/matched/AOSS_Rand.c</code></span></span>.</p>
-<p>매칭된 코퍼스에서 아무도 소비하는 것으로 나타나지 않는 엔트로피 풀도 있다.
+<p>위의 마을 생성기들이 전혀 소비하지 않는 엔트로피 풀도 있다.
 <code>OS_GetLowEntropyData</code>는 <code>OS_GetTickLo</code>와 결합한 VCOUNT(<code>0x04000006</code>), MAC 바이트 및 VBlank
 카운터와 XOR한 64비트 틱, <code>0x04000600</code>의 지오메트리 엔진 상태 레지스터, 하위 WRAM의 RTC
 바이트, 마이크 데이터, 터치 패널 상태, Wi-Fi RSSI 풀로부터 여덟 워드를 채운다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>OS_GetLowEntropyData</code>, autoload_2, <code>src/matched/OS_GetLowEntropyData.c</code></span></span>. 이것은 위의 어느 생성기에도 연결된 것이 아니라 사용
-가능한 인프라로 읽힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence of callers in <code>src/matched</code></span></span>.</p>
-<h3 id="아직-발견되지-않은-것">아직 발견되지 않은 것</h3>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>OS_GetLowEntropyData</code>, autoload_2,
+<code>src/matched/OS_GetLowEntropyData.c</code></span></span>. 이것은 위의 어느 생성기에도 연결되지 않는다. 매칭된 호출자는 Wi-Fi 오버레이의 <code>src/matched/func_ov065_02275b94.c</code> 세 지점에 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02275b94.c</code>, lines 546, 593, 696
+(wiki-provenance-1, HANDOFF16)</span></span>. 따라서 오프라인 세션에서 실행되는지는 별도 문제다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">no watch on its entry has been run</span></span>.</p>
+<span class="source-anchor" id="what-has-not-been-found"></span><h3 id="아직-발견되지-않은-것">아직 발견되지 않은 것</h3>
 <p>세이브 측이나 마을 측의 시드 필드는 없다. <code>src/matched</code> 전체에서 <code>SaveData</code>, <code>TownData</code>,
-<code>randomSeed</code>, <code>worldSeed</code>, <code>townSeed</code> 등을 검색해도 아무것도 나오지 않으며 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence in <code>src/matched</code></span></span>,
+<code>randomSeed</code>, <code>worldSeed</code>, <code>townSeed</code> 등을 검색해도 아무것도 나오지 않으며 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: absence in <code>src/matched</code>; direct ROM-source provenance unresolved</span></span>,
 ORACLE46의 측정은 이 경로에서 찾을 것이 없다는 것과 일치한다: <code>0x021cb5a0</code>의 상태는
 부팅 시 시계로부터 시드되고 그저 돈다. 아직 열려 있는 것은 게임의 추출 중 어느 것이
 이 스트림에서 나오고 어느 것이 다른 스트림에서 나오는가이다 &ndash; 주민 선택기와
 마을 id는 확립되었고, 물고기, 곤충, 상점 재고는 그렇지 않다.</p>
 <p>세이브 체크섬은 <code>crc</code>/<code>checksum</code> 이름 검색에서 놓쳤다: 뱅크 폴러
 <code>func_020a1a40</code>은 16비트 랩어라운드 워드 합 <code>func_02050920</code>을 호출하고, <code>func_0209f180</code>의
-헤더 검사와 함께 합이 0인 경우만 받아들인다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>, <code>src/matched/func_02050920.c</code>, <code>src/matched/func_0209f180.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.
+헤더 검사와 함께 합이 0인 경우만 받아들인다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>,
+<code>src/matched/func_02050920.c</code>, <code>src/matched/func_0209f180.c</code>; log:
+<code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.
 GP45-5는 저장된 체크섬과 계산된 체크섬이 <code>0xbddf</code>, 잔차 <code>0x0000</code>인 완전한 세이브와,
 게임이 그 뱅크를 로드할 것이라고 보고하는 ROM 수용 테스트를 기록했다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/gameplay45/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.</p>
-<h3 id="포트">포트</h3>
+<span class="source-anchor" id="the-port"></span><h3 id="포트">포트</h3>
 <p>고정 시계 조건은 다른 부팅 시드를 만들어 내지 않는다: ORACLE46은 <code>--rtc-freeze-until 48000</code>
 유무와 무관하게 포트에서는 프레임 3에, 원본에서는 프레임 44에 <code>0x000a0f00</code>을
-측정했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4</span></span>.
+측정했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>; log:
+<code>docs/log/cycle41-gameplay.md</code> O46-4</span></span>.
 ORACLE47은 조건 적용 원본과 미적용 원본이 프레임 1,000부터 10,000까지 같은 스트림
 위치에 있고, 10,000과 11,000 사이에서 처음 갈라지며, 확인 시점에는 적용 쪽이 14회 더
-추출한 채로 끝나는 것을 발견했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle47/RECEIPTS.md</code>, <code>scratchpad/oracle46/ledgers/o-townarm.jsonl</code>, <code>scratchpad/oracle46/ledgers/o-townoff.jsonl</code>; log: <code>docs/log/cycle41-gameplay.md</code> O47-3</span></span>.
+추출한 채로 끝나는 것을 발견했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle47/RECEIPTS.md</code>,
+<code>scratchpad/oracle46/ledgers/o-townarm.jsonl</code>, <code>scratchpad/oracle46/ledgers/o-townoff.jsonl</code>;
+log: <code>docs/log/cycle41-gameplay.md</code> O47-3</span></span>.
 이 조건들은 마을 이름 페이지에서의 추출 소비가 다르므로, 부팅 시드를 공유하는 것만으로는
-공유 마을이 성립하지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>, <code>scratchpad/oracle47/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4, O47-3</span></span>.
+공유 마을이 성립하지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>,
+<code>scratchpad/oracle47/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4, O47-3</span></span>.
 정방향 레시피는 측정된 빌드에서 id와 나중의 배치/명단 버스트를 정렬하고;
 역방향 레시피는 id는 정렬하지만 배치 버스트에 두 추출 일찍 도달한다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-2, O49-4, O49-5</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -399,11 +420,11 @@ ORACLE47은 조건 적용 원본과 미적용 원본이 프레임 1,000부터 10
 <td><code>MATH_CalcCRC8</code> / <code>CalcCRC16</code> / <code>CalcCRC32</code></td>
 <td>autoload_2</td>
 <td>CRC 헬퍼; 세이브 폴러는 대신 <code>func_02050920</code>을 호출한다</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5; source locator: <code>src/matched/MATH_CalcCRC8.c</code>, <code>src/matched/func_02050920.c</code></span></span></td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -464,12 +485,12 @@ ORACLE47은 조건 적용 원본과 미적용 원본이 프레임 1,000부터 10
 </tr>
 </tbody>
 </table></div>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p><code>../experiments/rng-determinism.md</code>(설계만 됨, 아직 미실행): 같은 고정 시계로 같은 레시피를
 두 번 실행해 스크린샷이 바이트 단위로 동일함을 확인한 뒤, <code>ACWW_RTC_TIME</code>을 1초 옮겨 무엇이든
 움직이는지 본다. 이는 "포트가 결정론적이다"와 "이 씬에서는 시계로 시드된 추출을 소비하는
 것이 없다"를 분리하는데, 기존 실행으로는 불가능한 일이다.</p>
-<h2 id="가설">가설</h2>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li><strong>확정됨 (ORACLE46).</strong> "게임플레이 RNG는 위 세 개 모두와 구별되는 네 번째 생성기로,
   디컴파일되지 않은 <code>func_020*</code> 게임 글루 코드 안에 있다." 그것은 상태 워드 <code>0x021cb5a0</code>에
@@ -485,19 +506,18 @@ ORACLE47은 조건 적용 원본과 미적용 원본이 프레임 1,000부터 10
   id만 맞추는 것도 나중의 배치/명단 버스트를 고정하지 않는다: 역방향 조건은
   거기에 두 추출 일찍 진입하는 반면, 정방향 레시피는 지도와 명단을 맞춘다
   <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-2, O49-4, O49-5</span></span>.</li>
-<li><code>OS_GetLowEntropyData</code>는 이 ROM에서 죽은 코드다. 전체 마을 실행에 걸쳐 그 진입 주소에
-  <code>ACWW_WATCH</code>를 걸어 확정한다.</li>
+<li><code>OS_GetLowEntropyData</code>는 Wi-Fi 오버레이(<code>func_ov065_02275b94.c</code>의 세 지점)에서만 호출되며 마을 생성기는 호출하지 않는다. 오프라인 세션에서 실행되는지는 전체 마을 실행에 걸쳐 진입 주소에 <code>ACWW_INTERP_WATCH</code>를 걸면 확정할 수 있다(아직 미실행). 이전의 "죽은 코드" 표현은 철회됐다(HANDOFF16).</li>
 <li>포트의 프레임 계수 틱과 에뮬레이터의 사이클 정확 틱은 네트워크 생성기를 다르게 시드하며,
   네트워크 코드가 실행되지 않으므로 상관없다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">no DWC or WM symbol is reached on any recorded run; see <code>network.md</code></span></span>.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: no DWC or WM symbol is reached on any recorded run; see <code>network.md</code>; receipt provenance unresolved</span></span>.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>time-and-rtc.md</code> &ndash; 두 엔트로피 소스.</li>
-<li><code>save-data.md</code> &ndash; 세이브 체크섬과 뱅크 수용 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5</span></span>.</li>
+<li><code>save-data.md</code> &ndash; 세이브 체크섬과 뱅크 수용 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>; log: <code>docs/log/cycle41-gameplay.md</code> GP45-5 ; provenance unresolved</span></span>.</li>
 <li><code>network.md</code> &ndash; 모든 SDK 생성기의 유일하게 확립된 소비자.</li>
 </ul>
-<h2 id="누가-뽑는가-draw-caller-1">누가 뽑는가 (<code>draw-caller-1</code>)</h2>
+<span class="source-anchor" id="who-draws-draw-caller-1"></span><h2 id="누가-뽑는가-draw-caller-1">누가 뽑는가 (<code>draw-caller-1</code>)</h2>
 <p><code>promote_record.py</code>의 커스텀 START 레시피는 레코더 비활성, 고정 RTC, 터치 없음,
 포트 프레임 3000에서 정지(종료 코드 100)한 상태에서 <strong>744회 저장: 시드 저장 2회와 추출 742회</strong>를
 낸다. 호출자 워치는 97개의 서로 다른 키를 가지며 오버플로는 없다; 모든 반환 주소는
@@ -507,7 +527,7 @@ ORACLE47은 조건 적용 원본과 미적용 원본이 프레임 1,000부터 10
 저장 LR이 생성자를 말해 준다. <code>func_020644cc</code>는 그 범위 제한 추출을 꼬리 호출하므로
 스택 프레임을 더하지 않는다. 반면 원시 리프 호출은 LR에서 직접 호출자를 식별한다;
 LR2=0은 사용 불가를 뜻하지 주소 0의 호출자를 뜻하지 않는다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp_cpu.c</code> <code>watch_lr_parent</code>; E: <code>scratchpad/handoff/draw-caller-1/fixture-run.stdout.log</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>port/interp/interp_cpu.c</code> <code>watch_lr_parent</code>; E: <code>scratchpad/handoff/draw-caller-1/fixture-run.stdout.log</code> ; provenance unresolved</span></span>.</p>
 <p><strong>주기적 호출은 <code>func_ov068_0226c520</code>, 반환 주소 <code>0x0226c52d</code>다: 828, 831, ..., 1179에서
 118회 추출, 정확히 세 프레임에 한 번.</strong> 그 첫 표현식은 호출마다 무조건 범위 5 값을
 한 번 뽑으며; 이후의 분기는 그 지점을 반복하지 않는다
@@ -1321,10 +1341,10 @@ Thumb 반환 비트를 유지한다. 모든 행은 <span class="cite" data-grade
 <td style="text-align: right;">0</td>
 </tr>
 </tbody>
-</table></div></div><nav class="prevnext"><a class="pn prev" href="../systems/input-and-touch.html"><small>◀ 이전</small>입력과 터치</a><a class="pn next" href="../systems/network.html"><small>다음 ▶</small>네트워크</a></nav>
+</table></div></div><nav class="prevnext"><a class="pn prev" href="../systems/input-and-touch.html"><small>◀ 이전</small>입력과 터치</a><a class="pn next" href="../systems/acre-grid.html"><small>다음 ▶</small>에이커 격자</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

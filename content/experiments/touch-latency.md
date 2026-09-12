@@ -20,23 +20,23 @@ ROM의 VBlank 핸들러에 대한 ARM7 샘플의 상대 위치가 메커니즘�
 1. **ARM7이 패널을 프레임당 `frequence`번 샘플링한다.** `func_020e948c`가
    `TP_RequestAutoSamplingStartAsync(0, 4, &gAutoData, 9)`를 요청하므로, ACWW는 프레임당
    네 샘플로 **아홉 항목 링**을 돌린다 -- 2.25프레임의 이력이며, 마지막 네 항목이 정확히
-   한 프레임분이다 [S: `func_020e948c`, autoload_2, `src/matched/func_020e948c.c`].
+   한 프레임분이다 [S: `src/matched/func_020e948c.c`; source account: `func_020e948c`, autoload_2, `src/matched/func_020e948c.c`].
 2. **펜업은 자체 인코딩을 가진다.** 펜이 떨어져 있을 때 ARM7은 x=0, y=0, touch=0,
    validity=3(`TP_VALIDITY_INVALID_XY`)을 쓴다; 펜다운 샘플은 압력 검사가 거부하지 않는 한
    validity 0으로 원시 카운트를 담는다
-   [S: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c`, `TP_ExecSampling` -- public source,
-   <https://github.com/ntrtwl/NitroSDK>].
+   [H: source account: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c`, `TP_ExecSampling` -- public source,
+   <https://github.com/ntrtwl/NitroSDK>; direct ROM-source provenance unresolved].
 3. **전달이 링을 전진시킨다.** `TPi_TpCallback`은 PXI 태그 6에서 돌며, `tpState.index`를
    버퍼 크기의 모듈로로 증가시키고, 공유 시스템 작업 영역에서 패킹된 비트필드(x:12, y:12,
-   touch:1, validity:2)를 풀어낸다 [S: `TPi_TpCallback`, autoload_2, `src/matched/TPi_TpCallback.c`].
+   touch:1, validity:2)를 풀어낸다 [S: `src/matched/TPi_TpCallback.c`; source account: `TPi_TpCallback`, autoload_2, `src/matched/TPi_TpCallback.c`].
 4. **ROM은 세 샘플 규칙 아래 프레임당 최대 한 점을 공개한다.** `func_020e9314`는
    `TP_GetLatestIndexInAuto`를 통해 latest-4..latest-1 항목을 읽고, **연속 세 항목이 터치
    상태이고 유효할 때만** 공개하며, 가운데 것을 공개한다; 아무것도 터치되지 않았을 때는
-   x = y = 0xff를 쓴다; 그 외의 경우는 `TP_POINT`를 그대로 둔다 [S: `func_020e9314`,
-   autoload_2, disassembly `0x020e9314`..`0x020e9470`; the no-touch write is a
-   `mov r1,#0xff` / `strh` pair at `0x020e941c`, i.e. **0x00ff, not 0xffff** -- the port's
-   earlier transcription had 0xffff and is now pinned by `port/tools/test_scheduled_touch.py`].
-   소비자 `func_020b9280`은 두 좌표를 모두 `u8`로 절단한다 [S: `src/matched/func_020b9280.c`].
+   x = y = 0xff를 쓴다; 그 외의 경우는 `TP_POINT`를 그대로 둔다 [S: `src/matched/func_020e948c.c`, `src/matched/TPi_TpCallback.c`, `src/matched/TP_GetLatestIndexInAuto.c`; source account: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`; the no-touch
+   write is a `mov r1,#0xff` / `strh` pair at `0x020e941c`, i.e. **0x00ff, not 0xffff** --
+   the port's earlier transcription had 0xffff and is now pinned by
+   `port/tools/test_scheduled_touch.py`].
+   소비자 `func_020b9280`은 두 좌표를 모두 `u8`로 절단한다 [S: `src/matched/func_020b9280.c`; source account: `src/matched/func_020b9280.c`].
 
 지연은 1단계에서 4단계가 따라 나오는 것이다: 프레임당 네 샘플이면, 프레임 경계에서 시작한
 접촉은 다음 프레임이 되어야 연속 세 개의 양호한 샘플을 가질 수 있으므로, 점은 한 프레임
@@ -51,9 +51,9 @@ ROM의 VBlank 핸들러에 대한 ARM7 샘플의 상대 위치가 메커니즘�
 쓴 뒤, `TPi_TpCallback`의 AUTO_SAMPLING 단계 -- index+1 mod bufSize, 복사 -- 를 호스트에서
 수행한다. 원시 카운트는 `port/shim/boot/usersettings.c`가 공개하는 항등 보정(raw1 16/16
 -> 1/1, raw2 4080/3056 -> 255/191) 아래에서 화면 픽셀 x 16이다
-[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. 네이티브 시절의 전부 0인 보정은
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved]. 네이티브 시절의 전부 0인 보정은
 `TP_SetCalibrateParam`이 기울기 0을 설치하게 하여 모든 탭을 0,0으로 보정했을 것이고,
-그것이 이 중 어떤 것도 측정하기 전에 항등 보정이 먼저 공개되어야 했던 이유다 [S: same].
+그것이 이 중 어떤 것도 측정하기 전에 항등 보정이 먼저 공개되어야 했던 이유다 [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved].
 
 ## 레시피
 
@@ -100,8 +100,8 @@ ROM의 VBlank 핸들러에 대한 ARM7 샘플의 상대 위치가 메커니즘�
 게임에 도달한다 -- 그리고 이것이 하드웨어가 만드는 순서인데, ARM7은 핸들러가 돌았던
 VBlank 다음에 오는 프레임 동안 패널을 샘플링하기 때문이다. 24,600은 KEYS3의 A 입력
 프레임(2400 + 37 x 600)이고 8,700은 아니며, 그것이 불일치가 24,600에서만 나타난 이유다
-[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42]. `ACWW_TP_EARLY=1`은 기록을 위해
-TOUCH41의 순서를 되돌린다 [S: same].
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42; direct ROM-source provenance unresolved]. `ACWW_TP_EARLY=1`은 기록을 위해
+TOUCH41의 순서를 되돌린다 [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42; direct ROM-source provenance unresolved].
 
 ## 반증 조건
 
@@ -122,16 +122,16 @@ TOUCH41의 순서를 되돌린다 [S: same].
   택시 대화가 스크립트된 입력 없이 넘어갔고 두 이름 키보드 모두 왼쪽 위 키를 여덟 번
   입력하고 확정하여, 약 24,000 대신 프레임 8,610에 마을 이름 키보드에 도달했다
   [E: `scratchpad/cycle40/runs/tap-T41j`, and `-T41a`, `-T41d`, `-T41g`, `-T41l`, `-T41v`].
-  그 동안 `TP_POINT`는 한 번도 바뀌지 않았다 [E: `tap-T41f`, the on-change instrument in
-  `pxisend.c`]. 샘플러를 끈 것(`tap-T41k`)과 호스트 채움(`tap-T41w`)은 모두 게임의 속도를
+  그 동안 `TP_POINT`는 한 번도 바뀌지 않았다 [H: log/source account: `tap-T41f`, the on-change instrument in
+  `pxisend.c`; receipt provenance unresolved]. 샘플러를 끈 것(`tap-T41k`)과 호스트 채움(`tap-T41w`)은 모두 게임의 속도를
   베이스라인(`tap-D71`)의 것으로 남긴다; 프레임당 인터프리트된 콜백 하나(`tap-T41x`)는
   약간 앞당긴다; 프레임당 인터프리트된 **no-op** 호출 넷(`TP_GetLatestIndexInAuto`,
   `tap-T41n`)은 그러지 않는다. 링 인덱스에 대한 읽기 워치포인트
   (`ACWW_INTERP_RWATCH=0x02206140`, `tap-T41y`)는 그 유일한 두 독자,
   `TP_GetLatestIndexInAuto`(`0x0211d010`)와 콜백 자신을 지목한다. 그러므로 게임은 콜백이
   쓰는 것이 아니라 콜백의 인터프리트된 *실행*에 반응한다: 입력 경로에 대한
-  `acww_interp_irq_run`의 알려지지 않은 부작용이다 [S: `docs/log/cycle40-keyboard-gate-probe.md`
-  TOUCH41; `docs/kb/hybrid/stall-playbook.md` case 42]. 호스트 채움이 출하된다;
+  `acww_interp_irq_run`의 알려지지 않은 부작용이다 [H: source account: `docs/log/cycle40-keyboard-gate-probe.md`
+  TOUCH41; `docs/kb/hybrid/stall-playbook.md` case 42; direct ROM-source provenance unresolved]. 호스트 채움이 출하된다;
   `ACWW_TP_PXI=1`은 이것을 추적할 사람을 위해 인터프리트 경로를 유지한다.
   **이를 결판낼 실험:** `ACWW_TP_PXI=1`을 *접촉을 끈 채로* 돌려서, 프레임당 인터프리트된
   콜백 넷은 여전히 돌되 펜업 샘플만 나르게 한다. 게임이 여전히 앞서 달리면 부작용은
@@ -140,7 +140,7 @@ TOUCH41의 순서를 되돌린다 [S: same].
   현재 가설이 하나도 없는 것에 대한 한 번의 실행짜리 이분 탐색이다.
 - **인터프리터 경로에서의 유지 시간.** [H] `FOR=10`과 `FOR=90`은 *네이티브* 경로에서
   샘플링된 아홉 프레임 모두에서 바이트 단위로 동일한 이미지를 냈다
-  [E: `docs/kb/port/input-save-audio.md`, TOUCH39]. ROM 자체의 `func_020e9314`가 공개를
+  [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39; receipt provenance unresolved]. ROM 자체의 `func_020e9314`가 공개를
   넘겨받은 뒤로 재측정되지 않았다; 인터프리터 경로에서 그 쌍을 반복하면 결판난다.
 
 ## 실행 목록

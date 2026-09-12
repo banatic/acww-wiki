@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장 · ACWW 근거 위키</title>
+<meta name="description" content="MP가 시작된 뒤 방문은 호스트(부모)와 도착하는 게스트(자식) 사이의 **10단계 제어 교환**으로 진행되며, [프로토콜 맵](multiplayer-protocol.md)에 열거된 24개 제어 id로 구성된다. 호스트는 참가자 비트맵, 2개 섹션 레코드, 1,696바">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li class="active"><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</span></div><header class="page-head"><h1>멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 74</span><span class="gchip g-E"><b>E</b> 6</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/multiplayer-visit.md"><code>wiki/systems/multiplayer-visit.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/multiplayer-visit.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="multiplayer-visit-the-town-arrival-sequence-per-frame-play-and-departure"></span><p><strong>요약.</strong> MP가 시작된 뒤 방문은 호스트(부모)와 도착하는 게스트(자식) 사이의 <strong>10단계 제어 교환</strong>으로 진행되며, <a href="multiplayer-protocol.html">프로토콜 맵</a>에 열거된 24개 제어 id로 구성된다. 호스트는 참가자 비트맵, 2개 섹션 레코드, 1,696바이트 공유 필드 블록, 4인 참가자 상태 테이블, 압축된 마을, 마지막으로 자신의 캘린더 시계를 보낸다. 게스트는 정해진 3개 지점에서 응답한 다음 자신의 라이브 세이브 뱅크 위에 마을을 설치한다. 이후 플레이는 락스텝이 아니다. 각 참가자는 <strong>통신 업데이트마다 집계된 프레임 하나</strong>를 보내며, 0x46개 항목의 필드 테이블을 대상으로 태그된 변경 스트림과 라우팅된 메시지 큐를 담는다. 퇴장은 4인 참가자 배리어 두 개와 커밋으로 이루어진다. <strong>이 교환의 어느 시점에도 RNG 상태는 전송되지 않는다.</strong>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3bc0.c:94</code>, <code>src/matched/func_020a3ea4.c:227</code>,
+<code>src/matched/func_02074f28.c:14</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/g3prep89/citation-index.md</code></span></span></p>
+<span class="source-anchor" id="evidence-and-scope"></span><h2 id="근거와-범위">근거와 범위</h2>
+<p>이는 <code>src/matched/</code>의 <code>a01361ab</code>에 대한 정적 분석이다. <strong>G3ARRIVAL104(2026-09-12)까지는 하드웨어, 에뮬레이터 또는 포트에서 멀티플레이 세션을 실행하지 않았다.</strong> G3ARRIVAL104의 브리지된 리그 실행은 포트에서 12개 도착 단계를 모두 통과했으며, 그 내용은 아래의 "기원, 측정됨"에 정리되어 있다. 해당 프레임은 하드웨어가 아니라 포트의 프레임이다. 모든 줄 번호는 직접 입력하지 않고 <code>scratchpad/g3prep89/cite.py</code>(166개 쿼리, 미해결 0개)로 확인했다. 매칭된 본문은 바이트 검증된 재구성이지만 이름은 추론된 것이므로, 아래의 각 문장은 원래 식별자에 대한 주장이 아니라 동작에 대한 주장이다. 크기, 오프셋, id와 메시지 번호만 다루며 ROM 코드, 문자열, 테이블 또는 페이로드 바이트는 다루지 않는다.</p>
+<p>이 페이지가 확립하지 않으며 확립한 것으로 읽어서는 안 되는 것은 두 가지이다. 전송되는 각 레코드 안의 개별 필드 의미와, 포트가 그 어느 것도 실행할 수 있다는 사실이다. 이 메시지를 전달할 브리지는 아직 존재하지 않는다. <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/wifi.md">G2의 리그</a>와 아래의 공백 섹션을 참조한다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="the-envelope-and-the-two-channels-above-it"></span><h3 id="엔벌로프와-그-위의-두-채널">엔벌로프와 그 위의 두 채널</h3>
+<p>모든 것의 앞에는 1바이트가 온다. 비트 0..1은 상태/확인 값이고, 비트 7은 제어 채널을 선택하며, 비트 2..6은 5비트 id이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02077b3c.c:6</code>, <code>func_02077b14.c:6</code>, <code>func_02077b20.c:8</code>,
+<code>func_02077b28.c:6</code></span></span></p>
+<p>따라서 하나의 전송 위에 <strong>두 채널</strong>이 생긴다.</p>
+<ul>
+<li><strong>bit 7 set</strong> &ndash; 제어 메시지이다. 0x18 미만의 id는 엔벌로프를 제거하고 길이를 1 줄인 뒤 24개 항목 디스패치 테이블의 인덱스로 사용한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:38</code>,
+  <code>func_02075240.c:8</code></span></span></li>
+<li><strong>bit 7 clear</strong> &ndash; 프레임별 데이터 프레임이다. 상태 비트 2개만 운반하고 큐 bookkeeping을 수행한 뒤 0x1000바이트 수신 버퍼를 다시 등록한다. 핸들러는 없다.
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02077b50.c:8</code>, <code>func_02075050.c:47</code></span></span></li>
+</ul>
+<p>id <strong>24</strong>는 송신자로는 존재하지만 핸들러가 없다. 24는 0x18보다 작지 않기 때문이다. transport-state-1 arm은 상태 비트만 운반하기 위해 1바이트 id-24 프레임을 내보낸다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074330.c:325</code></span></span></p>
+<p>각 참가자는 0x1000바이트 송신 슬롯을 소유하며, 인덱스 4는 공용 슬롯이다. 4개의 참가자 인덱스는 송신자 자신의 인덱스를 삭제하여 3개의 원격 디스크립터 슬롯에 다시 매핑된다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02073d28.c:22</code>, <code>func_02077b58.c:11</code>, <code>func_020ec260.c:15</code></span></span></p>
+<p>슬롯보다 큰 것은 하나의 규칙으로 청크화된다. <strong>ceil(len / 0xffb)개의 청크이며, 각 청크는
+<code>[envelope][u32 absolute offset][&lt;= 0xffb data]</code>로 최대 0x1000바이트</strong>이다. 큐가 청크를 받아들였을 때에만 1바이트 카운터가 증가한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075ff8.c:38</code>, <code>:49</code>, <code>:45</code>, <code>:52</code>, <code>:54</code></span></span></p>
+<span class="source-anchor" id="the-arrival-sequence-step-by-step"></span><h3 id="단계별-도착-순서">단계별 도착 순서</h3>
+<p>호스트는 도착하는 참가자마다 도착 머신을 <strong>하나씩</strong> 실행하고, 게스트는 자신의 머신을 실행한다. 각 단계의 선행 조건은 특정 핸들러가 쓰는 특정 세션 오브젝트 필드이다. 따라서 이 순서는 요청/응답 프로토콜이 아니라 명시적인 랑데부가 있는 단방향 메시지의 연쇄이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>보낸 쪽</th>
+<th>id</th>
+<th>페이로드와 크기</th>
+<th>기록되는 곳 / 다음에 열리는 게이트</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>게스트</td>
+<td><strong>7</strong></td>
+<td>1바이트</td>
+<td>호스트의 참가 요청을 올리고 호스트 머신이 상태 0을 벗어난다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3ea4.c:125</code>, <code>func_0207553c.c:8</code></span></span></td>
+</tr>
+<tr>
+<td>2</td>
+<td>양쪽</td>
+<td><strong>5 / 6</strong></td>
+<td>2바이트: 송신자의 방문 단계 id</td>
+<td>아래의 단계 배리어이다. 호스트가 상태 2를 벗어나기 전에 양쪽이 같은 단계 id를 보여야 한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207417c.c:42</code>, <code>func_02074dfc.c:20</code>, <code>func_020a0340.c:23</code></span></span></td>
+</tr>
+<tr>
+<td>3</td>
+<td>호스트</td>
+<td><strong>0</strong></td>
+<td>2바이트: 하위 니블 = 현재 참가자 비트맵, 비트 6..7 = 추가 두 비트</td>
+<td>게스트 SESS+0xd4(u16)와 +0xd7이며, 게스트가 상태 1을 벗어난다. 목적지는 <code>1 &lt;&lt; arriving</code>, 즉 새로 들어온 참가자 하나이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3bc0.c:94</code>, <code>func_020756cc.c:17</code>, <code>func_020a1284.c:9</code></span></span></td>
+</tr>
+<tr>
+<td>4</td>
+<td>호스트</td>
+<td><strong>13</strong></td>
+<td>가변: 각 <code>[u16 length][u8 section index]</code> 뒤에 해당 섹션의 바이트가 오는 2개 섹션이며, 생산자 콜백 두 개가 공용 슬롯에 만든다</td>
+<td>핸들러 13은 매칭된 파일에서 피호출 함수 이름이 없는 tail call이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02077690.c:32</code>, <code>:45</code>, <code>func_020a3bc0.c:104</code>, <code>:114</code>, <code>func_02075448.c:10</code></span></span></td>
+</tr>
+<tr>
+<td>5</td>
+<td>호스트</td>
+<td><strong>12</strong></td>
+<td>벌크 <strong>0x6a0</strong>(1,696): 이후 프레임별 스트림이 델타로 보내는 공유 필드 블록</td>
+<td>같은 블록의 게스트 사본이다. 청크 카운터는 호스트 SESS+0xd8에 있다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3bc0.c:125</code>, <code>func_02075450.c:14</code></span></span></td>
+</tr>
+<tr>
+<td>6</td>
+<td>호스트</td>
+<td><strong>15</strong></td>
+<td>9바이트: 참가자 슬롯마다 2바이트 packed 레코드 하나씩, 총 4개</td>
+<td>게스트가 마스크 7을 사용해 4개 모두를 참가자당 3바이트인 상태 테이블에 적용한다. 이것이 <strong>참가자 수 합의 지점</strong>이다. 테이블에는 정확히 4개의 슬롯이 있다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3bc0.c:135</code>, <code>func_020753a8.c:22</code>, <code>func_020a7394.c:18</code></span></span></td>
+</tr>
+<tr>
+<td>7</td>
+<td>호스트</td>
+<td><strong>1</strong></td>
+<td>벌크: <strong>압축된 마을</strong>이며 전체 크기는 자신의 압축 길이 + 4이고, 해당 word가 0이면 기본값 <strong>0x17400</strong>을 사용한다</td>
+<td>게스트의 마을 스테이징 버퍼이다. 전체 크기에 도달하면 0x1000 윈도로 압축 해제가 시작된다. 호스트는 6단계에서 압축기를 시작하고 7단계 전에 끝나기를 기다린다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3bc0.c:137</code>, <code>:150</code>, <code>func_02075fc4.c:17</code>, <code>func_02075670.c:34</code>, <code>:41</code>, <code>func_020a003c.c:9</code></span></span></td>
+</tr>
+<tr>
+<td>8</td>
+<td>게스트</td>
+<td><strong>2</strong></td>
+<td>벌크 <strong>0x950</strong>(2,384): 게스트 자신의 참가자 레코드이며, 대신 1바이트 본문은 리셋 형식이다</td>
+<td>호스트의 참가자별 레코드이다. 게스트 상태 2에서 전송되므로 4..7단계와 병렬이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3ea4.c:146</code>, <code>func_0207560c.c:20</code></span></span></td>
+</tr>
+<tr>
+<td>8b</td>
+<td>각 거주 방문객</td>
+<td><strong>4</strong></td>
+<td>벌크 <strong>0x249c</strong>(9,372): 해당 방문객의 플레이어 슬롯</td>
+<td>새로 온 참가자의 플레이어 핸들 <code>sender+3</code>이다. 이미 마을 안에 있는 방문객은 이것만 보내는 짧은 머신을 실행한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3abc.c:62</code>, <code>func_0207557c.c:16</code></span></span></td>
+</tr>
+<tr>
+<td>9</td>
+<td>게스트</td>
+<td><strong>9</strong></td>
+<td>1바이트</td>
+<td>호스트 SESS+0xd9이며 호스트가 상태 9를 벗어난다. 게스트의 압축 해제가 끝나고 현재 존재하는 모든 피어의 0x249c 슬롯이 도착한 뒤에만 전송된다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3ea4.c:163</code>, <code>:193</code>, <code>func_020754e8.c:12</code></span></span></td>
+</tr>
+<tr>
+<td>10</td>
+<td>호스트</td>
+<td><strong>10</strong></td>
+<td>9바이트: 엔벌로프 + <strong>캘린더/시계 8바이트</strong></td>
+<td>게스트 SESS+0xdc와 완료 플래그 SESS+0xda이다. 이것이 게스트의 설치를 막고 있던 조건을 푼다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3bc0.c:162</code>, <code>func_020754b0.c:24</code>, <code>func_0209e474.c:12</code></span></span></td>
+</tr>
+<tr>
+<td>11</td>
+<td>게스트</td>
+<td><strong>11</strong></td>
+<td>1바이트</td>
+<td>호스트 SESS+0xe4이며, 호스트가 전송 상태 2인 MP 플레이에 들어간다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3ea4.c:255</code>, <code>func_02075484.c:21</code>, <code>func_020a3bc0.c:174</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>설치</strong>는 가장 큰 영향을 미치는 단계이며 전부 로컬에서 일어난다. id 10을 받으면 게스트는 자신의 0x249c 플레이어 레코드를 핸들 <code>own index + 3</code>으로 옮기고, id-0 비트맵으로 참가자별 존재 테이블을 다시 쓴다. <strong>수신한 0x173fc 뱅크를 라이브 세이브 뱅크 위에 복사하고</strong>, id 10이 전달한 시계 바이트 8개를 세션의 날짜와 시간으로 채택하며, 마을 오브젝트를 다시 초기화한 뒤에야 준비 완료를 보고한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3ea4.c:209</code>, <code>:227</code>, <code>:230</code></span></span></p>
+<p>따라서 방문객은 HOST의 세이브 이미지 안에서, HOST의 캘린더 안에서 플레이하며, 자신의 플레이어 슬롯은 3개의 방문객 핸들 중 하나로 이동한다. 이것이 포트의 G3 게이트가 양쪽에서 확인해야 하는 사실이다.</p>
+<span class="source-anchor" id="the-layer-under-step-1-ov066s-own-session-layer-and-where-the-envelope-sits"></span><h3 id="1단계-아래의-계층-ov066-자체의-세션-계층과-엔벌로프의-위치">1단계 아래의 계층: ov066 자체의 세션 계층과 엔벌로프의 위치</h3>
+<p><strong>위의 모든 것은 ov066이 소유한 전송 위에서 동작하며, ov066에는 자체 메시지 테이블이 있다.</strong> MP99는 한쪽당 WM 포트 메시지 4개를 측정했지만 그 안에서 방문 엔벌로프를 찾지 못했다. 게임의 버퍼가 WM 포트 페이로드의 오프셋 0에서 시작하지 않기 때문이다. ov066이 자체 프레이밍을 앞에 붙이며, 그 오프셋은 검색하는 것이 아니라 계산할 수 있다. 이 절은 <code>src/matched/</code>에서 읽은 전송 자체의 테이블이다. 10단계와는 어디에서 찾아야 하는지를 제외하면 아무 관련이 없다.</p>
+<p><strong>등록기.</strong> <code>func_ov066_0226b9b8</code>는 WM 포트 콜백 2개와 indication 콜백을 설치하고, WM 통신 컨텍스트 안의 op 테이블(<code>data_ov066_0226bdf4</code>, 아래에 있는 CALLBACK91 및 CALLBACK98의 수정된 호출 지점이 가리키는 오브젝트)을 채운다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>슬롯</th>
+<th>함수</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+0x9c</td>
+<td>(매칭된 파일에서 이름 없음)</td>
+<td>statecode 10에서 실행되는 MP 시작 훅</td>
+</tr>
+<tr>
+<td>+0xa0</td>
+<td><code>func_ov066_0226af3c</code></td>
+<td>statecode 11에서 실행되는 PARENT의 포트-13 펌프</td>
+</tr>
+<tr>
+<td>+0xa4</td>
+<td><code>func_ov066_0226af04</code> -&gt; <code>func_ov066_0226b3d0</code></td>
+<td>statecode 13에서 실행되는 CHILD의 펌프</td>
+</tr>
+<tr>
+<td>+0xb0</td>
+<td><code>func_ov066_0226b81c</code></td>
+<td>게임의 포트 송신 큐 삽입(인수 4개)</td>
+</tr>
+<tr>
+<td>+0xb4</td>
+<td><code>func_ov066_0226b8bc</code></td>
+<td>송신 준비 조건</td>
+</tr>
+<tr>
+<td>+0xb8</td>
+<td><strong>GAME의 수신 콜백</strong></td>
+<td>별도로 설치되며 아래를 참조한다</td>
+</tr>
+<tr>
+<td>port 12</td>
+<td><code>func_ov066_0226923c</code></td>
+<td>세션 포트</td>
+</tr>
+<tr>
+<td>port 13</td>
+<td><code>func_ov066_0226aab8</code></td>
+<td>데이터 포트</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/build/shadow/func_ov066_0226b9b8.c:78</code>-<code>:102</code>, <code>src/matched/func_ov066_022698ec.c:14</code>,
+<code>func_ov066_02269934.c:18</code></span></span></p>
+<p><strong>+0xb8은 ov066과 게임 사이의 이음매이며</strong>, 반대쪽에서 설치된다. <code>func_ov066_02267fe8</code>가 인터럽트 비활성화 쌍 아래에 이를 저장하고, 유일한 호출자는 autoload_2 <code>func_020ecce4</code>이며, 그 함수의 유일한 호출자는 main <code>func_02074b44</code>이다. wifi-analysis가 이름을 붙인 매칭되지 않은 브리지이다. 인수 3개는 (송신자 인덱스, 버퍼, 길이)이며, 이는 <code>func_02075050</code>의 시그니처와 같다. <strong>호출 한 번마다 제어 또는 데이터 메시지 하나이다.</strong>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02267fe8.c:13</code>, <code>func_02075050.c:27</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tools/cgquery.py --callers 0x02267fe8</code></span></span></p>
+<p><strong>포트 12 &ndash; 세션 포트.</strong> 콜백은 리더 자신의 참가자 인덱스(컨텍스트 +0x1e)에 따라 분기하므로 두 방향의 핸들러가 다르다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>방향</th>
+<th>프레임</th>
+<th>소비자</th>
+<th>동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>parent -&gt; child</td>
+<td><code>[u16 kind][u16]</code> + 본문</td>
+<td><code>func_ov066_02268da4</code></td>
+<td>kind 0 -&gt; <code>func_ov066_02268d44</code>; kind 1과 2는 받아들이고 무시한다(ROM의 바이트가 요구하는 빈 switch arm이다)</td>
+</tr>
+<tr>
+<td>child -&gt; parent</td>
+<td><code>[u16 kind]</code> + 본문, kind는 <strong>2</strong>여야 한다</td>
+<td><code>func_ov066_02268f1c</code></td>
+<td>(sender aid, buffer)를 <code>func_ov066_02268ed4</code>에 넘긴다. 다른 kind는 버린다</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226923c.c:18</code>, <code>func_ov066_02268da4.c:29</code>, <code>func_ov066_02268f1c.c:19</code>,
+<code>func_ov066_022699cc.c:10</code></span></span></p>
+<p><strong>포트 13 &ndash; 신뢰성 있는 데이터 포트.</strong> 콜백은 statecode 0x15(PORT_RECV)만 받고, 송신자의 AID로 분기한다. 송신자의 AID는 <code>WMPortRecvCallback+0x12</code>이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>송신자</th>
+<th>소비자</th>
+<th>동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>aid != 0(자식)</td>
+<td><code>func_ov066_0226ac68</code></td>
+<td>2바이트 조각 헤더를 디코드하고, 헤더가 가리키는 항목에 확인 비트를 적용하며, kind 0/1 바이트를 자유 목록 노드의 해당 자식 슬롯에 저장한다</td>
+</tr>
+<tr>
+<td>aid == 0(부모)</td>
+<td><code>func_ov066_0226ab28</code></td>
+<td>프레임의 첫 바이트에 있는 <strong>4비트 시퀀스 윈도</strong>이다. <code>(last + 1) &amp; 0xf</code>일 때(또는 첫 프레임 플래그가 설정되었을 때) 받아들이고, <code>(last + 2) &amp; 0xf</code>이면 재전송을 요청하며, 그 외에는 재전송 플래그를 올린다. 받아들인 프레임은 <code>func_ov066_0226b1d0</code>으로 간다</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226aab8.c:26</code>, <code>func_ov066_0226ab28.c:70</code>, <code>func_ov066_0226ac68.c:60</code>,
+<code>src/matched/WmReceiveFifo.c:84</code>-<code>:100</code></span></span></p>
+<p><strong>두 프레임 형태와 중요한 오프셋 하나</strong></p>
+<pre><code>parent -&gt; children   [u8 seq][u8][u16 slot bitmap][slot 0][slot 1]...   each slot ctl-&gt;f0 bytes
+child  -&gt; parent     [slot]                                            no prefix
+slot, kind 0         [b0][u8][u16 destination mask][u32 total] then the game's bytes
+slot, kind 1         [b0][u8 length]                          then the game's bytes
+slot, kind 2/3       an acknowledgement / a retransmission request -- no game bytes
+b0                   kind:2 | done:1 | ack:1 | index:4
+</code></pre>
+<p>따라서 게임의 버퍼, 그리고 방문 엔벌로프는 첫 번째 조각에서는 <strong>prefix + 8</strong>, 연속 조각에서는 <strong>prefix + 2</strong>에서 시작한다. 부모가 만든 프레임에서는 prefix가 4이고 자식이 만든 프레임에서는 0이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226b088.c:66</code>,
+<code>func_ov066_0226b1d0.c:24</code>, <code>func_ov066_0226b5c4.c:61</code>, <code>func_ov066_0226b3d0.c:104</code>,
+<code>func_ov066_0226af3c.c:76</code></span></span></p>
+<p><strong>부모는 릴레이한다. 이는 관측자에게 함정이다.</strong> 자식의 프레임은 자유 목록 노드에서 그 자식 슬롯에 저장되고(<code>func_ov066_0226ac68</code>), 부모가 다음에 펌프한 프레임은 설정된 슬롯을 모두 묶어 브로드캐스트하며, 동시에 부모 자신의 게임에도 전달한다(<code>func_ov066_0226b088</code>는 방금 만든 것에 <code>func_ov066_0226b1d0</code>을 호출하면서 끝난다). 따라서 자식은 자신이 보낸 메시지가 PARENT가 만든 프레임으로 되돌아오는 것을 보며, 메시지 id만 대조하는 관측자는 하나의 메시지를 두 개로 센다. 슬롯 비트맵이 구분자이다. 리더 자신의 AID와 같은 슬롯 인덱스를 가진 블록은 에코이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226ac68.c:72</code>, <code>func_ov066_0226b088.c:99</code>, <code>:107</code></span></span></p>
+<p><strong>재조립과 전달.</strong> <code>func_ov066_0226b1d0</code>은 슬롯 비트맵을 순회하고 설정된 각 슬롯마다 <code>func_ov066_0226b27c(i, slot)</code>을 호출한다. 이 함수는 선언된 전체 크기에 맞춰 조각을 누적하며, 전체 크기에 도달했을 때에만 (index, buffer, total)로 게임의 +0xb8 콜백을 호출한다. 따라서 끝까지 완료되지 않은 전송은 아무것도 전달하지 않으며, 조용히 끝난다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226b1d0.c:24</code>; the reassembler itself has no matched
+file &ndash; <code>port/shim/gen/func_ov066_0226b27c.c</code> is the port's near-miss reconstruction</span></span></p>
+<p><strong>방문 단계는 불투명한 id가 아니라 테이블 인덱스이다.</strong> <code>func_020a6f74(i, phase)</code>는 참가자 <code>i</code>의 단계를 세션 <code>+0x84 + 4*i</code>에 쓰고, 제어 id 5의 핸들러 <code>func_0207556c</code>는 송신자에 대해 정확히 그 쓰기를 수행한다. 단계 번호는 방문 하위 머신의 8바이트 stride 테이블 인덱스이다. **13은 호스트 도착 머신 <code>func_020a3bc0</code>, 30은 게스트의 <code></code>func_020a3ea4<code>**이며, 10은 거주 방문객 머신이고 20은 퇴장 머신이다. 따라서 단계 배리어의 도착 쌍이 (0xd, 0x2f)인 것은 머신 이름을 가리키기 때문이다.
+[S:</code>src/matched/func_020a6f74.c:6<code>,</code>func_020a617c.c:5<code>,</code>func_0207556c.c:7<code>]
+[E: the table at main</code>0x020e3810<code>, indices 10/13/20/30 resolving to</code>0x020a3abc<code>,</code>0x020a3bc0<code>,</code>0x020a3084<code>,</code>0x020a3ea4`]</p>
+<p><strong>위 계층 전체가 의존하는 하위 계층의 답 하나.</strong> 모든 도착 상태와 프레임별 통신 업데이트는 손실 조건 <code>func_02073fdc</code>를 가장 먼저 호출한다. 로컬 모드에서는 그 답 전체가 목적지 마스크가 <code>func_020ec1f8()</code>에 포함되는지 여부이다. 이것이 <code>func_ov066_0226997c</code>이며, ov066의 통신 상태가 정확히 10이 아니면 <strong>0을 반환하고</strong>, 그렇지 않으면 <code>WMStatus + 0x17e</code>(연결된 자식 비트맵)를 반환한다. 부모에서 상태가 10이 되는 것은 <code>func_ov066_02268570</code>의 statecode 10 arm 안, 즉 MP가 시작되었다고 보고하는 WM_StartMP 콜백에서뿐이다. 따라서 statecode 10을 전혀 보고하지 않거나 자식 비트맵이 여전히 0인 상태로 보고하는 전송은 모든 방문 머신의 모든 상태가 링크 손실 분기로 가게 만든다. 증상은 오류가 아니라 게이트가 기다리는 것이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02073fdc.c:19</code>, <code>func_020ec1f8.c:9</code>, <code>func_ov066_0226997c.c:29</code>,
+<code>func_ov066_02268570.c:53</code>-<code>:69</code>, <code>func_ov066_0226760c.c:17</code></span></span></p>
+<span class="source-anchor" id="what-has-to-happen-before-step-1-the-gatehouses-own-two-value-handshake"></span><h3 id="1단계-전에-일어나야-하는-것-게이트하우스-자체의-두-값-핸드셰이크">1단계 전에 일어나야 하는 것: 게이트하우스 자체의 두 값 핸드셰이크</h3>
+<p>10단계는 게스트가 id 7을 보낼 때 시작하며, 게스트는 자신의 도착 머신 상태 0에서 id 7을 보낸다. 따라서 진짜 첫 질문은 그 머신을 무엇이 시작하는가이다. 이것은 이 표의 단계가 전혀 아니다. 게이트하우스 오버레이 자체의 단계 머신이며, 하나의 숫자를 기다린다.</p>
+<p><strong>게이트하우스의 단계</strong>는 오브젝트 +0xb4의 <code>int</code>이며, <code>func_ov048_022616b8</code>이 설정한다. 두 개의 vtable 슬롯을 통해 디스패치되어 23개 항목 테이블에서 <code>{PMF, PMF, flag}</code> 항목 하나를 고른다. 방문이 대기하는 곳은 그중 두 단계이다. 7단계(<code>func_ov048_02260b64</code>, <code>func_0207417c(0)</code> 뒤에 도달)와 9단계(<code>func_ov048_02260ae8</code>, <code>func_0207417c(1)</code> 뒤에 도달)이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov048_022616b8.c:12</code>, <code>func_ov048_02261704.cpp:27</code>,
+<code>func_ov048_022616c0.cpp:22</code>, <code>func_ov048_02260c88.c:32</code>, <code>func_ov048_02260b4c.c:10</code></span></span></p>
+<p><strong>둘 다 같은 조건만 기다린다: <code>func_02074150()</code>이 5 또는 6을 반환해야 한다.</strong> 9단계는 말 그대로 <code>if ((unsigned)(ret - 5) &gt; 1) return;</code>이고, 7단계는 5를 수락, 6을 거절하며, 링크 계층이 특정 오류 코드 하나를 보고하지 않는 한 그 밖의 값에서는 "다음 프레임에 다시 오라"고 한다. 타이머도 로컬 폴백도 없다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov048_02260ae8.c:22</code>, <code>func_ov048_02260b64.c:61</code>, <code>:90</code></span></span></p>
+<p><strong><code>func_02074150()</code>는 getter이며, 어느 슬롯을 읽는지가 핵심이다.</strong> 호출자 자신의 presence 바이트가 설정되어 있으면 <code>phase[own]</code>을 읽고, 그렇지 않으면 <strong><code>phase[3]</code></strong>을 읽는다. 여기서 <code>phase</code>는 세션 오브젝트의 <code>+0x84 + 4*i</code> 배열이며 3바이트 배리어 테이블이 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074150.c:17</code>, <code>func_020a6f64.c:8</code>, <code>func_020a6170.c:5</code>,
+<code>func_02073dd4.c:6</code></span></span></p>
+<p><strong>5 또는 6을 거기에 넣을 수 있는 것은 피어뿐이다.</strong> 이 배열의 모든 writer는 3개를 제외하면 로컬의 작은 함수이며, 그 3개 모두 wire에서 온 바이트를 운반한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>writer</th>
+<th>슬롯</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_0207417c</code>(publisher 자체)</td>
+<td><code>phase[3]</code>, 또는 own index가 0일 때 <code>phase[own]</code></td>
+<td>4, 또는 자신의 인수(호출 지점에서는 0, 1, 3)</td>
+</tr>
+<tr>
+<td><code>func_02075548</code> &ndash; <strong>제어 id 6의 핸들러</strong></td>
+<td><code>phase[3]</code></td>
+<td>송신자의 하위 3비트</td>
+</tr>
+<tr>
+<td><code>func_0207556c</code> &ndash; <strong>제어 id 5의 핸들러</strong></td>
+<td><code>phase[sender]</code></td>
+<td>메시지 본문 바이트</td>
+</tr>
+<tr>
+<td><code>func_02076518</code> / <code>func_02076540</code> &ndash; <strong>라우팅 큐 kind</strong></td>
+<td><code>phase[own]</code> / <code>phase[i]</code></td>
+<td>수신된 바이트 하나</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207417c.c:39</code>, <code>:48</code>, <code>:50</code>, <code>func_02075548.c:11</code>, <code>func_0207556c.c:8</code>,
+<code>func_02076518.c:11</code>, <code>func_02076540.c:17</code></span></span></p>
+<p>그리고 제어 id 6은 목적지에 대한 송신자 자신의 기록된 단계가 이미 5 또는 6일 때만 <strong>생성된다</strong>. <code>func_02074dfc</code>는 <code>func_02074e48</code>로 보호되며, 그 조건은 정확히 <code>(phase[dest] - 5) &lt;= 1</code>이다. 보내는 본문은 해당 단계의 하위 3비트와 현재 참가자 마스크를 상위 니블에 넣은 것이다. 따라서 id 6은 수락을 <strong>전파</strong>할 뿐이며, 수락을 만들어낼 수는 없다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074dfc.c:11</code>, <code>func_02074e48.c:8</code>, <code>func_020740b4.c:15</code></span></span></p>
+<p><strong>따라서 presence 바이트가 핵심 역할을 한다.</strong> <code>func_020742b4</code>는 한쪽을 자기 세션의 참가자로 만드는 유일한 함수이다. 전송 상태 2, own index 0, <code>presence[0] = 1</code>을 설정하고 배리어 테이블의 슬롯 0을 현재 씬 바이트로 초기화한다. 유일한 호출자는 게이트하우스 <code>func_ov048_02263300</code>이다. 이 바이트가 지워져 있으면 <code>func_0207417c</code>는 "세션에 들어와 있지 않음" arm을 택한다. 그러면 본문이 <strong>0</strong>인 id 5를 발행하고 로컬에서 <code>phase[3] = 4</code>를 설정한다. 게이트는 <code>phase[3]</code>에서 id 6만 전달할 수 있고 id 6은 생성되지 않는 5를 기다리게 된다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020742b4.c:24</code>-<code>:31</code>, <code>func_0207417c.c:36</code>-<code>:45</code></span></span></p>
+<p><strong>게이트를 통과한 뒤에도 도착 머신까지 한 번 더 거쳐야 한다.</strong> 7단계와 9단계는 도착 머신을 직접 호출하지 않는다. 세션 +0xa4에 "kind" word를 쓰고(7단계 수락 arm에서는 0, 9단계에서는 1) 넘긴다. <code>func_020a5750</code>은 참가자별 연결 상태 항목인 세션 <code>+0xa8 + 4*i</code>가 <strong>5</strong>에 도달할 때 own index와 그 kind word를 사용해 머신을 시작한다. 요청한 mode는 다음 조건에서 중재자가 확정한다. 씬 바이트가 12일 때만 mode 0x14(게스트 머신 <code>func_020a3ea4</code>)를, 씬 바이트가 13 또는 47일 때만 mode 0x15(호스트 머신 <code>func_020a3bc0</code>)를 허용한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov048_02260b64.c:77</code>, <code>func_ov048_02260ae8.c:31</code>, <code>func_020a5750.c:196</code>,
+<code>func_020a5bb8.c:5</code>, <code>func_020a4dc4.c:39</code>, <code>func_020a18e8</code>/<code>func_020a18f4</code> at their call sites</span></span></p>
+<span class="source-anchor" id="the-gate-handshake-state-table-and-the-origin-of-the-acceptance-value-g3arrival103"></span><h3 id="게이트-핸드셰이크-상태-테이블과-수락-값의-기원-g3arrival103">게이트 핸드셰이크 상태 테이블과 수락 값의 기원 (G3ARRIVAL103)</h3>
+<p><code>+0x84 + 4*i</code> 배열(기저 <code>0x021f4320</code>)은 3바이트 참가자별 단계 배리어와 구별되는 작은 값의 게이트 핸드셰이크 상태이다. 이 배열의 writer <code>func_020a6f74</code>와 reader <code>func_020a6170</code>은 <code>{0, 1, 3, 4, 5, 6, 7}</code> 안의 값만 이동시킨다. <strong>4</strong> = 발행/대기, <strong>5</strong> = 수락, <strong>6</strong> = 거절, <strong>7</strong> = 완료, <strong>0/1/3</strong> = 호스트가 발행한 의도이다. <code>func_02074150</code>은 presence 바이트가 설정된 경우 <code>[own]</code>, 그렇지 않은 경우 <code>[3]</code>에서 이 배열을 읽으며, 게이트하우스는 5 또는 6을 읽을 때까지 대기한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a6f74.c</code>, <code>func_020a6170.c</code>, <code>func_02074150.c</code></span></span></p>
+<p><strong>각 측과 각 단계에서 게이트를 만족시키는 것</strong>(<code>src/matched/</code>에서 측정):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>측</th>
+<th>게이트 단계</th>
+<th>조건</th>
+<th>읽는 값</th>
+<th>만족시킬 수 있는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>호스트</td>
+<td>7(<code>func_ov048_02260b64</code>)</td>
+<td><code>func_02074150() == 5</code></td>
+<td><code>phase[0]</code>(own index 0, present)</td>
+<td>wire 바이트가 <code>phase[0]</code>에 5로 들어온다</td>
+</tr>
+<tr>
+<td>호스트</td>
+<td>9(<code>func_ov048_02260ae8</code>)</td>
+<td><code>(func_02074150()-5) &lt;= 1</code></td>
+<td><code>phase[0]</code></td>
+<td>id-5/id-6/라우팅 바이트 = 5 또는 6</td>
+</tr>
+<tr>
+<td>게스트</td>
+<td>7 / 9</td>
+<td>동일</td>
+<td><strong><code>phase[3]</code></strong>(own index = sentinel 4, presence는 절대 설정되지 않음)</td>
+<td><strong>오직</strong> id-6 핸들러 <code>func_02075548</code>가 wire 바이트에서 <code>phase[3]</code>에 쓴다</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>배열의 로컬 write 중 리터럴 5 또는 6인 것은 전혀 없다.</strong> <code>func_020a6f74</code>의 모든 호출자는 상수 또는 wire 바이트를 쓴다. <code>func_02074120</code>은 7을 쓰고, <code>func_0207417c</code>는 4 또는 자신의 인수(호출 지점에서는 0/1/3)를 쓰며, <code>func_0207556c</code>(id 5)는 받은 본문 바이트를 쓰고, <code>func_02075548</code>(id 6)는 <code>body &amp; 7</code>을 쓰며, <code>func_02076518</code>/<code>func_02076540</code>(라우팅 큐 kind)는 받은 바이트를 쓴다. <strong>따라서 5는 wire를 통해 도착해야 하며, 이를 운반하는 메시지는 그것을 발생시킬 수 없다</strong>(<code>func_02074dfc</code>는 송신자 자신의 <code>phase[dest]</code>가 이미 5/6일 때만 id 6을 만들며, 이것은 <code>func_02074e48</code>에 의한 전파이다).
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074120.c</code>, <code>func_0207417c.c:39</code>, <code>func_0207556c.c</code>, <code>func_02075548.c</code>,
+<code>func_02076518.c</code>, <code>func_02076540.c</code>, <code>func_02074dfc.c</code>, <code>func_02074e48.c</code></span></span></p>
+<p><strong>게스트 자신의 메시지가 5일 수는 없다. 본문이 0인 id 5이기 때문이다.</strong> 비참가자(own index 4이므로 <code>func_02073dd4(self, 4) == 0</code>)인 게스트는 <code>func_0207417c</code>의 첫 arm을 택한다. 로컬에서 <code>phase[3] = 4</code>를 쓰고, 본문 바이트가 <strong>0</strong>인 id 5를 보낸다(<code>func_02077b3c(p, 0, 5)</code> 다음 <code>p[1] = 0</code>). 따라서 호스트의 id-5 핸들러는 <code>phase[guest] = 0</code>을 쓰며 5에 도달하지 않고, 게스트의 <code>phase[3] = 5</code>를 설정할 id 6도 만들지 않는다. <strong>참가자 게스트(인덱스 != 0)</strong>라면 대신 <code>body = param</code>을 보낸다(자신의 <code>func_0207417c</code> 참가자 arm을 사용한다). 승격이 핵심 고리이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207417c.c:23</code>-<code>:34</code>, <code>func_02073dd4.c</code>, <code>func_0207556c.c</code></span></span></p>
+<p><strong>따라서 수락 값은 가능한 기원이 정확히 두 가지이며, 둘 다 HOST에 있다.</strong>
+1. <strong>라우팅 큐 핸들러</strong> <code>func_02076518</code>/<code>func_02076540</code>이다. 이들은 프레임별 스트림의 라우팅 kind(4-7)가 운반한 바이트에서 <code>phase[own]</code> / <code>phase[i]</code>를 쓴다. 이미 5인 단계를 전파할 필요 없이 배열에 5를 넣을 수 있는 유일한 경로이다.
+2. <strong>게스트의 참가자 승격</strong>이다. 그 뒤 게스트 자신의 <code>func_0207417c</code>가 0이 아닌 본문을 발행한다. 게스트가 참가자가 되는 것은 presence 바이트와 own index를 쓰는 유일한 함수 <code>func_020742b4</code>를 통해서이며, 그 함수의 호출자는 HOST 게이트 경로 <code>func_ov048_02263300</code> 하나이다. 이 호출은 comms <strong>mode 4</strong>(case 1) 또는 <strong>mode != 3</strong>(case 2) 아래에서 일어난다. 측정된 로컬 무선 실행은 mode 1(호스트) / 2(게스트)였고, 게스트 자신의 인덱스는 24,000프레임 내내 4였다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02076518.c</code>, <code>func_02076540.c</code>, <code>func_020742b4.c:24</code>,
+<code>func_ov048_02263300.c</code> cases 1-2; measured <code>docs/log/cycle42-save.md</code> G3HANDSHAKE102</span></span></p>
+<p>이를 확정하는 실험은 다음과 같다. 한 번의 브리지된 방문 동안 호스트에서 writer id와 함께 <code>phase[]</code> 쓰기를 계측하고, 게스트에서 <code>func_020742b4</code>의 presence 바이트를 계측한다. 게스트 자신의 인덱스에 대한 첫 번째 비-4 write 또는 호스트에서 <code>phase[guest]</code> = 5가 되는 첫 번째 write와 그 writer가 답이다.</p>
+<span class="source-anchor" id="the-origin-measured-and-three-corrections-to-the-table-above-g3arrival104"></span><h3 id="기원-측정됨-그리고-위-표에-대한-세-가지-수정-g3arrival104">기원, 측정됨, 그리고 위 표에 대한 세 가지 수정 (G3ARRIVAL104)</h3>
+<p>그 실험을 실행했다(<code>docs/log/cycle42-save.md</code> G3ARRIVAL104: 인터프리터의 store watchpoint가 <code>0x021f4320 + 0x84..0xc7</code>에서 적중할 때마다 leaf의 return address를 출력했다). <strong>5는 호스트에서 연결 중재자 <code>func_020a5c38</code>가 로컬로 쓴다.</strong> 따라서 위 절은 세 군데에서 잘못되었다.</p>
+<ol>
+<li><strong><code>func_020a6f74</code>는 배열의 유일한 writer가 아니다.</strong> raw store인 <code>func_020a617c</code>에는 이 함수 외에도 <code>func_020a5c38</code>, <code>func_020a6104</code>, 리셋 함수 <code>func_020a6a74</code>라는 직접 호출자가 3개 있다. 처음 두 호출자는 <strong>5, 6, 7을 리터럴로</strong> 쓴다. "완전한" 탐색이 한 단계 일찍 멈춘 것이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a5c38.c</code> (<code>func_020a617c(self, me, 5)</code>
+   in its state-1 arm, <code>... 6</code> in state 3), <code>func_020a6104.c</code></span></span></li>
+<li><strong><code>func_020742b4</code>는 게스트 승격이 아니라 HOST의 자체 등록이다.</strong> own index 0과 <code>presence[0]</code>을 설정하며, 호스트의 게이트 오픈 경로가 실행하는 함수이다. 게스트의 own index는 INSTALL에서 정확히 한 번(<code>func_020a3ea4</code> case 6, <code>g-&gt;field_64 = func_020ec260()</code>, WM AID) 쓰인다. 따라서 게스트는 설계상 게이트 전체 동안 비참가자이고, <code>phase[3]</code>을 읽는다. 이것이 제어 id 6이 쓰는 값이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020742b4.c:24</code>,
+   <code>func_020a3ea4.c</code> case 6, <code>func_02075548.c</code></span></span></li>
+<li><strong>Comms mode 1/2는 DS 로컬 무선 방문이다</strong>(<code>func_02074b44</code>는 mode 1 또는 2에서 <code>func_020ecce4</code>를 통해 수신 콜백을 설치한다. 3/4는 32 x 12 친구 테이블을 사용하는 DWC roster 경로를 택한다). 방문객별 호스트 프롬프트는 없다. 게이트를 여는 것이 동의이며, 호스트 쪽 유일한 확인은 <code>func_020a5750</code>의 state-1 조건이다(씬 바이트가 {0xc, 0xd, 0xe, 0x2e, 0x2f} 안에 있지 않고, 플레이어의 방문 단계가 0x3f이며, <code>data_021f42f0 == 0</code>이고, <code>func_0203df10()</code>인 경우). 이 조건은 게이트하우스에서 즉시 yes로 답한다.
+   <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gen/func_02074b44.c</code>, <code>src/matched/func_020a5750.c</code></span></span>
+   mode 바이트의 유일한 writer인 <code>func_020ecce4</code>는 <code>func_02074b44</code>에서 도달한다. 그 호출자는 <code>func_ov048_02262618</code>(게이트 자체 메뉴 행, <code>p2</code> = mode이며 <code>func_ov048_02263300</code> case 2에서 온다)와 <code>func_020a2d48</code>(mode 1)이다. 리그의 패드 스크립트가 고르는 행은 DS-to-DS 행이다.
+   <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tools/cgquery.py --callers 0x02074b44</code></span></span></li>
+</ol>
+<p>그리고 위 표의 이름에 관한 참고 사항이 있다. <code>+0x84 + 4*i</code> word는 GATE-HANDSHAKE 상태(<code>func_020a617c</code>/<code>func_020a6170</code>)이다. <code>func_020a5750</code>이 진행시키는 플레이어별 CONNECTION 상태는 별도의 <code>+0xa8 + 4*i</code> 배열(<code>func_020a5bb8</code>/<code>func_020a5bc4</code>)이고, 방문 단계 배리어는 세션 기저의 참가자당 3바이트 테이블(<code>func_020a7330</code>)이다. 배열 세 개, 리더 세 개이다.</p>
+<p><strong>측정된 프레임과 함께 본 연쇄</strong>(호스트 시간 / 게스트 시간이며, 게스트는 호스트보다 600프레임 늦게 시작한다):</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>프레임</th>
+<th>측</th>
+<th>내용</th>
+<th>writer (lr)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>14,615 g</td>
+<td>게스트</td>
+<td><code>phase[3] = 4</code>가 되고 본문-0 id 5가 나간다(비참가자 arm)</td>
+<td><code>func_0207417c</code> (0x0207419d)</td>
+</tr>
+<tr>
+<td>15,246 h</td>
+<td>호스트</td>
+<td>id 5 도착: <code>phase[1] = 0</code> &ndash; kind 0의 발행된 의도</td>
+<td>control dispatch (0x0207524b)</td>
+</tr>
+<tr>
+<td>15,248 h</td>
+<td>호스트</td>
+<td>중재자가 arm: state 0, subject 1, kind 0, <code>phase[1] = 4</code>, <code>conn[0] = 0</code>; 같은 프레임에 <code>func_020a5750</code>이 0 -&gt; 1 -&gt; 2로 답하고 countdown 0x28</td>
+<td><code>func_020a5c38</code>, <code>func_020a5750</code></td>
+</tr>
+<tr>
+<td>15,251 h</td>
+<td>호스트</td>
+<td>중재자 state 1: <code>conn[0] = 5</code>, <strong><code>phase[1] = 5</code></strong>, last = 1, state 2</td>
+<td><code>func_020a5c38</code> (<strong>0x020a5f0f</strong>)</td>
+</tr>
+<tr>
+<td>15,252 h</td>
+<td>호스트</td>
+<td>프레임별 업데이트가 NON-PRESENT 인덱스 1에 대해 id 6을 만든다(<code>func_02074330</code>의 non-present arm, own == 0). 전송 뒤 <code>phase[1] = 7</code>을 쓴다 &ndash; native에서 실행되어 STORE 줄은 없다</td>
+<td><code>func_02074dfc</code> / <code>func_02074330</code></td>
+</tr>
+<tr>
+<td>14,627 g</td>
+<td>게스트</td>
+<td>id 6 도착: <strong><code>phase[3] = 5</code></strong>, 이후 <code>+0x98 = 1</code></td>
+<td><code>func_02075548</code> (0x02075559)</td>
+</tr>
+<tr>
+<td>14,630 g</td>
+<td>게스트</td>
+<td>게스트의 7단계 수락 arm이 자신의 0x249c 레코드를 <strong>id 4</strong>로 보낸다(4096 + 4096 + 1195)</td>
+<td><code>func_ov048_02260b64</code> -&gt; <code>func_02075dcc</code></td>
+</tr>
+<tr>
+<td>15,023 g</td>
+<td>게스트</td>
+<td>kind = 0, <code>phase[3] = 7</code></td>
+<td><code>func_ov048_02260b64</code> (0x02260c0d), <code>func_02074120</code></td>
+</tr>
+<tr>
+<td>15,306 g</td>
+<td>게스트</td>
+<td>씬 바이트 12(게스트 도착 머신이 허용됨)</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>15,710 h</td>
+<td>호스트</td>
+<td>핸들 4 유효, countdown 만료: <code>kindcopy = 0</code>, <code>conn[0] = 6</code>; 중재자는 15,713에 idle (4)</td>
+<td><code>func_020a5750</code></td>
+</tr>
+<tr>
+<td>15,936 h</td>
+<td>호스트</td>
+<td>id 7 도착(<code>join = 1</code>); 15,937에 씬 바이트 13(호스트 도착 머신)</td>
+<td>control dispatch</td>
+</tr>
+<tr>
+<td>15,942 h</td>
+<td>호스트</td>
+<td>전송 상태 1; 15,945에 <code>presence</code> = 3(게스트가 이제 호스트의 참가자임)</td>
+<td><code>func_020a3bc0</code> states 1-2</td>
+</tr>
+<tr>
+<td>16,167 g</td>
+<td>게스트</td>
+<td><strong>own index 4 -&gt; 1</strong>(설치), 16,173에 전송 상태 2, 16,206에 씬 0</td>
+<td><code>func_020a3ea4</code> case 6</td>
+</tr>
+<tr>
+<td>16,653 h</td>
+<td>호스트</td>
+<td>전송 상태 2 &ndash; MP 플레이; 16,725에 씬이 11로 돌아감</td>
+<td><code>func_020a3bc0</code></td>
+</tr>
+</tbody>
+</table></div>
+<p>따라서 수락의 기원은 위의 두 후보 중 (a), 즉 라우팅/중재자 경로이다. 다만 라우팅 큐 kind를 통한 것은 아니다. kind-0 subject의 경우 중재자가 <code>phase[subject]</code> 자체를 쓰고, 프레임별 업데이트의 non-present arm이 전파를 수행한다. 후보 (b)는 존재한 적이 없다. <strong>포트를 12개 중 1개에 머물게 한 것은 게임이 아니었다.</strong> 호스트의 id 6이 mask 0에 대한 길이 0 조각으로 나갔기 때문이다(G3HANDSHAKE102의 프레임 15,259, <code>fdest=0 ftotal=0</code>). 프레임별 업데이트가 등록된 <code>func_0206e63c</code> 아래의 NATIVE 연쇄에서 실행되고 native <code>func_020ed874</code>가 송신 큐를 가공된 절대 주소에 쓰는 동안 <code>func_020ed9f4</code>는 실제 배열을 비웠다 &ndash; <code>port/shim/game/g3cb_func_020ed874.c</code>. 그 본문 하나를 고치자 첫 실행에서 리그가 <strong>12개 중 12개</strong>를 읽는다.</p>
+<span class="source-anchor" id="what-the-other-two-slots-carry-with-only-two-players"></span><h3 id="플레이어가-두-명일-때-다른-두-슬롯이-운반하는-것">플레이어가 두 명일 때 다른 두 슬롯이 운반하는 것</h3>
+<p>없다. 참가자를 순회하는 모든 루프는 <code>for (i = 3; i &gt;= 0; i--)</code>이며, "참가자 i가 존재하는가"와 "참가자 i가 나인가"라는 두 가드가 있다. 첫 번째 가드에서 탈락한 슬롯은 완전히 건너뛴다. 디스크립터도 만들어지지 않고, 배리어 투표도 기다리지 않으며, 단계도 읽지 않는다. 4인 형태는 트래픽이 아니라 <strong>배열</strong>에 있다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074330.c:187</code>, <code>func_020a05e8.c:118</code>, <code>func_02077a8c.c:18</code></span></span></p>
+<p>두 곳에서는 이 사실이 루프가 아니라 크기로 드러난다. id 15는 현재 플레이어 수와 관계없이 항상 <strong>2바이트 레코드 4개</strong>를 운반한다. 없는 슬롯은 테이블에 들어 있는 값을 그대로 가질 뿐이며 수신자는 4개 모두를 적용한다. 그리고 단계 접근자는 4 이상인 어떤 인덱스에 대해서도 sentinel <strong>0x3f</strong>를 반환한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020759e0.c:44</code>,
+<code>func_020753a8.c:22</code>, <code>func_020a7330.c:13</code></span></span></p>
+<span class="source-anchor" id="the-two-barrier-kinds"></span><h3 id="두-종류의-배리어">두 종류의 배리어</h3>
+<p><strong>단계 배리어.</strong> 모든 참가자는 작은 방문 단계 id를 발행한다(id 5와 6). 피어는 이를 3바이트 참가자별 테이블에서 busy 바이트와 함께 읽는다. 현재 존재하면서 자신이 아닌 모든 참가자의 단계가 허용된 두 id 중 하나이고 busy 바이트가 0일 때 머신은 배리어를 통과한다. 도착 머신은 (0xd, 0x2f) 쌍을 사용하고, 퇴장 머신은 (0x2e, 0x2e)를 사용한다. <strong>이는 "양쪽 끝점이 같은 식별된 방문 단계에 도달한다"는 G3 기준과 정확히 같으며, 참가자마다 읽을 수 있는 u8이다.</strong>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a0340.c:23</code>, <code>func_020a7330.c:13</code>, <code>func_020a72d0.c:13</code></span></span></p>
+<p><strong>투표 배리어.</strong> id 14는 2바이트 투표를 운반한다. 핸들러는 SESS+0xef+slot에 바이트를 쓴다. own index가 0인 참가자에서는 SENDER가 인덱스가 되고, 나머지에서는 항상 슬롯 0에 쓴다. 이것이 호스트/게스트 슬롯 재매핑이다. 대기자는 3..0을 순회하며 현재 존재하고 자신이 아닌 참가자를 본다. <strong>0 = 아직 투표하지 않음, 1 = 동의, 2 = 중단</strong>이며, 배리어 사이에서 배열을 지운다. 중단되면 상태 머신이 6개 상태 앞으로, teardown 범위로 점프한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075404.c:15</code>, <code>func_020a05e8.c:118</code>, <code>:145</code>,
+<code>func_020a1224.c:8</code>, <code>func_020a03e0.c:92</code></span></span></p>
+<p>투표 배리어는 <strong>세이브 스테이징</strong>을 둘러싼다. 8상태 helper는 라이브 뱅크의 0x173fc를 세션 소유 버퍼로 복사하고, 다른 마을을 불러오며, 돌아오는 길에 호출자의 restore 플래그가 설정되어 있으면 그 0x173fc 바이트를 다시 복사한다. 매칭되지 않은 teardown helper가 아니라 이 restore가 롤백이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a03e0.c:63</code>, <code>:113</code></span></span></p>
+<span class="source-anchor" id="per-frame-play"></span><h3 id="프레임별-플레이">프레임별 플레이</h3>
+<p><strong>입력 락스텝도 공유 RNG도 없다.</strong> 각 참가자는 전송 상태 2가 되면 통신 업데이트마다 집계된 프레임 <strong>하나</strong>를 만들고, 하나의 송신으로 최대 3개의 목적지에 보낸다.</p>
+<pre><code>[u8 status]                                   bits 0..1 only, bit 7 clear
+[u8 tag][len(tag) bytes] ... [0x46]           the common block: a change stream
+[5-byte header][payload] ...                  the routed queue
+</code></pre>
+<p>공용 블록은 tag 0x45에서 0까지 거꾸로 순회하고, 블록 + tag + 124의 dirty flag가 설정된 경우에만 tag를 내보낸다. 각 tag의 고정 길이는 0x46개 항목 테이블에서 가져오며, 바이트 0x46으로 끝난다. 이는 첫 번째 목적지에 대해 <strong>한 번만</strong> 계산하고 나머지 두 목적지에는 memcpy한다. 따라서 같은 업데이트에서 모든 피어가 같은 변경 집합을 받는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074f28.c:14</code>, <code>:32</code>, <code>func_020738b4.c:8</code>, <code>func_0207762c.c:9</code>,
+<code>src/matched/func_02074330.c:177</code>, <code>:181</code>, <code>:213</code></span></span></p>
+<p>라우팅 큐는 5바이트 헤더(u16 길이, selector 바이트, kind 바이트, packed 바이트)와 함께 가변 길이 레코드를 추가한다. 8개의 라우팅 kind는 목적지마다 그 레코드를 목적지 프레임에 복사할지, 로컬에서 다시 큐에 넣을지, 버릴지를 결정한다. kind 4는 "로컬 limit index가 아님", kind 5는 "인덱스 0이 아님", kind 6과 7은 참가자 상태 테이블을 기준으로 라우팅한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074e64.c:37</code>, <code>func_020a70ec.c:50</code></span></span></p>
+<p><strong>권한.</strong> 모든 참가자는 자신의 태그된 변경 스트림의 작성자이므로, 이 모델은 호스트 권한이 아니라 소유자별 상태 복제이다. 호스트가 권한을 갖는 것은 <em>참가 허가</em>뿐이다. 마을 이미지, 캘린더, 참가자 비트맵과 도착 순서는 모두 호스트에서 온다. 참가자 상태 테이블(각각 phase, 중간 필드, busy 바이트의 3바이트)은 id 15로 브로드캐스트되고 필드별 마스크로 쓰이므로, 소유자는 피어의 필드를 덮어쓰지 않고 하나의 필드를 갱신할 수 있다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a7394.c:18</code>, <code>func_020a3bc0.c:94</code>, <code>:162</code></span></span></p>
+<p><strong>속도.</strong> 송신자가 스스로 속도를 조절하지는 않으며, 통신 업데이트가 조절한다. 이 분석은 그 업데이트를 프레임에 연결하지 <strong>않았다</strong>. 말할 수 있는 것은 같은 업데이트가 각 슬롯을 채우기 전에 상태 바이트도 쓴다는 점과, 송신 펌프를 닫으면 동일한 루프가 틱을 건너뛰는 대신 확인 전용 1바이트 프레임으로 성능이 낮아진다는 점이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074fa0.c:18</code>,
+<code>func_02074330.c:265</code></span></span></p>
+<p><strong>분기.</strong> 재동기화 메시지는 없다. 존재하는 것은 아래의 중단 절에서 설명하는 재시도 기한과 연결성 테스트뿐이며, 실패는 상태 복구가 아니라 세션 중단이다. 상태 비트가 유일한 피드백 채널이며, 수신 시 재매핑된 송신자 슬롯마다 누적된다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02073cf0.c:16</code></span></span></p>
+<span class="source-anchor" id="items-letters-chat"></span><h3 id="아이템-편지-채팅">아이템, 편지, 채팅</h3>
+<p>4개의 레코드 크기가 제어 채널을 통해 이동하며, 이 단위가 증명하는 것은 <strong>내용이 아니라 크기, stride와 핸들</strong>이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>크기</th>
+<th>ids</th>
+<th>핸들 공간</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0x950 (2,384)</td>
+<td>2, 3</td>
+<td>참가자별 레코드 4개이며, 핸들 4는 별개의 슬롯</td>
+</tr>
+<tr>
+<td>0x249c (9,372)</td>
+<td>4, 21</td>
+<td>플레이어 핸들 7개: 0..3은 세이브 자체의 플레이어 슬롯, 4..6은 3개의 방문객 슬롯</td>
+</tr>
+<tr>
+<td>0x3200 (12,800)</td>
+<td>22</td>
+<td>4슬롯 배열</td>
+</tr>
+<tr>
+<td>0x6a0 (1,696)</td>
+<td>12</td>
+<td>프레임별 스트림이 델타를 보내는 공유 필드 블록</td>
+</tr>
+<tr>
+<td>compressed town</td>
+<td>1</td>
+<td>0x173fc 세이브 뱅크를 기준으로 스테이징됨</td>
+</tr>
+</tbody>
+</table></div>
+<p>id 16..20과 23은 방문 단계 46에서 게이트되는 1바이트 알림이다. 각각 하나의 세션 바이트(SESS+0xf8+sender, +0xfc+sender, +0xe5, +0xf4+sender, +0x100, +0x101)를 설정한다. 어느 하나를 "chat" 또는 "item"이라고 부르는 것은 발명이다. 확립된 것은 단계 게이트와 각 id가 쓰는 필드이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075380.c:17</code>, <code>func_02075358.c:19</code>,
+<code>func_02075334.c:20</code>, <code>func_0207530c.c:11</code>, <code>func_02075300.c:8</code>, <code>func_02075254.c:12</code></span></span></p>
+<span class="source-anchor" id="departure"></span><h3 id="퇴장">퇴장</h3>
+<p>퇴장 머신은 방문 단계 0x2e에서 배리어를 통과한 뒤 1바이트 랑데부를 두 번 실행한다.</p>
+<ol>
+<li><strong>현재 존재하는 모든 피어</strong>가 SESS+0xfc(id 17)를 설정할 때까지 기다린 다음 연결된 전체 마스크에 <strong>id 18</strong>을 보낸다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3084.c:171</code>, <code>:187</code></span></span></li>
+<li>현재 존재하는 모든 피어가 SESS+0xf4(id 19)를 설정할 때까지 기다린 다음 <strong>커밋</strong>한다.
+   <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a3084.c:202</code>, <code>:210</code></span></span></li>
+</ol>
+<p>커밋은 3개의 방문객 플레이어 핸들을 다시 연결하고, 라이브 뱅크에서 마을 오브젝트를 다시 불러오며, packed 캘린더 word를 로컬 플레이어 레코드에 다시 쓴다. 이는 떠나는 게스트 자신의 레코드이며, 방문이 끝난 날짜를 담는다. 종료 시 씬 메시지를 한 경로에서는 10, 다른 경로에서는 0x0b으로 게시하고, 머신 자체의 기본 arm도 추가 메시지를 하나 게시한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a1038.c:91</code>, <code>:99</code>, <code>:121</code>, <code>func_020a261c.c:17</code>,
+<code>func_020a25e8.c:18</code></span></span></p>
+<p>돌아오는 게스트에서 중요한 write는 이미 역방향으로 설명한 것이다. 스테이징 helper는 호출자가 restore 플래그를 넘긴 경우에만 게스트 자신의 0x173fc 뱅크를 라이브 뱅크 위에 복사한다. 호출자마다 넘기는 플래그가 다르므로 "방문객이 다른 마을에서 한 일을 유지하는가"는 전송이 아니라 <strong>CALLER</strong>가 결정한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a03e0.c:113</code></span></span></p>
+<span class="source-anchor" id="interruption"></span><h3 id="중단">중단</h3>
+<p>하나의 조건자가 이를 결정하며 모든 상태 머신의 모든 arm이 먼저 이를 호출한다.</p>
+<ol>
+<li>재시도 기한이 설정되어 있고 카운터가 한계에 도달했으면 -&gt; <strong>시간 초과</strong>이다.</li>
+<li>그렇지 않고 필요한 목적지 마스크가 연결된 마스크에 포함되지 않았으면 -&gt; <strong>링크 손실</strong>이다.</li>
+</ol>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02073fdc.c:32</code>, <code>:45</code></span></span></p>
+<p>기한은 송신자 자신이 설정한다. 세 triple 중 하나라도 데이터가 있는 송신은 <strong>0x258 틱</strong>으로 설정하고, 빈 송신은 지운다. (0x258 = 600이며, G0가 방문 경로의 첫 WM 요청과 정리 사이에서 측정한 간격과 600프레임이 정확히 같다. G0의 실행은 이 계층에 도달하지 못했지만 일관된다.)
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02073e30.c:58</code>, <code>:63</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>wiki/systems/wifi-g0.md</code></span></span></p>
+<p>실패하면 통신 오브젝트의 <strong>status bit 0x40</strong>을 올리고 반환한다. 통신 업데이트는 로컬 모드에서 예상 참가자 비트맵이 연결 비트맵 안에 없으면 bit 4를, 온라인 등가 경로에서는 bit 8을 별도로 올린다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074078.c:20</code>, <code>func_02074330.c:377</code>, <code>:384</code></span></span></p>
+<span class="source-anchor" id="the-rollback-helper-and-what-it-is-not"></span><h3 id="롤백-helper와-그것이-아닌-것">롤백 helper와 그것이 아닌 것</h3>
+<p><code>main:0x020a0848</code>는 <strong>UNMATCHED</strong>이다. <code>size=0x2b0</code>이며 이 체크아웃에는 본문이 없다. 7개의 호출자는 항상 <code>(base, base + 6)</code>인 11상태 범위를 각각 넘긴다. 상태 머신은 0xb..0x15, 0xe..0x18, 0xf..0x19, 0x10..0x1a, 0x11..0x1b를 넘기고, 스테이징 helper는 정상 종료에서는 <code>base</code>로, 중단 투표에서는 <code>base + 6</code>으로 점프한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt:9665</code>, <code>src/matched/func_020a2dec.c:201</code>,
+<code>func_020a3084.c:226</code>, <code>func_020a33e0.c:129</code>, <code>func_020a03e0.c:92</code></span></span></p>
+<p>피호출 함수 집합은 ROM 코드를 읽지 않고 relocation METADATA에서 읽을 수 있으며, 이는 <strong>뻔한 추측을 반박하기 때문에</strong> 명시할 가치가 있다. 모든 arm에서 손실 조건자와 그 플래그 설정자, own-index 쿼리, 전송 준비 쌍, <strong>3개 지점의 id 14와 2개 지점의 id 19</strong>, critical-section 진입/이탈 쌍 두 번, teardown 쌍 네 번, 씬 메시지 게시자 두 개, 씬 오브젝트 접근자, autoload_2 SDK 호출 하나를 호출한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>config/adm-kr/arm9/relocs.txt:32971</code>-<code>:33018</code></span></span></p>
+<p><strong>세이브 스테이징 주소를 불러오지도 않고 뱅크 복사를 호출하지도 않는다.</strong> 따라서 이것은 배리어와 teardown의 연쇄이다. 투표하고, 알리고, teardown하고, 씬 메시지를 게시한다. 마을을 복원하는 것이 아니다. 복원은 매칭된 스테이징 helper 안의 <code>MI_CpuCopy8</code>이다. wifi-analysis의 "the exact persistent outcome after a lost peer is therefore still open"은 다음과 같이 좁혀진다. 결과는 스테이징 helper에 호출자가 넘긴 restore 플래그로 결정되고, 매칭되지 않은 helper의 일은 그 플래그가 실행되기 전에 모든 피어가 세션이 끝났다는 데 동의하게 만드는 것이다.</p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>계층</th>
+<th>최초 출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>엔벌로프 인코드/디코드</td>
+<td><code>src/matched/func_02077b3c.c:6</code>, <code>func_02077b14.c:6</code></td>
+</tr>
+<tr>
+<td>제어 디스패치</td>
+<td><code>src/matched/func_02075050.c:38</code> -&gt; <code>func_02075240.c:8</code></td>
+</tr>
+<tr>
+<td>벌크 청커</td>
+<td><code>src/matched/func_02075ff8.c:38</code></td>
+</tr>
+<tr>
+<td>호스트 도착 머신</td>
+<td><code>src/matched/func_020a3bc0.c:94</code></td>
+</tr>
+<tr>
+<td>게스트 도착 머신</td>
+<td><code>src/matched/func_020a3ea4.c:125</code></td>
+</tr>
+<tr>
+<td>거주 방문객 머신</td>
+<td><code>src/matched/func_020a3abc.c:62</code></td>
+</tr>
+<tr>
+<td>투표 배리어(8상태 / 7상태)</td>
+<td><code>src/matched/func_020a03e0.c:63</code>, <code>func_020a05e8.c:118</code></td>
+</tr>
+<tr>
+<td>단계 배리어</td>
+<td><code>src/matched/func_020a0340.c:23</code></td>
+</tr>
+<tr>
+<td>프레임별 집계</td>
+<td><code>src/matched/func_02074330.c:177</code>, <code>func_02074f28.c:14</code>, <code>func_02074e64.c:37</code></td>
+</tr>
+<tr>
+<td>퇴장 머신</td>
+<td><code>src/matched/func_020a3084.c:171</code></td>
+</tr>
+<tr>
+<td>커밋</td>
+<td><code>src/matched/func_020a1038.c:91</code></td>
+</tr>
+<tr>
+<td>손실 조건자</td>
+<td><code>src/matched/func_02073fdc.c:32</code></td>
+</tr>
+<tr>
+<td>Teardown(UNMATCHED)</td>
+<td><code>config/adm-kr/arm9/symbols.txt:9665</code></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<p>각각 정확히 하나의 핸들러가 쓰는 세션 오브젝트 필드는 G3 관측자가 읽어야 하는 상태 변수이다. 오프셋은 세션 포인터 기준이며, 모든 setter는 <code>src/matched/</code>의 한 줄짜리 leaf이다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>오프셋</th>
+<th>폭</th>
+<th>기록하는 것</th>
+<th>읽는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>+0xc8</td>
+<td>ptr</td>
+<td>&ndash;</td>
+<td>마을 벌크 버퍼 기저</td>
+</tr>
+<tr>
+<td>+0xcc</td>
+<td>ptr</td>
+<td>&ndash;</td>
+<td>압축기/압축 해제기 오브젝트</td>
+</tr>
+<tr>
+<td>+0xd4</td>
+<td>u16</td>
+<td>id 0</td>
+<td>게스트 도착 상태 1, 퇴장 presence 루프</td>
+</tr>
+<tr>
+<td>+0xd7</td>
+<td>u8</td>
+<td>id 0</td>
+<td>게스트의 설치</td>
+</tr>
+<tr>
+<td>+0xd8</td>
+<td>u8</td>
+<td>local</td>
+<td>벌크 청크 카운터, 전송마다 재사용</td>
+</tr>
+<tr>
+<td>+0xd9</td>
+<td>u8</td>
+<td>id 9</td>
+<td>호스트 도착 상태 9</td>
+</tr>
+<tr>
+<td>+0xda</td>
+<td>u8</td>
+<td>id 10</td>
+<td>게스트 도착 상태 6</td>
+</tr>
+<tr>
+<td>+0xdc</td>
+<td>8</td>
+<td>id 10</td>
+<td>게스트의 시계 채택</td>
+</tr>
+<tr>
+<td>+0xe4</td>
+<td>u8</td>
+<td>id 11</td>
+<td>호스트 도착 상태 10</td>
+</tr>
+<tr>
+<td>+0xe5</td>
+<td>u8</td>
+<td>id 18</td>
+<td>퇴장 arm</td>
+</tr>
+<tr>
+<td>+0xe6</td>
+<td>u8</td>
+<td>(형제 setter)</td>
+<td>퇴장 arm</td>
+</tr>
+<tr>
+<td>+0xef..+0xf2</td>
+<td>u8[4]</td>
+<td>id 14</td>
+<td>투표 배리어; 배리어 사이에서 지워짐</td>
+</tr>
+<tr>
+<td>+0xf4..+0xf7</td>
+<td>u8[4]</td>
+<td>id 19</td>
+<td>퇴장 상태 15</td>
+</tr>
+<tr>
+<td>+0xf8..+0xfb</td>
+<td>u8[4]</td>
+<td>id 16</td>
+<td>도착 선행 조건</td>
+</tr>
+<tr>
+<td>+0xfc..+0xff</td>
+<td>u8[4]</td>
+<td>id 17</td>
+<td>퇴장 상태 13</td>
+</tr>
+<tr>
+<td>+0x100</td>
+<td>u8</td>
+<td>id 20</td>
+<td>&ndash;</td>
+</tr>
+<tr>
+<td>+0x101</td>
+<td>u8</td>
+<td>id 23</td>
+<td>&ndash;</td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a132c.c:8</code>, <code>func_020a1284.c:9</code>, <code>func_020a127c.c:9</code>,
+<code>func_020a125c.c:9</code>, <code>func_020a1254.c:9</code>, <code>func_020a1250.c:8</code>, <code>func_020a1274.c:9</code>,
+<code>func_020a126c.c:9</code>, <code>func_020a1264.c:9</code>, <code>func_020a1238.c:8</code>, <code>func_020a1208.c:8</code>,
+<code>func_020a1200.c:8</code>, <code>func_020a11f8.c:8</code>, <code>func_020a11e0.c:14</code>, <code>func_020a11b8.c:6</code>,
+<code>func_020a1224.c:8</code></span></span></p>
+<p>세션 오브젝트 바깥에는 참가자 상태 테이블(참가자마다 3바이트), 0x173fc바이트 라이브 세이브 뱅크, 게임 자체의 씬 바이트와 공유하는 방문 단계 id 공간이 있다. 핸들러는 단계 배리어가 비교하는 것과 같은 숫자인 9, 12, 13, 46, 47에서 게이트한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a7330.c:13</code>, <code>func_020a03e0.c:63</code>,
+<code>func_02075404.c:15</code>, <code>func_020752a8.c:31</code></span></span></p>
+<span class="source-anchor" id="for-the-port"></span><h2 id="포트에-대하여">포트에 대하여</h2>
+<p><strong>브리지가 MP 프레임을 충실히 전달한다면 ARM9에서 수정 없이 실행된다.</strong> 이 페이지의 모든 것이 그렇다. 제어 엔벌로프, 24개 핸들러, 벌크 청커, 도착 머신 두 개, 두 종류의 배리어, 프레임별 집계, 퇴장 커밋과 손실 조건자는 모두 전송 위에 있는 ARM9 게임 코드이며, 그 어느 것도 WM API를 이름으로 부르지 않는다. 전송은 <em>참가자 i가 보낸 길이 N의 바이트 버퍼</em>를 순서대로 전달하고, 송신자 인덱스를 올바르게 유지하며, 목적지 비트맵을 준수해야 한다. 그 외에는 아무것도 필요하지 않다.</p>
+<p><strong>스텁이 아직 모델링하지 않는 방식으로 ARM7/WM을 건드린다.</strong> 영향을 받는 순서는 다음 네 가지이다.</p>
+<ol>
+<li><strong>MP 프레임 전달 자체.</strong> 스텁의 StartMP는 코드 10으로 끝나며 수신 데이터를 전달하지 않는다. <code>WM_SetMPDataToPortEx</code> 경로도 페이로드를 운반하는 수신 콜백도 없다. 이 페이지의 모든 단계에는 둘 중 하나가 필요하다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>wiki/systems/wifi-g1.md</code></span></span></li>
+<li><strong>MP 프레임 타이밍.</strong> 통신 업데이트는 송신이 제한된 틱 수 안에 완료되거나 실패한다고 가정한다. 0x258틱 기한이 멈춘 피어를 세션 중단으로 바꾸기 때문이다. 완료 지연에 제한이 없는 브리지는 느린 네트워크를 링크 손실 UI로 바꾼다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02073e30.c:58</code>, <code>func_02073fdc.c:32</code></span></span></li>
+<li><strong>플레이 중 비콘 user-info 업데이트.</strong> 게이트가 열려 있는 동안 호스트는 다시 광고한다. 스텁은 SetGameInfo에 상한을 두지만 변경된 user-info를 담은 광고를 다시 내보내지는 않는다. 따라서 방문 중간에 두 번째 게스트가 도착하면 선택할 최신 정보가 없다.</li>
+<li><strong>데이터 공유 / 키 공유.</strong> 두 서비스 모두 스텁의 테이블에 없다. 이 페이지는 방문 경로가 두 서비스를 사용한다고 보여주지 않는다. 마을 트래픽은 일반적인 포트 송신이다. 다만 두 WM 서비스는 아직 매핑되지 않은 하위 계층 표면이며, 프로토콜 맵의 경고는 그대로 남는다. 포트 13만으로는 이를 확립할 수 없다.</li>
+</ol>
+<p><strong>G3에 필요한 릴레이 프레임 계약의 추가 사항.</strong> kind 1(MP data)은 지금까지 바이트를 운반한 적이 없다. 이 메시지에는 프레임마다 송신자의 AID, 목적지 비트맵, 논리 포트, 길이, sequence 또는 epoch 번호가 필요하다. 그래야 중복을 두 번 적용할 수 없게 된다. 벌크 수신자는 <strong>absolute-offset writes</strong>를 사용하므로, 재생된 청크는 조용히 멱등적이지만 순서가 바뀐 청크는 전혀 감지할 수 없기 때문이다. kind 3(control)에는 connect, AID 할당, disconnect와 parent-state 전이가 필요하다. 그래야 CHILD_CONNECTED를 합성할 수 있다. kind 2에는 광고뿐 아니라 scan REPLY 형태가 필요하다. 날짜가 붙은 설명은 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/online-spec.md">릴레이 절</a>에 있다.</p>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
+<p>모든 출처를 다시 도출한다: <code>python -B scratchpad/g3prep89/cite.py</code> &ndash; 166개 쿼리, 미해결 0개이며 주장마다 <code>file:line</code> 하나이다.</p>
+<p>런타임 확인은 G3이며, 그 형태는 스크린샷이 아니라 배리어에서 나온다. <strong>정지 프레임에서 양쪽마다 다음을 단언한다.</strong> (a) 현재 존재하는 EVERY 참가자의 방문 단계 바이트가 같은 허용 id이고 busy 바이트가 0이다. 이는 추론하지 않고 읽는 게임 자체의 배리어이다. (b) 양쪽의 id-0 참가자 비트맵이 일치하며 그 수가 살아 있는 릴레이 피어 수와 같다. (c) 게스트의 압축 해제가 완료되었다고 보고되었고, 게스트의 라이브 세이브 뱅크 사본이 길이와 해시로 호스트와 일치한다(0x173fc바이트, 해시만 확인하며 바이트 자체는 절대 확인하지 않음). (d) 양쪽이 같은 scripted movement를 관측한다. 호스트의 0x46-tag 공용 스트림에서 같은 tag가 변경되고 게스트에서 같은 tag가 적용되어야 한다. (e) 퇴장: 호스트는 피어의 id 17 다음에 id 19를 보았고, 게스트는 커밋했으며, 정지 시 양쪽의 status byte에서 bit 0x40이 <strong>CLEAR</strong>이다. 손실 조건자를 거쳐 끝난 방문은 통과한 G3가 아니다.</p>
+<p>이를 <code>port/tools/g2rig.py</code>에 연결하는 방법은 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/wifi.md">런타임 라우터</a>의 g3prep89 절에 있다.</p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
+<ul>
+<li>0x46-tag 공용 블록에는 액터 위치, 바라보는 방향, 애니메이션과 들고 있는 아이템이 있다. 프레임별 소유자별 채널이 이것뿐이고, 도착 순서가 플레이 시작 전에 이 블록의 전체 0x6a0 스냅샷을 id 12로 보내기 때문이다. <strong>미증명:</strong> tag -&gt; field 맵에는 양쪽에서 scripted movement 하나와 tag census가 필요하다. 이는 소스 읽기가 아니라 G3 receipt이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074f28.c:14</code>, <code>func_020a3bc0.c:125</code></span></span></li>
+<li>id 13의 두 섹션은 방문이 즉시 필요로 하는 플레이어 측 레코드이다(섹션 인덱스가 유일한 구분자이다). 두 생산자 콜백의 이름을 확인하면 확정할 수 있다.
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02077690.c:45</code></span></span></li>
+<li>RNG 상태는 wire를 건너지 않고 캘린더는 건너간다(id 10, 한 번). 따라서 두 마을 사이의 프레임별 분기는 시드 차이가 아니라 전달된 메시지의 차이이다. 그러므로 공용 스트림의 tag 수는 충분한 분기 검출기가 된다.
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075b14.c:28</code>, <code>func_0209e474.c:12</code></span></span></li>
+</ul>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="multiplayer-protocol.html">프로토콜 맵</a> &ndash; 24개 id, WM 계약, 매칭되지 않은 브리지.</li>
+<li><a href="wifi-g0.html">G0 게이트하우스 근거</a>, <a href="wifi-g1.html">G1 WM 요청 수명</a>.</li>
+<li><a href="wifi-port-plan.html">G0-G5 계획</a>.</li>
+<li><a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/online-spec.md">릴레이 계약</a>, <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/wifi.md">런타임 라우터</a>.</li>
+<li><a href="save-data.html">세이브 레이아웃</a>, <a href="player.html">플레이어 슬롯</a>, <a href="town.html">마을</a>, <a href="villagers.html">주민</a>.</li>
+</ul>
+<span class="source-anchor" id="gatekeeper-dialogue-seam-gatetext-1-2026-09-12"></span><h3 id="게이트키퍼-대화-이음매-gatetext-1-2026-09-12">게이트키퍼 대화 이음매 (gatetext-1, 2026-09-12)</h3>
+<p>게이트하우스 오버레이는 자신의 문구를 직접 그리지 않는다. 상단 메뉴 요청은 메시지 id <code>0x0f</code>를 선택하며, 게이트가 이미 열려 있으면 <code>0x10</code>을 선택한다. 그런 다음 <code>data_ov048_02263d20</code>이 참조하는 키와 함께 그 바이트를 게시한다. relocation은 키 저장소를 <code>0x02264148</code>로 해석한다. 해석된 키는 <code>sp_npc_gatekeeper</code>이며 게이트키퍼 BMG 아카이브를 선택한다. 그 아카이브의 대화 텍스트는 여기에 재현하지 않는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov048_022623f0.c:15-19</code>;
+<code>config/adm-kr/arm9/overlays/ov048/relocs.txt:1016</code></span></span></p>
+<p>요청 경계는 <code>func_0206844c</code>이다. 윈도우 <code>+0x1e77</code>에 메시지 id를 저장하고 그 옆에 키를 저장한다. <code>func_02067218</code>은 id를 <code>+0x1e</code>의 요청 오브젝트에 복사하고, 이어서 <code>func_0206726c</code>가 아카이브를 열어 해당 레코드를 선택하고 12바이트 <code>INF1</code> 메타데이터를 복사한다. 이곳에서 id나 아카이브를 바꾸는 것은 가능하지만, 메타데이터와 컨트롤이 일치하는 대체 레코드가 필요하다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0206844c.c:8-14</code>;
+<code>src/matched/func_02067218.c:26-35</code>; <code>src/matched/func_0206726c.c:13-24</code></span></span></p>
+<p>더 좁은 이음매는 디코드된 포인터이다. <code>func_0206741c</code>는 BMG 리더 가상 슬롯 2에서 이를 얻고, <code>func_020a94c8</code>를 통해 기존 typewriter에 즉시 설치한다. <code>ACWW_GATETEXT=1</code>은 정확한 key/id 쌍에 대해 그 포인터만 교체한다. 따라서 윈도우, <code>INF1</code> 속성, 입력 처리와 action callback은 게임 코드로 남는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0206741c.cpp:71-74</code>; <code>src/matched/func_020a94c8.c:13-17</code>; H:
+<code>port/shim/game/gatetext.c</code>, gated implementation</span></span></p>
+<p>문자열 형식은 UTF-16LE이다. walker는 <code>p[0]</code>을 하위 바이트로, <code>p[1]</code>을 상위 바이트로 사용해 각 unit을 만든다. unit <code>0x001a</code>는 escape walker에 들어가며, walker는 chunk의 바이트 길이만큼 전진한다. 글리프 검색은 게임의 code-to-index scan으로 남는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a9368.cpp:20-39</code>; <code>src/matched/func_020a93f4.cpp:21-27</code>;
+<code>src/matched/func_020516b8.c:25-56</code></span></span></p>
+<p><strong>2026-09-12 수정(GATESTILL105).</strong> 이 문단은 이전에 훅의 chunk가 command <code>0xff</code>, value 2에서 choice-position builder에 도달한다고 말했다. 그렇지 않으며, 숫자는 읽을 수 있다. escape dispatcher는 <code>chunk[3]</code>에서 COMMAND를, <code>chunk+4</code>의 little-endian halfword에서 VALUE를 가져오고, 페이로드는 <code>chunk+6</code>에 있으며 길이는 <code>chunk[2]-6</code>이다. 이 key의 레코드가 가진 choice chunk는 command <strong>2</strong>, value <strong>7</strong>을 운반한다. 이것은 value를 group counter에 MODE로 넘기는 arm이며, 그 테이블은 7을 뒤따르는 문자열 5개로, 6을 4개로 바꾼다. command <code>0xff</code> value 2는 별도의 control이고 이 레코드에는 들어 있지 않다. <code>0x10</code> 자체의 chunk는 value 6인 10바이트, 즉 네 행이다. 게이트가 이미 열려 있기 때문이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a8764.c:9-20</code>;
+<code>src/matched/func_020a87a8.c:3-8</code>; <code>src/matched/func_020a9ae0.c</code>;
+<code>src/matched/func_020a9080.c:43-56</code>; <code>src/matched/func_020a83ec.c:20-25</code>;
+<code>src/matched/func_020a8328.c:7-18</code></span></span></p>
+<p><strong>그리고 group 앞에는 <code>0x000a</code> 하나가 있다.</strong> id <code>0x0f</code>에 대한 레코드 자체의 순서는 chunk, 빈 run, <code>0x000a</code> 하나, 그리고 <code>0x000a</code>로 분리된 행 5개이다. 이 unit은 장식이 아니다. group counter는 <code>payload + (length-6) + 2</code>, 즉 chunk에서 2바이트 지난 지점부터 측정하는 반면, escape walker는 이미 커서를 chunk 끝에 두고 나왔으며, 두 읽기가 달라지는 단위가 <code>0x000a</code>이다. 측정은 <code>scratchpad/gatestill105/escape105.py</code>가 <code>script/KOR/message/sp/npc/gatekeeper_.bmg</code>에 대해 수행했다. 레코드 텍스트는 재현하지 않는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a83ec.c:37-47</code>;
+<code>src/matched/func_020a93e8.c</code>; H: <code>port/shim/game/gatetext.c</code>, the array's comment</span></span></p>
+<p><strong>다섯 행의 동작, 측정됨(GATESTILL105).</strong> 게이트키퍼 자신의 메뉴를 오프라인에서 조작하고 Down을 N번 누른 다음 A를 누르면, 샘플링한 모든 프레임에서 다섯 행이 서로 <strong>DISTINCT</strong>한 화면을 만든다. 행 0은 무선 VISIT 경로, 행 1은 무선 INVITE 경로, 행 2는 친구 코드 답변, 행 3은 게이트 설명, 행 4는 닫기이다. 행 4는 큰 private <code>ov048</code> footprint를 가진 유일한 행이기도 하다(다른 행에는 없는 주소 29개이며 윈도우 teardown이다). 따라서 동작은 행의 텍스트가 아니라 행 <strong>INDEX</strong>에 속한다. chunk를 바이트 단위로 동일하게 유지하는 대체가 callback 맵도 유지할 수 있는 이유이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">measurement,
+<code>docs/kb/hybrid/wifi.md</code> <code>### gatestill105</code></span></span></p></div><nav class="prevnext"><a class="pn prev" href="../systems/multiplayer-protocol.html"><small>◀ 이전</small>멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a><a class="pn next" href="../systems/online-server.html"><small>다음 ▶</small>온라인 서버: 아키텍처와 위협 모델</a></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#근거와-범위">근거와 범위</a></li><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#엔벌로프와-그-위의-두-채널">엔벌로프와 그 위의 두 채널</a></li><li><a href="#단계별-도착-순서">단계별 도착 순서</a></li><li><a href="#1단계-아래의-계층-ov066-자체의-세션-계층과-엔벌로프의-위치">1단계 아래의 계층: ov066 자체의 세션 계층과 엔벌로프의 위치</a></li><li><a href="#1단계-전에-일어나야-하는-것-게이트하우스-자체의-두-값-핸드셰이크">1단계 전에 일어나야 하는 것: 게이트하우스 자체의 두 값 핸드셰이크</a></li><li><a href="#게이트-핸드셰이크-상태-테이블과-수락-값의-기원-g3arrival103">게이트 핸드셰이크 상태 테이블과 수락 값의 기원 (G3ARRIVAL103)</a></li><li><a href="#기원-측정됨-그리고-위-표에-대한-세-가지-수정-g3arrival104">기원, 측정됨, 그리고 위 표에 대한 세 가지 수정 (G3ARRIVAL104)</a></li><li><a href="#플레이어가-두-명일-때-다른-두-슬롯이-운반하는-것">플레이어가 두 명일 때 다른 두 슬롯이 운반하는 것</a></li><li><a href="#두-종류의-배리어">두 종류의 배리어</a></li><li><a href="#프레임별-플레이">프레임별 플레이</a></li><li><a href="#아이템-편지-채팅">아이템, 편지, 채팅</a></li><li><a href="#퇴장">퇴장</a></li><li><a href="#중단">중단</a></li><li><a href="#롤백-helper와-그것이-아닌-것">롤백 helper와 그것이 아닌 것</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#포트에-대하여">포트에 대하여</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a><ul><li><a href="#게이트키퍼-대화-이음매-gatetext-1-2026-09-12">게이트키퍼 대화 이음매 (gatetext-1, 2026-09-12)</a></li></ul></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

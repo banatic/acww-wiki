@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" open>
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,12 +136,12 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>실험</span></div><header class="page-head"><h1>실험</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 2</span></div><div class="source-line">원문: <code>wiki/experiments/README.md</code> (영문, 기록 문서)</div></header><div class="cards"><a class="card" href="../experiments/off-recipe.html"><h3>OFF 레시피</h3><p></p></a><a class="card" href="../experiments/two-tap-town-recipe.html"><h3>두 번 탭 마을 레시피</h3><p></p></a><a class="card" href="../experiments/gameplay-walkthrough.html"><h3>게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</h3><p>두 번 터치하는 마을 레시피는 플레이어가 마을 회관 안에서 펠리와 대화하는 장면으로 끝나며, cycle41 이전에는 누구도 그 너머를 플레이한 적이 없었다. 프레임 48,000의 스냅샷과 패드·스타…</p></a><a class="card" href="../experiments/live-play.html"><h3>라이브 플레이: 키보드로 포트를 조작하기</h3><p></p></a><a class="card" href="../experiments/save-and-reload.html"><h3>저장과 재로드</h3><p></p></a><a class="card" href="../experiments/savestate-resume.html"><h3>세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</h3><p></p></a><a class="card" href="../experiments/run-stability.html"><h3>실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</h3><p></p></a><a class="card" href="../experiments/touch-calibration.html"><h3>터치 보정: 탭했을 때 게임이 보는 것</h3><p></p></a><a class="card" href="../experiments/touch-latency.html"><h3>터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</h3><p></p></a><a class="card" href="../experiments/rtc-hour-sweep.html"><h3>RTC 시각 스윕</h3><p></p></a><a class="card" href="../experiments/save-store-probe.html"><h3>세이브 저장소 프로브</h3><p></p></a><a class="card" href="../experiments/rng-determinism.html"><h3>RNG 결정성</h3><p></p></a><a class="card" href="../experiments/silent-audio-probe.html"><h3>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</h3><p></p></a></div><div class="md"><p>한 페이지에 재현 가능한 레시피 하나: 목적, 환경(<code>ACWW_*</code> 변수, 오라클
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>실험</span></div><header class="page-head"><h1>실험</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-H"><b>H</b> 2</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/experiments/README.md"><code>wiki/experiments/README.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/experiments/README.md"><code>aa8cc07f</code></a></div></header><div class="cards"><a class="card" href="../experiments/off-recipe.html"><h3>OFF 레시피</h3><p></p></a><a class="card" href="../experiments/two-tap-town-recipe.html"><h3>두 번 탭 마을 레시피</h3><p></p></a><a class="card" href="../experiments/gameplay-walkthrough.html"><h3>게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</h3><p>플레이 가능한 상태를 찾으려면 체크포인트와 마일스톤 표를 사용하고, 측정된 진전과 폐기된 설명을 구분하려면 섹션 색인을 사용한다. 아래의 시간순 기록은 예전의 제한을 포함하여 그대로 남아 있다.</p></a><a class="card" href="../experiments/live-play.html"><h3>라이브 플레이: 키보드로 포트를 조작하기</h3><p></p></a><a class="card" href="../experiments/save-and-reload.html"><h3>저장과 재로드</h3><p></p></a><a class="card" href="../experiments/savestate-resume.html"><h3>세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</h3><p></p></a><a class="card" href="../experiments/run-stability.html"><h3>실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</h3><p></p></a><a class="card" href="../experiments/touch-calibration.html"><h3>터치 보정: 탭했을 때 게임이 보는 것</h3><p></p></a><a class="card" href="../experiments/touch-latency.html"><h3>터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</h3><p></p></a><a class="card" href="../experiments/rtc-hour-sweep.html"><h3>RTC 시각 스윕</h3><p></p></a><a class="card" href="../experiments/save-store-probe.html"><h3>세이브 저장소 프로브</h3><p></p></a><a class="card" href="../experiments/rng-determinism.html"><h3>RNG 결정성</h3><p></p></a><a class="card" href="../experiments/silent-audio-probe.html"><h3>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</h3><p></p></a></div><div class="md"><span class="source-anchor" id="experiments"></span><p>한 페이지에 재현 가능한 레시피 하나: 목적, 환경(<code>ACWW_*</code> 변수, 오라클
 명령), 프레임을 명시한 예상 관측, 그 관측을 만들어 낸 실행, 그리고 반증 조건.</p>
 <p>각 페이지는 <strong>실행됨</strong> &ndash; 그 숫자가 나온 실행 디렉터리를 명시한다 &ndash; 이거나 <strong>설계만 됨
 (아직 미실행)</strong> 이며, 후자의 경우 미래의 실행이 사용할 정확한 환경과 명령을 담고
 있고, 예측은 확인되기 위해서가 아니라 반증 가능하도록 쓰여 있다.</p>
-<h2 id="실행됨">실행됨</h2>
+<span class="source-anchor" id="run"></span><h2 id="실행됨">실행됨</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -176,7 +188,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="설계만-됨-아직-미실행">설계만 됨 (아직 미실행)</h2>
+<span class="source-anchor" id="designed-not-yet-run"></span><h2 id="설계만-됨-아직-미실행">설계만 됨 (아직 미실행)</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -203,7 +215,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="모든-실험에-적용되는-규칙">모든 실험에 적용되는 규칙</h2>
+<span class="source-anchor" id="rules-that-apply-to-all-of-them"></span><h2 id="모든-실험에-적용되는-규칙">모든 실험에 적용되는 규칙</h2>
 <ul>
 <li><strong>대조 실행을 먼저 한다 (M15).</strong> OFF 조건 없는 ON 조건은 아무것도 측정하지 못한다.</li>
 <li><strong><code>ACWW_KEYS_AT</code> / <code>_FOR</code> / <code>_EVERY</code> 가 키 이름이다 (B1).</strong> 짧은 형태는 읽히지 않으며
@@ -217,11 +229,11 @@
   소스가 설명하기 전까지 E에 머무른다.</li>
 <li><strong>2026-09-09 이전에 찍힌 실행과 비교할 때는 시계를 동결한다.</strong> 포트의 RTC는 이제
   전진하며, 분(minute)이 낮/밤 블렌드를 구동하므로 모든 프레임이 달라진다;
-  <code>ACWW_RTC_FREEZE=1</code>을 설정한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>../systems/time-and-rtc.md</code></span></span>.</li>
+  <code>ACWW_RTC_FREEZE=1</code>을 설정한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>../systems/time-and-rtc.md</code>; receipt provenance unresolved</span></span>.</li>
 <li><strong>종료 코드 1은 다른 누군가의 <code>taskkill</code>이지 실패가 아니다.</strong> 이미지 안의 어떤 것도
-  1로 종료하지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>run-stability.md</code></span></span>.</li>
+  1로 종료하지 않는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>run-stability.md</code>; receipt provenance unresolved</span></span>.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>../systems/README.md</code>, <code>../STYLE.md</code></li>
 <li><code>docs/kb/hybrid/recipes.md</code> &ndash; 이 레시피들의 운영 버전으로, 코드 옆에 보관된다.</li>
@@ -229,7 +241,7 @@
 </ul></div>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

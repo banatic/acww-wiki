@@ -8,7 +8,7 @@
 Separate the boot seed from the stream position at generation: the clock seed folds
 `minute | day<<8 | hour<<16 | second<<24`, so changing one second changes a seed byte,
 while changing only the year or month does not change this fold
-[S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
+[S: `src/matched/func_0209dbbc.c`; source account: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
 That source fact alone does not prove whole-frame equality or that every changed seed gives
 a different town [H: the A/B/C experiment below is not a retained result].
 ORACLE46 measured the same seed `0x000a0f00` with and without the original's freeze arm;
@@ -65,13 +65,13 @@ same comparison `iterate.sh` already performs for the OFF recipe
 | comparison | prediction | what it would mean if wrong |
 |---|---|---|
 | A vs B | 29 of 29 equal [H: proposed repeat test, not an ORACLE47..49 result] | investigate the differing inputs or nondeterminism before attributing a cause [H] |
-| A vs C | frames may differ from the town onward [H: proposed test] | the second changes the seed's top byte, but frame equality alone does not falsify that fold [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
-| a fourth arm, `ACWW_RTC_DATE=20060615` (year only) | same boot seed; whole-frame equality is unmeasured [H: proposed test] | the year is absent from this fold; other year-dependent behaviour is not excluded [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
+| A vs C | frames may differ from the town onward [H: proposed test] | the second changes the seed's top byte, but frame equality alone does not falsify that fold [S: `src/matched/func_0209dbbc.c`; source account: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
+| a fourth arm, `ACWW_RTC_DATE=20060615` (year only) | same boot seed; whole-frame equality is unmeasured [H: proposed test] | the year is absent from this fold; other year-dependent behaviour is not excluded [S: `src/matched/func_0209dbbc.c`; source account: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
 
 A useful third comparison, cheap because the arms are already there: normalise the two logs from
 A and B and diff them. A clean run's only expected differences are the host address-space
 layout block and the release line -- that was the observed shape of a matched pair on the native
-path [E: `docs/kb/port/input-save-audio.md`, TOUCH39, the `FOR=10` versus `FOR=90` diff].
+path [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39, the `FOR=10` versus `FOR=90` diff; receipt provenance unresolved].
 
 ## What would falsify it
 

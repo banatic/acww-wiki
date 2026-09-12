@@ -13,7 +13,7 @@ real-time clock, and it is what draws the town's id and its villagers.
 **A naming note this page needs.** `MATH_Rand16`, `MATH_Rand32`, `MATH_InitRand16/32` and
 `OS_IsTickAvailable` are NitroSDK library names, not names in this ROM's symbol tables: no such
 symbol exists in any `config/adm-kr/arm9/**/symbols.txt`, and every one of them is reached in
-`src/matched/` under a `func_*` name [S: `config/adm-kr/arm9/**/symbols.txt`, name sweep].
+`src/matched/` under a `func_*` name [H: source account: `config/adm-kr/arm9/**/symbols.txt`, name sweep; direct ROM-source provenance unresolved].
 They are used here because `../STYLE.md` rule 2 allows SDK names, and the `func_*` name is given
 alongside wherever one exists.
 
@@ -63,7 +63,7 @@ burst over ~90 frames. The map is generated a second time, too: once at boot ins
 initialiser burst (port frame 758, index 0..280) and then reset to `0x86` / `0xfff1` before the
 real one. So a recipe that pins the id draw does NOT pin the map, and a recipe that pins the map
 gets the roster for free because it is the same frame
-[E: `docs/log/cycle41-gameplay.md` ORACLE49 O49-1/O49-2]. `func_0209ccd4`'s 6x6 loop -- one
+[E: `docs/log/cycle41-gameplay.md` ORACLE49 O49-1/O49-2; current receipt locator: `scratchpad/oracle49/RECEIPTS.md`]. `func_0209ccd4`'s 6x6 loop -- one
 bounded draw per acre, 36 of them -- is inside that burst [S: `src/matched/func_0209ccd4.c`].
 
 **The seed is robust; the DRAW COUNT is not.** Because the seed is taken within the first
@@ -83,8 +83,8 @@ two runs of this ROM differ only in HOW FAR ALONG the one stream they are
 
 **Draws are consumed once per MAIN-LOOP BODY, not once per frame.** On the port, 51 consecutive
 stores over frames 852..1,002 are spaced exactly three frames apart, and the main loop runs once
-per three frames on both the port and the original [E: same, and INPUT46 on `0x021fbdd0`,
-`docs/kb/hybrid/stall-playbook.md` case 70]. The rate is scene-dependent -- one draw per three
+per three frames on both the port and the original [H: log/source account: `docs/log/cycle41-gameplay.md` ORACLE47, and INPUT46 on `0x021fbdd0`,
+`docs/kb/hybrid/stall-playbook.md` case 70; receipt provenance unresolved]. The rate is scene-dependent -- one draw per three
 frames in the title, one per ~12 on the town-name page -- so **a run that reaches a scene early
 arrives with FEWER draws taken**, which is why the port, ~280 frames ahead of the original in
 scene time, is ~176 frames BEHIND it in stream position when the town is drawn. Because the LCG
@@ -102,7 +102,7 @@ the input that triggers the draw, not by changing the clock: `port/tools/oracle/
 `(top32 * max) >> 32` for a bounded draw
 [S: `MATH_Rand32`, ov065, `src/matched/func_ov065_0227ef00.c`]. The constants are multiplier
 `0x5D588B656C078965` and addend `0x269EC3`; the multiplier is written in the sources as
-`(1566083941 << 32) + 1812433253` [S: same].
+`(1566083941 << 32) + 1812433253` [S: `src/matched/func_ov065_0227ef00.c`; historical account: `src/matched/func_ov065_0227ef00.c`].
 
 `MATHRandContext16` is the same family truncated: 32-bit state, multiplier `0x5D588B65` --
 exactly the high half of the 64-bit multiplier -- addend `0x269EC3`, output the top 16 bits
@@ -142,18 +142,20 @@ context from the RTC date and time converted to seconds, with the tick added whe
 `hour << 10 + minute << 3 + second` into its seed on first call, falling back to seed 0 if the
 RTC read fails [S: `AOSS_Rand`, ov001, `src/matched/AOSS_Rand.c`].
 
-There is also an entropy pool nobody in the matched corpus is shown consuming.
+There is also an entropy pool that none of the town generators above consume.
 `OS_GetLowEntropyData` fills eight words from VCOUNT (`0x04000006`) combined with
 `OS_GetTickLo`, the 64-bit tick XORed with MAC bytes and the VBlank counter, the geometry
 engine's status register at `0x04000600`, the RTC bytes in low WRAM, microphone data, touch
 panel state and the Wi-Fi RSSI pool [S: `OS_GetLowEntropyData`, autoload_2,
-`src/matched/OS_GetLowEntropyData.c`]. It reads as available infrastructure rather than as
-something wired into any of the generators above [S: absence of callers in `src/matched`].
+`src/matched/OS_GetLowEntropyData.c`]. It is not wired into any of the generators above; its matched callers are in the Wi-Fi
+overlay, `src/matched/func_ov065_02275b94.c` at three sites [S: `src/matched/func_ov065_02275b94.c`, lines 546, 593, 696
+(wiki-provenance-1, HANDOFF16)], so whether it ever runs in an offline session is a
+separate question [H: no watch on its entry has been run].
 
 ### What has not been found
 
 No save-side or town-side seed field. Searches across `src/matched` for `SaveData`, `TownData`,
-`randomSeed`, `worldSeed`, `townSeed` and the like return nothing [S: absence in `src/matched`],
+`randomSeed`, `worldSeed`, `townSeed` and the like return nothing [H: source account: absence in `src/matched`; direct ROM-source provenance unresolved],
 and ORACLE46's measurement is consistent with there being none to find on this path: the state
 at `0x021cb5a0` is seeded from the clock at boot and simply runs. What is still open is which
 of the game's draws come off THIS stream and which off another -- the villager picker and the
@@ -209,7 +211,7 @@ the inverse recipe aligns the id but reaches the layout burst two draws early
 | `func_020ff994` | main | a third particle-class stream on `g_rng_state` | [S: `src/matched/func_020ff994.c`] |
 | `AOSS_Rand` `0x02207cd4` | ov001 | the Wi-Fi setup LCG, seeded from `RTC_GetTime` | [S: `src/matched/AOSS_Rand.c`] |
 | `OS_GetLowEntropyData` `0x02116da8` | autoload_2 | an eight-word pool from VCOUNT, tick, MAC, GX status, RTC, mic, touch, RSSI | [S: `src/matched/OS_GetLowEntropyData.c`] |
-| `MATH_CalcCRC8` / `CalcCRC16` / `CalcCRC32` | autoload_2 | CRC helpers; the save poller instead calls `func_02050920` | [S: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5] |
+| `MATH_CalcCRC8` / `CalcCRC16` / `CalcCRC32` | autoload_2 | CRC helpers; the save poller instead calls `func_02050920` | [S: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5; source locator: `src/matched/MATH_CalcCRC8.c`, `src/matched/func_02050920.c`] |
 
 ## Data it reads and writes
 
@@ -247,16 +249,18 @@ one second and see whether anything moves. That separates "the port is determini
   Matching the id alone also does not pin the later layout/roster burst: the inverse arm
   enters it two draws early, while the forward recipe matches the map and roster
   [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2, O49-4, O49-5].
-- `OS_GetLowEntropyData` is dead code in this ROM. Settled by an `ACWW_WATCH` on its entry
-  address across a full town run.
+- `OS_GetLowEntropyData` is called only from the Wi-Fi overlay (`func_ov065_02275b94.c`,
+  three sites) and by none of the town generators; whether it runs in an offline session
+  would be settled by an `ACWW_INTERP_WATCH` on its entry address across a full town run
+  (not yet done). The earlier "dead code" wording is retracted (HANDOFF16).
 - The port's frame-counted tick and the emulator's cycle-accurate one seed the network
   generators differently, and it does not matter because no network code runs
-  [E: no DWC or WM symbol is reached on any recorded run; see `network.md`].
+  [H: log/source account: no DWC or WM symbol is reached on any recorded run; see `network.md`; receipt provenance unresolved].
 
 ## Related
 
 - `time-and-rtc.md` -- both entropy sources.
-- `save-data.md` -- save checksum and bank acceptance [S: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5].
+- `save-data.md` -- save checksum and bank acceptance [H: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5 ; provenance unresolved].
 - `network.md` -- every SDK generator's only established consumer.
 
 ## Who draws (`draw-caller-1`)
@@ -271,7 +275,7 @@ At the bounded RNG's leaf store, LR is `0x020e92dc` in `func_020e92d0`; its vali
 saved LR at `sp+4` names the producer. `func_020644cc` tail-calls that bounded draw, so it
 does not add a stack frame. A raw leaf call instead identifies its immediate caller in LR;
 LR2=0 means unavailable, not a zero-address caller
-[S: `port/interp/interp_cpu.c` `watch_lr_parent`; E: `scratchpad/handoff/draw-caller-1/fixture-run.stdout.log`].
+[H: `port/interp/interp_cpu.c` `watch_lr_parent`; E: `scratchpad/handoff/draw-caller-1/fixture-run.stdout.log` ; provenance unresolved].
 
 **The periodic call is `func_ov068_0226c520`, return address `0x0226c52d`: 118 draws at
 828, 831, ..., 1179, exactly one per three frames.** Its first expression unconditionally

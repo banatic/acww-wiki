@@ -45,9 +45,9 @@ use, and its predictions are written to be falsifiable rather than to be confirm
   the oracle agrees or the source explains it.
 - **Freeze the clock when comparing against a run taken before 2026-09-09.** The port's RTC
   advances now, and the minute drives the day/night blend, so every frame differs; set
-  `ACWW_RTC_FREEZE=1` [E: `../systems/time-and-rtc.md`].
+  `ACWW_RTC_FREEZE=1` [H: log/source account: `../systems/time-and-rtc.md`; receipt provenance unresolved].
 - **An exit code of 1 is somebody else's `taskkill`, not a failure.** Nothing in the image exits
-  1 [E: `run-stability.md`].
+  1 [H: log/source account: `run-stability.md`; receipt provenance unresolved].
 
 ## Related
 

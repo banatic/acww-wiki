@@ -18,10 +18,11 @@
 [S: `extract/adm-kr/arm9_overlays/ov004.bin`, path-format string literals]. 두 `%d`는 id의 상위 바이트와
 중간 니블이다: `ftr/0/0/`은 `0000`..`000f`를, `ftr/0/1/`은 `0010`..`001f`를, `ftr/1/0/`은
 `0100`..`010f`를, 마지막으로 채워진 디렉터리 `ftr/6/14/`는 `06e0`..`06e8`을 담는다
-[S: `extract/adm-kr/files/ftr/0/0/`, `ftr/0/1/`, `ftr/1/0/`, `ftr/6/14/`, directory listings]. 따라서
+[S: `extract/adm-kr/files/ftr/0/0/`, `ftr/0/1/`, `ftr/1/0/`, `ftr/6/14/`,
+directory listings]. 따라서
 **`0x0000`부터 `0x06e8`까지 1,769개의 가구 id**가 있고, 각각 하나의 `.arc`와 하나의 `.nsbtx`를 가진다
-[S: `extract/adm-kr/files/ftr/`, 1,770 `.arc` and 1,792 `.nsbtx`; the extra `.arc` is
-`ftr/anm/anm.arc` and the extra 23 `.nsbtx` belong to `ftr/tv/`].
+[S: `extract/adm-kr/files/ftr/`, 1,770 `.arc` and 1,792 `.nsbtx`; the
+extra `.arc` is `ftr/anm/anm.arc` and the extra 23 `.nsbtx` belong to `ftr/tv/`].
 
 `ftr/anm/anm.arc`는 공유 가구 애니메이션 아카이브이고, `ftr/tv/`는 텔레비전이다: `tv.nsbtx` 하나,
 `/ftr/tv/prog/tv_program%d.nsbtp`로 접근하는 `prog/` 디렉터리, 그리고 `/ftr/tv/weather/%s.nsbtp`로
@@ -33,8 +34,7 @@
 경로로 열린다
 [S: `extract/adm-kr/files/ftr_info/`, file sizes; `extract/adm-kr/arm9/arm9.bin`, the three path
 literals]. 세 크기 모두 2의 거듭제곱인데, 이는 항목당 각각 8, 32, 4바이트에 고정 슬롯 수 2,048개라는
-가정과 일치한다 — 1,769개의 실제 id를 여유 있게 담을 수 있는 크기다 [H: arithmetic on the sizes above;
-see Hypotheses]. `dma.bin`이라는 이름과 같은 디렉터리 내 위치는, 이것이 필드 단위로 읽히는 것이 아니라
+가정과 일치한다 — 1,769개의 실제 id를 여유 있게 담을 수 있는 크기다 [H: arithmetic on the sizes above; see Hypotheses]. `dma.bin`이라는 이름과 같은 디렉터리 내 위치는, 이것이 필드 단위로 읽히는 것이 아니라
 작업 버퍼로 DMA되는 블록임을 시사한다 [H].
 
 ### 아이템
@@ -43,8 +43,7 @@ see Hypotheses]. `dma.bin`이라는 이름과 같은 디렉터리 내 위치는,
 `indoor.bin` 6,144, `series.bin` 3,072이며, 모두 ARM9 이미지의 리터럴 경로로 열린다
 [S: `extract/adm-kr/files/item_info/`, file sizes; `extract/adm-kr/arm9/arm9.bin`, the four path
 literals]. 네 크기는 공통 약수 1,536을 가지며, 항목당 12, 24, 4, 2바이트가 된다 — 아이템당 2바이트인
-`series.bin`은 정확히 시리즈 id의 형태이며, 이는 가구 시리즈(세트 매칭)에 필요한 것이다 [H: arithmetic;
-see Hypotheses]. 네 파일 전체에 대해 2, 4, 6, 8, 12, 16바이트로 레코드 크기 탐색을 수행했지만 항목이
+`series.bin`은 정확히 시리즈 id의 형태이며, 이는 가구 시리즈(세트 매칭)에 필요한 것이다 [H: arithmetic; see Hypotheses]. 네 파일 전체에 대해 2, 4, 6, 8, 12, 16바이트로 레코드 크기 탐색을 수행했지만 항목이
 명백하게 구조화되는 크기는 발견되지 않았으므로, 레이아웃은 이미지만으로는 결정되지 않는다
 [S: probe over `extract/adm-kr/files/item_info/*.bin`, distinct-record counts at each stride].
 
@@ -140,17 +139,17 @@ literals].
 |---|---|---|
 | `0x1100`..`0x1143` | 68개의 `wall/wall_%d.nsbtx` 벽지 | `0x111f` = `wall_31`이며, 너굴의 가게는 이를 `벽지`라고 부른다 — 벽지 |
 | `0x1144`..`0x1187` | 68개의 `carpet/floor_%d.nsbtx` 바닥재 | `0x114b` = `floor_7`이며, 가게는 이를 `바닥`이라고 부른다 — 바닥재 |
-| `0x1188`..`0x1287` | 256개의 `cloth/%d/cloth%03d.nsbtx` 셔츠 | `0x11a8` = `cloth032`이며, 세이브는 이를 착용 중인 셔츠(WORN SHIRT)로 읽는다 [S: `port/tools/savetool.py check`] |
+| `0x1188`..`0x1287` | 256개의 `cloth/%d/cloth%03d.nsbtx` 셔츠 | `0x11a8` = `cloth032`이며, 세이브는 이를 착용 중인 셔츠(WORN SHIRT)로 읽는다 [H: `port/tools/savetool.py check` ; provenance unresolved] |
 
 따라서 **`0x117c`는 `carpet/floor_56.nsbtx`**, 57번째 바닥재이다 — 이를 준 주민이 `바닥`이라고 부르는
 바로 그것이다. 네 번째 증인은 세이브 자체에서 나온다: 주민의 저장된 `wallpaper`와 `carpet` 바이트는
 68 미만의 원시 인덱스이므로, 주머니(POCKET)가 `base + index`를 보관하는 곳에서 세이브(SAVE)는
-인덱스를 보관한다 [S: `savetool.py check` on `scratchpad/gameplay54/town3.sav`].
+인덱스를 보관한다 [H: `savetool.py check` on `scratchpad/gameplay54/town3.sav` ; provenance unresolved].
 
 **이름은 KOR 메시지 아카이브에 없다.** `script/KOR/` 아래 91개 중 가장 큰 것은 256개 항목을 가지며
 1,536에 가까운 것은 하나도 없으므로, 아이템 이름 테이블은 `a_mes/`, `str/arc/` 또는 오버레이에 있고
 아직 발견되지 않았다 — `item_info` 슬롯 1351인 `0x1547`이 슬롯으로만 식별되는 이유이다
-[S: entry counts over every `script/KOR/**/*.bmg`].
+[H: entry counts over every `script/KOR/**/*.bmg` ; provenance unresolved].
 
 ## 확인 방법
 
@@ -184,7 +183,8 @@ PY
   같은 세 이름을 쓰고, 양쪽에서 `dma`가 가장 크다 [H: file names and sizes]. 같은 방법으로, 어느 것이
   통째로 복사되고 어느 것이 제자리에서 읽히는지 보아 결정한다.
 - **1,769개의 가구 id가 모두 실제 가구는 아니다.** 1,769는 빈틈 없는 완전한 `0x06e9` 범위에 가까우며,
-  이는 패딩 항목을 시사한다 [S: the id range is contiguous — see the check above].
+  이는 패딩 항목을 시사한다 [S: the id range is contiguous — see the check
+  above].
   `ftr_info/always.bin` 슬롯 중 0이 아닌 것이 몇 개인지 세어 결정한다.
 - **아이템 id와 가구 id는 서로 다른 id 공간이다.** 측정된 어떤 것도 이 둘을 연결하지 않는다; 단지
   별도의 테이블과 별도의 에셋을 가질 뿐이다 [H]. `../systems/save-data.md`에 대조하여 세이브의 인벤토리

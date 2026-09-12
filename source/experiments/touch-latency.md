@@ -20,25 +20,25 @@ ROM's VBlank handler is the second half of the mechanism.
 1. **The ARM7 samples the panel, `frequence` times a frame.** `func_020e948c` asks for
    `TP_RequestAutoSamplingStartAsync(0, 4, &gAutoData, 9)`, so ACWW runs a **nine-entry ring**
    at four samples a frame -- 2.25 frames of history, and exactly one frame's worth in the last
-   four entries [S: `func_020e948c`, autoload_2, `src/matched/func_020e948c.c`].
+   four entries [S: `src/matched/func_020e948c.c`; source account: `func_020e948c`, autoload_2, `src/matched/func_020e948c.c`].
 2. **Pen-up has its own encoding.** When the pen is up the ARM7 writes x=0, y=0, touch=0 and
    validity=3 (`TP_VALIDITY_INVALID_XY`); a pen-down sample carries the raw counts with
    validity 0 unless the pressure test rejects it
-   [S: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c`, `TP_ExecSampling` -- public source,
-   <https://github.com/ntrtwl/NitroSDK>].
+   [H: source account: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c`, `TP_ExecSampling` -- public source,
+   <https://github.com/ntrtwl/NitroSDK>; direct ROM-source provenance unresolved].
 3. **Delivery advances the ring.** `TPi_TpCallback` runs on PXI tag 6, increments
    `tpState.index` modulo the buffer size, and unpacks a packed bitfield (x:12, y:12, touch:1,
    validity:2) out of the shared system-work area
-   [S: `TPi_TpCallback`, autoload_2, `src/matched/TPi_TpCallback.c`].
+   [S: `src/matched/TPi_TpCallback.c`; source account: `TPi_TpCallback`, autoload_2, `src/matched/TPi_TpCallback.c`].
 4. **The ROM publishes at most one point a frame, under a three-sample rule.**
    `func_020e9314` reads entries latest-4..latest-1 through `TP_GetLatestIndexInAuto` and
    publishes only when **three consecutive entries are touched and valid**, publishing the
    middle one; when nothing is touched it writes x = y = 0xff; anything else leaves `TP_POINT`
-   alone [S: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`; the no-touch
+   alone [S: `src/matched/func_020e948c.c`, `src/matched/TPi_TpCallback.c`, `src/matched/TP_GetLatestIndexInAuto.c`; source account: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`; the no-touch
    write is a `mov r1,#0xff` / `strh` pair at `0x020e941c`, i.e. **0x00ff, not 0xffff** --
    the port's earlier transcription had 0xffff and is now pinned by
    `port/tools/test_scheduled_touch.py`]. The consumer `func_020b9280` truncates both
-   coordinates to `u8` [S: `src/matched/func_020b9280.c`].
+   coordinates to `u8` [S: `src/matched/func_020b9280.c`; source account: `src/matched/func_020b9280.c`].
 
 The latency is stage 4 falling out of stage 1: with four samples a frame, a contact that begins
 at the frame boundary cannot have three consecutive good samples until the frame after, so the
@@ -53,10 +53,10 @@ frame) and from then on writes `frequence` samples a VBlank into the ROM's own `
 (`0x02206134`), then performs `TPi_TpCallback`'s AUTO_SAMPLING step -- index+1 mod bufSize,
 copy -- on the host. Raw counts are screen pixel x 16 under an identity calibration that
 `port/shim/boot/usersettings.c` publishes (raw1 16/16 -> 1/1, raw2 4080/3056 -> 255/191)
-[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. The all-zero calibration of the native
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved]. The all-zero calibration of the native
 days would have made `TP_SetCalibrateParam` install a zero slope and calibrate every tap to
 0,0, which is why the identity calibration had to be published before any of this could be
-measured [S: same].
+measured [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved].
 
 ## Recipe
 
@@ -103,8 +103,8 @@ and a scripted A press on the same frame therefore reach the game press-first on
 tap's samples arrive **after** the handler -- which is the order the hardware produces, because
 the ARM7 samples the panel during the frame that follows the VBlank the handler ran in. 24,600
 is a KEYS3 A-press frame (2400 + 37 x 600) and 8,700 is not, which is why the disagreement
-only ever showed at 24,600 [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42].
-`ACWW_TP_EARLY=1` restores the TOUCH41 order for the record [S: same].
+only ever showed at 24,600 [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42; direct ROM-source provenance unresolved].
+`ACWW_TP_EARLY=1` restores the TOUCH41 order for the record [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42; direct ROM-source provenance unresolved].
 
 ## What would falsify it
 
@@ -127,16 +127,16 @@ only ever showed at 24,600 [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42
   scripted input and both name keyboards typed their top-left key eight times and confirmed,
   reaching the town-name keyboard by frame 8,610 instead of about 24,000
   [E: `scratchpad/cycle40/runs/tap-T41j`, and `-T41a`, `-T41d`, `-T41g`, `-T41l`, `-T41v`].
-  `TP_POINT` never changed while it happened [E: `tap-T41f`, the on-change instrument in
-  `pxisend.c`]. The sampler off (`tap-T41k`) and the host fill (`tap-T41w`) both leave the
+  `TP_POINT` never changed while it happened [H: log/source account: `tap-T41f`, the on-change instrument in
+  `pxisend.c`; receipt provenance unresolved]. The sampler off (`tap-T41k`) and the host fill (`tap-T41w`) both leave the
   game's pace as the baseline's (`tap-D71`); one interpreted callback a frame (`tap-T41x`)
   advances it a little; four interpreted **no-op** calls a frame
   (`TP_GetLatestIndexInAuto`, `tap-T41n`) do not. A read watchpoint on the ring index
   (`ACWW_INTERP_RWATCH=0x02206140`, `tap-T41y`) names its only two readers,
   `TP_GetLatestIndexInAuto` (`0x0211d010`) and the callback itself. So the game reacts to the
   interpreted *execution* of the callback, not to what it writes: an unknown side effect of
-  `acww_interp_irq_run` on the input path [S: `docs/log/cycle40-keyboard-gate-probe.md`
-  TOUCH41; `docs/kb/hybrid/stall-playbook.md` case 42]. The host fill ships;
+  `acww_interp_irq_run` on the input path [H: source account: `docs/log/cycle40-keyboard-gate-probe.md`
+  TOUCH41; `docs/kb/hybrid/stall-playbook.md` case 42; direct ROM-source provenance unresolved]. The host fill ships;
   `ACWW_TP_PXI=1` keeps the interpreted path for whoever hunts this.
   **The experiment that would settle it:** run `ACWW_TP_PXI=1` with the *contact disabled*, so
   the four interpreted callbacks a frame still run but carry only pen-up samples. If the game
@@ -146,7 +146,7 @@ only ever showed at 24,600 [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42
   one-run bisection of a hypothesis that currently has none.
 - **Hold duration on the interpreter path.** [H] `FOR=10` and `FOR=90` produced byte-identical
   images at all nine sampled frames on the *native* path
-  [E: `docs/kb/port/input-save-audio.md`, TOUCH39]. It has not been re-measured since the ROM's
+  [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39; receipt provenance unresolved]. It has not been re-measured since the ROM's
   own `func_020e9314` took over the publish; settled by repeating that pair on the interpreter
   path.
 

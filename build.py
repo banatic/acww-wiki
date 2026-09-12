@@ -14,12 +14,14 @@ import shutil
 from pathlib import Path
 
 import markdown
+from wiki_html import CitationFolder, Headings, add_source_anchors, rewrite_links, prepare_markdown
 
 ROOT = Path(__file__).parent
 CONTENT = ROOT / "content"
 TEMPLATES = ROOT / "templates"
 ASSETS = ROOT / "assets"
 OUT = ROOT / "docs"
+SOURCE = ROOT / "source"
 
 SITE_NAME = "놀러오세요 동물의 숲 근거 위키"
 SITE_SHORT = "ACWW 근거 위키"
@@ -30,12 +32,14 @@ SECTIONS = [
     ("systems", "시스템", "🕰️", "게임이 어떻게 동작하는가 — 시간, 세이브, 날씨, 주민, 마을, 이벤트, 대화",
      ["time-and-rtc", "save-data", "town", "villagers", "player", "economy",
       "weather-and-seasons", "events-and-calendar", "dialogue", "input-and-touch",
-      "rng", "network", "audio"]),
+      "rng", "acre-grid", "network", "multiplayer-callbacks", "multiplayer-protocol",
+      "multiplayer-visit", "online-server", "wifi-port-plan", "wifi-g0", "wifi-g1", "wifi-g2", "audio"]),
     ("data", "데이터", "📦", "테이블에 무엇이 들어 있는가 — 아이템, 주민, 물고기와 곤충, 음악, 아카이브, ROM",
      ["items", "villagers", "fish-and-bugs", "music", "archives", "rom-layout"]),
     ("engine", "엔진", "⚙️", "프로그램이 어떻게 만들어졌는가 — 부팅, 오버레이, 씬, 메모리, 스레드, 그래픽스, 텍스트",
      ["boot-and-entry", "overlays", "scenes-and-channels", "display-objects", "memory-map",
-      "threads-and-interrupts", "file-system", "graphics-pipeline", "text-and-messages", "interpreter-path"]),
+      "threads-and-interrupts", "file-system", "graphics-pipeline", "text-and-messages", "interpreter-path",
+      "bus-timings", "display-callbacks", "time-budgets"]),
     ("experiments", "실험", "🔬", "주장을 어떻게 확인하는가 — 재현 가능한 레시피와 실행 기록",
      ["off-recipe", "two-tap-town-recipe", "gameplay-walkthrough", "live-play", "save-and-reload",
       "savestate-resume", "run-stability", "touch-calibration", "touch-latency", "rtc-hour-sweep",
@@ -54,15 +58,14 @@ GRADE_INFO = {
     "E": ("실험", "PC 포트의 스크립트 실행에서 관측한 것"),
     "O": ("오라클", "같은 레시피의 DeSmuME 레퍼런스에서 관측한 것"),
     "H": ("가설", "추론했지만 아직 측정하지 않은 것"),
-    "P": ("공개 기록", "GBATEK, 공개된 NitroSDK 소스 등 외부 공개 문서와 대조한 것 (감사 문서에서만 쓴다)"),
+    "P": ("공개 기록", "GBATEK, 공개된 NitroSDK 소스 등 외부 공개 문서와 대조한 것"),
+    "M": ("측정", "원문의 M 표기: 기록된 메모리 이미지 등에서 측정한 것"),
 }
 
 MD_EXT = ["tables", "fenced_code", "toc", "attr_list", "sane_lists", "md_in_html", "smarty"]
 MD_CFG = {"toc": {"toc_depth": "2-3", "permalink": False, "slugify": lambda v, s: slugify(v)},
           "smarty": {"smart_dashes": True, "smart_quotes": False, "smart_ellipses": False, "smart_angled_quotes": False}}
 
-CITE_RE = re.compile(r"\[((?:[SEOHP])(?:\s*\+\s*[SEOHP])*)\s*:\s*((?:(?!\]).)*?)\]", re.S)
-LINK_RE = re.compile(r'href="([^"#:]+?\.md)(#[^"]*)?"')
 
 
 def slugify(value: str) -> str:
@@ -93,18 +96,8 @@ def md_to_html_path(link: str) -> str:
     return link[:-3] + ".html"
 
 
-def cite_html(m: re.Match) -> str:
-    grades = re.sub(r"\s+", "", m.group(1))
-    body = re.sub(r"\s*\n\s*", " ", m.group(2))
-    letters = grades.split("+")
-    badges = "".join(f'<b class="g g-{g}" title="{GRADE_INFO[g][0]}">{g}</b>' for g in letters)
-    return (f'<span class="cite" data-grade="{grades}"><span class="cite-badge">{badges}</span>'
-            f'<span class="cite-body">{body}</span></span>')
-
-
 def postprocess(body: str) -> str:
-    body = CITE_RE.sub(cite_html, body)
-    body = LINK_RE.sub(lambda m: f'href="{md_to_html_path(m.group(1))}{m.group(2) or ""}"', body)
+    body = CitationFolder(GRADE_INFO).render(body)
     # 표를 가로 스크롤 컨테이너로 감싼다
     body = body.replace("<table>", '<div class="table-wrap"><table>').replace("</table>", "</table></div>")
     return body
@@ -133,16 +126,16 @@ class Page:
         raw = re.sub(r"<!--\s*source:.*?-->\s*", "", raw, count=1)
         self.raw = raw
         md = markdown.Markdown(extensions=MD_EXT, extension_configs=MD_CFG)
-        self.body = postprocess(md.convert(raw))
+        self.body = postprocess(md.convert(prepare_markdown(raw)))
         self.toc = md.toc if md.toc_tokens else ""
         self.toc_tokens = md.toc_tokens
         sm2 = re.search(r"\*\*요약\.\*\*\s*(.+?)(?:\n\n|\Z)", raw, re.S)
         self.summary = re.sub(r"\s+", " ", sm2.group(1)).strip() if sm2 else ""
-        self.summary = re.sub(r"\[[SEOHP+\s]+:[^\]]*\]", "", self.summary)
+        self.summary = re.sub(r"\[[SEOHPM+/\s]+:[^\]]*\]", "", self.summary)
         self.summary = re.sub(r"`", "", self.summary)
         self.grade_counts = {g: 0 for g in GRADE_INFO}
-        for m in CITE_RE.finditer(raw):
-            for g in re.sub(r"\s+", "", m.group(1)).split("+"):
+        for grades in re.findall(r'<span class="cite" data-grade="([SEOHPM+/]+)"', self.body):
+            for g in re.split(r"[+/]", grades):
                 self.grade_counts[g] += 1
 
 
@@ -263,6 +256,19 @@ def build():
         p = Page(src)
         pages[p.rel.as_posix()] = p
 
+    snapshot = dict(line.split("=", 1) for line in (SOURCE / "SNAPSHOT.txt").read_text(encoding="utf-8").splitlines() if "=" in line)
+    source_commit = snapshot["commit"]
+    paths = {p.source: p.url for p in pages.values() if p.source}
+    for p in pages.values():
+        if p.source:
+            original = SOURCE / p.source.removeprefix("wiki/")
+            original_html = markdown.markdown(prepare_markdown(original.read_text(encoding="utf-8")), extensions=[e for e in MD_EXT if e != 'smarty'], extension_configs=MD_CFG)
+            try:
+                p.body = add_source_anchors(p.body, original_html)
+            except ValueError as error:
+                raise ValueError(f"{p.rel}: {error}") from error
+            p.body = rewrite_links(p.body, p.source, p.url, paths, source_commit)
+
     base = load_template("base.html")
     home_tpl = load_template("home.html")
     search_index = []
@@ -272,7 +278,7 @@ def build():
         extra = ""
         if p.is_index:
             extra = section_cards(p.section, pages, root)
-        src_line = (f'<div class="source-line">원문: <code>{html.escape(p.source)}</code> (영문, 기록 문서)</div>'
+        src_line = (f'<div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/{p.source.removeprefix("wiki/")}"><code>{html.escape(p.source)}</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/{source_commit}/{p.source}"><code>{source_commit[:8]}</code></a></div>'
                     if p.source else "")
         article = (f'<div class="crumbs">{breadcrumbs(p, root)}</div>'
                    f'<header class="page-head"><h1>{html.escape(p.title)}</h1>{grade_bar(p)}{src_line}</header>'
@@ -285,14 +291,28 @@ def build():
         p.out.write_text(page_html, encoding="utf-8")
 
         # 검색 색인: 섹션(h2) 단위
-        plain_sections = re.split(r"(?m)^##\s+", p.raw)
+        plain_sections = re.split(r'(<h2\s+id="[^"]+"[^>]*>.*?</h2>)', p.body, flags=re.S)
         search_index.append({"u": p.url, "t": p.title, "s": section_meta(p.section)[0] if p.section else "",
                              "h": "", "x": re.sub(r"\s+", " ", strip_tags(plain_sections[0]))[:600]})
-        for sec in plain_sections[1:]:
-            head, _, rest = sec.partition("\n")
-            search_index.append({"u": p.url + "#" + slugify(head), "t": p.title,
+        for i in range(1, len(plain_sections), 2):
+            head = Headings(plain_sections[i]).items[0]
+            rest = plain_sections[i + 1]
+            search_index.append({"u": p.url + "#" + head["id"], "t": p.title,
                                  "s": section_meta(p.section)[0] if p.section else "",
-                                 "h": head.strip(), "x": re.sub(r"\s+", " ", rest)[:1500]})
+                                 "h": head["text"], "x": re.sub(r"\s+", " ", strip_tags(rest))})
+
+    # 원문 README가 없는 분류도 탐색용 목록 페이지를 제공한다.
+    for key, label, icon, desc, _order in SECTIONS:
+        if f'{key}/README.md' in pages:
+            continue
+        target = OUT/key/'index.html'
+        target.parent.mkdir(parents=True, exist_ok=True)
+        content = (f'<header class="page-head"><h1>{icon} {html.escape(label)}</h1>'
+                   f'<p>{html.escape(desc)}</p></header>' + section_cards(key, pages, '../'))
+        target.write_text(render(base, root='../', title=f'{label} · {SITE_SHORT}',
+                                 site_name=SITE_NAME, site_short=SITE_SHORT,
+                                 nav=build_nav(pages, '../', None), toc='', content=content,
+                                 body_class='page', description=html.escape(desc)), encoding='utf-8')
 
     # 홈
     root = "./"
@@ -315,10 +335,10 @@ def build():
             featured.append(f'<a class="card" href="{p.url}"><h3>{html.escape(p.title)}</h3>'
                             f'<p>{html.escape(p.summary[:120])}…</p></a>')
     total_pages = len(pages)
-    total_cites = sum(sum(p.grade_counts.values()) for p in pages.values())
+    total_cites = sum(p.body.count('<span class="cite" data-grade=') for p in pages.values())
     home_body = render(home_tpl, sec_cards="".join(sec_cards), grade_rows=grade_rows,
                        featured="".join(featured), total_pages=str(total_pages),
-                       total_cites=f"{total_cites:,}", tagline=SITE_TAGLINE)
+                       total_cites=f"{total_cites:,}", total_grades=str(len(GRADE_INFO)), tagline=SITE_TAGLINE)
     (OUT / "index.html").write_text(
         render(base, root=root, title=SITE_NAME, site_name=SITE_NAME, site_short=SITE_SHORT,
                nav=build_nav(pages, root, None), toc="", content=home_body, body_class="home",

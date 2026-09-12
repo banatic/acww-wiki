@@ -1,50 +1,109 @@
-# 게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브
+# 게임플레이 워크스루: 현재 상태와 이를 확립한 실험들
 <!-- source: wiki/experiments/gameplay-walkthrough.md -->
 
-**요약.** 두 번 터치하는 마을 레시피는 플레이어가 마을 회관 안에서 펠리와 대화하는 장면으로 끝나며,
-cycle41 이전에는 누구도 그 너머를 플레이한 적이 없었다. 프레임 48,000의 스냅샷과
-패드·스타일러스 타임라인(`ACWW_PADSCRIPT`)을 갖추면, 실험 한 번의 비용은 22분짜리 재생 대신
-20~160초가 된다. 스크립트된 플레이어가 오늘 할 수 있는 것: 펠리에게 답하기, 마을 회관 밖으로 걸어 나가기,
-마을을 사방으로 걷기, 지도 열기, 주머니 열기, 스타일러스로 UI 페이지 조작하기,
-밤의 마을 보기, 세이브 메뉴 열기, **과일나무를 흔들고 떨어진 과일을 주워 주머니에서 확인하기,
-들판의 표지판 읽기, 마을 회관 문으로 걸어 들어갔다가 다시 나오기**. **SAVE43은
-오프닝의 나머지를 더한다**: 지도의 초록색 아이콘을 보고 플레이어 자신의 집을 찾아 들어가고,
-나와서 너굴을 만나고, 그의 대출 연설을 끝까지 듣고 -- 그리고 SAVE, 게임이 스스로 두 플래시 뱅크
-모두에 써 넣는 세이브, 그리고 저장된 마을로 RELAUNCH(재실행). 그곳에서는 주민도 그려지고 대화도 하며,
-이는 GAMEPLAY42의 "주민은 결코 그려지지 않는다"를 철회한다. **GAMEPLAY43은 이어서 이 페이지의
-모든 프레임 번호에 빠져 있던 조건 하나를 발견했고, GAMEPLAY44가 그것을 바로잡았다: 도착 튜토리얼의
-4천 프레임 정지는 시계 조건(clock arm)이 아니라 마을(TOWN)의 속성이다** -- GP43의 두 조건은 두 가지가
-동시에 달랐는데, 시계를 얼리면 다른 마을도 생성되기 때문이며, `ACWW_RTC_FREEZE_UNTIL`로 마을을
-고정하면 두 시계 조건 모두 동일하게 정지한다. **GAMEPLAY44는 또한 처음으로 의도적으로 주민에게 말을
-건다**, 내비게이터를 문이 아니라 액터 매니저를 향하게 해서. **GAMEPLAY45는 그 모든 것이 기다리고
-있던 것을 측정했다**: 주머니 페이지의 아이템 슬롯 15개의 중심과 플레이어의 몸, 그리고 포트가
-하나의 접촉(ONE contact)으로 전달하는 스크립트된 스타일러스 스트로크 -- 펜다운 에지 하나, 움직이는
-퍼블리케이션 15개, 펜업 하나. 또한 문 도착 처리가 플레이어를 건물을 지나쳐 걷게 하던 것을, 접근
-축에서만 발동시키고 문간 스윕을 플레이어 자신의 서브타일 위치 기준으로 정렬함으로써 멈췄다.
-**GAMEPLAY46은 이어서 그 사이클의 가장 날카로운 주장을 철회했다**: 그 문들은 결코 닫혀 있지 않았다.
-너굴 상점은 세이브 전에도 후에도 열려 있으며, 가로막고 있던 것은 내비게이터의 도어매트였다 --
-문 노치(notch)가 모서리인 두 건물에서 실제 문간으로부터 두 타일 어긋나 있었다. 이를 바로잡자
-상점에 폐루프(closed-loop)로 들어가고, 카운터 대화가 진행되며, 스크립트된 스타일러스 드래그가
-게임에 실제로 작용(ACTING)하는 것이 보인다 -- 주머니에서 작업복을 집어 들어 옮긴다.
-**GAMEPLAY47은 이어서 GAMEPLAY46의 남은 주장을 차례로 철회했다: 그 드롭은 결코 거부된 것이
-아니었다.** 작업복은 착용된다 -- 주머니 슬롯 0과 레코드 `+0x2408`의 플레이어 착용 의상 필드가
-서로 교환(SWAP)되며, 그래서 이후에도 슬롯 0에 아이템이 남아 있는 것이다 -- 그리고 ROM의
-핸들러는 ov096의 장착 디스패처, `func_ov096_0229e3b0` case 2이다. 너굴은 이를 말로 확인하고,
-아르바이트의 첫 과제를 정하고, 꽃 일곱 송이를 건넨다; 플레이어는 그중 하나를 심을 수 있다;
-그리고 남은 문 네 개 -- 에이블 시스터즈, 문(gate), 박물관, 마을 회관 -- 모두 `goto.py` 한 번씩으로
-폐루프로 들어간다. 포트가 아직 못 하는 것: 벨을 벌기, 도구를 쓰거나 사기, 편지 쓰기, 침대에서
-저장하기, 주민의 집에 들어가기 -- 그리고 앞의 셋은 이제 결함이 아니라 잡일(CHORE) 뒤에 있다
-(너굴은 상점 밖에 심은 꽃 일곱 송이에 대해 지불하고, 상점 메뉴는 그 지불 뒤에 있다).
-**GAMEPLAY48이 그 잡일을 끝낸다**: 꽃 일곱 송이가 모두 심어졌고, 실행 하나에 한 송이씩, 각각
-플레이어 레코드에서 확인되었다 -- 그것을 막고 있던 것은 측정 대신 확대 이미지에서 읽어낸 확인 지점
-(`땅에 심기` 상자는 터치한 슬롯 옆(BESIDE)에 그려지고 그 슬롯을 따라 움직인다)과 조건을 잃어버린
-모드 전환 규칙이었다. 너굴은 여전히 지불하지 않는다: 그는 마을 회관 근처로 휴식을 가고, 거기
-광장에 서 있는 NPC는 **고북, 촌장(Tortimer, the MAYOR)**으로 밝혀졌으며, 여기서 처음 만났다.
-그리고 **주민의 문은 스스로 답한다** -- 도어매트 위의 상자에는 `이 몸은 밖에 계신다 / 곤잘레스`,
-"나는 외출 중"이라고 적혀 있으며, 이는 결함이 아니라 게임 규칙이다. 일곱 사이클에 걸친 265회의
-스크립트 실행 중 어느 것도 폴트가 없었다. **오라클은 그 후 같은 패드 타임라인을 원본에서 실행했다**
-(ORACLE44): 마을 회관 이후의 긴 그림 정지와 마을 회관 안의 검은 위 화면은 둘 다 게임 자체의
-동작이며, 이 구간에서 포트의 유일한 렌더링 차이는 더 평평한 하늘이다.
+**요약.** 플레이 가능한 상태를 찾으려면 체크포인트와 마일스톤 표를 사용하고, 측정된 진전과
+폐기된 설명을 구분하려면 섹션 색인을 사용한다. 아래의 시간순 기록은 예전의 제한을 포함하여
+그대로 남아 있다.
+
+## 진행 상태
+
+이는 새로운 게임플레이 측정이 아니라 `e2305dee` 시점의 문서 색인이다. 아래 값은 이름이 지정된
+로그 섹션에서 옮겨 적은 것이며, `H`는 근거 등급을 높이지 않은 이 단위의 문서 기반 기록을
+나타낸다. 출처 위치와 섹션 해시는 `scratchpad/walkthrough-index-1/source-sections.json`에,
+커밋 제목은 `scratchpad/walkthrough-index-1/commits.json`에 기록되어 있다.
+
+요청에는 GAMEPLAY57의 `town5.sav`가 지정되어 있었지만, 이 기준점에는 이미 GAMEPLAY58이 들어
+있으므로 요청된 체크포인트와 더 최신의 후속 체크포인트는 별도 행이다. 세이브 위치의 타일은
+나중에 부팅했을 때의 도어매트가 아니라 START를 누른 위치를 설명한다. [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway); [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)]
+
+| 체크포인트 | 날짜 조건 | 지갑 / 대출 / 저축 (벨) | 주머니와 우편물 | 플레이어 위치 | 사이클 / 기록 커밋 |
+|---|---|---|---|---|---|
+| 요청된 `scratchpad/gameplay57/town5.sav` [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway)] | `20050615`, `S1-SAVE57`까지 [H: [GAMEPLAY57](../../docs/log/cycle41-gameplay.md#gameplay57----the-money-is-on-the-beach-and-nook-buys-at-base4-the-mail-order-goes-through-and-the-delivery-is-the-next-day-a-page-that-is-carrying-something-is-deaf-to-the-stylus-and-the-savings-account-comes-back-down)] | 검사 시 지갑 **285**, 저축 **100**; 사이클 부팅 시 대출 **18,300**이며 해당 세이브 검사에는 다시 출력되지 않음 [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway); [GP57-0](../../docs/log/cycle41-gameplay.md#gp57-0----the-boot-and-plan57s-accept-test-to-the-word)] | 이 세이브의 전체 주머니 행은 로그에 출력되지 않음; 아직 배달된 편지는 없고 주문은 미결 상태 [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway); [GP58-2](../../docs/log/cycle41-gameplay.md#gp58-2----the-letter-record-named-to-the-byte-and-0x337fc-retired)] | 자신의 집 안, 타일 **(7,10)**에서 START [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway)] | [GAMEPLAY57](#gameplay57----the-beach-pays-for-the-parcel-and-the-parcel-arrives-the-next-morning) / `f1d93c07` [H: [GAMEPLAY57](../../docs/log/cycle41-gameplay.md#gameplay57----the-money-is-on-the-beach-and-nook-buys-at-base4-the-mail-order-goes-through-and-the-delivery-is-the-next-day-a-page-that-is-carrying-something-is-deaf-to-the-stylus-and-the-savings-account-comes-back-down)] |
+| 최신 공개 `scratchpad/gameplay58/town6.sav` [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)] | 재개한 모든 실행에서 `20050616` [H: [GAMEPLAY58](../../docs/log/cycle41-gameplay.md#gameplay58)] | 검사 시 지갑 **385**, 저축 **100**; 사이클 부팅 시 대출 **18,300**이며 해당 세이브 검사에는 다시 출력되지 않음 [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav); [GP58-0](../../docs/log/cycle41-gameplay.md#gp58-0----the-boot-and-a-save-that-will-not-open-its-own-mailbox)] | 출력된 행 **`3508 151c ... 11ac`**; 편지 하나, 선물 없음; 줄임표는 그대로 유지 [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)] | 너굴의 상점 안에서 START; 해당 섹션에는 정확한 타일이 출력되지 않음 [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)] | [GAMEPLAY58](#gameplay58----the-parcel-is-opened-the-letter-is-found-in-the-save-and-a-cherry-is-worth-a-hundred) / `e2305dee` [H: [GAMEPLAY58](../../docs/log/cycle41-gameplay.md#gameplay58)] |
+
+GAMEPLAY57의 **인출**은 이후 분기이다. 지갑은 **285 -> 385**, 저축은 **100 -> 0**이 되었으며,
+위의 `town5.sav` 행에 해당하지 않는다. 다음 날 배달을 확인한 부팅은 실내 세이브 위치가 아니라
+바깥 **(41,55)**에서 시작한다. [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past); [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)]
+
+| 마일스톤 | 기록된 결과 | 사이클 / 기록 커밋 및 섹션 |
+|---|---|---|
+| 이름 확인 [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | 인터프리터 레시피에서 플레이어 이름은 약 7,500, 마을 이름은 약 24,600에서 확인 [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | TOWN40 / `c04c685c` [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] |
+| 마을 진입 [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | 37,500에서 마을, 40,500..48,000에서 마을 회관 [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | TOWN40 / `c04c685c` [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] |
+| 자신의 집 진입 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | 58,020에서 실내 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | SAVE43 / `2e579f09` [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] |
+| 너굴: 작업복 [H: [GAMEPLAY47](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore)] | 주머니 슬롯과 착용 의상 워드 교환 [H: [GAMEPLAY47](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore)] | GAMEPLAY47 / `0824e95b` [H: [GAMEPLAY47](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore)] |
+| 너굴: 꽃 [H: [GAMEPLAY48](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why)] | 일곱 송이를 모두 심음 [H: [GAMEPLAY48](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why)] | GAMEPLAY48 / `657ab28f` [H: [GAMEPLAY48](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why)] |
+| 너굴: 인사 [H: [GP50-3](../../docs/log/cycle41-gameplay.md#gp50-3----the-third-villager-greeted-inside-his-own-house-and-the-gate-closes)] | 시장과 야외 주민들에 이어 실내의 세 번째 주민까지 인사하여 문턱을 통과 [H: [GP50-3](../../docs/log/cycle41-gameplay.md#gp50-3----the-third-villager-greeted-inside-his-own-house-and-the-gate-closes)] | GP50-3 / `c35a0819` [H: [GP50-3](../../docs/log/cycle41-gameplay.md#gp50-3----the-third-villager-greeted-inside-his-own-house-and-the-gate-closes)] |
+| 너굴: 가구 [H: [GP50-4](../../docs/log/cycle41-gameplay.md#gp50-4----the-delivery-the-rom-names-its-own-recipient-on-the-pockets-page)] | 소포를 배달함; 주머니 슬롯이 감사 선물 아이템 `0x3508`이 됨 [H: [GP50-4](../../docs/log/cycle41-gameplay.md#gp50-4----the-delivery-the-rom-names-its-own-recipient-on-the-pockets-page)] | GP50-4 / `c35a0819` [H: [GP50-4](../../docs/log/cycle41-gameplay.md#gp50-4----the-delivery-the-rom-names-its-own-recipient-on-the-pockets-page)] |
+| 너굴: 직접 우편 편지 [H: [GP51-4](../../docs/log/cycle41-gameplay.md#gp51-4----the-postal-window-and-a-page-whose-taps-and-drags-mean-different-things)] | 수신인을 고르고 빈 본문으로 편지를 보내는 데 성공 [H: [GP51-4](../../docs/log/cycle41-gameplay.md#gp51-4----the-postal-window-and-a-page-whose-taps-and-drags-mean-different-things)] | GP51-4 / `32bafdd0` [H: [GP51-4](../../docs/log/cycle41-gameplay.md#gp51-4----the-postal-window-and-a-page-whose-taps-and-drags-mean-different-things)] |
+| 너굴: 카펫 [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | 실내 아이템 전달 페이지로 배달 완료 [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | GP51-5 / `32bafdd0` [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] |
+| 너굴: 물뿌리개 [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | 야외 대화로 배달 완료 [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | GP51-5 / `32bafdd0` [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] |
+| 너굴: 게시판 광고 [H: [GP51-6](../../docs/log/cycle41-gameplay.md#gp51-6----the-bulletin-board-and-a-with-a-held-direction-does-not-act-on-a-world-object)] | 빈 게시글을 등록하는 데 성공 [H: [GP51-6](../../docs/log/cycle41-gameplay.md#gp51-6----the-bulletin-board-and-a-with-a-held-direction-does-not-act-on-a-world-object)] | GP51-6 / `32bafdd0` [H: [GP51-6](../../docs/log/cycle41-gameplay.md#gp51-6----the-bulletin-board-and-a-with-a-held-direction-does-not-act-on-a-world-object)] |
+| 너굴: 정산 / 대출 워드 [H: [GP51-8](../../docs/log/cycle41-gameplay.md#gp51-8----the-settlement-0x021ed264-is-the-house-loan-measured)] | 254,100에서 `0x021ed264`가 **19,800 -> 18,400**으로 이동 [H: [GP51-8](../../docs/log/cycle41-gameplay.md#gp51-8----the-settlement-0x021ed264-is-the-house-loan-measured)] | GP51-8 / `32bafdd0` [H: [GP51-8](../../docs/log/cycle41-gameplay.md#gp51-8----the-settlement-0x021ed264-is-the-house-loan-measured)] |
+| 첫 판매 [H: [GP52-2](../../docs/log/cycle41-gameplay.md#gp52-2----the-first-sale-0x021de3cc-0---475-and-the-counter-menu-has-no-buy-row-in-it)] | 선물을 판매함; 지갑 **0 -> 475** [H: [GP52-2](../../docs/log/cycle41-gameplay.md#gp52-2----the-first-sale-0x021de3cc-0---475-and-the-counter-menu-has-no-buy-row-in-it)] | GP52-2 / `4bcb4abf` [H: [GP52-2](../../docs/log/cycle41-gameplay.md#gp52-2----the-first-sale-0x021de3cc-0---475-and-the-counter-menu-has-no-buy-row-in-it)] |
+| 첫 구매 [H: [GP52-3](../../docs/log/cycle41-gameplay.md#gp52-3----the-first-purchase-475---395-and-the-shop-has-eight-sellable-cells)] | 흰 코스모스 씨앗 가격 **80**; 지갑 **475 -> 395** [H: [GP52-3](../../docs/log/cycle41-gameplay.md#gp52-3----the-first-purchase-475---395-and-the-shop-has-eight-sellable-cells)] | GP52-3 / `4bcb4abf` [H: [GP52-3](../../docs/log/cycle41-gameplay.md#gp52-3----the-first-purchase-475---395-and-the-shop-has-eight-sellable-cells)] |
+| 첫 게임 세이브 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | 세이브 승인; 페이지 쓰기 744회, 검증 불일치 0회 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | SAVE43 / `2e579f09` [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] |
+| 게임 세이브에서 첫 부팅 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | 새 실행이 저장된 집/마을에 도달 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | SAVE43 / `2e579f09` [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] |
+| 플레이한 상점 세이브/부팅 루프 [H: [GAMEPLAY53](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes)] | 첫 판매/구매 뒤 상점 부팅; 대출을 갚고 다시 세이브에서 부팅 [H: [GAMEPLAY53](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes)] | GAMEPLAY53 / `49953455` [H: [GAMEPLAY53](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes)] |
+| 대출 상환 [H: [GP53-5](../../docs/log/cycle41-gameplay.md#gp53-5----the-repayment-395---295-and-18400---18300-with-the-games-box-agreeing)] | 대출 **18,400 -> 18,300**, 상환으로 대출 워드를 확인 [H: [GP53-5](../../docs/log/cycle41-gameplay.md#gp53-5----the-repayment-395---295-and-18400---18300-with-the-games-box-agreeing)] | GP53-5 / `49953455` [H: [GP53-5](../../docs/log/cycle41-gameplay.md#gp53-5----the-repayment-395---295-and-18400---18300-with-the-games-box-agreeing)] |
+| 저축 예금 / 저축 워드 [H: [GP56-2](../../docs/log/cycle41-gameplay.md#gp56-2----the-town-halls-other-window-is-gp53s-and-the-savings-account-is-0x021deb9c)] | 지갑 **135 -> 35**, 통장 **0 -> 100**; 라이브 워드 `0x021deb9c`, 세이브에 보존됨 [H: [GP56-2](../../docs/log/cycle41-gameplay.md#gp56-2----the-town-halls-other-window-is-gp53s-and-the-savings-account-is-0x021deb9c)] | GP56-2 / `7d939e29` [H: [GP56-2](../../docs/log/cycle41-gameplay.md#gp56-2----the-town-halls-other-window-is-gp53s-and-the-savings-account-is-0x021deb9c)] |
+| 저축 인출 [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past)] | 지갑 **285 -> 385**, 저축 **100 -> 0** [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past)] | GP57-10 / `f1d93c07` [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past)] |
+| 우편 주문 [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | 선불 **1,900**; 지갑 **2,185 -> 285** [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | GP57-6 / `f1d93c07` [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] |
+| 다음 날 배달 [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | 6/15에 세이브, 6/16에 부팅: 우편함 깃발과 봉투 하나 [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | GP57-6 / `f1d93c07` [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] |
+| 공유 지도에서 주민의 집 [H: [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical)] | 두 생산자가 **57,600**에 실내에 있었고, 마을은 `0x8365` [H: [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical)] | O50-3 / `8354374f` [H: [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical)] |
+| 배달된 선물을 꺼냄 [H: [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page)] | 일반 주머니 편지 메뉴로 가구를 꺼냄 [H: [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page)] | GP58-1 / `e2305dee` [H: [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page)] |
+| 과일 판매 [H: [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)] | 체리 하나가 **100**에 팔림, 지갑 **285 -> 385**; 일곱 아이템의 base/4 결과는 과일에 적용되지 않음 [H: [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)] | GP58-3 / `e2305dee` [H: [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)] |
+
+## 섹션 색인
+
+원래 `##` 섹션마다 페이지 순서대로 한 줄씩 적었다. 이 요약은 인용된 섹션의 근거 한계를
+그대로 물려받으며, 과거의 가설을 새로운 측정으로 바꾸지 않는다.
+
+- [목적](#purpose): LONG41 이후 플레이 경로 조사의 범위를 정한다. [H: linked historical section]
+- [레시피](#recipe): 과거의 스냅샷/패드 레시피를 제공한다. 현재 실행 규칙에는 유지 관리되는 레시피 페이지를 사용한다. [H: linked historical section]
+- [예상 관측](#expected-observations): 최초의 필드/UI/과일 관측을 기록한다. 이후 주민과 줍기 수정 사항이 원래 해석의 범위를 제한한다. [H: linked historical section]
+- [SAVE43 -- 집, 너굴, 세이브와 리로드](#save43----the-house-nook-the-save-and-the-reload): 집에 들어가 너굴의 도착 연설을 끝까지 듣고 저장한 뒤 다시 불러온다. [H: linked historical section]
+- [포트와 게임이 각각 올바르게 처리하는 것](#what-the-port-and-the-game-each-get-right): 과거의 렌더링 관측과 게임플레이 진전을 구분한다. 이후 사이클이 예전의 기능 한계를 대체한다. [H: linked historical section]
+- [두 번 철회된 주민](#the-villagers-twice-retracted): 최초 주민 목격과 주민이 절대 그려지지 않는다는 주장을 차례로 철회한다. [H: linked historical section]
+- [GAMEPLAY43 -- 시계가 튜토리얼의 존재 자체를 결정한다](#gameplay43----the-clock-decides-whether-there-is-a-tutorial-at-all): 튜토리얼 홀드를 시계 탓으로 돌렸다가 GAMEPLAY44가 교란된 추론을 철회한다. [H: linked historical section]
+- [GAMEPLAY44 -- 한 마을, 두 시계 조건, 그리고 의도적으로 말을 건 주민](#gameplay44----one-town-both-clock-arms-and-a-villager-talked-to-on-purpose): 시계 조건 사이에서 마을을 통제하고 주민에게 의도적으로 말을 건다. [H: linked historical section]
+- [GAMEPLAY45 -- 주머니 페이지 보정, 실제 스타일러스 드래그, 열리지 않는 두 문](#gameplay45----the-pockets-page-calibrated-a-real-stylus-drag-and-two-doors-that-will-not-open): 주머니와 드래그를 보정한다. 닫힌 문이라는 주장은 GAMEPLAY46과 GP48-9에서 철회된다. [H: linked historical section]
+- [GAMEPLAY46 -- 너굴 상점 진입, 작용한 드래그, 두 타일 틀린 도어매트](#gameplay46----nooks-shop-entered-the-drag-acted-on-and-a-doormat-that-was-two-tiles-wrong): 도어매트를 바로잡고 상점에 들어간다. GAMEPLAY47은 거부되었다고 본 작업복 드롭을 철회한다. [H: linked historical section]
+- [가설](#hypotheses): 이후 철회 지점을 포함한 과거 가설 목록을 보존한다. 현재의 열린 목록은 위쪽을 사용한다. [H: linked historical section]
+- [오라클 조건 (ORACLE44)](#the-oracle-arm-oracle44): 원본의 튜토리얼 홀드와 실내 검은 위 화면을 측정한다. [H: linked historical section]
+- [GAMEPLAY47 -- 작업복을 입고, 다른 모든 문이 열리고, 막고 있던 것은 잡일](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore): 작업복을 입고 다른 문을 연다. GP48-9는 명판 해석을 바로잡고 O50-3은 문 주장의 범위를 좁힌다. [H: linked historical section]
+- [GAMEPLAY48 -- 꽃 일곱 송이를 심고 시장을 만나고 주민의 문이 이유를 말하다](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why): 꽃 일곱 송이를 심고 외출 중 알림을 읽는다. GP49-2/4는 임금/휴식 이야기를 바로잡고 O50-3은 알림을 해당 마을로 한정한다. [H: linked historical section]
+- [ORACLE45 -- 오라클의 시계 조건과 일치하게 된 경계](#oracle45----the-oracles-clock-arm-and-the-seam-becomes-a-match): 오라클 시계 조건을 추가한다. ORACLE45-3의 포트만 홀드는 TUT45-2에서, 이후 레이아웃 추론은 X48-4에서 철회된다. [H: linked historical section]
+- [TUTORIAL45 -- 홀드는 ORIGINAL의 것이고 조건이 잘못된 마을을 고르다](#tutorial45----the-hold-is-the-originals-and-the-arm-picks-the-wrong-town): 원본의 홀드를 확인한다. TUT45-3의 에뮬레이터 행은 O46-2/4에서 철회되고 X48-4는 1에이커 추론을 철회한다. [H: linked historical section]
+- [GAMEPLAY49 -- 막을 임금은 없고 상점이 얼굴 앞에서 말해 주다](#gameplay49----there-is-no-wage-to-unblock-and-the-shop-says-so-to-the-players-face): 전체 잡일 스크립트를 읽는다. 임금은 대출을 갚고 아르바이트생은 상품을 살 수 없다. [H: linked historical section]
+- [GAMEPLAY50 -- 인사 문턱이 닫히고 여섯 잡일 중 둘을 끝내다](#gameplay50----the-greeting-gate-closes-and-two-of-the-six-errands-are-done): 인사 문턱과 가구 배달을 끝내고 편지 잡일을 받는다. [H: linked historical section]
+- [GAMEPLAY51 -- 아르바이트를 끝내고 움직이는 워드가 된 대출](#gameplay51----the-part-time-job-is-finished-and-the-loan-is-a-word-that-moves): 남은 잡일을 끝내고 대출 워드를 이동시킨다. [H: linked historical section]
+- [GAMEPLAY52 -- 첫 판매, 첫 구매, 게임 자체가 불러올 세이브](#gameplay52----the-first-sale-the-first-purchase-and-a-save-the-game-itself-would-load): 첫 판매와 구매를 하고 결과 세이브를 검증한다. [H: linked historical section]
+- [ORACLE48 -- 공유 마을 id와 EXIT48이 철회한 1에이커 추론](#oracle48----a-shared-town-id-the-one-acre-inference-retracted-by-exit48): 마을 id를 맞춘다. EXIT48(X48-3/4)은 레이아웃이 여전히 다르므로 1에이커 결함 추론을 철회한다. [H: linked historical section]
+- [GAMEPLAY53 -- 세이브가 부팅되고 카운터에서 대출을 갚고 루프가 닫히다](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes): 플레이한 세이브를 부팅하고 대출을 갚은 뒤 세이브/부팅 루프를 닫는다. [H: linked historical section]
+- [GAMEPLAY54 -- 포트가 실내를 걸을 수 있게 되고 상점 가격을 읽다](#gameplay54----the-port-can-walk-indoors-and-the-shop-is-priced): 실내를 탐색하고 선반 셀의 가격을 매긴다. [H: linked historical section]
+- [ORACLE50 -- 공유(SHARED) 마을에서 만든 체인과 두 생산자에서 열린 주민의 문](#oracle50----a-chain-built-in-the-shared-town-and-the-villagers-door-opens-on-both-producers): 공유 지도에서 두 생산자로 주민의 집에 들어간다. GP48-9는 특정 마을의 외출 중 알림으로 남는다. [H: linked historical section]
+- [GAMEPLAY55 -- 방에 문이 생기고 네 방향 중 둘이 4.6배 느리다](#gameplay55----the-room-has-a-door-now-and-two-of-the-four-directions-are-46x-slower): 방 출구를 찾는다. GP55-3의 방향별 84프레임 속도는 WALK56-3/3c/5에서 막힌 차선의 인공물로 철회된다. [H: linked historical section]
+- [GAMEPLAY56 -- 저축 카운터가 열리고 집이 세 번째 방이 되고 카탈로그 주문이 선불을 요구하다](#gameplay56----the-savings-counter-opens-the-house-is-the-third-room-and-a-catalogue-order-wants-the-money-up-front): 저축에 도달하고 돈을 예금하고 집에서 나와 선불 카탈로그 거부를 측정한다. [H: linked historical section]
+- [GAMEPLAY57 -- 해변이 소포 값을 마련하고 다음 날 아침 소포가 도착하다](#gameplay57----the-beach-pays-for-the-parcel-and-the-parcel-arrives-the-next-morning): 다음 날 주문을 위한 돈을 마련하고 주문을 받아 저축을 인출한다. GP58-1/2가 선물/편지 질문을 끝내고 GP58-3이 가격 규칙의 범위를 제한한다. [H: linked historical section]
+- [GAMEPLAY58 -- 소포를 열고 세이브에서 편지를 찾고 체리 하나가 100벨이다](#gameplay58----the-parcel-is-opened-the-letter-is-found-in-the-save-and-a-cherry-is-worth-a-hundred): 선물을 꺼내고 편지 레코드를 확인하고 체리를 100벨에 판다. 다른 과일의 가격은 아직 열려 있다. [H: linked historical section]
+- [관련 문서](#related): 지원 레시피, 로그와 관련 실험으로 연결한다. [H: linked historical section]
+
+이 페이지 밖의 철회 출처: [O46-2](../../docs/log/cycle41-gameplay.md#o46-2----tut45-3s-emulator-rows-are-retracted-lua-51s-d-destroyed-every-word-with-bit-31-set), [O46-4](../../docs/log/cycle41-gameplay.md#o46-4----three-towns-one-seed-and-the-whole-difference-is-17-and-31-draws), [X48-3](../../docs/log/cycle41-gameplay.md#x48-3----why-the-exit-position-is-the-tile-the-player-entered-on-written-10755-frames-earlier), [X48-4](../../docs/log/cycle41-gameplay.md#x48-4----what-this-closes-and-what-it-costs-oracle48s-open-item-1), [WALK56-3](../../docs/log/cycle41-gameplay.md#walk56-3----the-control-gp55-did-not-have-a-clean-lane), [WALK56-3c](../../docs/log/cycle41-gameplay.md#walk56-3c----the-original-and-the-ramp-matches-tick-for-tick), [WALK56-5](../../docs/log/cycle41-gameplay.md#walk56-5----the-fix-and-the-accept-test), [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical), [GP49-2](../../docs/log/cycle41-gameplay.md#gp49-2----the-roms-own-script-for-the-rest-of-the-job-and-the-pay-is-not-a-payment), [GP49-4](../../docs/log/cycle41-gameplay.md#gp49-4----nook-never-leaves-his-shop-and-the-errands-come-find-me-is-not-a-walk). [H: named log sections]
+
+## 아직 플레이에서 열린 것
+
+아래 질문 텍스트의 링크는 고정된 [열린 질문 표](../../docs/state/open-questions.md#ranked-questions)의
+행을 가리키며, 그 표의 `verified-at: aa5f6bab`은 GAMEPLAY58보다 앞선다. 첫 두 질문(선물/편지
+바이트를 꺼내는 것과 이 마을의 과일 가격)은 [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page), [GP58-2](../../docs/log/cycle41-gameplay.md#gp58-2----the-letter-record-named-to-the-byte-and-0x337fc-retired), [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)에 답이 있으므로 여기서는 열린 질문으로 다루지 않는다. [H: cited sections; state table]
+
+- [실시간 플레이에서 원본도 플레이어의 집 문에 Z를 요구하는가?](../../docs/state/open-questions.md#ranked-questions) (질문 3). [H: pinned state entry]
+- [페이싱을 끄지 않고 인접한 회관/집을 실시간 탐색에서 어떻게 구분하는가?](../../docs/state/open-questions.md#ranked-questions) (질문 4). [H: pinned state entry]
+- [(37,38)에서 패드를 먹은 것은 무엇이며 dlg.py가 이를 어떻게 노출할 수 있는가?](../../docs/state/open-questions.md#ranked-questions) (질문 5). [H: pinned state entry]
+- [다른 착용 슬롯도 작동하는가?](../../docs/state/open-questions.md#ranked-questions) (질문 7). [H: pinned state entry]
+- [원본의 과일 줍기도 측정된 포트 규칙을 따르는가?](../../docs/state/open-questions.md#ranked-questions) (질문 8). [H: pinned state entry]
+- [막힌 실내 차선이 원본과 일치하는가, 실제 스텝이 명령한 스텝의 절반인 이유는 무엇인가?](../../docs/state/open-questions.md#ranked-questions) (질문 9). [H: pinned state entry]
+- [실내 체인을 두 생산자에 모두 고정할 수 있는가?](../../docs/state/open-questions.md#ranked-questions) (질문 16). [H: pinned state entry]
+- [순방향 레시피가 지도뿐 아니라 시계도 공유할 수 있는가?](../../docs/state/open-questions.md#ranked-questions) (질문 17). [H: pinned state entry]
 
 ## 목적
 
@@ -72,37 +131,34 @@ cycle41 이전에는 누구도 그 너머를 플레이한 적이 없었다. 프�
 
 여기서 `mask`는 게임의 `0x2fff` 공간이다(A=1 B=2 SELECT=4 START=8 Right=16 Left=32 Up=64
 Down=128 R=0x100 L=0x200 X=0x400 Y=0x800). 겹치는 패드 행은 OR로 합쳐지고, 스타일러스 행은
-처음 일치하는 것이 이긴다 [E: `port/platform/hostinput.c`; `docs/kb/hybrid/recipes.md` section 4b].
+처음 일치하는 것이 이긴다 [H: log/source account: `port/platform/hostinput.c`; `docs/kb/hybrid/recipes.md` section 4b; receipt provenance unresolved].
 
 **3단계**, 실험:
 
     sh scratchpad/gameplay/gp.sh <name> <snapshot.st> <script.pad> <stop frame> <shot every>
 
 `gp.sh`는 스냅샷을 재개하고, 스크립트를 구동하고, 스틸을 찍고, 로그의 입력·터치·상태·폴트 줄을
-출력한다 [E: `scratchpad/gameplay/gp.sh`; 자체 워크트리 루트를 가진 GAMEPLAY42 사본은
-`scratchpad/gameplay42/gp42.sh`].
+출력한다 [E: `scratchpad/gameplay/gp.sh`; the GAMEPLAY42 copy with its own worktree root is `scratchpad/gameplay42/gp42.sh`].
 
 **스냅샷은 재링크를 견디지 못한다.** `.st` 파일은 그것을 쓴 링크 식별자와 blob 수를 기록하고,
 다른 빌드에서는 이름만으로 거부되므로, 1단계는 프로젝트마다가 아니라 워크트리마다 한 번씩
 치러야 한다: cycle41의 스냅샷은 `link 0x6aa14a4d/0x013c0000`, 113 blobs이고, GAMEPLAY42의
-재링크는 `0x6aa16242/0x01423000`, 117 blobs이다 [E: `docs/log/cycle41-gameplay.md`
-GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5].
+재링크는 `0x6aa16242/0x01423000`, 117 blobs이다 [H: log/source account: `docs/log/cycle41-gameplay.md` GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5; receipt provenance unresolved].
 
 **추측 항법이 아니라 지도를 보고 조준한다.** X를 누른 채 44초 실행 한 번이면 마을 전체가 보인다 --
 문(gate), 마을 회관, 두 상점 광장, 집 아이콘 네 개, 주민 이름 세 개 -- 그리고 2,400프레임짜리
 측량 걷기 네 번이면 각 방향으로 몇 프레임이면 각각에 도달하는지 알 수 있다. GAMEPLAY42의 모든
-상호작용 스크립트는 그 그림에서 작성되었다 [E: `gp42-S1`, `gp42-Wwest`,
-`gp42-Wnorth`, `gp42-Wsouth`, `gp42-G1`].
+상호작용 스크립트는 그 그림에서 작성되었다 [H: log/source account: `gp42-S1`, `gp42-Wwest`, `gp42-Wnorth`, `gp42-Wsouth`, `gp42-G1`; receipt provenance unresolved].
 
 실행들이 대가를 치르고 얻은 패드 스크립트 규칙 세 가지:
 
 - 방향 유지 **안에서(INSIDE) A를 누른다**, 동작에 방향 보기가 필요할 때 -- 나무 흔들기, 말 걸기.
   겹치는 행은 OR로 합쳐지므로, `57080 32 300`에 `57120 1 10`을 더하면 "서쪽을 계속 보면서 A"가
-  된다 [E: `gp42-F5`; S: `docs/kb/hybrid/recipes.md` section 4b].
+  된다 [H: log/source account: `gp42-F5`; S: `docs/kb/hybrid/recipes.md` section 4b; receipt provenance unresolved].
 - 아이템을 주우려면 **가만히 선 채로(STANDING STILL) A를 누른다**. 먼저 한 칸 걷는 스크립트는
-  아무것도 얻지 못한다 [E: `gp42-F3` 빈 주머니 vs `gp42-F4` 슬롯 1의 체리].
+  아무것도 얻지 못한다 [H: log/source account: `gp42-F3` empty pockets vs `gp42-F4` a cherry in slot 1; receipt provenance unresolved].
 - **B는 메시지 상자를 닫지만 두 선택지 프롬프트는 닫지 않는다.** 둘은 다른 상자이다
-  [E: `gp42-N2` vs `gp-E1b`].
+  [H: log/source account: `gp42-N2` vs `gp-E1b`; receipt provenance unresolved].
 
 ## 예상 관측
 
@@ -111,19 +167,19 @@ GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5].
 | 프레임 | 스크립트 | 화면에 보이는 것 |
 |---|---|---|
 | 48,000 | -- | 마을 회관 안, 펠리, 두 선택지 프롬프트 [H: `scratchpad/cycle40/runs/town-S2`; receipt lost with its worktree; repeat the named recipe and retain the stated frames] |
-| 48,000..49,200 | B 펄스 여덟 번 뒤 Down | **아무것도 바뀌지 않는다**: B는 선택지를 닫지 않고, 열린 상자는 이동을 잠근다 [E: `gp-E1b`] |
-| 48,010..48,970 | A 펄스 열일곱 번 | 튜토리얼: 지도, 아래 화면의 화살표, 그리고 `X 버튼` [E: `gp-E4`] |
-| 49,200 | B 펄스 여섯 번 | 대화가 닫힌다; 날짜/시간 HUD `6/15 AM10:00`이 나타난다 [E: `gp-E6`] |
-| 49,600 | Down | 문간 전환 [E: `gp-E6`] |
-| **49,800** | Down | **밖, 마을 회관 광장, 하늘에 구름** [E: `gp-E6`; **O**: 원본은 여기서 아직 문간 전환 중이며 두 화면 모두 완전히 검고, 50,100에 밖에 나온다 -- 포트가 걷기를 약 300프레임 앞서며, 이는 씬 진행 오프셋이고, 둘이 처음 달라지는 프레임이다(`ncc` 0.0000): `scratchpad/oracle/walkout/`] |
-| 50,300 | X | 아래 화면이 마을 지도가 된다: 강, 건물, 플레이어 마커, 주민 이름 세 개 [E: `gp-E7`] |
-| 50,600..50,830 | `T 243 10` 접촉 세 번 | 페이지가 주머니(POCKETS) 화면으로 넘어간다: 초상화, 이름, `00000` 벨, 빈 아이템 격자 [E: `gp-E8`] |
-| 50,260 | Y (`st/out50200.st`에서) | 주머니가 바로 열린다; START/SELECT/R/L은 각각 다른 페이지로 이동한다 [E: `gp-E10`] |
-| 50,700..54,700 | 남쪽으로 걷기 | **커다란 회색 닌텐도 DS 모양의 모델이 아래 화면을 채우고 그림이 정지한다** [E: `gp-E13`; **O**: `scratchpad/oracle/walkout/orig`, 50,700..54,600 -- 원본(ORIGINAL)도 같은 구간에서 아래 화면을 얼리고(51,900..53,700에서 300프레임 구간당 변경 픽셀 0, 양쪽 모두) 같은 모델을 같은 자리에 보여준다, 아래 화면 `ncc` 0.967..0.973] |
-| 55,000 | 계속 걷기 | 정지가 저절로 끝난다; 풀, 나무, 집, 벌레 [E: `gp-E14`; **O**: 두 생산자의 아래 화면이 같은 프레임 **54,900**에 돌아오며, 변경 픽셀은 원본 46,776 대 포트 46,949] |
-| 55,400..57,300 | Down/Left/Up/Right, 각 400 | 마을: 강 위의 판자 다리, 과일나무, 집, 바위, 그리고 ~~56,600에 화면 위의 주민~~ -- 동일 프레임을 4배 확대하면 그 형체는 흰색과 보라색 팬지 화단이므로, 이 칸의 주민은 **철회**된다 [E: `gp-E15`; 철회 `gp42-V1` 056,600] |
-| 55,500.. | `ACWW_RTC_TIME=235900` | 밤: 달, 어두운 하늘, 어두워진 땅과 물 [E: `gp-E17`] |
-| 55,460 | START | 게임 자체의 세이브 프롬프트가 거부한다: `어라? 지금은 아직 저장하지 못하나 봐요` [E: `gp-E18`] |
+| 48,000..49,200 | B 펄스 여덟 번 뒤 Down | **아무것도 바뀌지 않는다**: B는 선택지를 닫지 않고, 열린 상자는 이동을 잠근다 [H: log/source account: `gp-E1b`; receipt provenance unresolved] |
+| 48,010..48,970 | A 펄스 열일곱 번 | 튜토리얼: 지도, 아래 화면의 화살표, 그리고 `X 버튼` [H: log/source account: `gp-E4`; receipt provenance unresolved] |
+| 49,200 | B 펄스 여섯 번 | 대화가 닫힌다; 날짜/시간 HUD `6/15 AM10:00`이 나타난다 [H: log/source account: `gp-E6`; receipt provenance unresolved] |
+| 49,600 | Down | 문간 전환 [H: log/source account: `gp-E6`; receipt provenance unresolved] |
+| **49,800** | Down | **밖, 마을 회관 광장, 하늘에 구름** [E: `gp-E6`; **O**: the original is still in the doorway transition here, both screens fully black, and is outside at 50,100 -- the port leads the walk by about 300 frames, a scene-progress offset, and this is the first frame the two differ (`ncc` 0.0000): `scratchpad/oracle/walkout/`] |
+| 50,300 | X | 아래 화면이 마을 지도가 된다: 강, 건물, 플레이어 마커, 주민 이름 세 개 [H: log/source account: `gp-E7`; receipt provenance unresolved] |
+| 50,600..50,830 | `T 243 10` 접촉 세 번 | 페이지가 주머니(POCKETS) 화면으로 넘어간다: 초상화, 이름, `00000` 벨, 빈 아이템 격자 [H: log/source account: `gp-E8`; receipt provenance unresolved] |
+| 50,260 | Y (`st/out50200.st`에서) | 주머니가 바로 열린다; START/SELECT/R/L은 각각 다른 페이지로 이동한다 [H: log/source account: `gp-E10`; receipt provenance unresolved] |
+| 50,700..54,700 | 남쪽으로 걷기 | **커다란 회색 닌텐도 DS 모양의 모델이 아래 화면을 채우고 그림이 정지한다** [E: `gp-E13`; **O**: `scratchpad/oracle/walkout/orig`, 50,700..54,600 -- the ORIGINAL freezes its lower screen through the same windows (0 changed pixels per 300-frame window at 51,900..53,700 on both) and shows the same model in the same place, bottom-screen `ncc` 0.967..0.973] |
+| 55,000 | 계속 걷기 | 정지가 저절로 끝난다; 풀, 나무, 집, 벌레 [H: log/source account: `gp-E14`; **O**: both producers' lower screens come back on the same frame, **54,900**, 46,776 changed pixels on the original against 46,949 on the port; receipt provenance unresolved] |
+| 55,400..57,300 | Down/Left/Up/Right, 각 400 | 마을: 강 위의 판자 다리, 과일나무, 집, 바위, 그리고 ~~56,600에 화면 위의 주민~~ -- 동일 프레임을 4배 확대하면 그 형체는 흰색과 보라색 팬지 화단이므로, 이 칸의 주민은 **철회**된다 [H: log/source account: `gp-E15`; retraction `gp42-V1` 056,600; receipt provenance unresolved] |
+| 55,500.. | `ACWW_RTC_TIME=235900` | 밤: 달, 어두운 하늘, 어두워진 땅과 물 [H: log/source account: `gp-E17`; receipt provenance unresolved] |
+| 55,460 | START | 게임 자체의 세이브 프롬프트가 거부한다: `어라? 지금은 아직 저장하지 못하나 봐요` [H: log/source account: `gp-E18`; receipt provenance unresolved] |
 
 아래 프레임은 행에 달리 적혀 있지 않으면 GAMEPLAY42 빌드의 `st/town55400.st`에서 이어진다;
 `gp42-*` 영수증(receipt)은 `scratchpad/cycle40/runs/` 아래의 실행 디렉터리이며,
@@ -131,20 +187,20 @@ GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5].
 
 | 프레임 | 스크립트 | 화면에 보이는 것 |
 |---|---|---|
-| 55,560..55,740 | X 유지 | 마을 지도 전체: 왼쪽 위의 문 아치, 오른쪽 위의 마을 회관, 두 상점 광장, 집 아이콘 네 개, 다리 두 개, 연못, 그리고 범례 -- 플레이어의 집과 주민 이름 세 개 [E: `gp42-S1`] |
-| 55,460..57,060 | 서쪽 1,600 | 상점 광장: `너굴 잡화점` 간판 아래 갈색 문이 달린 목조 상점, 그 옆의 초록 지붕 에이블 시스터즈 상점 [E: `gp42-Wwest`, `gp42-N1`] |
-| 55,460..56,660 | 북쪽 1,200 | 돌다리, 그 다음 마을 회관의 정면: 대리석, 기둥, 페디먼트의 문장, 검은 문간 [E: `gp42-Wnorth`] |
-| 57,280..57,310 | 체리나무를 보며, 57,280에 A | 수관 높이 매달린 체리 세 쌍 [E: `gp42-F5`] |
-| **57,320..57,350** | 동일 | **체리가 떨어져 줄기 옆 땅에 놓인다** [E: `gp42-F5`, 10프레임마다 스틸 한 장] |
-| 57,360 | -- | 플레이어 위에 초록색 `체리` 이름 풍선: 떨어진 과일 위에 서 있다 [E: `gp42-F5`, `gp42-V1`] |
-| **57,400** | A, 가만히 선 채 | 줍기. 57,900에 주머니 페이지에 **첫 아이템 슬롯에 체리**가 보인다 [E: `gp42-F4`] |
-| ~58,000 | 지붕 달린 팁 표지판에서 A | **게임 자체의 노란 메시지 상자**, 제목 `낚시 지침`, 파란 계속 화살표; B가 닫는다 [E: `gp42-N2`] |
-| 49,720..50,800 | `st/town48000.st`에서: A x17, B x6, Down 350, 그 다음 **Up** | 마을 회관 광장과 나무 문, 아래에서 걸어 들어감 [E: `gp42-H6`] |
-| **50,880..51,160** | 동일 | **검은 화면 -- 문간 전환** [E: `gp42-H6`] |
-| **51,200..52,400** | 동일 | **마을 회관 안**: 나무 바닥, 카운터, 통, 책상의 펠리 [E: `gp42-H6`, `gp42-H7`] |
-| 52,560..52,720 | B, 그 다음 Down 700 | 다시 검은 화면, 그 다음 **광장 밖**: 걸어서 양방향으로 들어갔다 나옴 [E: `gp42-H7`] |
-| 58,640..59,200 | 서쪽 1,700 뒤 북쪽 2,000 | 마을의 북쪽 절벽. 문은 더 서쪽에 있고 도달하지 못했다 [E: `gp42-G1`] |
-| 산발적, 1,160 스틸 중 17 | 무엇이든 | **에이커 지면이 빠진다**: 평평한 `0x2184FF` 아래 화면, 때로는 그 위에 건물과 플레이어가 그대로 그려짐 [E: `gp42-V2` 056,100, `gp42-H2` 058,760..059,080] |
+| 55,560..55,740 | X 유지 | 마을 지도 전체: 왼쪽 위의 문 아치, 오른쪽 위의 마을 회관, 두 상점 광장, 집 아이콘 네 개, 다리 두 개, 연못, 그리고 범례 -- 플레이어의 집과 주민 이름 세 개 [H: log/source account: `gp42-S1`; receipt provenance unresolved] |
+| 55,460..57,060 | 서쪽 1,600 | 상점 광장: `너굴 잡화점` 간판 아래 갈색 문이 달린 목조 상점, 그 옆의 초록 지붕 에이블 시스터즈 상점 [H: log/source account: `gp42-Wwest`, `gp42-N1`; receipt provenance unresolved] |
+| 55,460..56,660 | 북쪽 1,200 | 돌다리, 그 다음 마을 회관의 정면: 대리석, 기둥, 페디먼트의 문장, 검은 문간 [H: log/source account: `gp42-Wnorth`; receipt provenance unresolved] |
+| 57,280..57,310 | 체리나무를 보며, 57,280에 A | 수관 높이 매달린 체리 세 쌍 [H: log/source account: `gp42-F5`; receipt provenance unresolved] |
+| **57,320..57,350** | 동일 | **체리가 떨어져 줄기 옆 땅에 놓인다** [H: log/source account: `gp42-F5`, one still every 10 frames; receipt provenance unresolved] |
+| 57,360 | -- | 플레이어 위에 초록색 `체리` 이름 풍선: 떨어진 과일 위에 서 있다 [H: log/source account: `gp42-F5`, `gp42-V1`; receipt provenance unresolved] |
+| **57,400** | A, 가만히 선 채 | 줍기. 57,900에 주머니 페이지에 **첫 아이템 슬롯에 체리**가 보인다 [H: log/source account: `gp42-F4`; receipt provenance unresolved] |
+| ~58,000 | 지붕 달린 팁 표지판에서 A | **게임 자체의 노란 메시지 상자**, 제목 `낚시 지침`, 파란 계속 화살표; B가 닫는다 [H: log/source account: `gp42-N2`; receipt provenance unresolved] |
+| 49,720..50,800 | `st/town48000.st`에서: A x17, B x6, Down 350, 그 다음 **Up** | 마을 회관 광장과 나무 문, 아래에서 걸어 들어감 [H: log/source account: `gp42-H6`; receipt provenance unresolved] |
+| **50,880..51,160** | 동일 | **검은 화면 -- 문간 전환** [H: log/source account: `gp42-H6`; receipt provenance unresolved] |
+| **51,200..52,400** | 동일 | **마을 회관 안**: 나무 바닥, 카운터, 통, 책상의 펠리 [H: log/source account: `gp42-H6`, `gp42-H7`; receipt provenance unresolved] |
+| 52,560..52,720 | B, 그 다음 Down 700 | 다시 검은 화면, 그 다음 **광장 밖**: 걸어서 양방향으로 들어갔다 나옴 [H: log/source account: `gp42-H7`; receipt provenance unresolved] |
+| 58,640..59,200 | 서쪽 1,700 뒤 북쪽 2,000 | 마을의 북쪽 절벽. 문은 더 서쪽에 있고 도달하지 못했다 [H: log/source account: `gp42-G1`; receipt provenance unresolved] |
+| 산발적, 1,160 스틸 중 17 | 무엇이든 | **에이커 지면이 빠진다**: 평평한 `0x2184FF` 아래 화면, 때로는 그 위에 건물과 플레이어가 그대로 그려짐 [H: log/source account: `gp42-V2` 056,100, `gp42-H2` 058,760..059,080; receipt provenance unresolved] |
 
 ## SAVE43 -- 집, 너굴, 세이브, 그리고 재로드
 
@@ -155,21 +211,21 @@ GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5].
 
 | 프레임 | 스크립트 | 화면에 보이는 것 |
 |---|---|---|
-| 55,600 | X, 10프레임마다 스틸 | 지도, 플레이어 **자신의 집이 초록색 아이콘**으로 지도 좌표 (75.2, 122.1)에 있고 주민 집 세 채는 파란색. 플레이어 마커는 **깜박인다(BLINKS)** -- 50프레임 샘플은 완전히 놓칠 수 있다 [E: `gp-M1`, `gp-W2`] |
-| 55,460..56,360 | 서쪽 900 | 너무 멀다: 너굴 상점 광장. 이를 바로잡는 것은 추측 항법이 아니라 지도 읽기이다 [E: `gp-W1`] |
-| 56,400..56,745 | 동쪽 270, 남쪽 55 | 나무 문과 **빨간 우편함**이 있는 집의 앞 포장 [E: `gp-W3`, 056,740] |
-| 56,900..58,000 | Down+Right, 그 다음 **Up 700 유지에 Left를 100당 20 펄스**, 그 다음 두 번째 Up 유지 중 A | 문이 열린다: **058,020에 플레이어 집 안**, 058,080 검은 화면, 058,140 방 -- 벤치, 피규어, 스테레오 [E: `gp-D9`; 다른 여덟 번의 접근은 모두 문을 지나쳐 걸었다, `gp-D1`..`gp-D8`] |
-| 58,420..58,960 | A 펄스가 있는 여섯 구간 | 스윕이 문 밖으로 다시 걸어 나간다 [E: `gp-I1`] |
-| **59,040** | -- | **너굴이 문 앞에 있고, 그려지고, 말한다** [E: `gp-I1`, `sequence4_[13]`] |
-| 59,120..62,100 | 60프레임마다 A | 그의 연설: 집, 그의 상점, **19800벨** 대출, 저장 안내, 아르바이트 -- 그 다음 그가 걸어간다 [E: `gp-N1`, `gp-N2`] |
-| 62,300 | -- | HUD와 함께 홀로 남은 플레이어, 그리고 `0x021f3c30`은 **0**: 세이브 차단이 사라졌다 [E: `gp-N2`; `gp-W0`의 워치포인트는 `func_020a128c`를 쓰는 쪽으로 지목한다] |
-| **63,200** | START | **진짜 세이브 메뉴**: `오늘은 여기까지 하시겠습니까?`와 `저장하고 마치기` / `좀 더 놀기` [E: `gp-S1`] |
-| 63,600..067,100 | A | `저장하고 있습니다 / 전원을 끄지 말고 그대로 기다려 주십시오！`, 그동안 게임은 `0x00000..0x2e7f8`에 걸쳐 256바이트 페이지 744개를 쓰고 744회 검증, 불일치 0 [E: `gp-S3`의 센서스] |
-| **067,200** | -- | **`저장했습니다！`** [E: `gp-S3`] |
-| 새(NEW) 실행, 3,000..4,000 | 부팅 키 단계, 스냅샷 없음, 같은 `ACWW_SAVE` | **플레이어 자신의 집 안** -- 침대, 전화 -- `시작 준비 중입니다` 아래 [E: `boot-A`] |
-| 동일, 5,000..12,000 | -- | **플레이어가 자신의 현관문 밖에 있다**, 빨간 우편함, 돌 포장, HUD `6/15 AM10:00`. 택시도 없고 어느 키보드도 없다 [E: `boot-A`; 지워진 저장소의 대조군은 이름 키보드가 뜬 택시 내부] |
-| 동일, +패드 타임라인, 6,200..6,900 | 걷기 네 구간 | 재로드된 마을은 플레이할 수 있다: 플레이어가 걷고, NPC가 자기소개를 한다(`도루묵씨`) [E: `boot-B`] |
-| 057,360 및 058,380 | 주민에 부딪히는 걷기, 그 다음 A | **곤잘레스가 그려진다 -- 낚싯대를 든 초록 코뿔소 -- 이름 풍선과 대화 상자와 함께.** GAMEPLAY42의 GP42-1 헤드라인을 철회한다; 두 측정 사이에 무엇이 바뀌었는지는 확정되지 않았다 [E: `gp-D2`, `gp-D4`] |
+| 55,600 | X, 10프레임마다 스틸 | 지도, 플레이어 **자신의 집이 초록색 아이콘**으로 지도 좌표 (75.2, 122.1)에 있고 주민 집 세 채는 파란색. 플레이어 마커는 **깜박인다(BLINKS)** -- 50프레임 샘플은 완전히 놓칠 수 있다 [H: log/source account: `gp-M1`, `gp-W2`; receipt provenance unresolved] |
+| 55,460..56,360 | 서쪽 900 | 너무 멀다: 너굴 상점 광장. 이를 바로잡는 것은 추측 항법이 아니라 지도 읽기이다 [H: log/source account: `gp-W1`; receipt provenance unresolved] |
+| 56,400..56,745 | 동쪽 270, 남쪽 55 | 나무 문과 **빨간 우편함**이 있는 집의 앞 포장 [H: log/source account: `gp-W3`, 056,740; receipt provenance unresolved] |
+| 56,900..58,000 | Down+Right, 그 다음 **Up 700 유지에 Left를 100당 20 펄스**, 그 다음 두 번째 Up 유지 중 A | 문이 열린다: **058,020에 플레이어 집 안**, 058,080 검은 화면, 058,140 방 -- 벤치, 피규어, 스테레오 [H: log/source account: `gp-D9`; eight other approaches all walked past the door, `gp-D1`..`gp-D8`; receipt provenance unresolved] |
+| 58,420..58,960 | A 펄스가 있는 여섯 구간 | 스윕이 문 밖으로 다시 걸어 나간다 [E: `gp-I1` ; `scratchpad/save43/runs/gp-I1`] |
+| **59,040** | -- | **너굴이 문 앞에 있고, 그려지고, 말한다** [E: `gp-I1`, `sequence4_[13]` ; `scratchpad/save43/runs/gp-I1`] |
+| 59,120..62,100 | 60프레임마다 A | 그의 연설: 집, 그의 상점, **19800벨** 대출, 저장 안내, 아르바이트 -- 그 다음 그가 걸어간다 [E: `gp-N1`, `gp-N2` ; `scratchpad/save43/runs/gp-N1`, `scratchpad/save43/runs/gp-N2`] |
+| 62,300 | -- | HUD와 함께 홀로 남은 플레이어, 그리고 `0x021f3c30`은 **0**: 세이브 차단이 사라졌다 [E: `gp-N2`; `gp-W0`'s watchpoint names `func_020a128c` as the writer ; `scratchpad/save43/runs/gp-N2`, `scratchpad/save43/runs/gp-W0`] |
+| **63,200** | START | **진짜 세이브 메뉴**: `오늘은 여기까지 하시겠습니까?`와 `저장하고 마치기` / `좀 더 놀기` [E: `gp-S1` ; `scratchpad/save43/runs/gp-S1`] |
+| 63,600..067,100 | A | `저장하고 있습니다 / 전원을 끄지 말고 그대로 기다려 주십시오！`, 그동안 게임은 `0x00000..0x2e7f8`에 걸쳐 256바이트 페이지 744개를 쓰고 744회 검증, 불일치 0 [E: `gp-S3`'s census ; `scratchpad/save43/runs/gp-S3`] |
+| **067,200** | -- | **`저장했습니다！`** [E: `gp-S3` ; `scratchpad/save43/runs/gp-S3`] |
+| 새(NEW) 실행, 3,000..4,000 | 부팅 키 단계, 스냅샷 없음, 같은 `ACWW_SAVE` | **플레이어 자신의 집 안** -- 침대, 전화 -- `시작 준비 중입니다` 아래 [H: log/source account: `boot-A`; receipt provenance unresolved] |
+| 동일, 5,000..12,000 | -- | **플레이어가 자신의 현관문 밖에 있다**, 빨간 우편함, 돌 포장, HUD `6/15 AM10:00`. 택시도 없고 어느 키보드도 없다 [H: log/source account: `boot-A`; the erased-store control is the taxi interior with the name keyboard; receipt provenance unresolved] |
+| 동일, +패드 타임라인, 6,200..6,900 | 걷기 네 구간 | 재로드된 마을은 플레이할 수 있다: 플레이어가 걷고, NPC가 자기소개를 한다(`도루묵씨`) [H: log/source account: `boot-B`; receipt provenance unresolved] |
+| 057,360 및 058,380 | 주민에 부딪히는 걷기, 그 다음 A | **곤잘레스가 그려진다 -- 낚싯대를 든 초록 코뿔소 -- 이름 풍선과 대화 상자와 함께.** GAMEPLAY42의 GP42-1 헤드라인을 철회한다; 두 측정 사이에 무엇이 바뀌었는지는 확정되지 않았다 [H: log/source account: `gp-D2`, `gp-D4`; receipt provenance unresolved] |
 
 **이 절을 읽을 가치가 있게 하는 규칙 세 가지.** 집 문은 조준이 아니라 슬라이드(SLIDE)로
 열린다 -- 앞벽으로 미는 방향을 유지하면서 수직 방향을 100프레임마다 20프레임씩 펄스하고,
@@ -181,22 +237,22 @@ GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5].
 ## 포트와 게임이 각각 제대로 하는 것
 
 패드와 스타일러스 모두 게임에 도달한다. B 입력은 마을 이름 키보드에서 글자 하나를 지운다
-[E: `gp-E1`, 48,000..48,240]; A 입력은 대화를 진행시킨다 [E: `gp-E4`]; 243,10에 예약된
-접촉은 UI 페이지를 넘긴다 [E: `gp-E8`, `acww touch: DOWN x=243 y=10` 줄 세 개]. 아래 화면의
+[H: log/source account: `gp-E1`, 48,000..48,240; receipt provenance unresolved]; A 입력은 대화를 진행시킨다 [H: log/source account: `gp-E4`; receipt provenance unresolved]; 243,10에 예약된
+접촉은 UI 페이지를 넘긴다 [H: log/source account: `gp-E8`, three `acww touch: DOWN x=243 y=10` lines; receipt provenance unresolved]. 아래 화면의
 페이지 집합 -- 지도, 주머니, 키보드 -- 은 온전히 렌더링되고, 월드의 3D가 렌더링되며 카메라는
 플레이어를 따라가고, 어파인 하늘은 낮과 밤에 렌더링되며, HUD는 RTC 날짜와 시간을 표시한다
-[E: `gp-E7`, `gp-E10`, `gp-E15`, `gp-E17`].
+[H: log/source account: `gp-E7`, `gp-E10`, `gp-E15`, `gp-E17`; receipt provenance unresolved].
 
 워크스루의 두 거부는 포트가 아니라 게임(GAME)의 것이다: B는 선택지 프롬프트를 닫지 않고
-[E: `gp-E1b`], START의 세이브 프롬프트는 플레이어가 아직 저장할 수 없다고 말한다 -- 이는
+[H: log/source account: `gp-E1b`; receipt provenance unresolved], START의 세이브 프롬프트는 플레이어가 아직 저장할 수 없다고 말한다 -- 이는
 날짜(DAY) 규칙이 아니라 이사 모드 워드 `0x021f3c30`이며, 도착이 끝나는 순간 해제된다
-[E: `gp-E18`, 그 다음 SAVE43 `gp-S1`; S: `func_0209f6e4`].
+[E: `gp-E18`, then SAVE43 `gp-S1`; S: `func_0209f6e4` ; `scratchpad/save43/runs/gp-S1`].
 
 GAMEPLAY42는 그 목록에 온전한 상호작용 세 가지를 더한다. 월드는 A에 반응한다: 과일나무가
 흔들려 과일을 떨어뜨리고, 떨어진 아이템은 주머니에 들어가 거기에 표시되며, 들판의 표지판은
-게임 자체의 메시지 상자를 연다 [E: `gp42-F5`, `gp42-F4`, `gp42-N2`]. 문은 양방향으로
+게임 자체의 메시지 상자를 연다 [H: log/source account: `gp42-F5`, `gp42-F4`, `gp42-N2`; receipt provenance unresolved]. 문은 양방향으로
 동작한다: 플레이어가 북쪽으로 마을 회관 문간에 걸어 들어가면 화면이 검어지고 펠리와 함께
-안에 있으며; 남쪽으로 걸으면 다시 밖으로 나온다 [E: `gp42-H6`, `gp42-H7`]. 26회 실행과
+안에 있으며; 남쪽으로 걸으면 다시 밖으로 나온다 [H: log/source account: `gp42-H6`, `gp42-H7`; receipt provenance unresolved]. 26회 실행과
 1,160장의 스틸에 걸쳐 `unimplemented`도, 폴트도, STOP 상태도, 누락된 PXI 태그도 없었다
 [E: `scratchpad/gameplay42/RECEIPTS.md`].
 
@@ -209,21 +265,18 @@ GAMEPLAY42는 그 목록에 온전한 상호작용 세 가지를 더한다. 월�
 - **바인드는 유실되지 않았다.** 마을 회관을 걸어 나오는 동안의 저장 워치포인트는 정확히 세 번의
   저장만 낳는다: 두 바인더가 `{0x0226d809, 0}`을 쓰고, 상태 진입(`func_ov068_0226bb3c`)이
   autoload_2 `.data`에서 `{0, 0}`을 의도적으로 쓰는데, 이는 mwcc의 정적 NULL 멤버 포인터이다.
-  그리기 슬롯이 보는 null은 ROM 자체의 값이다 [E:
-  `docs/log/cycle41-gameplay.md` VILLAGER42, `v42-W2`; S: `wiki/systems/villagers.md`]. -
+  그리기 슬롯이 보는 null은 ROM 자체의 값이다 [H: log/source account: `docs/log/cycle41-gameplay.md` VILLAGER42, `v42-W2`; S: `wiki/systems/villagers.md`; receipt provenance unresolved]. -
   **주민은 그려지고(ARE drawn), 한 명과는 대화했다.** 플레이어 집 주변 에이커에서 낚싯대를 든
   주민이 화면에 있고 부딪히면 대화 상자로 답한다; 너굴은 도착 연설 내내 그려진다; 세 번째
-  NPC는 재로드된 마을에서 자기소개를 한다 [E:
-  `docs/log/cycle42-save.md` SAVE43, `gp-D2`, `gp-D4`, `gp-N1`, `boot-B`]. - **탐색이 실패한
+  NPC는 재로드된 마을에서 자기소개를 한다 [E: `docs/log/cycle42-save.md` SAVE43, `gp-D2`, `gp-D4`, `gp-N1`, `boot-B` ; `scratchpad/save43/runs/gp-N1`]. - **탐색이 실패한
   이유는 그리기가 아니라 도달 범위(REACH)이다.** GAMEPLAY42의 1,160장 스틸은 거의 전부 도착
   튜토리얼의 정지 안에서 찍혔고, 거기서는 패드가 버려지므로, 스윕은 추측 항법이 주장한 지면을
-  한 번도 덮지 못했다 [E: VILLAGER42 `v42-V1`, `v42-V3`]. 그리고 GAMEPLAY43은 조준한(AIMED)
+  한 번도 덮지 못했다 [H: log/source account: VILLAGER42 `v42-V1`, `v42-V3`; receipt provenance unresolved]. 그리고 GAMEPLAY43은 조준한(AIMED)
   걷기도 실패하는 이유를 밝힌다: `0x021d1d4c`의 매니저는 걷고 있는 살아 있는 액터 둘을 갖고
   있고 그들 자신의 `actor + 0x5c`의 `VecFx32`는 월드 (133, 51)과 (105, 97)을 읽지만,
   `0x021f69d4` -- 유일하게 공개된 플레이어 위치 -- 는 씬 진입(SCENE-ENTRY) 위치로서 1,400
   프레임의 걷기 동안 변하지 않으므로, 그것으로는 아무것도 조준할 수 없다. 조준한 스윕 세 번은
-  아무도 만나지 못했다 [E:
-  `docs/log/cycle41-gameplay.md` GP43-5, `g43-P2`/`P3`, `g43-T2`/`T3`/`T4`].
+  아무도 만나지 못했다 [E: `docs/log/cycle41-gameplay.md` GP43-5, `g43-P2`/`P3`, `g43-T2`/`T3`/`T4` ; `scratchpad/gameplay43/runs/g43-P2`, `scratchpad/gameplay43/runs/g43-T2`].
 
 따라서 열린 질문은 더 이상 "그려지는가"가 아니라 **"이 프레임에 플레이어는 어디에 있는가"**이며,
 peek-and-diff 한 번이면 답이 나온다.
@@ -238,19 +291,19 @@ peek-and-diff 한 번이면 답이 나온다.
 
 | 프레임 | 시계 | 스크립트 | 화면에 보이는 것 |
 |---|---|---|---|
-| 049,800 | 진행(ADVANCING) | A x17, B x6, Down | 광장 밖, **걷는 중** -- 그리고 055,500까지 어디에도 정지 없이 계속 걷는다 [E: `g43-H0`, `g43-P1`] |
-| 050,800..056,600 | 진행 | X 200 유지 뒤 B, 600마다 | 지도가 첫(FIRST) 입력에 열리고 B가 닫는다, 열 번 반복; A 펄스 조건과 무입력 대조군(CONTROL)은 서로 픽셀 단위로 동일하다 [E: `g43-PRXB` vs `g43-PRA` vs `g43-PRNONE`] |
-| **051,200..054,800** | **얼림(FROZEN)** | 같은 `P1-out-and-wake.pad` | **정지가 돌아왔다**: 아래 화면이 스틸당 0.3-0.4% 변하고, 051,600과 054,000 -- ORACLE44 자신의 두 프레임 -- 에서 움찔하며, **055,000**에 풀린다 [E: `g43-BP1`, `ACWW_RTC_FREEZE=1`] |
-| 055,460..059,220 | 진행 | 각 구간 뒤에 지도 읽기가 있는 일곱 구간 | 마커가 (128.5,165.5) -> (64.5,109.5) -> (76.5,128.5)로 걷고, 나무 문과 빨간 우편함(RED MAILBOX)이 있는 플레이어의 집이 화면에 있다. **이 지면의 속도: 동서 0.073 지도 px/프레임, 남북 0.107** -- 또 다른 세 번째 값이므로, 속도는 에이커의 속성이다 [E: `g43-M1`, `g43-V1`, `g43-V3`, `g43-V4`] |
-| 059,650..060,060 | 진행 | **Up 900 유지, LEFT 80당 40 펄스, 60마다 A** | **문이 첫 시도에 열린다**: 059,900에 열린 문간, 059,940..060,040 검은 화면, 060,060에 방. `gp-D9`의 100당 20 펄스를 같은 프레임에 옮겨 적으면 집을 700프레임 지나쳐(PAST) 걷는다 [E: `g43-E2`; 실패는 `g43-E1`] |
-| 062,620 | 진행 | Down 900 유지, RIGHT 80당 40 펄스, 60마다 A | 다시 밖으로(OUT), 같은 형태를 거울상으로, 역시 첫 시도에 [E: `g43-E4`] |
-| **063,100** | 진행 | -- | **너굴이 문 앞에 있고, 그려지고, 말한다** [E: `g43-E4`] |
-| 068,100 | 진행 | 4,550프레임 동안 60마다 A | 연설이 끝나고 `0x021f3c30`은 **0** [E: `g43-N3`; 이전에는 `g43-P4`가 1을 읽는다] |
-| 068,050..074,200 | 진행 | START 뒤 100마다 A | **세이브**: `0x00000..0x2e7f8`에 걸쳐 256바이트 페이지 744개, 744회 검증, 불일치 0, 그리고 `savetool.py check`는 양쪽 모두에 대해 *the game would LOAD this bank*라고 말한다 [E: `g43-S1`, `savecheck-S1.txt`] |
-| 069,290 | 진행 | 지도 읽기를 곁들인 두 구간으로 서쪽 550 | **화면에 에이블 시스터즈 상점**; 너굴 상점은 지도 15px 더 서쪽이고, 그 간판과 갈색 문은 한 실행 뒤에 화면에 나온다 [E: `g43-G2`, `g43-G3`] |
-| 069,300..072,200 | 진행 | 지도 픽셀 기준(BY MAP PIXEL)으로 너굴 상점 문에 네 번 접근 | **들어가지 못함.** 상점 앞 포장에 나무(TREE)가 서 있고, 지도는 플레이어가 그 어느 쪽에 있는지 분해하지 못한다 -- 아이콘은 지도 9px, 마커는 3px. 이 넷은 지도 픽셀 방법의 마지막 데이터 포인트이다 [E: `g43-G3`..`g43-G6`] |
-| 068,000..071,400 | 진행 | `port/tools/goto.py --from st/post68000.st --to nook` | **너굴 상점 안(INSIDE NOOK'S SHOP).** `0x021c749c`의 살아 있는(LIVE) 플레이어 위치에서 에이커 충돌 격자 위 A*, 매 반복 재계획: 타일 (40,56) -> (19,60) -> (21,59) -> (19,43) -> (20,58), 그 다음 `the field grid is 1x1 -- the player is INSIDE`. 카운터 뒤의 너굴, 그려진 실내, 떠 있는 대화 상자. 다섯 번 반복, 90초 [E: `NK-1`..`NK-5`; S: NAV42] |
-| 071,550..075,100 | 진행 | 카운터에서 70마다 A, 그 다음 `Y` | **너굴의 아르바이트** -- 그리고 이 칸은 논쟁 중(DISPUTED)이다. 원래는 "그가 작업복을 건네고, 플레이어가 화면에서 그것으로 갈아입으며(CHANGES INTO IT), 주머니 페이지에 장착된 것이 보인다"라고 적혀 있었다; GAMEPLAY44는 같은 카운터를 실행해 작업복을 플레이어의 몸으로 드래그(DRAG)하라는 지시를 받았는데 이는 A로도 Y로도 지워지지 않으며, 세이브에서 지갑은 `0`이고 모든 주머니 슬롯은 `fff1`이다. 둘 다 참일 수는 없고, GAMEPLAY44의 것이 더 나중이며 더 잘 뒷받침된 판독이고, GAMEPLAY45는 카운터에 도달하지 못해 결판을 내지 못했다. **스틸에 보이기 전까지는 작업복이 착용되지 않은(NOT worn) 것으로 취급한다** [E: `g43-NK6` against `g44-NK1`/`NK2`/`NK3`, `savecheck-S1.txt`] |
+| 049,800 | 진행(ADVANCING) | A x17, B x6, Down | 광장 밖, **걷는 중** -- 그리고 055,500까지 어디에도 정지 없이 계속 걷는다 [E: `g43-H0`, `g43-P1` ; `scratchpad/gameplay43/runs/g43-H0`, `scratchpad/gameplay43/runs/g43-P1`] |
+| 050,800..056,600 | 진행 | X 200 유지 뒤 B, 600마다 | 지도가 첫(FIRST) 입력에 열리고 B가 닫는다, 열 번 반복; A 펄스 조건과 무입력 대조군(CONTROL)은 서로 픽셀 단위로 동일하다 [E: `g43-PRXB` vs `g43-PRA` vs `g43-PRNONE` ; `scratchpad/gameplay43/runs/g43-PRXB`, `scratchpad/gameplay43/runs/g43-PRA`, `scratchpad/gameplay43/runs/g43-PRNONE`] |
+| **051,200..054,800** | **얼림(FROZEN)** | 같은 `P1-out-and-wake.pad` | **정지가 돌아왔다**: 아래 화면이 스틸당 0.3-0.4% 변하고, 051,600과 054,000 -- ORACLE44 자신의 두 프레임 -- 에서 움찔하며, **055,000**에 풀린다 [E: `g43-BP1`, `ACWW_RTC_FREEZE=1` ; `scratchpad/gameplay43/runs/g43-BP1`] |
+| 055,460..059,220 | 진행 | 각 구간 뒤에 지도 읽기가 있는 일곱 구간 | 마커가 (128.5,165.5) -> (64.5,109.5) -> (76.5,128.5)로 걷고, 나무 문과 빨간 우편함(RED MAILBOX)이 있는 플레이어의 집이 화면에 있다. **이 지면의 속도: 동서 0.073 지도 px/프레임, 남북 0.107** -- 또 다른 세 번째 값이므로, 속도는 에이커의 속성이다 [E: `g43-M1`, `g43-V1`, `g43-V3`, `g43-V4` ; `scratchpad/gameplay43/runs/g43-M1`, `scratchpad/gameplay43/runs/g43-V1`, `scratchpad/gameplay43/runs/g43-V3`, `scratchpad/gameplay43/runs/g43-V4`] |
+| 059,650..060,060 | 진행 | **Up 900 유지, LEFT 80당 40 펄스, 60마다 A** | **문이 첫 시도에 열린다**: 059,900에 열린 문간, 059,940..060,040 검은 화면, 060,060에 방. `gp-D9`의 100당 20 펄스를 같은 프레임에 옮겨 적으면 집을 700프레임 지나쳐(PAST) 걷는다 [E: `g43-E2`; the miss is `g43-E1` ; `scratchpad/gameplay43/runs/g43-E2`, `scratchpad/gameplay43/runs/g43-E1`] |
+| 062,620 | 진행 | Down 900 유지, RIGHT 80당 40 펄스, 60마다 A | 다시 밖으로(OUT), 같은 형태를 거울상으로, 역시 첫 시도에 [E: `g43-E4` ; `scratchpad/gameplay43/runs/g43-E4`] |
+| **063,100** | 진행 | -- | **너굴이 문 앞에 있고, 그려지고, 말한다** [E: `g43-E4` ; `scratchpad/gameplay43/runs/g43-E4`] |
+| 068,100 | 진행 | 4,550프레임 동안 60마다 A | 연설이 끝나고 `0x021f3c30`은 **0** [E: `g43-N3`; before, `g43-P4` reads 1 ; `scratchpad/gameplay43/runs/g43-N3`, `scratchpad/gameplay43/runs/g43-P4`] |
+| 068,050..074,200 | 진행 | START 뒤 100마다 A | **세이브**: `0x00000..0x2e7f8`에 걸쳐 256바이트 페이지 744개, 744회 검증, 불일치 0, 그리고 `savetool.py check`는 양쪽 모두에 대해 *the game would LOAD this bank*라고 말한다 [E: `g43-S1`, `savecheck-S1.txt` ; `scratchpad/gameplay43/runs/g43-S1`] |
+| 069,290 | 진행 | 지도 읽기를 곁들인 두 구간으로 서쪽 550 | **화면에 에이블 시스터즈 상점**; 너굴 상점은 지도 15px 더 서쪽이고, 그 간판과 갈색 문은 한 실행 뒤에 화면에 나온다 [E: `g43-G2`, `g43-G3` ; `scratchpad/gameplay43/runs/g43-G2`, `scratchpad/gameplay43/runs/g43-G3`] |
+| 069,300..072,200 | 진행 | 지도 픽셀 기준(BY MAP PIXEL)으로 너굴 상점 문에 네 번 접근 | **들어가지 못함.** 상점 앞 포장에 나무(TREE)가 서 있고, 지도는 플레이어가 그 어느 쪽에 있는지 분해하지 못한다 -- 아이콘은 지도 9px, 마커는 3px. 이 넷은 지도 픽셀 방법의 마지막 데이터 포인트이다 [E: `g43-G3`..`g43-G6` ; `scratchpad/gameplay43/runs/g43-G3`, `scratchpad/gameplay43/runs/g43-G6`] |
+| 068,000..071,400 | 진행 | `port/tools/goto.py --from st/post68000.st --to nook` | **너굴 상점 안(INSIDE NOOK'S SHOP).** `0x021c749c`의 살아 있는(LIVE) 플레이어 위치에서 에이커 충돌 격자 위 A*, 매 반복 재계획: 타일 (40,56) -> (19,60) -> (21,59) -> (19,43) -> (20,58), 그 다음 `the field grid is 1x1 -- the player is INSIDE`. 카운터 뒤의 너굴, 그려진 실내, 떠 있는 대화 상자. 다섯 번 반복, 90초 [H: log/source account: `NK-1`..`NK-5`; S: NAV42; receipt provenance unresolved] |
+| 071,550..075,100 | 진행 | 카운터에서 70마다 A, 그 다음 `Y` | **너굴의 아르바이트** -- 그리고 이 칸은 논쟁 중(DISPUTED)이다. 원래는 "그가 작업복을 건네고, 플레이어가 화면에서 그것으로 갈아입으며(CHANGES INTO IT), 주머니 페이지에 장착된 것이 보인다"라고 적혀 있었다; GAMEPLAY44는 같은 카운터를 실행해 작업복을 플레이어의 몸으로 드래그(DRAG)하라는 지시를 받았는데 이는 A로도 Y로도 지워지지 않으며, 세이브에서 지갑은 `0`이고 모든 주머니 슬롯은 `fff1`이다. 둘 다 참일 수는 없고, GAMEPLAY44의 것이 더 나중이며 더 잘 뒷받침된 판독이고, GAMEPLAY45는 카운터에 도달하지 못해 결판을 내지 못했다. **스틸에 보이기 전까지는 작업복이 착용되지 않은(NOT worn) 것으로 취급한다** [E: `g43-NK6` against `g44-NK1`/`NK2`/`NK3`, `savecheck-S1.txt` ; `scratchpad/gameplay43/runs/g43-NK6`] |
 
 ## GAMEPLAY44 -- 하나의 마을, 두 시계 조건; 그리고 의도적으로 말을 건 주민
 
@@ -262,14 +315,14 @@ SAVE43에서 정확히 재현되었다.
 
 | 프레임 | 마을 | 시계 | 화면에 보이는 것 |
 |---|---|---|---|
-| 050,400..055,000 | 얼림 생성(77/16/127) | 얼림(`_FREEZE_UNTIL=999000`) | DS 일러스트 정지: 스틸당 0.003-0.004 변경, 051,600과 054,000에 움찔, 055,000에 해제 [E: `g44-FRZ`] |
-| 050,400..055,000 | **같은 스냅샷** | 진행(`_FREEZE_UNTIL=48000`; 로그의 시계는 51,591에 10:01, 55,182에 10:02를 읽는다) | **같은 정지, 같은 프레임**, 그리고 048,000..051,400은 얼림 조건과 SHA-256이 동일(IDENTICAL)하다. 두 조건은 051,600 -- 분이 바뀐 프레임 -- 에서 처음 달라지는데, 픽셀의 7.9%가 평균 휘도 변화 -0.005로, 즉 HUD이다 [E: `g44-ADV`, `armcmp.py`] |
-| 048,000..055,600 | 진행 생성(127/109/67) | 진행 | **정지 없음**, 내내 스틸당 0.37-0.43 변경: 걷기, 정확히 `g43-P1`대로 [E: `g44-BADV`] |
-| **056,580..057,480** | 얼림 생성 | 진행 | **주민에게 말을 걸었다(A VILLAGER TALKED TO).** `goto.py --to actor:1`은 `0x021d1d4c`의 매니저를 읽고, 액터 자신의 `+0x5c`를 가져와, 그 옆 타일까지 걸어가 A를 누른다: 양동이를 든 마르가 그려지고, 18장 중 15장의 스틸에 상자가 떠 있으며, A 펄스에 따라 텍스트가 `그래서 몇 가지 질문을 / 준비했어요, 아~옹！`까지 진행(ADVANCING)한다 [E: `TALK1-1`..`TALK1-5`, `g44-TALK`] |
-| 065,683 / 087,726 | 얼림 생성 | 진행 | 플레이어 집 안: 피규어가 놓인 벤치와 스테레오, 4x4 타일, **침대 없음** -- 도착 전과 후(AND) 모두 [E: `g44-BED1`, `g44-BED3`, `roomgrid.py`] |
-| 074,900..081,400 | 얼림 생성 | 진행 | 모드 워드 `0x021f3c30`이 1 -> 0으로 가고, 그 다음 **세이브**: 744 페이지, 검증 불일치 0, 두 뱅크 모두 `-> the game would LOAD this bank` [E: 너굴 연설 실행, `g44-S1`, `savecheck-S1.txt`] |
-| 081,500..086,800 | 얼림 생성 | 진행 | 게임 자체의 이어하기 경로 -- **빨간 침대(RED BED)와 전화가 있는 기상 방**, 그 다음 자신의 현관문 밖에 있는 플레이어, HUD `6/15 AM10:10` [E: `g44-WAKE`; `png/BED2-082500.png`] |
-| 088,560..097,700 | 얼림 생성 | 진행 | **두 번의 반복, 12.4초 만에 너굴 상점 안**, 22타일 떨어진 문간에서 출발; 카운터 연설은 그 다음 `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리`에서 멈추고 A로도 Y로도 지워지지 않는다 [E: `NOOK-1`/`NOOK-2`, `g44-NK1`/`NK2`/`NK3`] |
+| 050,400..055,000 | 얼림 생성(77/16/127) | 얼림(`_FREEZE_UNTIL=999000`) | DS 일러스트 정지: 스틸당 0.003-0.004 변경, 051,600과 054,000에 움찔, 055,000에 해제 [H: log/source account: `g44-FRZ`; receipt provenance unresolved] |
+| 050,400..055,000 | **같은 스냅샷** | 진행(`_FREEZE_UNTIL=48000`; 로그의 시계는 51,591에 10:01, 55,182에 10:02를 읽는다) | **같은 정지, 같은 프레임**, 그리고 048,000..051,400은 얼림 조건과 SHA-256이 동일(IDENTICAL)하다. 두 조건은 051,600 -- 분이 바뀐 프레임 -- 에서 처음 달라지는데, 픽셀의 7.9%가 평균 휘도 변화 -0.005로, 즉 HUD이다 [H: log/source account: `g44-ADV`, `armcmp.py`; receipt provenance unresolved] |
+| 048,000..055,600 | 진행 생성(127/109/67) | 진행 | **정지 없음**, 내내 스틸당 0.37-0.43 변경: 걷기, 정확히 `g43-P1`대로 [H: log/source account: `g44-BADV`; receipt provenance unresolved] |
+| **056,580..057,480** | 얼림 생성 | 진행 | **주민에게 말을 걸었다(A VILLAGER TALKED TO).** `goto.py --to actor:1`은 `0x021d1d4c`의 매니저를 읽고, 액터 자신의 `+0x5c`를 가져와, 그 옆 타일까지 걸어가 A를 누른다: 양동이를 든 마르가 그려지고, 18장 중 15장의 스틸에 상자가 떠 있으며, A 펄스에 따라 텍스트가 `그래서 몇 가지 질문을 / 준비했어요, 아~옹！`까지 진행(ADVANCING)한다 [H: log/source account: `TALK1-1`..`TALK1-5`, `g44-TALK`; receipt provenance unresolved] |
+| 065,683 / 087,726 | 얼림 생성 | 진행 | 플레이어 집 안: 피규어가 놓인 벤치와 스테레오, 4x4 타일, **침대 없음** -- 도착 전과 후(AND) 모두 [H: log/source account: `g44-BED1`, `g44-BED3`, `roomgrid.py`; receipt provenance unresolved] |
+| 074,900..081,400 | 얼림 생성 | 진행 | 모드 워드 `0x021f3c30`이 1 -> 0으로 가고, 그 다음 **세이브**: 744 페이지, 검증 불일치 0, 두 뱅크 모두 `-> the game would LOAD this bank` [H: log/source account: the Nook-speech run, `g44-S1`, `savecheck-S1.txt`; receipt provenance unresolved] |
+| 081,500..086,800 | 얼림 생성 | 진행 | 게임 자체의 이어하기 경로 -- **빨간 침대(RED BED)와 전화가 있는 기상 방**, 그 다음 자신의 현관문 밖에 있는 플레이어, HUD `6/15 AM10:10` [H: log/source account: `g44-WAKE`; `png/BED2-082500.png`; receipt provenance unresolved] |
+| 088,560..097,700 | 얼림 생성 | 진행 | **두 번의 반복, 12.4초 만에 너굴 상점 안**, 22타일 떨어진 문간에서 출발; 카운터 연설은 그 다음 `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리`에서 멈추고 A로도 Y로도 지워지지 않는다 [H: log/source account: `NOOK-1`/`NOOK-2`, `g44-NK1`/`NK2`/`NK3`; receipt provenance unresolved] |
 
 **가져가야 할 두 가지.** 첫째는 위의 정정이다: 정지는 마을의 것이다. 둘째는 **이 워크스루의
 마지막 구간(last mile)이 스타일러스 드래그(STYLUS DRAG)라는 것이다.** 너굴의 아르바이트 --
@@ -298,8 +351,11 @@ cwd가 `port/build`이고 상대 경로는 `GetLastError=3`으로 스냅샷에 �
 
 **이 절을 읽을 가치가 있게 하는 규칙 두 가지.** 첫째: **프레임 번호가 어느 마을(TOWN)에서
 나왔는지 말하라** -- 이 줄은 GAMEPLAY44까지 "어느 시계 조건"이라고 되어 있었고, 그것은 쌍의
-잘못된 절반이었다. 얼린 시계는 다른 마을(DIFFERENT TOWN)을 생성하는데, 생성기가 시계를 읽기
-때문이며, 도착 튜토리얼이 따르는 것은 그 마을이다: 아래의 GAMEPLAY44 절을 보라. RTC42 이전
+잘못된 절반이었다. ~~얼린 시계는 다른 마을(DIFFERENT TOWN)을 생성하는데, 생성기가 시계를 읽기
+때문이며, 도착 튜토리얼이 따르는 것은 그 마을이다: 아래의 GAMEPLAY44 절을 보라.~~ **시계
+인과성 설명은 ORACLE46/47에서 철회되었다.** ORACLE46/47은 세 생산자 모두에서 시드
+`0x000a0f00`을 측정했으며, 무장된 원본은 그 시드를 바꾼 것이 아니라 프레임 10,000 이후
+추가 드로우 14회를 소비했다 [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3]. RTC42 이전
 이 프로젝트의 모든 게임플레이 프레임은 얼린 시계 프레임이고, 따라서 얼린 시계 마을(TOWN)이며,
 그렇게 적혀 있든 아니든 그러하고, 스냅샷도 조건 사이에 이전할 수 없다. 둘째: **문 슬라이드는
 반반(half-and-half)이어야 한다.**
@@ -318,25 +374,27 @@ GAMEPLAY43, SAVE43, GAMEPLAY44에서 네 번째 빌드로 여기서 재현되었
 
 | 프레임 | 한 일 | 일어난 일 |
 |---|---|---|
-| 055,400..056,400 | 걸어 나온 스냅샷에서 `Y`, 100마다 스틸 | **주머니 페이지, 측정됨.** `pockets.py`는 페이지 자체의 아트워크를 클러스터링해 `savetool.py`의 `+0x1bf2, 15x u16`이 예측하는 아이템 슬롯 15개를 정확히 찾아내며, 더해서 편지 슬롯 10개와 초상화도 찾는다. 아이템 슬롯: y 123 / 147 / 171, x 간격 32, **각 행이 +16씩 어긋남** -- 19,51,83,115,147 그 다음 35,67,99,131,163 그 다음 51,83,115,147,179. 편지는 x 211/235, y 67..163. 플레이어의 몸은 (151, ~60) [E: `PK1`] |
-| 003,000..003,110 | 슬롯 6에서 몸까지 14행 스타일러스 스트로크 | **열다섯 번의 탭이 아니라 진짜 드래그(DRAG).** (51,147)에서 `acww touch: DOWN` 한 번, 경로를 따라 행진하는 `TP_POINT` 퍼블리케이션 열다섯 개, (151,60)에서 `acww touch: up` 한 번, 그리고 ROM 자체의 `trig` 바이트가 정확히 두 번(TWICE) -- 양 끝에서 -- 발화 [E: `DRAGTEST`; `mkdrag.py`] |
-| 060,130..061,060 | 같은(SAME) 스냅샷을 두 번, 도착 스윕의 순서(ORDER)만 다르게 | **동쪽 먼저는 플레이어 집에서 16타일 북쪽에서 끝난다; 서쪽 먼저는 한 번의 반복, 5.6초에 안(INSIDE)에 있다.** 문간은 도어매트 타일의 중심에 있고, 플레이어는 그 타일의 0.86 지점에 서 있었으므로, 문간은 처음부터 그들의 서쪽에 있었다 [E: `HOME-6` vs `IN-1`] |
-| 057,000..057,600 | `at_door` 수정의 첫 버전 -- 노치 문에 대한 타일 동등성 | **교착(DEADLOCK), 그리고 발견 사항이 수정보다 값지다**: 플레이어가 도어매트 남쪽 한 타일에 끼었고 세 번의 반복이 각각 같은 한 타일 구간을 계획하고 0 단위(ZERO units) 움직였다. 접근의 마지막 타일은 서브타일이며 옆 방향 스윕만이 그것을 건넌다 [E: `HOUSE-1..6`] |
-| 063,450..068,700 | 플레이어 자신의 현관문에서 60마다 A x85 | 도착이 끝났다(FINISHED): `0x021f3c30`이 **1 -> 0**으로 간다 [E: `NK0`, `peek.py`] |
-| 072,750..079,000 | START 뒤 100마다 A, `ACWW_SAVE` 활성 | **세이브**: `checksum stored 0xbddf computed 0xbddf residual 0x0000`, 그리고 ROM 자체의 `func_020a1a40`이 *the game would LOAD this bank*라고 말한다. 지갑 0, 주머니 `fff1 x15` [E: `S2`] |
-| 072,750..075,200 | 같은(SAME) 스크립트를 쓰기 도중에 정지 프레임을 두고 | **세이브는 원자적이지 않다.** 카드 요청이 4,669 대신 1,985, `checksum stored 0xffff computed 0x13aa`, *the game would REJECT this bank*. 세이브 중의 타임아웃이나 짧은 `ACWW_STOP_FRAME`은 잘린(truncated) 것이 아니라 손상된(CORRUPT) 것으로 읽히는 파일을 쓰며, `savetool.py check`만이 둘을 구별한다 [E: `S1`] |
-| 071,600..072,800 | 너굴 상점 문에 열두 번 접근 | **들어가지 못함.** 내비게이터는 매번 플레이어를 도어매트 (20,54)에 세운다; 도착은 결코 z를 건너지 않는다; 동쪽 펄스를 곁들인 1,000프레임의 북쪽 유지는 플레이어를 *정확히 0 단위* 움직였다 [E: `NOOK-1..6`, `NK-1..8`, `NKD`] |
-| 060,500..066,400 | `goto.py --to villager-1`, 그 다음 그 도어매트에서 다섯 가지 입력 형태 | **들어가지 못했고, 내비게이션 절반은 끝났다(DONE)**: 여덟 번의 반복이 플레이어를 (51,62)에 세우고 거기 붙잡아 둔다. 그 타일에서 완전 듀티 슬라이드, A 없는 동일 슬라이드, 서쪽 단독/북쪽 단독 교대, 동쪽 단독/북쪽 단독 교대 모두 0 단위(ZERO units) 움직인다 -- 반면 단순한 "남쪽 그 다음 동쪽"은 타일당 18프레임으로 자유롭게 걸어 나간다. 벽도 아니고, 상태 정지도 아니고, 대화 상자도 없다 [E: `V1-1..V1-8`, `V1D`, `V1N`, `V1A`, `V1E`, `V1S`] |
+| 055,400..056,400 | 걸어 나온 스냅샷에서 `Y`, 100마다 스틸 | **주머니 페이지, 측정됨.** `pockets.py`는 페이지 자체의 아트워크를 클러스터링해 `savetool.py`의 `+0x1bf2, 15x u16`이 예측하는 아이템 슬롯 15개를 정확히 찾아내며, 더해서 편지 슬롯 10개와 초상화도 찾는다. 아이템 슬롯: y 123 / 147 / 171, x 간격 32, **각 행이 +16씩 어긋남** -- 19,51,83,115,147 그 다음 35,67,99,131,163 그 다음 51,83,115,147,179. 편지는 x 211/235, y 67..163. 플레이어의 몸은 (151, ~60) [H: log/source account: `PK1`; receipt provenance unresolved] |
+| 003,000..003,110 | 슬롯 6에서 몸까지 14행 스타일러스 스트로크 | **열다섯 번의 탭이 아니라 진짜 드래그(DRAG).** (51,147)에서 `acww touch: DOWN` 한 번, 경로를 따라 행진하는 `TP_POINT` 퍼블리케이션 열다섯 개, (151,60)에서 `acww touch: up` 한 번, 그리고 ROM 자체의 `trig` 바이트가 정확히 두 번(TWICE) -- 양 끝에서 -- 발화 [H: log/source account: `DRAGTEST`; `mkdrag.py`; receipt provenance unresolved] |
+| 060,130..061,060 | 같은(SAME) 스냅샷을 두 번, 도착 스윕의 순서(ORDER)만 다르게 | **동쪽 먼저는 플레이어 집에서 16타일 북쪽에서 끝난다; 서쪽 먼저는 한 번의 반복, 5.6초에 안(INSIDE)에 있다.** 문간은 도어매트 타일의 중심에 있고, 플레이어는 그 타일의 0.86 지점에 서 있었으므로, 문간은 처음부터 그들의 서쪽에 있었다 [H: log/source account: `HOME-6` vs `IN-1`; receipt provenance unresolved] |
+| 057,000..057,600 | `at_door` 수정의 첫 버전 -- 노치 문에 대한 타일 동등성 | **교착(DEADLOCK), 그리고 발견 사항이 수정보다 값지다**: 플레이어가 도어매트 남쪽 한 타일에 끼었고 세 번의 반복이 각각 같은 한 타일 구간을 계획하고 0 단위(ZERO units) 움직였다. 접근의 마지막 타일은 서브타일이며 옆 방향 스윕만이 그것을 건넌다 [H: log/source account: `HOUSE-1..6`; receipt provenance unresolved] |
+| 063,450..068,700 | 플레이어 자신의 현관문에서 60마다 A x85 | 도착이 끝났다(FINISHED): `0x021f3c30`이 **1 -> 0**으로 간다 [H: log/source account: `NK0`, `peek.py`; receipt provenance unresolved] |
+| 072,750..079,000 | START 뒤 100마다 A, `ACWW_SAVE` 활성 | **세이브**: `checksum stored 0xbddf computed 0xbddf residual 0x0000`, 그리고 ROM 자체의 `func_020a1a40`이 *the game would LOAD this bank*라고 말한다. 지갑 0, 주머니 `fff1 x15` [H: log/source account: `S2`; receipt provenance unresolved] |
+| 072,750..075,200 | 같은(SAME) 스크립트를 쓰기 도중에 정지 프레임을 두고 | **세이브는 원자적이지 않다.** 카드 요청이 4,669 대신 1,985, `checksum stored 0xffff computed 0x13aa`, *the game would REJECT this bank*. 세이브 중의 타임아웃이나 짧은 `ACWW_STOP_FRAME`은 잘린(truncated) 것이 아니라 손상된(CORRUPT) 것으로 읽히는 파일을 쓰며, `savetool.py check`만이 둘을 구별한다 [H: log/source account: `S1`; receipt provenance unresolved] |
+| 071,600..072,800 | 너굴 상점 문에 열두 번 접근 | **들어가지 못함.** 내비게이터는 매번 플레이어를 도어매트 (20,54)에 세운다; 도착은 결코 z를 건너지 않는다; 동쪽 펄스를 곁들인 1,000프레임의 북쪽 유지는 플레이어를 *정확히 0 단위* 움직였다 [H: log/source account: `NOOK-1..6`, `NK-1..8`, `NKD`; receipt provenance unresolved] |
+| 060,500..066,400 | `goto.py --to villager-1`, 그 다음 그 도어매트에서 다섯 가지 입력 형태 | **들어가지 못했고, 내비게이션 절반은 끝났다(DONE)**: 여덟 번의 반복이 플레이어를 (51,62)에 세우고 거기 붙잡아 둔다. 그 타일에서 완전 듀티 슬라이드, A 없는 동일 슬라이드, 서쪽 단독/북쪽 단독 교대, 동쪽 단독/북쪽 단독 교대 모두 0 단위(ZERO units) 움직인다 -- 반면 단순한 "남쪽 그 다음 동쪽"은 타일당 18프레임으로 자유롭게 걸어 나간다. 벽도 아니고, 상태 정지도 아니고, 대화 상자도 없다 [H: log/source account: `V1-1..V1-8`, `V1D`, `V1N`, `V1A`, `V1E`, `V1S`; receipt provenance unresolved] |
 
 **가져가야 할 것.** 첫째, **드래그는 더 이상 미지수가 아니다** -- 페이지의 좌표는 측정되었고
 포트는 스트로크를 하나의 접촉으로 전달하며, 이것이 GAMEPLAY44가 이 포트와 첫 벨 사이를
 가로막는다고 말한 것이다. 둘째, **문 도착이 건물을 지나쳐 걷는 것을 멈췄다**, 서로 독립적인
 두 수정으로: 접근 축에서만 발동시키고(대각선에서는 절대 아님), 문간 스윕을 항상 동쪽부터가
-아니라 플레이어 자신의 서브타일 위치 기준으로 정렬한다. 셋째, **차단 요인은 줄어든 것이 아니라
+아니라 플레이어 자신의 서브타일 위치 기준으로 정렬한다. ~~셋째, **차단 요인은 줄어든 것이 아니라
 옮겨갔다**: 마을의 문 두 개가 플레이어를 완벽하게 세워 놓고는 아무것도 들여보내지 않으며,
 유력한 판독 -- 가설(HYPOTHESIS)로 표시됨 -- 은 도착의 이 시점에서 그것들이 단순히
 닫혀(CLOSED) 있다는 것인데, 충돌 포켓이 북·동·서를 한꺼번에 막으면서 남쪽만 열어 둘 수는
-없기 때문이다. 아무것도 폴트가 없었다: 44회 실행, `acww: unimplemented` 없음, FAULT 없음,
+없기 때문이다.~~ **닫힌 문 가설은 GAMEPLAY46/48에서 철회되었다.** GAMEPLAY46은 세이브 후
+네 번, 세이브 전 다섯 번의 반복으로 올바른 도어매트에서 너굴 상점에 들어갔고, GAMEPLAY48은
+주민의 문에서 OUT 쪽지를 확인했다 [E: `scratchpad/gameplay46/RECEIPTS.md`, `scratchpad/gameplay48/png/V1-plate.png`; log: `docs/log/cycle41-gameplay.md` GP46-1, GP48-9]. 아무것도 폴트가 없었다: 44회 실행, `acww: unimplemented` 없음, FAULT 없음,
 REFUSAL 없음, 그리고 100이 아닌 두 번의 종료는 스냅샷/링크 거부를 일부러 유발한 것이었다.
 
 ## GAMEPLAY46 -- 너굴 상점에 들어갔고, 드래그가 작용했고, 도어매트가 두 타일 틀려 있었다
@@ -350,18 +408,18 @@ GP46-1..7이다. 마을은 얼린 시계로 생성된 것(주민 id **77/16/127*
 
 | 프레임 | 한 일 | 일어난 일 |
 |---|---|---|
-| 077,750..078,240 | GAMEPLAY44 자신의 너굴 계획을 타일 (19,53)에서 재생 | **상점 안(INSIDE)** -- 그리고 `ACWW_PLAYER_TRACE=1`이 문을 지목한다: 플레이어는 모델의 도어매트 (20,54)를 건너, 그 다음 (21,54), 그리고 **(22,54) -> (22,53)**에서 들어가는데, 이는 두 타일 동쪽이고, 거기서 `y`가 0x2021을 떠나 0x1afc와 0x1259가 된다 [E: `g46-NKDIAG`] |
-| -- | `doorprobe.py`, 게임 실행 없음 | **틀린 것은 문이 아니라 도어매트였다.** `navlib`의 노치 스캔은 건물 범위(footprint) 안의 걸을 수 있는(WALKABLE) 셀을 원한다; 너굴 상점에서 그런 셀은 블록의 열린 왼쪽 아래 모서리 (20,53)뿐이다. 실제 문간 (22,53)은 종류 `0x0a` -- 충돌이 플레이어를 통과시키는 단단한 앞벽 -- 를 읽으며, 건물 자신의 앵커(ANCHOR) 열에 있다 [E: `doorprobe.py` on `st/wake77000.st`] |
-| 064,700..080,300 | `goto.py --to nook`을 네 가지 방식으로: 옛 도어매트 / 새 도어매트, 세이브 전 / 후 | **철회.** 옛 도어매트: 두 번 모두 여섯 번의 반복 뒤 밖. 새 도어매트: **세이브 후에는 네 번, 전에는 다섯 번의 반복 뒤 안.** 세이브, 기상, 게임 내 시각은 아무 관계가 없다 [E: `PRENOOK-1..6`, `NOOK-1..6`, `NKFIX-1..4`, `NKPRE-1..5`] |
-| 078,600..081,400 | 카운터에서 A 펄스 | 아르바이트 대화, 지갑 타원은 **0**, 그리고 너굴의 지시 `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리` [E: `g46-NKDIAG`, `g46-NK1`; `png/NOOK-counter.png`] |
-| 081,400..082,900 | 그의 상자가 화면에 뜬 채 주머니 페이지를 띄우는 다섯 가지 방법 | **B가 상자를 닫고, 그 다음(THEN) Y가 페이지를 연다.** 상자가 떠 있는 채로 Y는 아무 효과가 없고, 대사가 가리키는 화살표를 탭해도 마찬가지이다 -- 상자는 스타일러스도 먹어 버린다. 잔소리는 순환하는 세 페이지이며, 세 번째가 Y 버튼을 언급한다 [E: `g46-PK1`, `PK2`, `PK3`, `PK4`, `PK5`; `png/PK5-pockets.png`] |
-| 082,060..082,400 | 작업복에 탭 한 번, 그 다음 몸에 한 번 | **첫 접촉은 패드→스타일러스 모드 전환으로 먹힌다** -- 유일한 변화는 왼쪽 위의 펜 표시기 -- 그리고 두 번째는 `아무 것도 없어`라고 답한다. cycle40의 TAP40 발견 사항이 두 번째 페이지에서도: 여기서의 모든 드래그는 두 번째(SECOND) 접촉이어야 한다 [E: `g46-TAP2`] |
-| 082,360..082,620 | 아르바이트가 요구하는 대로 드래그: 슬롯 0 (19,123)에서 몸 (151,60)으로 | **게임이 그것에 작용한다.** 작업복이 슬롯 0을 떠나, 열다섯 고리를 모두 비운 채 펜을 따라가고, 그 아래에서 캐릭터가 초록색으로 강조(HIGHLIGHTS GREEN)된다 -- 그 다음 펜이 떨어지면 되돌아간다 [E: `g46-UNI3`; `png/UNI3-082440.png`, `png/DRAG-in-flight.png`] |
-| 082,360..082,800 | 같은 스트로크를 대신 주머니 슬롯(POCKET SLOT)으로 | **드롭이 붙는다(STICKS).** 따라서 거부는 ROM 자체의 "캐릭터에 드롭" 핸들러의 것이다: 전달도, 잃어버린 해제 위치도, 히트 테스트도, 다른 화면의 프롬프트도 아니다 [E: `g46-SLOTMOVE`; `png/SLOTMOVE-stuck.png`] |
+| 077,750..078,240 | GAMEPLAY44 자신의 너굴 계획을 타일 (19,53)에서 재생 | **상점 안(INSIDE)** -- 그리고 `ACWW_PLAYER_TRACE=1`이 문을 지목한다: 플레이어는 모델의 도어매트 (20,54)를 건너, 그 다음 (21,54), 그리고 **(22,54) -> (22,53)**에서 들어가는데, 이는 두 타일 동쪽이고, 거기서 `y`가 0x2021을 떠나 0x1afc와 0x1259가 된다 [H: log/source account: `g46-NKDIAG`; receipt provenance unresolved] |
+| -- | `doorprobe.py`, 게임 실행 없음 | **틀린 것은 문이 아니라 도어매트였다.** `navlib`의 노치 스캔은 건물 범위(footprint) 안의 걸을 수 있는(WALKABLE) 셀을 원한다; 너굴 상점에서 그런 셀은 블록의 열린 왼쪽 아래 모서리 (20,53)뿐이다. 실제 문간 (22,53)은 종류 `0x0a` -- 충돌이 플레이어를 통과시키는 단단한 앞벽 -- 를 읽으며, 건물 자신의 앵커(ANCHOR) 열에 있다 [H: log/source account: `doorprobe.py` on `st/wake77000.st`; receipt provenance unresolved] |
+| 064,700..080,300 | `goto.py --to nook`을 네 가지 방식으로: 옛 도어매트 / 새 도어매트, 세이브 전 / 후 | **철회.** 옛 도어매트: 두 번 모두 여섯 번의 반복 뒤 밖. 새 도어매트: **세이브 후에는 네 번, 전에는 다섯 번의 반복 뒤 안.** 세이브, 기상, 게임 내 시각은 아무 관계가 없다 [H: log/source account: `PRENOOK-1..6`, `NOOK-1..6`, `NKFIX-1..4`, `NKPRE-1..5`; receipt provenance unresolved] |
+| 078,600..081,400 | 카운터에서 A 펄스 | 아르바이트 대화, 지갑 타원은 **0**, 그리고 너굴의 지시 `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리` [H: log/source account: `g46-NKDIAG`, `g46-NK1`; `png/NOOK-counter.png`; receipt provenance unresolved] |
+| 081,400..082,900 | 그의 상자가 화면에 뜬 채 주머니 페이지를 띄우는 다섯 가지 방법 | **B가 상자를 닫고, 그 다음(THEN) Y가 페이지를 연다.** 상자가 떠 있는 채로 Y는 아무 효과가 없고, 대사가 가리키는 화살표를 탭해도 마찬가지이다 -- 상자는 스타일러스도 먹어 버린다. 잔소리는 순환하는 세 페이지이며, 세 번째가 Y 버튼을 언급한다 [H: log/source account: `g46-PK1`, `PK2`, `PK3`, `PK4`, `PK5`; `png/PK5-pockets.png`; receipt provenance unresolved] |
+| 082,060..082,400 | 작업복에 탭 한 번, 그 다음 몸에 한 번 | **첫 접촉은 패드→스타일러스 모드 전환으로 먹힌다** -- 유일한 변화는 왼쪽 위의 펜 표시기 -- 그리고 두 번째는 `아무 것도 없어`라고 답한다. cycle40의 TAP40 발견 사항이 두 번째 페이지에서도: 여기서의 모든 드래그는 두 번째(SECOND) 접촉이어야 한다 [H: log/source account: `g46-TAP2`; receipt provenance unresolved] |
+| 082,360..082,620 | 아르바이트가 요구하는 대로 드래그: 슬롯 0 (19,123)에서 몸 (151,60)으로 | **게임이 그것에 작용한다.** 작업복이 슬롯 0을 떠나, 열다섯 고리를 모두 비운 채 펜을 따라가고, 그 아래에서 캐릭터가 초록색으로 강조(HIGHLIGHTS GREEN)된다 -- 그 다음 펜이 떨어지면 되돌아간다 [H: log/source account: `g46-UNI3`; `png/UNI3-082440.png`, `png/DRAG-in-flight.png`; receipt provenance unresolved] |
+| 082,360..082,800 | 같은 스트로크를 대신 주머니 슬롯(POCKET SLOT)으로 | **드롭이 붙는다(STICKS).** 따라서 거부는 ROM 자체의 "캐릭터에 드롭" 핸들러의 것이다: 전달도, 잃어버린 해제 위치도, 히트 테스트도, 다른 화면의 프롬프트도 아니다 [H: log/source account: `g46-SLOTMOVE`; `png/SLOTMOVE-stuck.png`; receipt provenance unresolved] |
 | -- | `walletaddr.py`, 게임 실행 없음 | **살아 있는 지갑은 `0x021de3cc`의 u32**로, 쓰인 세이브의 1024바이트 중 1024바이트가 `0x021dc7a8`의 RAM과 일치함으로써 고정된다. 0을 읽고, 세이브도 HUD도 마찬가지이다 |
-| 077,000..078,700 | 세이브와 기상 뒤의 플레이어 집, 그 다음 14행 | **여전히 4x4 방, 여전히 침대 없음**, 그리고 14/15행은 문간 앞마당(DOORWAY APRON)이다 -- 남쪽으로 거기에 걸어 들어가면 플레이어가 집 밖으로 나간다 [E: `BEDH-1`, `g46-BED1`] |
-| 071,500..072,400 | 세이브 후 스냅샷에서의 침대 방 | (6,9)의 침대와 (7,10)에 선 플레이어 -- **그리고 900프레임 동안 타일 횡단 0회**: 화면은 `시작 준비 중입니다 / 전원을 끄지 말고 그대로 기다려 주십시오`, 저장 진행 중 화면이고, 거기서 패드는 플레이어의 것이 아니다 [E: `g46-BED2`; `png/BED-the-bedroom.png`] |
-| 077,000..078,500 | villager-1에서 `goto.py`, 그 다음 오프라인 검사 한 번 | 여전히 들어가지 못했고, 명백한 원인은 **배제되었다**: 노치 (51,61)과 도어매트 동쪽 타일 (52,62)는 둘 다 종류 `0x1e`로, 정확히 GP45가 막혔다고 측정한 두 방향이다 -- 그러나 모델에서 `0x1e`를 막으면 마을의 걸을 수 있는 타일 3,256개 중 529개가 사라지고 도어매트는 하나도 움직이지 않으므로, 이는 벽이 아니라 지형이다. 원인 불명; 그 셀에 무엇이 그려지는지(DRAWN)는 아직 아무도 보지 않았다 [E: `V1A-1..5`, `doorprobe.py`, `kind1e.py`] |
+| 077,000..078,700 | 세이브와 기상 뒤의 플레이어 집, 그 다음 14행 | **여전히 4x4 방, 여전히 침대 없음**, 그리고 14/15행은 문간 앞마당(DOORWAY APRON)이다 -- 남쪽으로 거기에 걸어 들어가면 플레이어가 집 밖으로 나간다 [H: log/source account: `BEDH-1`, `g46-BED1`; receipt provenance unresolved] |
+| 071,500..072,400 | 세이브 후 스냅샷에서의 침대 방 | (6,9)의 침대와 (7,10)에 선 플레이어 -- **그리고 900프레임 동안 타일 횡단 0회**: 화면은 `시작 준비 중입니다 / 전원을 끄지 말고 그대로 기다려 주십시오`, 저장 진행 중 화면이고, 거기서 패드는 플레이어의 것이 아니다 [H: log/source account: `g46-BED2`; `png/BED-the-bedroom.png`; receipt provenance unresolved] |
+| 077,000..078,500 | villager-1에서 `goto.py`, 그 다음 오프라인 검사 한 번 | 여전히 들어가지 못했고, 명백한 원인은 **배제되었다**: 노치 (51,61)과 도어매트 동쪽 타일 (52,62)는 둘 다 종류 `0x1e`로, 정확히 GP45가 막혔다고 측정한 두 방향이다 -- 그러나 모델에서 `0x1e`를 막으면 마을의 걸을 수 있는 타일 3,256개 중 529개가 사라지고 도어매트는 하나도 움직이지 않으므로, 이는 벽이 아니라 지형이다. 원인 불명; 그 셀에 무엇이 그려지는지(DRAWN)는 아직 아무도 보지 않았다 [H: log/source account: `V1A-1..5`, `doorprobe.py`, `kind1e.py`; receipt provenance unresolved] |
 
 **가져가야 할 것.** 첫째, **문은 결코 닫혀 있지 않았다** -- GAMEPLAY45의 가장 날카로운 주장은
 철회되며, 그것을 낳은 것은 노치가 모서리인 두 건물에서 문으로부터 두 타일 어긋난
@@ -380,14 +438,12 @@ GP46-1..7이다. 마을은 얼린 시계로 생성된 것(주민 id **77/16/127*
   같은 `walkout.pad` 타임라인을 실행했다: 원본은 같은 구간에서 아래 화면을 얼리고, 같은 두
   프레임(51,600과 54,000)에서 움찔하고, 같은 프레임(54,900)에서 풀리며, 같은 회색 DS 모델을
   같은 자리에 같은 크기로 보여준다
-  [E: `gp-E13`, `gp-E14`; **O**: `scratchpad/oracle/walkout/orig`;
-  `docs/log/cycle41-gameplay.md` ORACLE44; S: Pelly's line names `니텐도 DS 본체의 X 버튼`].
+  [E: `gp-E13`, `gp-E14`; **O**: `scratchpad/oracle/walkout/orig`; `docs/log/cycle41-gameplay.md` ORACLE44; S: Pelly's line names `니텐도 DS 본체의 X 버튼`].
 - ~~마을 회관 안의 검은 위 화면(40,500..48,000)은 실내 자체의 모습이다.~~
   **확정.** 원본의 위 화면은 걸어 나오기가 지나는 모든 프레임 40,500..49,500에서 검으며,
   두 생산자 모두 meanY 0.00이고 `ncc-top`은 정확히 1.0000이다; 그리고 플레이어가 일단
   밖(OUTSIDE)에 나오면 원본의 위 화면은 하늘과 구름을 담고, 아래 화면에는 마을의 3D 월드가
-  있다 -- ORACLE43이 도달하지 못했던 질문이다 [H:
-  `scratchpad/cycle40/runs/town-S2`, `wo-town`; **O**: `scratchpad/oracle/walkout/orig`; receipt lost with its worktree; repeat the named recipe and retain the stated frames].
+  있다 -- ORACLE43이 도달하지 못했던 질문이다 [H: `scratchpad/cycle40/runs/town-S2`, `wo-town`; **O**: `scratchpad/oracle/walkout/orig`; receipt lost with its worktree; repeat the named recipe and retain the stated frames].
 - 포트의 하늘은 원본보다 평평하고 실외에서 위 화면 전체가 더 밝다(평균 휘도 114..122 대
   89..102; 원본의 파랑은 화면 위쪽으로 갈수록 어두워지고 구름은 지평선 쪽으로 평평해진다).
   찬성 근거(FOR): ORACLE43이 지목하고 SKY41이 시작한 스캔라인별 어파인 파라미터
@@ -401,18 +457,17 @@ GP46-1..7이다. 마을은 얼린 시계로 생성된 것(주민 id **77/16/127*
   E: `scratchpad/rtc42/port-53100-bot.png`; `../systems/time-and-rtc.md`]. **이 페이지에 대한
   귀결: OFF 또는 마을 비교의 모든 프레임이 이제 시계에 의존한다**, 분이 `func_020bbb6c`의
   낮/밤 블렌드를 구동하기 때문이며, 따라서 RTC42 이전 실행과의 비교는
-  `ACWW_RTC_FREEZE=1`을 설정해야 한다 [E: `docs/log/cycle41-gameplay.md` RTC42].
+  `ACWW_RTC_FREEZE=1`을 설정해야 한다 [H: log/source account: `docs/log/cycle41-gameplay.md` RTC42; receipt provenance unresolved].
 - 스크립트 입력만으로 주민에게 말을 걸 수 있다. 미확정: `gp-E16`은 주민에게 도달해 그 옆에서
   A를 열 번 눌렀으나 대화가 없었는데, 방향 보기 요건이면 설명이 된다
-  [E: `gp-E16`]. 20프레임마다 스틸을 찍으며 주민 주위를 도는 스크립트로 확정된다.
+  [H: log/source account: `gp-E16`; receipt provenance unresolved]. 20프레임마다 스틸을 찍으며 주민 주위를 도는 스크립트로 확정된다.
 - ~~약 스무 번의 실행 중 세 번이 exit 1 / 0xFFFFFFFF로 끝났고, 폴트 줄 없이 로그가 중간에
   잘렸으며, 재실행에서는 하나도 재현되지 않았다.~~ **2026-09-10 확정(STAB42, `0bc59cc0`):
   외부 킬이었다.** `acww.exe`는 exit 1로 종료할 수 없다 -- 그 종료 코드 표가 의도적으로 이를
   제외한다 -- 그리고 `taskkill /F`와 Python의 `kill()`/`terminate()`는 둘 다 정확히 1을 남기며,
   `Stop-Process -Force`는 `0xffffffff`를 남긴다. 그날 밤 다른 두 에이전트가
   `taskkill /IM acww.exe`를 실행했고, 오케스트레이터 자신의 재시작이 기록된 시각에 한 쌍의
-  실행에서 그 증상을 재현했다. `run-stability.md`를 보라 [E: `scratchpad/stab42/killcode.json`,
-  `scratchpad/stab42/INDEX.md`].
+  실행에서 그 증상을 재현했다. `run-stability.md`를 보라 [E: `scratchpad/stab42/killcode.json`, `scratchpad/stab42/INDEX.md`].
 
 ## 오라클 조건(ORACLE44)
 
@@ -450,24 +505,26 @@ EXACT이다.
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| -- | GAMEPLAY46의 아무 스냅샷이나 재개 | **어느 것도 로드되지 않았고, 리더(READER)도 망가져 있었다.** BUILD44가 세이브스테이트 헤더를 19 워드에서 27 워드로 늘리고(exe의 SHA-256이 링크 식별 정보에 합류했다) `STATE_VERSION`을 2로 올렸지만, `port/tools/navsnap.py`는 여전히 19를 가정하고 있었다 -- 그래서 `navigate.py`, `goto.py`, `navlib.py`, `doorprobe.py`, `roomgrid.py`, `townid.py` 모두가 현재 빌드가 쓰는 모든 스냅샷에서 `IndexError: index out of range`로 죽었다. 여기서 수정했고, 그 뒤 체인 전체를 다시 빌드해 GAMEPLAY46의 프레임들을 재현했다 [E: GP47-0] |
-| 082,360..082,680 | GAMEPLAY46 자체의 착용-드롭 스크립트를 그대로, 포켓 슬롯 0에 `ACWW_INTERP_WATCH`를 걸고 | **스토어가 두 번 일어났으므로 드롭은 수락(ACCEPTED)된 것이다**: 슬롯 0이 `0xfff1`로 비워졌다가 `0x11ac`로 다시 채워지고, 플레이어의 `+0x2408`은 `0x11a8`을 받는다. **이것은 스왑(SWAP)이다** -- "튕겨 돌아온" 아이템은 플레이어가 이미 입고 있던 셔츠이고, 정지 화면에서는 셔츠 아이콘 하나가 다른 것과 똑같아 보인다. GAMEPLAY46의 거부 판정은 철회(RETRACTED)된다 [E: `g47-UNIW`; `png/UNIW-drop.png`] |
-| 같은 구간 | 워치를 `0x021debc4`(`+0x2408`)로 옮김 | ROM의 핸들러가 이름을 얻었다: `pc 0x02099708`에서 `r14 = 0x0229e3f5`로 한 번의 스토어 -- **`func_ov096_0229e3b0 + 0x44`**에서 호출된 `func_02099704`, 즉 ov096의 장착 디스패처로, `src/matched/`에 매칭되어 있다. 그 `case 2`가 셔츠 슬롯이며, 기존 옷이 `0x11a8..0x12a7` 대역에 있을 때에만 그것을 돌려주는데, 이는 여덟 주민의 `+0x7d2` 셔츠 id가 자리한 것과 같은 대역이다 [E: `g47-WEARW`, `dis47.py`] |
-| 088,600..089,300 | B/Y로 페이지를 닫은 뒤, **Up을 누른 채로** A 펄스 | **Nook이 말로 확인한다**: `그래 그래 / 잘 어울려`, 이어서 일의 첫 과제 -- `가게 주변 분위기가 / 화사해지면 / 손님들도 기뻐하잖아구리 !` 그리고 `끝나면 / 다시 와, 구리`. A 펄스만으로는 아무것도 열리지 않았고(플레이어가 남쪽을 향하고 있다); 페이지 위의 A는 커서 아래 아이템의 이름만 알려준다 [E: `g47-TALK2` vs `g47-TALK4`; `png/TALK4.png`] |
-| 089,400 | -- | 열네 슬롯이 비어 있던 자리에 **포켓에 꽃 일곱 송이**: `11ac 1500 1506 150b 1512 151d 151d 151d` [E: `prec.py` on `st/talk89400.st`] |
-| 091,600..092,500 | 페이지를 띄운 채 슬롯 하나를 두 번 탭한 뒤 (58,60)을 탭 | **아이템이 세계에 놓인다.** 두 번째 탭이 페이지 위로 `땅에 심기` / `그만두기`를 제시하는 상자를 열고 `노란 튤립`이라 이름 붙인다; 첫 줄을 선택하면 슬롯이 비고 잔디 위에 튤립이 그려진다 [E: `g47-PLANT1`, `g47-PLANT2`; `png/PLANTED.png`] |
-| 094,900..095,900 | 꽃 여섯 송이를 아직 들고 카운터로 돌아감 | **지갑이 0인 것은 게임상의 이유이며, 게임 자신의 말로 그렇다**: `앗 ! / 알고 있겠지만 / 밖에 심는 거야구리 !`. 보수는 일곱 번의 배치 뒤에, 상점 메뉴는 보수 뒤에, 구매는 메뉴 뒤에 있다 [E: `g47-JOBBACK`; `png/JOBBACK.png`] |
-| 077,000..080,400 | 남은 각 문에 `goto.py --to <name>` 한 번씩 | **네 곳 모두 안으로(INSIDE), 손으로 조준한 것은 없음**: able-sisters는 4회 반복(옷걸이 사이의 고순이), 문은 4회(등불 두 개가 켜진 돌방, 그리고 들어갈 때 편지 저장소에 대한 165회 요청의 카드 읽기), 박물관은 6회(타일 깔린 홀의 부엉), 마을 회관은 3회. `able-sisters`는 GAMEPLAY46의 앵커 규칙이 옮긴 두 번째 건물이므로, 이는 그 수정을 독립적으로 확인해 준다 [E: `doors47.py`, `D-*`] |
-| 081,300..084,500 | 주민-1의 문, 세 가지 방법으로 | **모델은 옳고 거부는 조준 문제가 아니다.** 도어매트 (51,62)에서의 A는 그 집 자체의 문패(NAMEPLATE) 상자 `곤잘레스네 집`을 여니, ROM은 그곳이 문임에 동의한다; A와 함께 750 프레임 동안 Up을 누른 것과 **A 없이 1,200 프레임** 누른 것 모두 타일 0개를 건너며, 플레이어는 월드 `z = 124.83`에서 타일-61 경계에 딱 붙어 멈춰 있다; 같은 밀기를 한 열 동쪽 -- Nook의 실제 출입구였던 kind-`0x0a` 셀 -- 에서 하면 곧장 통과해 북쪽으로 열두 타일을 걷는다. GAMEPLAY46의 "원인 불명, `navlib`이 틀렸을 수 있음"은 답을 얻었다: `navlib`이 아니다 [E: `g47-V1DOOR`, `g47-V1NOA`, `g47-V1X52`; `png/V1-acre.png`, `png/V1-door-zoom.png`] |
-| -- | 포켓 페이지를 띄운 상태로 찍은 스냅샷에서 시작한 `goto.py` 체인 | **여섯 번 반복, 타일 0개.** 페이지가 대화 상자와 똑같이 패드를 먹어 버리며, 세이브스테이트를 넘어서도 살아남는다. 먼저 `Y` 한 번, 그러자 다음 체인은 네 번 반복 만에 Nook의 상점 안이었다 [E: `g47-NK2` vs `g47-CLOSEP`] |
+| -- | GAMEPLAY46의 아무 스냅샷이나 재개 | **어느 것도 로드되지 않았고, 리더(READER)도 망가져 있었다.** BUILD44가 세이브스테이트 헤더를 19 워드에서 27 워드로 늘리고(exe의 SHA-256이 링크 식별 정보에 합류했다) `STATE_VERSION`을 2로 올렸지만, `port/tools/navsnap.py`는 여전히 19를 가정하고 있었다 -- 그래서 `navigate.py`, `goto.py`, `navlib.py`, `doorprobe.py`, `roomgrid.py`, `townid.py` 모두가 현재 빌드가 쓰는 모든 스냅샷에서 `IndexError: index out of range`로 죽었다. 여기서 수정했고, 그 뒤 체인 전체를 다시 빌드해 GAMEPLAY46의 프레임들을 재현했다 [H: log/source account: GP47-0; receipt provenance unresolved] |
+| 082,360..082,680 | GAMEPLAY46 자체의 착용-드롭 스크립트를 그대로, 포켓 슬롯 0에 `ACWW_INTERP_WATCH`를 걸고 | **스토어가 두 번 일어났으므로 드롭은 수락(ACCEPTED)된 것이다**: 슬롯 0이 `0xfff1`로 비워졌다가 `0x11ac`로 다시 채워지고, 플레이어의 `+0x2408`은 `0x11a8`을 받는다. **이것은 스왑(SWAP)이다** -- "튕겨 돌아온" 아이템은 플레이어가 이미 입고 있던 셔츠이고, 정지 화면에서는 셔츠 아이콘 하나가 다른 것과 똑같아 보인다. GAMEPLAY46의 거부 판정은 철회(RETRACTED)된다 [H: log/source account: `g47-UNIW`; `png/UNIW-drop.png`; receipt provenance unresolved] |
+| 같은 구간 | 워치를 `0x021debc4`(`+0x2408`)로 옮김 | ROM의 핸들러가 이름을 얻었다: `pc 0x02099708`에서 `r14 = 0x0229e3f5`로 한 번의 스토어 -- **`func_ov096_0229e3b0 + 0x44`**에서 호출된 `func_02099704`, 즉 ov096의 장착 디스패처로, `src/matched/`에 매칭되어 있다. 그 `case 2`가 셔츠 슬롯이며, 기존 옷이 `0x11a8..0x12a7` 대역에 있을 때에만 그것을 돌려주는데, 이는 여덟 주민의 `+0x7d2` 셔츠 id가 자리한 것과 같은 대역이다 [H: log/source account: `g47-WEARW`, `dis47.py`; receipt provenance unresolved] |
+| 088,600..089,300 | B/Y로 페이지를 닫은 뒤, **Up을 누른 채로** A 펄스 | **Nook이 말로 확인한다**: `그래 그래 / 잘 어울려`, 이어서 일의 첫 과제 -- `가게 주변 분위기가 / 화사해지면 / 손님들도 기뻐하잖아구리 !` 그리고 `끝나면 / 다시 와, 구리`. A 펄스만으로는 아무것도 열리지 않았고(플레이어가 남쪽을 향하고 있다); 페이지 위의 A는 커서 아래 아이템의 이름만 알려준다 [H: log/source account: `g47-TALK2` vs `g47-TALK4`; `png/TALK4.png`; receipt provenance unresolved] |
+| 089,400 | -- | 열네 슬롯이 비어 있던 자리에 **포켓에 꽃 일곱 송이**: `11ac 1500 1506 150b 1512 151d 151d 151d` [H: log/source account: `prec.py` on `st/talk89400.st`; receipt provenance unresolved] |
+| 091,600..092,500 | 페이지를 띄운 채 슬롯 하나를 두 번 탭한 뒤 (58,60)을 탭 | **아이템이 세계에 놓인다.** 두 번째 탭이 페이지 위로 `땅에 심기` / `그만두기`를 제시하는 상자를 열고 `노란 튤립`이라 이름 붙인다; 첫 줄을 선택하면 슬롯이 비고 잔디 위에 튤립이 그려진다 [H: log/source account: `g47-PLANT1`, `g47-PLANT2`; `png/PLANTED.png`; receipt provenance unresolved] |
+| 094,900..095,900 | 꽃 여섯 송이를 아직 들고 카운터로 돌아감 | **지갑이 0인 것은 게임상의 이유이며, 게임 자신의 말로 그렇다**: `앗 ! / 알고 있겠지만 / 밖에 심는 거야구리 !`. 보수는 일곱 번의 배치 뒤에, 상점 메뉴는 보수 뒤에, 구매는 메뉴 뒤에 있다 [H: log/source account: `g47-JOBBACK`; `png/JOBBACK.png`; receipt provenance unresolved] |
+| 077,000..080,400 | 남은 각 문에 `goto.py --to <name>` 한 번씩 | **네 곳 모두 안으로(INSIDE), 손으로 조준한 것은 없음**: able-sisters는 4회 반복(옷걸이 사이의 고순이), 문은 4회(등불 두 개가 켜진 돌방, 그리고 들어갈 때 편지 저장소에 대한 165회 요청의 카드 읽기), 박물관은 6회(타일 깔린 홀의 부엉), 마을 회관은 3회. `able-sisters`는 GAMEPLAY46의 앵커 규칙이 옮긴 두 번째 건물이므로, 이는 그 수정을 독립적으로 확인해 준다 [H: log/source account: `doors47.py`, `D-*`; receipt provenance unresolved] |
+| 081,300..084,500 | 주민-1의 문, 세 가지 방법으로 | **모델은 옳고 거부는 조준 문제가 아니다.** ~~도어매트 (51,62)에서의 A는 그 집 자체의 문패(NAMEPLATE) 상자 `곤잘레스네 집`을 여니, ROM은 그곳이 문임에 동의한다;~~ **명판 판독은 GAMEPLAY48(GP48-9)에서 철회되었다.** 프레임 82,200의 상자는 주민의 OUT 쪽지이다 [E: `scratchpad/gameplay48/png/V1-plate.png`; log: `docs/log/cycle41-gameplay.md` GP48-9]; 750 프레임 동안 A와 함께 Up을 누른 것과 **A 없이 1,200 프레임** 누른 것 모두 타일 0개를 건너며, 플레이어는 월드 `z = 124.83`에서 타일-61 경계에 딱 붙어 멈춰 있다; 같은 밀기를 한 열 동쪽 -- Nook의 실제 출입구였던 kind-`0x0a` 셀 -- 에서 하면 곧장 통과해 북쪽으로 열두 타일을 걷는다. GAMEPLAY46의 "원인 불명, `navlib`이 틀렸을 수 있음"은 답을 얻었다: `navlib`이 아니다 [H: log/source account: `g47-V1DOOR`, `g47-V1NOA`, `g47-V1X52`; `png/V1-acre.png`, `png/V1-door-zoom.png`; receipt provenance unresolved] |
+| -- | 포켓 페이지를 띄운 상태로 찍은 스냅샷에서 시작한 `goto.py` 체인 | **여섯 번 반복, 타일 0개.** 페이지가 대화 상자와 똑같이 패드를 먹어 버리며, 세이브스테이트를 넘어서도 살아남는다. 먼저 `Y` 한 번, 그러자 다음 체인은 네 번 반복 만에 Nook의 상점 안이었다 [H: log/source account: `g47-NK2` vs `g47-CLOSEP`; receipt provenance unresolved] |
 
 **가져갈 것.** 첫째, **결함은 없었다**: 착용-드롭은 GAMEPLAY46의 첫 시도부터 작동했고, 이
 프로젝트가 그것을 아는 데 방해가 된 것은 "거부됨"과 "수락됨"이 같은 그림을 남긴다는
 사실이었다. 다섯 가지 스트로크 변형과 입력에 대한 대조 실행은 둘을 구분하지 못했다;
 플레이어 레코드에 건 스토어 워치포인트 하나가 단 한 번의 실행으로 해냈다. **두 결과가
-비슷해 보일 때는 동작이 아니라, 그 동작이 움직여야 할 워드를 측정하라.** 둘째, 주민 집을
+비슷해 보일 때는 동작이 아니라, 그 동작이 움직여야 할 워드를 측정하라.** 둘째, ~~주민 집을
 제외하면 **마을 모델의 모든 문이 이제 열려 있고**, 주민 집은 이제 내비게이션 문제가 아니라
-오라클(ORACLE) 문제이다. 셋째, **첫 벨을 막는 것은 더 이상 포트가 아니다** -- 꽃 일곱 송이
+오라클(ORACLE) 문제이다.~~ **열린 질문은 ORACLE50에서 끝났다.** ORACLE50은 공유 지도, 마을
+`0x8365`에서 프레임 57,600에 두 생산자가 모두 주민-1의 집 안에 있음을 측정했고, GP48-9의
+OUT 쪽지는 마을 `0xc66e`를 설명하며 포트 전체의 문 결함을 설명하지 않는다. [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3] 셋째, **첫 벨을 막는 것은 더 이상 포트가 아니다** -- 꽃 일곱 송이
 심부름이 막고 있으며, 그것을 끝내는 배치 메커니즘은 증명되었다.
 
 ## GAMEPLAY48 -- 꽃 일곱 송이를 심고, 촌장을 만나고, 주민의 문이 이유를 말한다
@@ -482,24 +539,28 @@ GP48-0..10이다. 마을은 동결 생성된 그 마을(주민 id **77/16/127**,
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| 048,000..091,400 | GAMEPLAY47의 스무 단계 체인을 자체 `receipt.json` 파일들로부터 **개루프(OPEN LOOP)**로 재생 | **새 빌드에서 타일 단위까지 그대로 재현된다**: 57,812에서 `HOME-4`, (40,56)에서의 걸어 나오기, 착용 셔츠 `0x11ac`로 검증되는 세이브, 유니폼 스왑 `0x11a8 -> 0x11ac`, 꽃 일곱 송이 `1500 1506 150b 1512 151d 151d 151d`. 모든 `goto.py` 구간이 이미 자기 계획을 `.pad`로 써 두었으므로 내비게이터는 한 번도 돌지 않았다. **한 사이클은 다음 사이클에 스냅샷이 아니라 계획(PLANS)을 넘겨야 한다** -- 스냅샷은 하나의 링크에 묶여 있고 빌드 하나 뒤에는 쓸모가 없었다 [E: GP48-0, `chain48.py`] |
-| 091,460..097,620 | 꽃 일곱 송이를 **실행 하나에 한 송이씩** 심고, 포켓 행을 수락 테스트로 사용 | **일곱 번 중 일곱 번.** 포켓이 `11ac 1500 ...` -> `11ac fff1 x7`로 가고 꽃들은 잔디 위에 무리지어 그려진다. **플레이어는 한 번도 움직이지 않았다**: ROM이 스스로 땅을 고른다 [E: `g48-PLANT1..7`; `png/PLANTED-all.png`] |
-| 같은 구간 | GAMEPLAY47의 여섯 송이 한 번에 심기 스크립트가 왜 하나도 심지 못했는가 | **`땅에 심기` 상자는 탭한 슬롯 옆(BESIDE)에 그려지고 슬롯을 따라 움직인다** -- 첫 줄이 `slot + (10, -62)`에 있고, 패널 폭은 아이템 이름을 따른다. 슬롯-1 탭의 6배 줌에서 읽어 낸 GAMEPLAY47의 `(58,60)`은 슬롯 1에서 10픽셀 어긋나고, 슬롯 3에 가면 패널 하나만큼, 슬롯 5에 가면 한 행(ROW) 전체만큼 어긋난다. **줌을 눈으로 본 것은 측정이 아니다 (M1)** [E: GP48-1, `menubox.py`, by colour] |
-| 같은 구간 | 그리고 그 나머지 절반 | **패드-스타일러스 모드 전환은 조건부(CONDITIONAL)이다.** 직전 입력이 패드였을 때에만 소모된다; 이미 스타일러스 모드인 페이지에서는 "전환" 탭이 상자를 열고 "실제" 탭이 그것을 다시 닫아(CLOSES) 버린다. 세 번이 아니라 두 번의 탭 [E: GP48-2, `g48-PLANT3`] |
-| 097,800..101,000 | 포켓을 비운 채 Nook에게 돌아감 | **그는 지불하지 않는다.** `잠깐 동안 / 휴식 시간을 좀` 그리고 `마을사무소 주변에서 / 산책하고 있을 테니 / 찾아봐구리` -- 마을 회관 근처에서 휴식. 지갑은 여전히 0 [E: `g48-PAY`; `png/PAY.png`] |
-| 102,700..104,850 | 그를 따라 그곳으로 감 | **마을 회관 광장에 서 있는 NPC는 고북 -- Tortimer, 촌장(MAYOR)**으로, 이 포트가 한 번도 만난 적 없는 캐릭터이다. 액터 매니저는 이전의 모든 사이클이 둘을 보던 자리에 살아 있는 액터 셋(THREE)을 담고 있다; `goto.py --to actor:2`는 세 번 반복 만에 인접한다. `내 이름은 고북이라네 !` [E: `NKW-1..3`, `g48-NKTALK`; `png/NKTALK.png`] |
-| 077,060..082,300 | 주민-1의 문, GAMEPLAY47의 타임라인 전체를 153행짜리 스크립트 하나(ONE)로 | **거부가 정확히 재현된다** -- GAMEPLAY47이 지목한 프레임 **81,344**에 도어매트 위로, 그 뒤로는 건너지 않음 -- **그리고 화면의 상자가 답이다**: `이 몸은 밖에 계신다 / 곤잘레스`, "나는 외출 중이다. -- 곤잘레스". 이것은 주민이 집에 없을 때 남겨 두는 쪽지이지 문패가 아니며, 같은 스냅샷에서 살아 있는 주민 액터 둘이 마을을 걷고 있다. 결함이 아니라 게임(GAME)의 규칙이다 [E: GP48-9; `png/V1-plate.png`] |
-| 048,000..082,200 | 같은 타임라인을 원본(ORIGINAL)에서, 82,264 에뮬레이트 프레임 | **오라클에게는 이것을 물을 수 없다.** 이음매(48,000)에서 둘은 Pelly의 대화 같은 줄의 같은 씬이다; 그 뒤로는 완전히 다른 곳에 있고, HUD가 산수를 해 준다: 77,000에서 포트는 AM10:08, 원본은 AM10:21을 읽는다 -- 정확히 포트가 쓰지 않은 48,000 동결 프레임(13분 22초)이다. **오라클에는 `ACWW_RTC_FREEZE_UNTIL`에 대응하는 것이 없고**, GP44는 생성 시점의 시계 차이에서 따라 나오는 두 가지 -- 다른 마을, 그리고 도착 튜토리얼 홀드의 부재 -- 를 측정했는데 이 실행은 그 둘을 분리하지 못한다. 어느 하나만으로도 비교는 깨진다 [E: GP48-8; `png/V1-sbs-seam.png`, `png/V1-sbs-door.png`; `compare.py` mean ncc 0.334] |
-| -- | 오라클에 아무 `goto.py` 계획이나 주기 | **하나도 빠짐없이 거부했고, ORACLE44부터 그래 왔다.** 포트의 파서는 `#`로 시작하는 토큰에서 행을 멈추는데, `oracle.py`가 그것을 옮겨 적은 코드는 줄 전체를 분할해서 모든 계획이 달고 있는 꼬리 주석을 거부했다. 여기서 수정 [E: GP48-6] |
-| 108,400..139,001 | 마을 회관에서 31,600 프레임 대기 | **세 사이클 만에 유일한 비-`exit 100` 실행**: `acww: unimplemented: a savestate-resumed OSThread procedure returned instead of calling OS_ExitThread`. 재개 후 ~91,000 프레임이 지나서야 도달; 진단되지 않음 [E: GP48-10, `g48-WAIT2`] |
+| 048,000..091,400 | GAMEPLAY47의 스무 단계 체인을 자체 `receipt.json` 파일들로부터 **개루프(OPEN LOOP)**로 재생 | **새 빌드에서 타일 단위까지 그대로 재현된다**: 57,812에서 `HOME-4`, (40,56)에서의 걸어 나오기, 착용 셔츠 `0x11ac`로 검증되는 세이브, 유니폼 스왑 `0x11a8 -> 0x11ac`, 꽃 일곱 송이 `1500 1506 150b 1512 151d 151d 151d`. 모든 `goto.py` 구간이 이미 자기 계획을 `.pad`로 써 두었으므로 내비게이터는 한 번도 돌지 않았다. **한 사이클은 다음 사이클에 스냅샷이 아니라 계획(PLANS)을 넘겨야 한다** -- 스냅샷은 하나의 링크에 묶여 있고 빌드 하나 뒤에는 쓸모가 없었다 [H: log/source account: GP48-0, `chain48.py`; receipt provenance unresolved] |
+| 091,460..097,620 | 꽃 일곱 송이를 **실행 하나에 한 송이씩** 심고, 포켓 행을 수락 테스트로 사용 | **일곱 번 중 일곱 번.** 포켓이 `11ac 1500 ...` -> `11ac fff1 x7`로 가고 꽃들은 잔디 위에 무리지어 그려진다. **플레이어는 한 번도 움직이지 않았다**: ROM이 스스로 땅을 고른다 [H: log/source account: `g48-PLANT1..7`; `png/PLANTED-all.png`; receipt provenance unresolved] |
+| 같은 구간 | GAMEPLAY47의 여섯 송이 한 번에 심기 스크립트가 왜 하나도 심지 못했는가 | **`땅에 심기` 상자는 탭한 슬롯 옆(BESIDE)에 그려지고 슬롯을 따라 움직인다** -- 첫 줄이 `slot + (10, -62)`에 있고, 패널 폭은 아이템 이름을 따른다. 슬롯-1 탭의 6배 줌에서 읽어 낸 GAMEPLAY47의 `(58,60)`은 슬롯 1에서 10픽셀 어긋나고, 슬롯 3에 가면 패널 하나만큼, 슬롯 5에 가면 한 행(ROW) 전체만큼 어긋난다. **줌을 눈으로 본 것은 측정이 아니다 (M1)** [H: log/source account: GP48-1, `menubox.py`, by colour; receipt provenance unresolved] |
+| 같은 구간 | 그리고 그 나머지 절반 | **패드-스타일러스 모드 전환은 조건부(CONDITIONAL)이다.** 직전 입력이 패드였을 때에만 소모된다; 이미 스타일러스 모드인 페이지에서는 "전환" 탭이 상자를 열고 "실제" 탭이 그것을 다시 닫아(CLOSES) 버린다. 세 번이 아니라 두 번의 탭 [H: log/source account: GP48-2, `g48-PLANT3`; receipt provenance unresolved] |
+| 097,800..101,000 | 포켓을 비운 채 Nook에게 돌아감 | **그는 지불하지 않는다.** `잠깐 동안 / 휴식 시간을 좀` 그리고 `마을사무소 주변에서 / 산책하고 있을 테니 / 찾아봐구리` -- 마을 회관 근처에서 휴식. 지갑은 여전히 0 [H: log/source account: `g48-PAY`; `png/PAY.png`; receipt provenance unresolved] |
+| 102,700..104,850 | 그를 따라 그곳으로 감 | **마을 회관 광장에 서 있는 NPC는 고북 -- Tortimer, 촌장(MAYOR)**으로, 이 포트가 한 번도 만난 적 없는 캐릭터이다. 액터 매니저는 이전의 모든 사이클이 둘을 보던 자리에 살아 있는 액터 셋(THREE)을 담고 있다; `goto.py --to actor:2`는 세 번 반복 만에 인접한다. `내 이름은 고북이라네 !` [H: log/source account: `NKW-1..3`, `g48-NKTALK`; `png/NKTALK.png`; receipt provenance unresolved] |
+| 077,060..082,300 | 주민-1의 문, GAMEPLAY47의 타임라인 전체를 153행짜리 스크립트 하나(ONE)로 | **거부가 정확히 재현된다** -- GAMEPLAY47이 지목한 프레임 **81,344**에 도어매트 위로, 그 뒤로는 건너지 않음 -- **그리고 화면의 상자가 답이다**: `이 몸은 밖에 계신다 / 곤잘레스`, "나는 외출 중이다. -- 곤잘레스". 이것은 주민이 집에 없을 때 남겨 두는 쪽지이지 문패가 아니며, 같은 스냅샷에서 살아 있는 주민 액터 둘이 마을을 걷고 있다. 결함이 아니라 게임(GAME)의 규칙이다 [H: log/source account: GP48-9; `png/V1-plate.png`; receipt provenance unresolved] **나중 범위 확인(ORACLE50):** ORACLE50은 공유 지도, 마을 `0x8365`에서 프레임 57,600에 두 생산자가 주민-1의 집 안에 있음을 측정했다. GP48-9의 OUT 쪽지는 마을 `0xc66e`를 설명하며 포트 전체의 문 결함을 설명하지 않는다. [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3] |
+| 048,000..082,200 | 같은 타임라인을 원본(ORIGINAL)에서, 82,264 에뮬레이트 프레임 | **오라클에게는 이것을 물을 수 없다.** 이음매(48,000)에서 둘은 Pelly의 대화 같은 줄의 같은 씬이다; 그 뒤로는 완전히 다른 곳에 있고, HUD가 산수를 해 준다: 77,000에서 포트는 AM10:08, 원본은 AM10:21을 읽는다 -- 정확히 포트가 쓰지 않은 48,000 동결 프레임(13분 22초)이다. ~~**오라클에는 `ACWW_RTC_FREEZE_UNTIL`에 대응하는 것이 없고**, GP44는 생성 시점의 시계 차이에서 따라 나오는 두 가지 -- 다른 마을, 그리고 도착 튜토리얼 홀드의 부재 -- 를 측정했는데 이 실행은 그 둘을 분리하지 못한다. 어느 하나만으로도 비교는 깨진다~~ **ORACLE45-1과 TUTORIAL45에서 철회되었다:** 오라클에 동결 조건이 추가되었고, TUT45-2는 원본이 4,500프레임 동안 홀드하며 둘이 54,900에서 풀리는 것을 측정했다 [E: `scratchpad/oracle45/RECEIPTS.md`, `scratchpad/tutorial45/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` ORACLE45-1, TUT45-2]. ORACLE46/47은 세 생산자 모두에서 시드 `0x000a0f00`을 측정했으며, 무장된 원본은 그 시드를 바꾼 것이 아니라 프레임 10,000 이후 추가 드로우 14회를 소비했다 [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3]. [H: log/source account: GP48-8; `png/V1-sbs-seam.png`, `png/V1-sbs-door.png`; `compare.py` mean ncc 0.334; receipt provenance unresolved] |
+| -- | 오라클에 아무 `goto.py` 계획이나 주기 | **하나도 빠짐없이 거부했고, ORACLE44부터 그래 왔다.** 포트의 파서는 `#`로 시작하는 토큰에서 행을 멈추는데, `oracle.py`가 그것을 옮겨 적은 코드는 줄 전체를 분할해서 모든 계획이 달고 있는 꼬리 주석을 거부했다. 여기서 수정 [H: log/source account: GP48-6; receipt provenance unresolved] |
+| 108,400..139,001 | 마을 회관에서 31,600 프레임 대기 | **세 사이클 만에 유일한 비-`exit 100` 실행**: `acww: unimplemented: a savestate-resumed OSThread procedure returned instead of calling OS_ExitThread`. 재개 후 ~91,000 프레임이 지나서야 도달; 진단되지 않음 [H: log/source account: GP48-10, `g48-WAIT2`; receipt provenance unresolved] |
 
 **가져갈 것.** 첫째, **Nook의 첫 과제는 끝났고** 그것을 막은 것은 결코 포트가 아니었다 --
 막은 것은 측정 대신 줌에서 읽어 낸 확인 지점과 조건을 잃어버린 모드 전환 규칙이었다.
 둘째, **게임이 이미 열어 놓은 상자를 읽어라**: 주민 집은 세 사이클의 내비게이션 작업을
 잡아먹었는데 답은 내내 문에 인쇄되어 있었다. 셋째, **레시피 안의 모든 계기가 양쪽에
 대응물을 갖기 전까지 그 레시피는 공유된 것이 아니다**: 패드 단계, 두 번의 탭, 패드
-타임라인은 모두 그렇다; 세계(WORLD)를 고르는 바로 그 시계 조건은 그렇지 않으며, 그렇게
-되기 전까지 오라클은 프레임 48,000 너머의 어떤 체인도 따라갈 수 없다.
+타임라인은 모두 그렇다; ~~세계(WORLD)를 고르는 바로 그 시계 조건은 그렇지 않으며, 그렇게
+되기 전까지 오라클은 프레임 48,000 너머의 어떤 체인도 따라갈 수 없다.~~ **ORACLE45/46/47/50에서
+철회되었다.** ORACLE46/47은 세 생산자 모두에서 시드 `0x000a0f00`을 측정했으며, 무장된 원본은
+그 시드를 바꾼 것이 아니라 프레임 10,000 이후 추가 드로우 14회를 소비했다 [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3]. ORACLE50은 공유
+지도, 마을 `0x8365`에서 프레임 57,600에 두 생산자가 주민-1의 집 안에 있음을 측정했고,
+GP48-9의 OUT 쪽지는 마을 `0xc66e`를 설명하며 포트 전체의 문 결함을 설명하지 않는다. [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3]
 
 ## ORACLE45 -- 오라클의 시계 조건, 그리고 이음매가 일치가 되다
 
@@ -511,12 +572,12 @@ ORACLE45-1..5. **포트 소스는 바뀌지 않았으므로** OFF 게이트를 �
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| -- | 오라클에 포트의 시계를 주기 | **`--rtc-freeze`, `--rtc-freeze-until`, `--rtc-freeze-from`**, 각각 같은 이름의 `ACWW_RTC_*` 변수로 폴백한다. 이동된 `rtcStart`로는 동결을 표현할 수 없고 DeSmuME의 Lua에는 RTC가 없으므로, 시계는 **포트가 주입하는 것과 같은 지점** -- ROM 자체의 `RtcCommonCallback`이 풀어내는 `0x027ffde8`의 패킹된 BCD 블록 -- 에 `memory.registerwrite` 훅에서 주입(INJECTED)된다. 에뮬레이트된 ARM7이 그 블록을 프레임당 ~1.8회 갱신하기 때문이다 [E: ORACLE45-1] |
-| 000..003,000 | 조건 보정 | 조건이 **없으면** 에뮬레이트된 칩과 포트의 프레임 구동 시계는 **1초 이내**로 같은 시계이다; `--rtc-freeze-until 1500`이면 게임 자체의 시계 워드가 동결 동안 10:00:00을 읽고 그 뒤로는 모델과 정확히 같다. 비용은 53.6 s 대비 52.8 s [E: `probe-chip`, `probe-until1500`] |
-| 048,000..049,600 | 이음매, 두 조건 모두에서 | **같은 씬일 뿐 아니라 같은 그림(PICTURE)**: 평균 `ncc` **0.9559**, `ncc-top`은 정확히 **1.0000**, 그리고 GAMEPLAY48이 `AM10:08` 대 `AM10:21`을 읽던 53,000에서 두 HUD 모두 `6/15 AM10:01`을 읽는다. **GP48-8의 "이 프로젝트가 가진 모든 체인은 오라클로 검증할 수 없다"는 시계에 관해서는 해소되었다** [E: ORACLE45-2, `compare-p45.json`] |
-| 049,000..055,400 | 갈라지는 곳 | 첫 불일치는 **49,000**(포트가 마을 회관의 퇴장 페이드에 더 깊이 들어가 있다), 49,600에서 다시 일치, 그리고 **49,800**에서 포트는 밖에 있는데 원본은 아직 검은 출입구 안이다 -- 시계 교란을 제거한 상태에서의 ORACLE44의 ~200-300 프레임 걸어 나오기 선행이다. 그 다음 **포트는 51,000과 53,000에서 도착 튜토리얼의 삽화를 붙들고 있고 원본(ORIGINAL)은 그렇지 않다**: 원본이 걷는 데 쓰는 ~4,400 프레임. 그 뒤로는 어떤 프레임 이동으로도 회복되지 않는다 [E: ORACLE45-3, `png/seam.png`, `png/hold.png`] -- **아래 TUTORIAL45(`docs/log/cycle41-gameplay.md`, TUT45-2)에 의해 철회(RETRACTED): 원본은 같은 프레임 동안 한 타일 위에 얼어 있으며, 레퍼런스는 다른 마을에 있다** |
-| 081,344 | 주민-1의 문 | **이 타임라인에서는 답할 수 없다.** 포트는 OUT 쪽지와 함께 도어매트 위에 있다; 원본은 31,000 프레임의 발산 너머, 과일나무 사이 절벽면에 있다. 이유는 이제 "다른 마을"이 아니라 평범한 것이 되었다 -- 그리고 그것을 묻는 방법은 77,000 근처에 앵커한 짧은(SHORT) 타임라인이다 [E: ORACLE45-4, `png/pinned.png`] |
-| -- | 병합된 체인 스크립트를 포트(PORT)에서 재생 | **그것은 오라클 입력이지 포트 입력이 아니다.** GAMEPLAY48의 체인은 세이브스테이트로 이어 붙인 스무 번의 실행으로 이 프레임들을 건넜고, 그 구간 중 하나가 SAVE이다: 연속으로 재생하면 포트는 ~65,400에서 저장하고 타이틀로 돌아가며, 그 다음 A 펄스들은 새 게임(NEW GAME)을 시작한다 [E: ORACLE45-5] |
+| -- | 오라클에 포트의 시계를 주기 | **`--rtc-freeze`, `--rtc-freeze-until`, `--rtc-freeze-from`**, 각각 같은 이름의 `ACWW_RTC_*` 변수로 폴백한다. 이동된 `rtcStart`로는 동결을 표현할 수 없고 DeSmuME의 Lua에는 RTC가 없으므로, 시계는 **포트가 주입하는 것과 같은 지점** -- ROM 자체의 `RtcCommonCallback`이 풀어내는 `0x027ffde8`의 패킹된 BCD 블록 -- 에 `memory.registerwrite` 훅에서 주입(INJECTED)된다. 에뮬레이트된 ARM7이 그 블록을 프레임당 ~1.8회 갱신하기 때문이다 [H: log/source account: ORACLE45-1; receipt provenance unresolved] |
+| 000..003,000 | 조건 보정 | 조건이 **없으면** 에뮬레이트된 칩과 포트의 프레임 구동 시계는 **1초 이내**로 같은 시계이다; `--rtc-freeze-until 1500`이면 게임 자체의 시계 워드가 동결 동안 10:00:00을 읽고 그 뒤로는 모델과 정확히 같다. 비용은 53.6 s 대비 52.8 s [H: log/source account: `probe-chip`, `probe-until1500`; receipt provenance unresolved] |
+| 048,000..049,600 | 이음매, 두 조건 모두에서 | **같은 씬일 뿐 아니라 같은 그림(PICTURE)**: 평균 `ncc` **0.9559**, `ncc-top`은 정확히 **1.0000**, 그리고 GAMEPLAY48이 `AM10:08` 대 `AM10:21`을 읽던 53,000에서 두 HUD 모두 `6/15 AM10:01`을 읽는다. **GP48-8의 "이 프로젝트가 가진 모든 체인은 오라클로 검증할 수 없다"는 시계에 관해서는 해소되었다** [H: log/source account: ORACLE45-2, `compare-p45.json`; receipt provenance unresolved] |
+| 049,000..055,400 | 갈라지는 곳 | 첫 불일치는 **49,000**(포트가 마을 회관의 퇴장 페이드에 더 깊이 들어가 있다), 49,600에서 다시 일치, 그리고 **49,800**에서 포트는 밖에 있는데 원본은 아직 검은 출입구 안이다 -- 시계 교란을 제거한 상태에서의 ORACLE44의 ~200-300 프레임 걸어 나오기 선행이다. ~~그 다음 **포트는 51,000과 53,000에서 도착 튜토리얼의 삽화를 붙들고 있고 원본(ORIGINAL)은 그렇지 않다**: 원본이 걷는 데 쓰는 ~4,400 프레임. 그 뒤로는 어떤 프레임 이동으로도 회복되지 않는다~~ [H: log/source account: ORACLE45-3, `png/seam.png`, `png/hold.png`; receipt provenance unresolved] -- **TUTORIAL45(`docs/log/cycle41-gameplay.md`, TUT45-2)에서 철회되었다.** TUT45-2는 원본이 한 타일 위에서 4,500 프레임 얼어 있었고, 50,400..54,600 동안 무장되지 않은 레퍼런스 대비 아래 화면 `ncc`가 0.9706이었으며, 둘 다 54,900에서 풀렸음을 측정했다 [E: `scratchpad/tutorial45/RECEIPTS.md`, `scratchpad/tutorial45/png/unarmed-vs-port.png`; log: `docs/log/cycle41-gameplay.md` TUT45-2] |
+| 081,344 | 주민-1의 문 | **이 타임라인에서는 답할 수 없다.** 포트는 OUT 쪽지와 함께 도어매트 위에 있다; 원본은 31,000 프레임의 발산 너머, 과일나무 사이 절벽면에 있다. ~~이유는 이제 "다른 마을"이 아니라 평범한 것이 되었다 -- 그리고 그것을 묻는 방법은 77,000 근처에 앵커한 짧은(SHORT) 타임라인이다~~ **설명은 EXIT48/ORACLE50에서 철회되었다.** EXIT48은 두 생산자가 프레임 38,838에 각자 자신의 도어매트를 기록하고 서로 다른 레이아웃에서 그곳으로 돌아오는 것을 측정했고, ORACLE50의 순방향 공유 지도에서는 둘 다 (72,38)에서 나와 (72,51)에 홀드했다 [E: `scratchpad/exit48/RECEIPTS.md`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4, O50-5]. ORACLE50은 공유 지도, 마을 `0x8365`에서 프레임 57,600에 두 생산자가 주민-1의 집 안에 있음을 측정했다. GP48-9의 OUT 쪽지는 마을 `0xc66e`를 설명하며 포트 전체의 문 결함을 설명하지 않는다 [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3] [H: log/source account: ORACLE45-4, `png/pinned.png`; receipt provenance unresolved] |
+| -- | 병합된 체인 스크립트를 포트(PORT)에서 재생 | **그것은 오라클 입력이지 포트 입력이 아니다.** GAMEPLAY48의 체인은 세이브스테이트로 이어 붙인 스무 번의 실행으로 이 프레임들을 건넜고, 그 구간 중 하나가 SAVE이다: 연속으로 재생하면 포트는 ~65,400에서 저장하고 타이틀로 돌아가며, 그 다음 A 펄스들은 새 게임(NEW GAME)을 시작한다 [H: log/source account: ORACLE45-5; receipt provenance unresolved] |
 
 **가져갈 것**, TUTORIAL45가 남긴 대로. 조건은 존재하고, 그 산술은 120 케이스로 배포된
 `rtcclock.c`에 고정되어 있으며, 이음매는 0.9559를 기록한다 -- 그러나 그 이음매는 마을 회관
@@ -528,7 +589,8 @@ ORACLE45-1..5. **포트 소스는 바뀌지 않았으므로** OFF 게이트를 �
 
 **철회 주석:** 제목의 시계 조건 추론과 TUT45-3의 에뮬레이터 행은 서술된 대로 철회된다;
 `docs/log/cycle41-gameplay.md`, O46-2와 O46-4를 보라. 관측된 타일 위치는 역사적 관측으로
-남는다.
+남는다. ORACLE46/47은 세 생산자 모두에서 시드 `0x000a0f00`을 측정했으며, 무장된 원본은
+그 시드를 바꾼 것이 아니라 프레임 10,000 이후 추가 드로우 14회를 소비했다 [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3].
 
 영수증: `scratchpad/tutorial45/RECEIPTS.md`; 로그 섹션 `docs/log/cycle41-gameplay.md`
 TUT45-0..4. **포트 소스는 바뀌지 않았고 빚진 것도 없다**: 포트는 이미 이 동작을 재현한다.
@@ -536,15 +598,15 @@ TUT45-0..4. **포트 소스는 바뀌지 않았고 빚진 것도 없다**: 포�
 `oracle.py --peek ADDR[:WORDS]`, `observer.lua`가 원장에 기록 -- 으로, 이 프로젝트에서
 원본(ORIGINAL)의 RAM을 읽을 수 있는 첫 계기이다. 그 OFF 대조: 같은 레시피에 다섯 개의 peek
 지정을 더한 것이 `scratchpad/oracle45/v1-frozen`을 평균 `ncc` **0.9999**, 30 프레임 중 14
-프레임 RGB 정확 일치로 재현한다 [E: TUT45-0].
+프레임 RGB 정확 일치로 재현한다 [H: log/source account: TUT45-0; receipt provenance unresolved].
 
 | 질문 | 무엇이 측정되었는가 |
 |---|---|
-| 무엇이 홀드를 끝내는가 | **패드 누름.** 걸어 나오는 Down 뒤에 스크립트에 아무것도 없으면 삽화는 프레임 **62,000**에도 여전히 떠 있다; 체인을 `54800 16 600` Right 행 앞에서 잘라 내면 57,000에도 여전히 떠 있다; 그 행을 남겨 두면 54,900에는 사라진다. 타이머도, RTC도, 사운드 이벤트도 아니다. SAVE42의 입주 워드 `0x021f3c30`은 창 전체에서 pc `0x020a12ea` 프레임 48,003에서 한 번(ONCE) 읽히고 결코 저장되지 않는다 [E: TUT45-1, `t45-noinput`, `t45-noright`, `t45-w1`] |
-| 원본(ORIGINAL)도 홀드하는가 | **그렇다, 4,500 프레임.** `--peek 0x021c749c`는 에뮬레이터의 플레이어가 Down을 누르고 A를 펄스하는 동안 50,300에서 54,800까지 월드 `(335176, 8203, 299750)`, 타일 (40,36)에 얼어 있고, 같은 Right 누름 뒤의 첫 샷에서 움직인다고 말한다. ORACLE45는 서 있는 플레이어의 정지 화면을 "마을을 걷는 중"으로 읽었다 [E: TUT45-1, TUT45-2] |
-| 포트(PORT)가 더 오래 홀드하는가 | **아니다.** 포트 자신의(OWN) 마을에 있는 레퍼런스 -- ORACLE44의 조건 없는 실행으로, 49,100..54,800의 패드 행이 동일하다 -- 에 대해 포트는 50,400..54,600에 걸쳐 아래 화면 `ncc` **0.9706**을 기록하고, 둘은 54,900에서 함께 풀리며 양쪽 모두 모델이 화면 절반 밖에 있다. ORACLE45의 조건 적용 레퍼런스에 대해서는 같은 포트 조건이 0.2204를 기록한다. **움직인 것은 레퍼런스뿐이다** [E: TUT45-2] |
-| 조건 적용 레퍼런스는 왜 다른가 | **아래 ORACLE48에 의해 부분 정정(PARTLY CORRECTED): 열여섯 타일은 마을이 아니다(NOT the town).** 측정된 대로: **다른 마을이다.** 둘 다 마을 회관을 정확히 월드 x `0x51000`에서 떠난다; 포트의 첫 필드 타일은 (40,**38**)이고 조건 적용 원본의 것은 (40,**22**)이며, 각각 열네 타일쯤 뒤에 홀드한다. 규칙은 일치하고 세계는 일치하지 않는다 -- 울타리 있는 강가와 대비되는, 산울타리 있는 돌 광장. **ORACLE48은 마을 id가 같은(EQUAL) 상태에서 같은 열여섯 타일을 재현했으므로, 이 행이 위치를 찾아낸 것은 세계가 아니라 건물 출구에서의 포트/원본 차이이다** [E: O48-4]. 프레임 48,000에서 실시간 마을 레코드 `0x021dc7a8`에 대한 `--peek`는 주민 id **77,16,127**(포트), **66,-,21**(조건 적용 에뮬레이터), **107,94,-**(조건 없는 에뮬레이터)를 준다: 두 에뮬레이터 실행은 플래그 하나(ONE)만 다르므로, 조건은 그것이 붙들어 두려고 만들어진 세계를 바꾼다 [E: TUT45-3] **서술된 대로 철회(RETRACTED): 에뮬레이터 행과 이 추론은 `docs/log/cycle41-gameplay.md`, O46-2에서 철회되었다; 정정된 측정은 O46-4이다.** |
-| 200-300 프레임 걸어 나오기 선행 | **문에서 만들어진 것이 아니라 물려받은 것.** 포트의 화면은 49,620..49,700에서 검고 49,720에서 밖이다; 두 원본 모두 49,800에서 검다. GP48-8은 스냅샷을 찍은 이음매 프레임에서(AT) 이미 포트가 대화 한 박자 앞서 있었다. 비용은 없다: 홀드는 누가 먼저 들어왔는지 신경 쓰지 않는다 [E: TUT45-4] |
+| 무엇이 홀드를 끝내는가 | **패드 누름.** 걸어 나오는 Down 뒤에 스크립트에 아무것도 없으면 삽화는 프레임 **62,000**에도 여전히 떠 있다; 체인을 `54800 16 600` Right 행 앞에서 잘라 내면 57,000에도 여전히 떠 있다; 그 행을 남겨 두면 54,900에는 사라진다. 타이머도, RTC도, 사운드 이벤트도 아니다. SAVE42의 입주 워드 `0x021f3c30`은 창 전체에서 pc `0x020a12ea` 프레임 48,003에서 한 번(ONCE) 읽히고 결코 저장되지 않는다 [H: log/source account: TUT45-1, `t45-noinput`, `t45-noright`, `t45-w1`; receipt provenance unresolved] |
+| 원본(ORIGINAL)도 홀드하는가 | **그렇다, 4,500 프레임.** `--peek 0x021c749c`는 에뮬레이터의 플레이어가 Down을 누르고 A를 펄스하는 동안 50,300에서 54,800까지 월드 `(335176, 8203, 299750)`, 타일 (40,36)에 얼어 있고, 같은 Right 누름 뒤의 첫 샷에서 움직인다고 말한다. ORACLE45는 서 있는 플레이어의 정지 화면을 "마을을 걷는 중"으로 읽었다 [H: log/source account: TUT45-1, TUT45-2; receipt provenance unresolved] |
+| 포트(PORT)가 더 오래 홀드하는가 | **아니다.** 포트 자신의(OWN) 마을에 있는 레퍼런스 -- ORACLE44의 조건 없는 실행으로, 49,100..54,800의 패드 행이 동일하다 -- 에 대해 포트는 50,400..54,600에 걸쳐 아래 화면 `ncc` **0.9706**을 기록하고, 둘은 54,900에서 함께 풀리며 양쪽 모두 모델이 화면 절반 밖에 있다. ORACLE45의 조건 적용 레퍼런스에 대해서는 같은 포트 조건이 0.2204를 기록한다. **움직인 것은 레퍼런스뿐이다** [H: log/source account: TUT45-2; receipt provenance unresolved] |
+| 조건 적용 레퍼런스는 왜 다른가 | ~~**ORACLE48에서 부분 정정되었다: 열여섯 타일은 마을이 아니다.**~~ **EXIT48(X48-4)에서 철회되었다.** EXIT48은 두 생산자가 프레임 38,838에 각자 자신의 도어매트를 기록하고 서로 다른 레이아웃에서 그곳으로 돌아오는 것을 측정했고, ORACLE50의 순방향 공유 지도에서는 둘 다 (72,38)에서 나와 (72,51)에 홀드했다 [E: `scratchpad/exit48/RECEIPTS.md`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4, O50-5]. 측정상: **다른 마을이다.** 둘 다 마을 회관을 정확히 월드 x `0x51000`에서 떠난다; 포트의 첫 필드 타일은 (40,**38**)이고 조건 적용 원본의 것은 (40,**22**)이며, 각각 열네 타일쯤 뒤에 홀드한다. 규칙은 일치하고 세계는 일치하지 않는다 -- 울타리 있는 강가와 대비되는, 산울타리 있는 돌 광장. ~~**ORACLE48은 마을 id가 같은(EQUAL) 상태에서 같은 열여섯 타일을 재현했으므로, 이 행이 위치를 찾아낸 것은 세계가 아니라 건물 출구에서의 포트/원본 차이이다** [H: log/source account: O48-4; receipt provenance unresolved].~~ **추론은 EXIT48(X48-4)에서 철회되었다:** 공유된 마을 id로도 레이아웃은 고정되지 않았고, 각 생산자는 자기 마을 회관으로 돌아왔다 [E: `scratchpad/exit48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4]. `--peek`로 프레임 48,000의 실시간 마을 레코드 `0x021dc7a8`를 읽으면 주민 id **77,16,127**(포트), **66,-,21**(조건 적용 에뮬레이터), **107,94,-**(조건 없는 에뮬레이터)가 나온다: ~~두 에뮬레이터 실행은 플래그 하나(ONE)만 다르므로, 조건은 그것이 붙들어 두려고 만들어진 세계를 바꾼다 [H: log/source account: TUT45-3; receipt provenance unresolved]~~ **서술된 대로 철회(RETRACTED): 에뮬레이터 행과 이 추론은 `docs/log/cycle41-gameplay.md`, O46-2에서 철회되었고, 정정된 측정은 O46-4이다.** |
+| 200-300 프레임 걸어 나오기 선행 | **문에서 만들어진 것이 아니라 물려받은 것.** 포트의 화면은 49,620..49,700에서 검고 49,720에서 밖이다; 두 원본 모두 49,800에서 검다. GP48-8은 스냅샷을 찍은 이음매 프레임에서(AT) 이미 포트가 대화 한 박자 앞서 있었다. 비용은 없다: 홀드는 누가 먼저 들어왔는지 신경 쓰지 않는다 [H: log/source account: TUT45-4; receipt provenance unresolved] |
 
 ## GAMEPLAY49 -- 풀어야 할 임금 같은 것은 없고, 상점이 플레이어의 면전에서 그렇게 말한다
 
@@ -557,15 +619,15 @@ GP49-0..8이다. **64 실행, 998.7 s**, 첫 번째(`exit 9`, 첫 행의 빌드 
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| -- | GAMEPLAY48의 스냅샷 로드 | **스무 개 모두 거부.** `acww state: REFUSING a snapshot from a different build` -- 세이브스테이트는 이미지 베이스, PE 스탬프, 진입점, 파일 크기, 레지스트리 수, exe의 SHA-256을 기록하는데, `port/shim/audio/sseq.c`가 `0824e95b` 이후로 바뀌었다. **한 사이클이 넘겨주는 산출물은 스냅샷이 아니라 패드 타임라인(PAD TIMELINE)이다** [E: GP49-0] |
-| 000,000..104,850 | GAMEPLAY47과 GAMEPLAY48 자체가 기록한 계획들로부터 상태 전체를 재구축(`chain49.py`, `chain49b.py`) | **여덟 체크포인트 동일**, 57,812의 `HOME-4`, (40,56)에서의 걸어 나오기, 유니폼 스왑, 꽃 일곱 송이, (27,67)의 `outshop`까지 -- 그리고 **같은 RAM 주소(ADDRESSES)**: 두 사이클 모두 프레임 101,000에 `0x021cd760`의 휴식 메시지, 두 사이클 모두 104,850에 `0x02396162`의 촌장 소개 [E: GP49-3, `msgaddr.py`] |
-| -- | ROM 자체의 아르바이트 스크립트 읽기 | **`bmg.py`는 모든 아카이브의 처음 4,096 바이트까지만 읽고 있었다** -- 래퍼는 다중 청크(MULTI-CHUNK)이다 -- 그리고 긴 디렉터리를 가진 아카이브에 대해서는 아무것도(NOTHING) 돌려주지 않았다. Nook의 상점 대화 전체(94 항목)는 한 번도 읽힌 적이 없었고; 일 스크립트의 항목 [19]..[54]는 빈 채로 돌아왔다. **"더 이상 메시지가 없는" 아카이브와 압축이 풀린 적 없는 아카이브는 밖에서 보면 똑같다 (M1)** [E: GP49-1, `bmg49.py`] |
-| -- | 그러면 휴식 대사는 실제로 무엇을 요구하는가 | **모든 주민에게, 그리고 촌장(MAYOR)에게 인사하기** -- `주민들에게 인사하고 와구리！` -- 집에 들어가기 전에 노크하라는 단서와 함께. GAMEPLAY48은 우연히 촌장을 만났는데 그것이 심부름의 한 단계이다 [E: GP49-2, `sp/etc/sequence5_1_` entry 18, in RAM at `0x021cd760`] |
-| -- | 그리고 이 일은 무엇을 지불(PAY)하는가 | **지갑에는 아무것도.** 정산 대사는 `알바비`를 집 대출에서 차감한다. `0x021de3cc`가 네 사이클 동안 0에 머문 것은 결함도 빠진 단계도 아니다: 게임은 결코 그것을 입금하지 않는다. **대출은 `town record + 0x10abc` = `0x021ed264`, 19,800** -- 게임 자신이 쓴 세이브의 두(BOTH) 뱅크에 대해 확인됨(`0x10abc`, `0x27eb8`, `0x173fc` 떨어짐) [E: GP49-2, entry 52; `findword.py`, `savetool check`] |
-| 104,850..105,620 | 체인을 재개하고 걷기 | **`goto.py` 다섯 번 반복이 타일 0개(ZERO)를 움직인다**: 촌장의 상자가 아직 떠 있고, 대화는 포켓 페이지와 똑같이 패드를 먹는다. B 펄스 여덟 번이 그것을 닫고(`dlg.py` 0.565 -> 0.001) 다음 체인은 걷는다 [E: GP49-5] |
-| 105,620..108,900 | 주민에게 인사 | **인사했다.** 걷는 주민은 세 구간짜리 계획보다 빠르다 -- 다섯 번 반복이 8 타일을 2로 좁혔다 -- 그리고 `--legs 2`로 두 번 더 하여 인접(ADJACENT), 0 타일에 도달했고, 프레임 108,000에 상자가 떠 있으며 답변은 RAM `0x02396150`에 있다 [E: GP49-6; `png/GREET1-box.png`] |
-| 109,050..118,300 | 상점에 가서 무언가 사 보기 | **게임이 말로 거부한다, 세 번의 실행과 세 타일에 걸쳐 연달아**: `알바생한테는 팔지 않는다구리` -- Nook은 자기 아르바이트생에게 팔지 않는다. 아카이브 사본은 `0x021cd20a`에, 렌더링된 사본은 `0x0236c0b0`에 있다. **첫 구매는 일 전체의 끝(END) 뒤에 있다**, 인사 뒤로 다섯 심부름 뒤이다 [E: GP49-7; `png/NKREP-box.png`, frame 111,300] |
-| 같은 구간 | "휴식" 동안 Nook은 어디에 있는가 | **늘 그렇듯 자기 카운터 뒤에.** `npc slot 0 id 0xd019`는 프레임 116,000에 상점 안에 있고, 휴식 대사보다 27,000 프레임 전인 89,400에도 상점 안에 있었다; 마을 회관 광장에는 액터 셋이 있는데 그중 누구도 그가 아니다. GAMEPLAY48은 떠난 적 없는 사람을 34,600 프레임 동안 기다렸다 [E: GP49-4] |
+| -- | GAMEPLAY48의 스냅샷 로드 | **스무 개 모두 거부.** `acww state: REFUSING a snapshot from a different build` -- 세이브스테이트는 이미지 베이스, PE 스탬프, 진입점, 파일 크기, 레지스트리 수, exe의 SHA-256을 기록하는데, `port/shim/audio/sseq.c`가 `0824e95b` 이후로 바뀌었다. **한 사이클이 넘겨주는 산출물은 스냅샷이 아니라 패드 타임라인(PAD TIMELINE)이다** [H: log/source account: GP49-0; receipt provenance unresolved] |
+| 000,000..104,850 | GAMEPLAY47과 GAMEPLAY48 자체가 기록한 계획들로부터 상태 전체를 재구축(`chain49.py`, `chain49b.py`) | **여덟 체크포인트 동일**, 57,812의 `HOME-4`, (40,56)에서의 걸어 나오기, 유니폼 스왑, 꽃 일곱 송이, (27,67)의 `outshop`까지 -- 그리고 **같은 RAM 주소(ADDRESSES)**: 두 사이클 모두 프레임 101,000에 `0x021cd760`의 휴식 메시지, 두 사이클 모두 104,850에 `0x02396162`의 촌장 소개 [H: log/source account: GP49-3, `msgaddr.py`; receipt provenance unresolved] |
+| -- | ROM 자체의 아르바이트 스크립트 읽기 | **`bmg.py`는 모든 아카이브의 처음 4,096 바이트까지만 읽고 있었다** -- 래퍼는 다중 청크(MULTI-CHUNK)이다 -- 그리고 긴 디렉터리를 가진 아카이브에 대해서는 아무것도(NOTHING) 돌려주지 않았다. Nook의 상점 대화 전체(94 항목)는 한 번도 읽힌 적이 없었고; 일 스크립트의 항목 [19]..[54]는 빈 채로 돌아왔다. **"더 이상 메시지가 없는" 아카이브와 압축이 풀린 적 없는 아카이브는 밖에서 보면 똑같다 (M1)** [H: log/source account: GP49-1, `bmg49.py`; receipt provenance unresolved] |
+| -- | 그러면 휴식 대사는 실제로 무엇을 요구하는가 | **모든 주민에게, 그리고 촌장(MAYOR)에게 인사하기** -- `주민들에게 인사하고 와구리！` -- 집에 들어가기 전에 노크하라는 단서와 함께. GAMEPLAY48은 우연히 촌장을 만났는데 그것이 심부름의 한 단계이다 [H: log/source account: GP49-2, `sp/etc/sequence5_1_` entry 18, in RAM at `0x021cd760`; receipt provenance unresolved] |
+| -- | 그리고 이 일은 무엇을 지불(PAY)하는가 | **지갑에는 아무것도.** 정산 대사는 `알바비`를 집 대출에서 차감한다. `0x021de3cc`가 네 사이클 동안 0에 머문 것은 결함도 빠진 단계도 아니다: 게임은 결코 그것을 입금하지 않는다. **대출은 `town record + 0x10abc` = `0x021ed264`, 19,800** -- 게임 자신이 쓴 세이브의 두(BOTH) 뱅크에 대해 확인됨(`0x10abc`, `0x27eb8`, `0x173fc` 떨어짐) [H: log/source account: GP49-2, entry 52; `findword.py`, `savetool check`; receipt provenance unresolved] |
+| 104,850..105,620 | 체인을 재개하고 걷기 | **`goto.py` 다섯 번 반복이 타일 0개(ZERO)를 움직인다**: 촌장의 상자가 아직 떠 있고, 대화는 포켓 페이지와 똑같이 패드를 먹는다. B 펄스 여덟 번이 그것을 닫고(`dlg.py` 0.565 -> 0.001) 다음 체인은 걷는다 [H: log/source account: GP49-5; receipt provenance unresolved] |
+| 105,620..108,900 | 주민에게 인사 | **인사했다.** 걷는 주민은 세 구간짜리 계획보다 빠르다 -- 다섯 번 반복이 8 타일을 2로 좁혔다 -- 그리고 `--legs 2`로 두 번 더 하여 인접(ADJACENT), 0 타일에 도달했고, 프레임 108,000에 상자가 떠 있으며 답변은 RAM `0x02396150`에 있다 [H: log/source account: GP49-6; `png/GREET1-box.png`; receipt provenance unresolved] |
+| 109,050..118,300 | 상점에 가서 무언가 사 보기 | **게임이 말로 거부한다, 세 번의 실행과 세 타일에 걸쳐 연달아**: `알바생한테는 팔지 않는다구리` -- Nook은 자기 아르바이트생에게 팔지 않는다. 아카이브 사본은 `0x021cd20a`에, 렌더링된 사본은 `0x0236c0b0`에 있다. **첫 구매는 일 전체의 끝(END) 뒤에 있다**, 인사 뒤로 다섯 심부름 뒤이다 [H: log/source account: GP49-7; `png/NKREP-box.png`, frame 111,300; receipt provenance unresolved] |
+| 같은 구간 | "휴식" 동안 Nook은 어디에 있는가 | **늘 그렇듯 자기 카운터 뒤에.** `npc slot 0 id 0xd019`는 프레임 116,000에 상점 안에 있고, 휴식 대사보다 27,000 프레임 전인 89,400에도 상점 안에 있었다; 마을 회관 광장에는 액터 셋이 있는데 그중 누구도 그가 아니다. GAMEPLAY48은 떠난 적 없는 사람을 34,600 프레임 동안 기다렸다 [H: log/source account: GP49-4; receipt provenance unresolved] |
 
 **가져갈 것.** 첫째, **"무엇이 보수를 푸는가"라는 질문에는 답이 없었는데, 지불이라는 것이
 없기 때문이다** -- 그리고 그것을 알아낼 가장 싼 곳은 ROM 자체의 스크립트였으며, 리더
@@ -582,12 +644,12 @@ GP49-0..8이다. **64 실행, 998.7 s**, 첫 번째(`exit 9`, 첫 행의 빌드 
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| 109,050..123,000 | 촌장에게는 이미 인사한 상태에서, 액터 매니저의 두 주민 모두에게 인사 | **Nook은 여전히 게이트 대사를 보여 준다.** 매니저는 주민 둘(TWO)만 담고 있고 마을 레코드는 셋(THREE)이라 말한다: **매니저는 오직 야외(OUTDOORS)에 있는 사람만 담으므로**, 인사 심부름은 그것으로는 끝낼 수 없다 [E: GP50-1] |
-| 123,000..133,531 | 세 번째 주민의 집에 들어가기 | **`내 이름은 트로와！`** -- 야외에 한 번도 나타나지 않는 그 하나의 id(`0xe002`)와의 완전한 인사. 비어 있는 세 번째 액터 슬롯과 GAMEPLAY48이 문에서 읽은 OUT 쪽지는 같은 사실의 양면이다 [E: GP50-3] |
-| 133,531..140,753 | 카운터로 돌아감 | **게이트가 열렸다**: `이제야 겨우 알바생다워졌어구리` -- 가구(FURNITURE) 심부름, 항목 [24]와 [25]. 메모리상의 수락 테스트는 포켓 행이다: 소포 `0x1563`이 슬롯 1에 나타난다 [E: GP50-3] |
-| 140,753..142,100 | 심부름이 말하는 대로 하기: 포켓 페이지에서 소포를 터치(TOUCH) | **페이지가 스스로 수신인 `곤잘레스님`을 밝힌다** -- 그러니 배달이 누구에게 가는 것인지 아무도 추측할 필요가 없다 [E: GP50-4] |
-| 146,200..156,400 | 곤잘레스를 찾아 말 걸기 | **배달됨**: 슬롯 1이 `0x1563` -> `0x3508`, 감사 선물로 바뀐다. 잘못된(WRONG) 주민에게 말을 거는 것은 눈에 띄게 다르다 -- 마르는 두 가지 선택지의 선물 프롬프트로 답하고 포켓 행은 움직이지 않는다 [E: GP50-4] |
-| 164,200..166,600 | 카운터로 돌아감 | **심부름 셋: 직접 우편(DIRECT MAIL) 편지** -- 마르에게 써서 마을 회관의 우편 창구에 부치면, 편지 `0x1020`이 포켓 슬롯 2에 놓인다 [E: GP50-5, entry 31] |
+| 109,050..123,000 | 촌장에게는 이미 인사한 상태에서, 액터 매니저의 두 주민 모두에게 인사 | **Nook은 여전히 게이트 대사를 보여 준다.** 매니저는 주민 둘(TWO)만 담고 있고 마을 레코드는 셋(THREE)이라 말한다: **매니저는 오직 야외(OUTDOORS)에 있는 사람만 담으므로**, 인사 심부름은 그것으로는 끝낼 수 없다 [H: log/source account: GP50-1; receipt provenance unresolved] |
+| 123,000..133,531 | 세 번째 주민의 집에 들어가기 | **`내 이름은 트로와！`** -- 야외에 한 번도 나타나지 않는 그 하나의 id(`0xe002`)와의 완전한 인사. 비어 있는 세 번째 액터 슬롯과 GAMEPLAY48이 문에서 읽은 OUT 쪽지는 같은 사실의 양면이다 [H: log/source account: GP50-3; receipt provenance unresolved] |
+| 133,531..140,753 | 카운터로 돌아감 | **게이트가 열렸다**: `이제야 겨우 알바생다워졌어구리` -- 가구(FURNITURE) 심부름, 항목 [24]와 [25]. 메모리상의 수락 테스트는 포켓 행이다: 소포 `0x1563`이 슬롯 1에 나타난다 [H: log/source account: GP50-3; receipt provenance unresolved] |
+| 140,753..142,100 | 심부름이 말하는 대로 하기: 포켓 페이지에서 소포를 터치(TOUCH) | **페이지가 스스로 수신인 `곤잘레스님`을 밝힌다** -- 그러니 배달이 누구에게 가는 것인지 아무도 추측할 필요가 없다 [H: log/source account: GP50-4; receipt provenance unresolved] |
+| 146,200..156,400 | 곤잘레스를 찾아 말 걸기 | **배달됨**: 슬롯 1이 `0x1563` -> `0x3508`, 감사 선물로 바뀐다. 잘못된(WRONG) 주민에게 말을 거는 것은 눈에 띄게 다르다 -- 마르는 두 가지 선택지의 선물 프롬프트로 답하고 포켓 행은 움직이지 않는다 [H: log/source account: GP50-4; receipt provenance unresolved] |
+| 164,200..166,600 | 카운터로 돌아감 | **심부름 셋: 직접 우편(DIRECT MAIL) 편지** -- 마르에게 써서 마을 회관의 우편 창구에 부치면, 편지 `0x1020`이 포켓 슬롯 2에 놓인다 [H: log/source account: GP50-5, entry 31; receipt provenance unresolved] |
 
 **가져갈 것.** 첫째, **심부름의 대상 집단은 액터 매니저의 집단이 아니다**: 매니저는 야외에
 있는 사람만 보여 주기 때문에 세 사이클이 걷는 둘만 쫓아다녔다. 둘째, **ROM의 지시를 문자
@@ -607,13 +669,13 @@ GP49-0..8이다. **64 실행, 998.7 s**, 첫 번째(`exit 9`, 첫 행의 빌드 
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| 166,600..170,900 | 항목 [33]이 말하는 대로 하기: 포켓의 편지를 터치하고 `편지 쓰기`를 선택 | **수신인은 타이핑하는 것이 아니라 고르는(PICKED) 것이다** -- 주민 셋의 목록 -- 그리고 본문은 비워(EMPTY) 둘 수 있다. 두 사이클이 필요할 것으로 예상했던 스타일러스 키보드는 이 경로에 없다 [E: GP51-3] |
-| 170,900..183,100 | 마을 회관의 우편 창구 | 펠리: `여기는 우편과 창구입니다`. 보내기 페이지에는 편지를 **끌어다(DRAGGED)** 넣어야 한다: 탭(TAP)은 `읽기 / 버리기 / 그만두기`를 띄우고 그 상자가 확인을 먹어 버리며, 아무것도 올려놓지 않은 채 확인하면 `어머, 편지 안 부치시나요？`를 받는다. 올려놓은 채로는: **`예, 잘 받았습니다`** [E: GP51-4] |
+| 166,600..170,900 | 항목 [33]이 말하는 대로 하기: 포켓의 편지를 터치하고 `편지 쓰기`를 선택 | **수신인은 타이핑하는 것이 아니라 고르는(PICKED) 것이다** -- 주민 셋의 목록 -- 그리고 본문은 비워(EMPTY) 둘 수 있다. 두 사이클이 필요할 것으로 예상했던 스타일러스 키보드는 이 경로에 없다 [H: log/source account: GP51-3; receipt provenance unresolved] |
+| 170,900..183,100 | 마을 회관의 우편 창구 | 펠리: `여기는 우편과 창구입니다`. 보내기 페이지에는 편지를 **끌어다(DRAGGED)** 넣어야 한다: 탭(TAP)은 `읽기 / 버리기 / 그만두기`를 띄우고 그 상자가 확인을 먹어 버리며, 아무것도 올려놓지 않은 채 확인하면 `어머, 편지 안 부치시나요？`를 받는다. 올려놓은 채로는: **`예, 잘 받았습니다`** [H: log/source account: GP51-4; receipt provenance unresolved] |
 | 183,100..187,500 | Nook에게 돌아감 | **[40]**, 성공 대사 -- ROM 자체의 "엉뚱한 사람에게 부쳤다"인 [39]가 아니다. **빈 편지도 부쳐진다** |
-| 187,500..211,700 | 카펫, 실내의 트로와에게 | 가운데 두 심부름은 모두 배달(DELIVERIES)이고, ROM은 포켓 페이지에서 각 수신인의 이름을 밝힌다. 실내에서는 게임이 아이템 건네기 페이지(ITEM-GIVING page)를 열고 `건네기`가 완료한다; 그는 바닥재를 돌려준다 [E: GP51-5] |
+| 187,500..211,700 | 카펫, 실내의 트로와에게 | 가운데 두 심부름은 모두 배달(DELIVERIES)이고, ROM은 포켓 페이지에서 각 수신인의 이름을 밝힌다. 실내에서는 게임이 아이템 건네기 페이지(ITEM-GIVING page)를 열고 `건네기`가 완료한다; 그는 바닥재를 돌려준다 [H: log/source account: GP51-5; receipt provenance unresolved] |
 | 211,700..234,500 | 물뿌리개, 야외의 마르에게 | **페이지가 전혀 없다** -- 야외의 주민은 대화(TALK) 자체에서 심부름 아이템을 받는다. 두 배달이 다른 것은 수신인이 다르기 때문이다 |
 | 234,500..248,100 | 마을 회관 옆의 게시판 | **아무 방향도 누르지 않은 상태에서만** A에 열린다; 빈 게시물도 수락된다 |
-| **254,100** | Nook에게 돌아감 -- 항목 **[52]** | **`0x021ed264`가 19,800 -> 18,400으로 가고**, 상자는 `남은 대출금은 18400벨이야구리`를 읽는다. RAM 워드와 화면의 숫자가 일치한다 [E: GP51-8] |
+| **254,100** | Nook에게 돌아감 -- 항목 **[52]** | **`0x021ed264`가 19,800 -> 18,400으로 가고**, 상자는 `남은 대출금은 18400벨이야구리`를 읽는다. RAM 워드와 화면의 숫자가 일치한다 [H: log/source account: GP51-8; receipt provenance unresolved] |
 
 **가져갈 것.** 첫째, **대출 워드가 확인되었다**: 다섯 사이클이 `0x021ed264`가 19,800에
 머무는 것을 지켜봤고 이 사이클이 ROM 자체의 대사가 말하는 1,400만큼 정확히 움직이게
@@ -636,13 +698,13 @@ GP49-0..8이다. **64 실행, 998.7 s**, 첫 번째(`exit 9`, 첫 행의 빌드 
 
 | 프레임 | 무엇을 했는가 | 무슨 일이 일어났는가 |
 |---|---|---|
-| 256,600..257,578 | 상점 밖에서 `goto.py --to nook` | **첫 반복에 안으로(INSIDE)**, 그리고 도착 자체의 A 펄스 -- 출입구에서 발사되어 아무것도 겨냥하지 않은 -- 가 `raccoon_.bmg` **[30]**, 구매(BUY) 프롬프트를 열었고, **[33]** `돈이 부족하셔구리`, 돈이 부족해서의 거부로 답변되었다. GP49-7의 알바 거부 `sequence5_1_` [11]은 그 스냅샷에 아예 없다: **자기 아르바이트생에게 팔지 않겠다는 상점의 거부는 상태(STATE)였고, 일을 끝내는 것이 그것을 해제했다** [E: GP52-1] |
+| 256,600..257,578 | 상점 밖에서 `goto.py --to nook` | **첫 반복에 안으로(INSIDE)**, 그리고 도착 자체의 A 펄스 -- 출입구에서 발사되어 아무것도 겨냥하지 않은 -- 가 `raccoon_.bmg` **[30]**, 구매(BUY) 프롬프트를 열었고, **[33]** `돈이 부족하셔구리`, 돈이 부족해서의 거부로 답변되었다. GP49-7의 알바 거부 `sequence5_1_` [11]은 그 스냅샷에 아예 없다: **자기 아르바이트생에게 팔지 않겠다는 상점의 거부는 상태(STATE)였고, 일을 끝내는 것이 그것을 해제했다** [H: log/source account: GP52-1; receipt provenance unresolved] |
 | 257,578..258,800 | 카운터에서 Nook에게 말 걸기 | 메뉴는 `팔고 싶어！ / 카탈로그 볼래 / 오늘의 무값은？ / 일 없어` -- **거기에 구매(BUY) 행은 없다**; 카탈로그는 우편으로 도착하는 통신 판매이다. 카운터 형태 자체의 A 펄스가 첫 행을 고르므로, 판매 페이지(SELL PAGE)는 공짜로 열린다 |
 | 258,800..259,300 | 곤잘레스의 선물 `0x3508`을 판매 트레이로 끌기 | 페이지는 **포켓 그리드 위 94 px에 자기 사본 하나를 더 쌓아 올린 것** -- 트레이 행 y 29/53/77, 포켓 123/147/171, 둘 다 x 19/51/83/115/147에 행마다 +16. `TP_POINT` 열다섯 개와 ROM의 `trig` 바이트가 정확히 두 번 발화: 열다섯 번의 탭이 아니라 드래그 하나 |
-| 259,300..261,000 | `결정`, 그 다음 `팔게！` 선택 | **[14]** `모두 다 해서 ４７５벨 되겠어구리！`, 그리고 **`0x021de3cc`가 0 -> 475로 가며** 포켓 행은 선물을 잃는다. 화면의 가격과 RAM 워드가 일치한다 [E: GP52-2] |
+| 259,300..261,000 | `결정`, 그 다음 `팔게！` 선택 | **[14]** `모두 다 해서 ４７５벨 되겠어구리！`, 그리고 **`0x021de3cc`가 0 -> 475로 가며** 포켓 행은 선물을 잃는다. 화면의 가격과 RAM 워드가 일치한다 [H: log/source account: GP52-2; receipt provenance unresolved] |
 | 261,000..263,600 | 선반에서 A 누르기 | 상점에는 이전 사이클이 기록한 셋이 아니라 **여덟(EIGHT)** 개의 판매 가능 셀이 있다: 진열 행 y=11과 서쪽 열 x=5. `0x1374`는 **500**짜리 낚싯대 -- 지갑에 든 것보다 25 많다 -- 이고 `0x150a`는 **80**짜리 흰 코스모스 씨앗이다 |
-| 263,600..264,300 | `살게！` 선택 | **`0x021de3cc` 475 -> 395**, 정확히 인쇄된 가격만큼, 그리고 **`0x150a` -- 선반 셀 자체의 아이템 id -- 가 포켓 행에 있다**. 씨앗이 있던 자리에 `SOLD OUT` 태그가 나타난다 [E: GP52-3] |
-| 264,300..285,300 | 대화를 닫고, 걸어서 떨어진 뒤, START 누르기 | `저장하고 있습니다`, **4,669 카드 요청, 190,456 바이트, 검증 불일치 0**, 그리고 타이틀 화면. `savetool check`: 뱅크 1은 ROM 자체의 테스트 아래 검증(VERIFIES)되고, 뱅크 2는 바이트 단위로 동일한 미러이며, 지갑 **395**, 대출 **18,400**이 양쪽에 [E: GP52-5] |
+| 263,600..264,300 | `살게！` 선택 | **`0x021de3cc` 475 -> 395**, 정확히 인쇄된 가격만큼, 그리고 **`0x150a` -- 선반 셀 자체의 아이템 id -- 가 포켓 행에 있다**. 씨앗이 있던 자리에 `SOLD OUT` 태그가 나타난다 [H: log/source account: GP52-3; receipt provenance unresolved] |
+| 264,300..285,300 | 대화를 닫고, 걸어서 떨어진 뒤, START 누르기 | `저장하고 있습니다`, **4,669 카드 요청, 190,456 바이트, 검증 불일치 0**, 그리고 타이틀 화면. `savetool check`: 뱅크 1은 ROM 자체의 테스트 아래 검증(VERIFIES)되고, 뱅크 2는 바이트 단위로 동일한 미러이며, 지갑 **395**, 대출 **18,400**이 양쪽에 [H: log/source account: GP52-5; receipt provenance unresolved] |
 
 **가져갈 것.** 첫째, **구매는 선반(SHELF)에서, 판매는 카운터(COUNTER)에서 이루어지며**,
 카운터 메뉴는 구매가 사는 곳이 아니다 -- 무엇이든 스크립트하기 전에 `raccoon_.bmg` [12]의
@@ -671,19 +733,19 @@ O48-0..5. **포트 소스는 바뀌지 않았고 빚진 것도 없다.** ORACLE4
 | 오라클, `--rtc-freeze-until 48000` | **24,315** | 24,314..24,316 | **`0xc66e`** | **10:00:00** |
 
 조건 없는 창의 양쪽 가장자리는 각각 자체 실행으로 고정되어 있다: `24,502 -> 0xed6d`,
-`24,503`/`24,513`/`24,523` -> `0xc66e`, `24,524 -> 0xdc95` [E: O48-1]. 이 창은 ORACLE47의
+`24,503`/`24,513`/`24,523` -> `0xc66e`, `24,524 -> 0xdc95` [H: log/source account: O48-1; receipt provenance unresolved]. 이 창은 ORACLE47의
 순방향 창보다 일곱 배 넓다. **조건 적용 형태는 ORACLE47의 "조건이 그것을 깨뜨릴 것"을
 정정한다**: 조건에는 폐지가 아니라 자체 탭 프레임이 필요하며, 그것이 있으면 에뮬레이터는
 포트의 시계를 초 단위까지 따라간다 -- 원장의 `rtc-probe` 행에서 52,000에 10:01:06,
-56,000에 10:02:13 [E: O48-2].
+56,000에 10:02:13 [H: log/source account: O48-2; receipt provenance unresolved].
 
 | 질문 | 무엇이 측정되었는가 |
 |---|---|
-| 공유된 마을 id에서의 이음매 | **48,000..49,600 평균 `ncc` 0.9504, `ncc-top` 1.0000**, 그리고 프레임 **49,700은 RGB 정확 일치** -- 완전히 검은 출입구 둘. 첫 발산은 49,000, 포트가 마을 회관의 퇴장 페이드에 더 깊이 들어감; 49,800은 `ncc` 0.0000, 포트는 밖이고 원본은 아직 검은 화면 안 [E: O48-3, 84 shared frames of GP48's `V1-oracle.pad`] |
-| 걸어 나온 뒤 | **0.30..0.44**, 그리고 전역 프레임 이동을 훑어도 회복되지 않는다(0에서 0.2604 대비 최선은 -500에서 0.4573). 48,000..56,300 창 전체는 조건 적용 0.5168, 조건 없음 0.4805 [E: O48-3] |
+| 공유된 마을 id에서의 이음매 | **48,000..49,600 평균 `ncc` 0.9504, `ncc-top` 1.0000**, 그리고 프레임 **49,700은 RGB 정확 일치** -- 완전히 검은 출입구 둘. 첫 발산은 49,000, 포트가 마을 회관의 퇴장 페이드에 더 깊이 들어감; 49,800은 `ncc` 0.0000, 포트는 밖이고 원본은 아직 검은 화면 안 [H: log/source account: O48-3, 84 shared frames of GP48's `V1-oracle.pad`; receipt provenance unresolved] |
+| 걸어 나온 뒤 | **0.30..0.44**, 그리고 전역 프레임 이동을 훑어도 회복되지 않는다(0에서 0.2604 대비 최선은 -500에서 0.4573). 48,000..56,300 창 전체는 조건 적용 0.5168, 조건 없음 0.4805 [H: log/source account: O48-3; receipt provenance unresolved] |
 | 마을 id가 공유되는데 왜 | **마을 회관 문에서의 한 에이커(ACRE).** 포트는 건물을 타일 (40,**38**)에서 떠나고 조건 적용 원본은 (40,**22**)에서 떠나며, 월드 x는 단위까지 동일하다(`0x51000`); 둘 다 그 뒤 남쪽으로 열세 타일을 걷고, ~4,700 프레임 홀드하고, 같은 스크립트된 누름에 풀린다 [E: `scratchpad/oracle48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O48-4]. TUT45-3은 다른(DIFFERENT) 마을에 있는 원본에 대해 같은 열여섯 타일을 측정했으므로, ~~**열여섯 타일은 마을이 아니다**~~ [H: historical conclusion retracted by `docs/log/cycle41-gameplay.md` X48-4]. **철회:** 두 생산자 모두 서로 다른 레이아웃에서 각자 자기 마을 회관의 도어매트로 돌아온다 [E: `scratchpad/exit48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4] |
 | 공유된 마을 id는 공유된 세계인가 | **공유된 세계는 확립되지 않았다.** 하나의 id, 세 개의 명단: `4d 10 7f`(포트), `09 80 49`(조건 없는 역방향), `80 89 49`(조건 적용 역방향). 프레임 48,000에서의 드로우 인덱스는 이동 없는 5,095에 대해 4,667 / 4,727 / 4,721이다 [E: `scratchpad/oracle48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O48-4]; ~~그러므로 탭은 +428을 약 +57까지 좁히며 닫을 수 없다: 손잡이 하나, 11,346 프레임 떨어진 제약 둘~~ [H: historical inference superseded by `docs/log/cycle41-gameplay.md` O49-2, O49-5]. **정정:** 역방향 레시피는 레이아웃 버스트에 두 드로우 일찍 진입한다; 순방향 레시피는 id, 맵, 명단을 정렬시킨다 [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2, O49-4, O49-5] |
-| 원본에서의 주민-1의 문 | **여전히 답이 없으며, 이제는 측정된 이유로 그렇다.** 포트 조건은 프레임 81,344에 타일 (51,62)의 도어매트에 도달하고 82,200에 OUT 쪽지를 보여 준다; 원본은 같은 마을 id와 같은 시계에서 타일 (38,16) -- 마흔여섯 타일 떨어진 울타리 선 -- 에 있다. 77,000..82,300의 공유 프레임 54개, 평균 `ncc` 0.2127 [E: O48-5] |
+| 원본에서의 주민-1의 문 | **여전히 답이 없으며, 이제는 측정된 이유로 그렇다.** 포트 조건은 프레임 81,344에 타일 (51,62)의 도어매트에 도달하고 82,200에 OUT 쪽지를 보여 준다; 원본은 같은 마을 id와 같은 시계에서 타일 (38,16) -- 마흔여섯 타일 떨어진 울타리 선 -- 에 있다. 77,000..82,300의 공유 프레임 54개, 평균 `ncc` 0.2127 [H: log/source account: O48-5; receipt provenance unresolved] |
 
 **EXIT48과 ORACLE49에 의해 철회된 역사적 결론:**
 ~~걷기가 아니라 이음매(SEAM)를 채점하라: 공유된 마을에서 실내는 0.95로 일치하고 실외는
@@ -691,22 +753,18 @@ O48-0..5. **포트 소스는 바뀌지 않았고 빚진 것도 없다.** ORACLE4
 차이이다.~~ [H: retracted by `docs/log/cycle41-gameplay.md` X48-4].
 ~~**그리고 공유된 마을 id는 공유된 맵이 아니다** -- ORACLE46의 "명단의 시드가 곧 레이아웃의
 시드"에는 이제 반례가 있고, 드로우 하나를 맞추는 것은 스트림을 맞추는 것이
-아니다.~~ [H: the counterexample inference is superseded by
-`docs/log/cycle41-gameplay.md` O49-1, O49-2 and Corrections to the record above].
+아니다.~~ [H: the counterexample inference is superseded by `docs/log/cycle41-gameplay.md` O49-1, O49-2 and Corrections to the record above].
 
 **EXIT48 정정:** 각 생산자는 프레임 38,838에 자기 마을 회관 도어매트를 기록했다가 퇴장 시
 그 위치를 재생한다; 한 에이커의 분리는 하나의 id 아래의 서로 다른 두 레이아웃이다
 [E: `scratchpad/exit48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4].
 **ORACLE49 정정:** 포트는 id를 프레임 24,789에 그리고, 실제 맵과 명단은 11,346 프레임 뒤인
-프레임 36,135에 함께 그린다 [E: `scratchpad/oracle49/RECEIPTS.md`; log:
-`docs/log/cycle41-gameplay.md` O49-1].
+프레임 36,135에 함께 그린다 [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-1].
 역방향 레시피는 그 버스트에 두 드로우 일찍 진입하는 반면, 순방향 레시피는 같은 id, 36
 에이커 바이트, 건물, 명단을 낸다; 확인된 맵 비교는 프레임 48,000에서 2,057 워드 중 놓인
-아이템 1개의 차이를 가진다 [E: `scratchpad/oracle49/RECEIPTS.md`; log:
-`docs/log/cycle41-gameplay.md` O49-2, O49-4, O49-5].
+아이템 1개의 차이를 가진다 [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2, O49-4, O49-5].
 부팅 시점에 같은 스트림 대조는 비교 워드 4,617개에 차이 0개로, 탭 없이 EXIT48의 생성기
-질문을 닫는다 [E: `scratchpad/oracle49/RECEIPTS.md`; log:
-`docs/log/cycle41-gameplay.md` O49-3].
+질문을 닫는다 [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-3].
 
 ## GAMEPLAY53 -- 세이브가 부팅(BOOTS)되고, 대출이 카운터에서 상환되며, 루프가 닫힌다
 
@@ -937,6 +995,177 @@ GAMEPLAY54는 Nook의 상점 안 어느 선반으로도 걸어갈 수 있었지�
 서야 할 타일로 내놓으며 방 안쪽을 도로 가리키는 방향을 주었고, 그 각각이 거부된 입력과
 구별할 수 없는 실행을 만들어 냈다. 싼 대조는 계획 옆에 걷기 가능 개수(COUNT)를 출력하는
 것이다: 조금 전 23 타일이었다가 지금 1인 방은 작아진 것이 아니라 읽을 수 없게 된 것이다.
+
+## GAMEPLAY56 -- 저축 카운터가 열리고, 집이 세 번째 방이 되고, 카탈로그 주문이 선불을 요구하다
+
+GAMEPLAY55 다음 사이클, 같은 마을에서: `scratchpad/gameplay54/town3.sav`가 복사본에서 50초 만에
+플레이어의 집 도어매트 (41,55)에 지갑 135, 대출 18,300인 상태로 부팅되었고, 심부름 목록은
+GAMEPLAY55가 남긴 세 가지였다.
+
+**플래너가 닿지 못한 카운터 타일.** 마을 회관에는 창구가 두 개 있고 문은 플레이어를 잘못된
+창구 쪽에 내려놓는다. 두 서비스 타일의 kind는 `0x18`이다. 걷기 가능 모델은 방의 바닥 kind만
+사용했으므로 두 번째 창구는 `goto.py`에 지정할 수 없는 타일이었고 저축 행은 그 뒤에 있었다.
+수정 방법은 kind를 표에 넣는 것이 아니라 읽는 것이었다. 이 프로젝트가 기록한 모든 실내에서
+`0x18`은 정확히 두 번, 모두 카운터 블록 바로 남쪽의 타일로 나타났으며 카운터가 없는 방에는
+한 번도 나타나지 않았다. 바닥과 별도로 서 있을 수 있는 kind로 허용하되, 카운터 창구를 방 밖으로
+나갈 때 설 타일로 제시할 수는 없게 하자 `(9,11)`까지 한 번의 실행과 **1.9초**가 걸렸다.
+직전 사이클에서는 플레이어가 건물 밖으로 걸어 나갔다.
+
+**저축 계좌가 이제 워드가 되었다.** `(9,11)`의 창구는 GAMEPLAY53이 측정한 창구이다. 같은 다섯
+행과 픽셀 단위로 같은 노란 패널이다. 스타일러스로 세 번째 행을 고른 뒤 대출 상환에 사용한 것과
+같은 숫자 키패드를 사용하며, `통장 잔액`은 0으로 표시된다. 100벨을 예금하자 지갑은
+135 -> 35, 통장은 0 -> 100이 되었고, 두 스냅샷의 차이에서 나온 주소는 저장 감시로 확인되었다.
+저장(store)은 **한 번**, 확인 탭을 누른 프레임에만 있었고 다른 곳에는 없었다. `savetool`은
+저장된 파일에서도 같은 수치를 읽으므로 이것은 힙 수치가 아니라 세이브 필드이다. 한 가지 함정은
+페이지에 보이는 잔액이 결과의 실시간 PREVIEW라는 점이다. 저장된 워드가 여전히 0일 때 화면에는
+100으로 표시된다. 화면의 숫자가 언제나 그 숫자는 아니다.
+
+**플레이어의 집과 문이 없던 방.** 집은 바닥 kind가 `0x1a`인 4x4 방이며 가구 두 개가 있다.
+그런데 방 안에서 플레이어는 한 방향을 누르고 나가야 하는데, 출구 규칙은 집에서 나갈 방법을
+전혀 찾지 못했다. 원인은 한 행이었다. 바닥과 바깥의 계단 사이에 고유 kind의 도어매트가 있고,
+그 kind가 *마을 회관의 바닥 kind*였다. 따라서 문 kind 표는 두 번째 진입에서 틀리게 된다.
+그래서 문은 계단에서 바깥쪽으로, 바닥도 바깥 둘레도 아닌 셀을 통과하여 바닥에 닿는 순간까지
+자라나게 했다. 이렇게 하면 앞서 기록한 두 방은 완전히 그대로 돌아오고 집에는 문이 생긴다.
+이를 확정한 걷기는 코드 변경 전에 했다. 한 방향을 계속 누르고, 대화는 전혀 없이, 곧장 밖으로
+나왔다.
+
+**통신판매 카탈로그와 아무것도 배달되지 않은 이유.** 너굴의 카운터 메뉴는 펠리의 패널을
+공유하지 않는 것으로 밝혀졌다. 너비가 다르고 다섯 행이 아니라 네 행이며, 아래쪽 가장자리에
+고정되어 행이 위쪽으로 자란다. 따라서 행의 위치는 행의 의미만큼이나 상태이다. 카탈로그 자체는
+열리고, 이 플레이어가 지금까지 본 아이템 하나를 나열하고, 배달료를 포함해 1,900벨을 합산하고,
+확인을 요청한다. 답은 주문이 **선불**이라는 것이다. 지갑에 35벨만 있으면 점원은 단순히 거부한다.
+따라서 이 사이클에서 계획한 시계 실험 -- 오늘 주문하고 하루를 넘긴 뒤 우편함을 여는 것 -- 은
+시작되지 않았고 세이브의 편지 저장소도 그대로이다. 문턱은 상점 업그레이드도 요일도 아닌 돈이다.
+다음 사이클이 부팅 두 번을 쓰기 전에 알아 둘 사실이다.
+
+**가져갈 것.** **두 예에서 읽은 규칙은 설명이고, 세 번째 예에서 모델이 된다.** 이번 사이클의
+두 수정은 같은 모양에서 나왔다. 한 방에서는 한 뜻이고 다른 방에서는 다른 뜻인 kind였다.
+눈앞의 방이 말하는 것 대신 기록된 *전체* 집합이 무엇을 말하는지 물었기 때문에 두 문제를
+찾을 수 있었다. 그리고 가장 싼 도구는 도구가 아니었다. 집에 출구가 없다고 말하던 모델을
+바꾸기 전에 플레이어를 그 방에서 그냥 걸어 나가게 했다.
+
+## GAMEPLAY57 -- 해변이 소포 값을 마련하고, 다음 날 아침 소포가 도착하다
+
+GAMEPLAY56 다음 사이클, 같은 마을에서: `scratchpad/gameplay56/town4.sav`가 복사본에서 46초 만에
+플레이어의 집 도어매트 (41,55)에 지갑 35, 저축 100, 대출 18,300인 상태로 부팅되었다. 모든 것의
+앞을 막은 심부름은 하나였다. 카탈로그가 1,900벨을 선불로 요구했고 플레이어에게는 35벨뿐이었다.
+
+**돈은 내내 해변에 있었다.** 이전 사이클의 계획은 상점으로 돌아가 물건을 하나씩 팔자는 것이었다.
+그런데 프레임을 하나도 쓰기 전에 부팅 스냅샷에서 마을의 아이템 레이어를 읽고, 게임 자체의 표로
+모든 id의 가격을 매겼다. 이 마을의 해안 행에는 **2,720벨**어치 조개가 띠처럼 놓여 있었고,
+그중 네 개가 연속한 네 타일에 있었다. **아이템 id는 게임에 대한 사실이 아니라 마을에 대한 사실이다.**
+앞 사이클에서 기록한 과일나무는 이 마을에는 전혀 없다.
+
+**주울 때 조준할 필요도 없었다.** 줍기 버튼은 플레이어 위치를 가장 가까운 타일로 *반올림*한
+뒤, 플레이어가 바라보는 방향으로 한 타일 나아간 위치에 작용한다. 그래서 한 번의 줍기는 스냅샷이
+타일의 중간선을 어느 쪽에 남겼는지에 대한 문제가 된다. 조준하지 말고 조개가 있는 행을 따라 한
+방향을 누르면서, 반올림 창을 건너뛰지 않을 만큼 버튼을 자주 펄스하면 된다. **조개 네 개, 두 번의
+실행, 1,690벨. 필요한 기하 정보는 조개가 그 행에 있고 플레이어가 조개의 서쪽에 있다는 것뿐이었다.**
+
+**상점이 정확히 얼마를 지불하는가.** 아이템 표에는 기본 가격이 저장되어 있고 상점 코드가
+"may divide by four"라고만 경고한다. 일곱 아이템을 두 묶음으로 팔아 확인했다. 나누는 수는 4였고,
+각 실행 전에 예측한 값이 벨과 일치했다 -- 4,800 + 80을 팔아 **1,220**, 160 + 1,600 + 600 + 360 +
+1,000을 팔아 **930**을 받았다. 카탈로그는 같은 표를 반대 방향으로 읽는다. 유일한 항목의 기본값은
+1,900이고 제시 가격도 1,900이며, 앞 사이클에서는 같은 아이템을 475에 팔았다. 하나의 숫자가
+양쪽 방향에서 쓰인다.
+
+**페이지가 무언가를 들고 있어서 잃은 다섯 번의 실행.** 돈을 마련한 뒤에도 판매 페이지는
+스타일러스에 전혀 반응하지 않았다. 드래그, 버리는 탭 뒤의 드래그, 긴 탭 하나, 긴 탭 세 번,
+페이지 자체의 취소 버튼 탭 모두 아무 일도 없었다. 매번 실행은 깨끗했고 콘솔의 자체 터치 로그는
+모든 픽셀을 되풀이했다. 페이지가 무응답인 것은 아니었다. **페이지가 아이템을 들고 있었기 때문이다.**
+캐릭터에게 걸어가는 도우미는 끝에 A를 24번 누르는데, 커서가 있는 페이지에서 A는 커서 아래의
+것을 *들어 올린다*. D-패드로 페이지를 조작하자 커서 위에 아이템이 그려지고 이름 말풍선이 떴다.
+A 한 번으로 내려놓자 바로 다음 드래그가 작동했다. 버그보다 오래된 교훈은 이것이다.
+**입력이 전달되었는데 아무 일도 일어나지 않으면 입력이 아니라 입력 장치를 바꾼다.** 탭을 바꾼
+다섯 번 뒤, 패드로 한 번 실행하자 4초 만에 질문에 답했다.
+
+**주문은 진행되고, 시계가 나머지를 처리한다.** 1,900벨 선불 주문에 2,185벨이 있는 상태에서
+점원은 확인하고 누르는 순간 돈을 전부 가져간 뒤, 물건이 들어오는 대로 우편으로 보낸다고 말한다.
+**게임 자체의 텍스트 어디에도 날짜는 나오지 않는다.** 따라서 배달 규칙은 읽을 수 없고 측정해야
+한다. 저장하고, 날짜를 하루 앞당긴 세이브의 복사본을 부팅한 뒤, 다음 날 아침 비가 오는 가운데
+플레이어 집 현관 옆 우편함의 깃발이 올라가고 봉투 하나가 들어 있는지 확인했다. **배달은 다음 날이다.**
+이 프로젝트에서 시계가 패드 스크립트가 아니라 무언가를 결정한 첫 사례이다.
+
+**잘못된 것으로 밝혀진 라벨.** 이 프로젝트가 작성한 모든 세이브는 두 뱅크 너머의 영역이 완전히
+지워졌다고 보고하며, 그 영역을 "편지 저장소"라고 불러 왔다. 배달된 편지가 우편함에 있는 상태로
+작성한 세이브도 **정확히 같은 결과**를 보고한다. 편지는 세이브 뱅크 안에 있다. 전날 세이브와의
+바이트 차이에는 마을의 하루 시뮬레이션이 섞인, 같은 형태의 후보 레코드 두 개가 남는다. 확정된
+부정적 결과는 이것이다. 편지는 그 라벨이 가리킨 곳에 가지 않는다.
+
+**작지만 값싼 두 가지.** 저축 창에는 메뉴 행과 숫자 패드 사이에 이전 사이클이 그대로 지나친
+페이지가 있었다 -- 예금과 **인출**이다. 두 번째 행을 고르자 처음으로 저축 워드가 **100에서 0**으로
+내려가고 지갑은 같은 100만큼 올라갔다. 그리고 플레이어의 집에는 침대도 계단도 없다. 전체 내용은
+골판지 상자와 카세트 라디오이므로 계획에서 요구한 "침대 세이브"는 존재하지 않는다. 게임의 일반
+세이브는 방 안에서도 완벽하게 작동하며, 바깥에서 쓰는 것과 바이트 단위로 같은 내용을 쓴다.
+
+**가져갈 것.** 이번 사이클에서 비용이 컸던 세 가지 실수 중 두 가지는 같은 실수였다.
+**계속 실패하는 측정은 대개 질문을 잘못한 것이지, 질문을 서툴게 한 것이 아니다.** 세 번째는 더
+싸고 당황스러운 실수였다. 재개한 스냅샷보다 작은 프레임 번호로 패드 스크립트를 작성하여, 스크립트는
+승인되고 로그에도 남았지만 버튼을 한 번도 누르지 않았다.
+
+## GAMEPLAY58 -- 소포를 열고, 세이브에서 편지를 찾고, 체리 하나가 100벨이다
+
+GAMEPLAY57 다음 사이클이며, 그 사이클의 심부름을 끝낸다. 앞 사이클은 카탈로그에서 가구를 주문하고
+시계가 다음 날 아침 배달하는 것을 확인한 뒤, 편지에서 그것을 꺼내려다 다섯 번 실패했다. 편지의
+바이트는 후보 두 개로 남아 있었고 과일나무도 흔들지 않은 상태였다.
+
+**배달된 아이템은 아무도 열지 않았던 페이지에서 나온다.** 우편함 페이지에는 조작부가 아닌 봉투가
+그려진다. 탭과 드래그 다섯 번으로 이를 확인했고, 같은 스냅샷에서 여섯 번째 실행은 페이지를 닫았으므로
+페이지는 펜을 읽고 있었다. 편지 자체는 페이지 오른쪽 열에서 그림이 있는 유일한 슬롯이다. 탭하면
+읽기와 취소 두 행의 메뉴가 올라온다. 읽으면 상점의 배달 안내가 보인다. 안내를 닫고, 페이지를 닫고,
+편지를 주머니로 드래그해도 주머니 내용은 그대로였다.
+
+**선물을 건네는 행은 존재하며, 일반 주머니 페이지에 있다.** 다른 접촉을 시도해서 찾은 것이 아니라
+게임 자체의 메뉴 아카이브에서 찾았다. 그 아카이브에는 이번 사이클의 어떤 메뉴에도 표시되지 않았던
+"present"라는 행이 있다. 우편함 페이지가 아니라 주머니 페이지에서 같은 편지를 탭하면 **세 행**의
+메뉴 -- 읽기, present, 취소 -- 가 올라오고, 가운데 행을 한 번 접촉하자 가구가 주머니로 들어왔다.
+두 페이지는 같은 편지를 15픽셀 차이로 그리며, 탭으로 여는 위젯도 모두 그에 맞춰 이동한다.
+**보고 있는 페이지에서 조작부를 찾을 수 없다면 그 페이지를 다시 조준할 것이 아니라, 기대하는 행을
+그리는 페이지가 어느 것인지 물어야 한다.**
+
+같은 과정에서 작은 사실 두 가지도 나왔다. 이미 읽은 편지는 메뉴 없이 탭에 바로 열리므로 한
+페이지에서 읽는 실행은 그 페이지의 유일한 메뉴를 이미 써 버린다. 그리고 게임 자체의 버튼은 이
+흐름의 모든 단계에서 반대로 작동한다. 편지 메뉴에서 한 번 누르면 첫 행을 선택하지 않고 메뉴를
+**닫는다**. 상점 카운터의 동작과 반대이다.
+
+**세이브는 재개할 장소일 뿐 아니라 변수이다.** 이전 사이클의 우편함 패드는 같은 타일, 같은 행,
+같은 날짜에서 이번 사이클에는 아무것도 열지 않았다. 서브타일을 네 번 조정해도 되살아나지 않았다.
+원인은 저장 상태였다. 이번 사이클이 시작한 세이브는 배달 *후에* 작성되었으므로 편지는 이미 플레이어의
+것이었고 우편함에는 보여 줄 것이 없었다. 전날 세이브를 배달 전후로 부팅하자 동일한 패드가 첫 시도에
+페이지를 열었다.
+
+**편지는 세이브의 어디에 있는가, 바이트 단위로.** 저장소에는 편지가 카트리지 플래시의 두 세이브
+뱅크 바깥 세 번째 영역에 산다는 라벨이 사이클 동안 남아 있었다. 그렇지 않다. 편지가 들어 있는
+세이브도 그 영역을 완전히 지워졌다고 보고한다. 편지는 **플레이어** 필드이다. 플레이어 자신의
+블록 안에 고정 크기 레코드 열 개가 있고, 각 레코드 끝 가까이에 연결된 선물이 단일 halfword로
+있다. 네 가지 독립된 판독이 이를 고정한다. 배열은 플레이어 슬롯마다 플레이어 스트라이드만큼
+반복되고, 하루 차이로 찍은 두 세이브에서 같은 256바이트가 서로 다른 두 위치에 바이트 단위로
+동일하게 나타나며 배달되었을 때 한 배열에서 다른 배열로 *이동*했다. 게임에서 선물을 꺼내자 그
+256바이트 중 정확히 세 바이트가 바뀌었고, 그중 하나는 선물 id가 "nothing here" 표식으로 바뀐
+바이트였다. 레코드의 헤더는 저장소가 이미 찾아 둔 마을 고유 id와 이름, 수신인의 고유 id와 이름을
+바이트 단위로 복사한다. 이제 저장 도구는 그 인구조사를 출력한다 -- 사용 슬롯, 수신인, 선물 --
+편지의 텍스트는 읽지 않는다.
+
+**전체 차이를 믿을 수 있게 만든 대조도 값쌌다.** 같은 날짜에 하나의 세이브를 똑같이 두 번 부팅하고,
+각각 같은 게임 내 세이브를 한 결과 256KB 파일 두 개의 해시가 같았고, 다른 바이트가 하나도 없었다.
+따라서 세이브에는 실행마다 생기는 잡음이 전혀 없다. 두 세이브 사이에서 달라지는 모든 바이트는
+두 레시피가 달라서 생긴 것이다. 이 사실은 두 세이브의 차이를 단순한 단서가 아니라 측정 도구로
+바꾸었고, 60회 실행에 걸친 차이를 날짜 탓으로 돌릴 수 있게 했다.
+
+**마침내 과일나무.** 이 마을의 과일나무는 체리나무이다. 나무는 자신의 id에 상태를 저장한다.
+나무를 흔들면 타일의 id가 이웃한 두 번째 값으로 바뀌어 열매가 달린 나무와 같은 나무의 빈 상태를
+구분하고, 체리 세 개를 떨어뜨린다. 하나는 줄기 타일에, 나머지는 양옆에 놓인다. 세 개 중 두 개는
+전혀 걸을 필요가 없었다. 흔든 뒤 플레이어가 선 곳에서 각각 한 방향으로 조준하면 됐다.
+
+**체리 하나는 100벨이다.** 아이템 표에는 체리의 가격이 2,000으로 저장되어 있고, 앞 사이클은
+아이템 일곱 개에서 상점이 저장된 기본값의 정확히 4분의 1을 지불한다고 측정했다. 과일에는 4분의
+1을 지불하지 않는다. 상점 자체의 문구는 한 묶음에 100이라고 했고 지갑은 285에서 385로 갔다.
+아이템 표의 헤더는 메커니즘을 말한다 -- 상점의 어떤 나누기보다 먼저 과일 조정이 적용된다 --
+그리고 이것이 그 조정을 측정한 것이다. **한 종류의 아이템 일곱 개로 측정한 나누기 값은 그 종류에
+관한 사실이다.**
+
+마을은 상점 안에서 저장되었는데, 어느 사이클도 그렇게 해 본 적이 없었다. 가구와 남은 체리가
+주머니에 있는 상태에서 세이브는 게임 자체의 세 부분 승인 테스트를 통과했다.
 
 ## 관련 문서
 

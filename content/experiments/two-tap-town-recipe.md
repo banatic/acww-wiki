@@ -14,10 +14,10 @@
 확정하지 않는다 -- 인터프리터 실행과 네이티브 실행이 9 프레임 중 9 프레임 일치했다 -- 즉
 그 경로에서 포트는 결코 틀리지 않았고, 틀린 것은 레시피였다
 [E: `docs/log/cycle40-keyboard-gate-probe.md` H4 RESULT and TAP40;
-`scratchpad/cycle40/runs/tap-native`, `tap-interp`]. 첫 번째 탭은 키보드를 패드 모드에서
+`scratchpad/cycle40/runs/tap-native`, `tap-interp` ; `scratchpad/cycle40/runs/tap-interp`]. 첫 번째 탭은 키보드를 패드 모드에서
 스타일러스 모드로 전환하고, 그에 반응할 상태는 눌림 에지가 사라진 다음 프레임부터만
 실행된다; 스타일러스 모드 창 안의 두 번째 탭이 확인 버튼이 볼 수 있는 것이다
-[E: `port/shim/input/touch.c`].
+[H: log/source account: `port/shim/input/touch.c`; receipt provenance unresolved].
 
 **왜 탭이 멈춰야 하는가.** 탭을 반복하면 예/아니오 메뉴가 유지되어 대화가 정체되는데,
 대화 중의 접촉은 대화를 진행시키지 않기 때문이다. `ACWW_TOUCH_REPEAT=2`가 스크립트된
@@ -33,8 +33,8 @@ OVL40; `scratchpad/cycle40/runs/tap-D55b`].
       ACWW_TOUCH2_EVERY=60 ACWW_TOUCH2_REPEAT=2 \
       ACWW_STOP_FRAME=48000 ACWW_SHOT_AFTER=6000 ACWW_SHOT_EVERY=1500 ACWW_PAD_SAMPLE=0
 
-[E: `docs/kb/hybrid/recipes.md` section 3; `docs/state/port-frontier.md`, verified-at
-`6ca48706`].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 3; `docs/state/port-frontier.md`, verified-at
+`6ca48706`; receipt provenance unresolved].
 
 나머지는 스크립트 자체의 기본값이 공급한다: 커스텀 START 패드 페이즈 -- 프레임 300에서
 1차 마스크 9, `FOR` 10, `EVERY` 30; 1,800에서 페이즈 2 마스크 8, `RELEASE_FOR` 60; 2,400에서
@@ -77,21 +77,21 @@ BUDGET`].
 ## 이 관측을 만들어 낸 실행
 
 - `scratchpad/cycle40/runs/tap-D56` -- TOWN40이 보고하는 진단 실행, 48,000 프레임
-  [E: its `receipt.json` carries `diagnostic: true`].
+  [H: log/source account: its `receipt.json` carries `diagnostic: true`; receipt provenance unresolved].
 - `scratchpad/cycle40/runs/tap-D57` -- 어파인 배경을 그린 동일 실행 (SKY40).
 - `scratchpad/cycle40/runs/town-R1` -- **영수증이 있는 실행**이며, 인터프리터 경로의 첫
   영수증 실행: 런처 종료 코드 0, 48,000에서 자식 종료 코드 100, 801초, 스크린샷 29장, 폴트
-  마커 없음 [E: `docs/log/cycle40-keyboard-gate-probe.md` RECEIPT41, commit `6ca48706`].
+  마커 없음 [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` RECEIPT41, commit `6ca48706`; receipt provenance unresolved].
 - `scratchpad/cycle40/runs/tap-D59` -- 90,000 프레임; 펠리가 60,000에서 작별 인사를 하고 A
   펄스가 90,000까지 다시 그녀에게 말을 건다. 이 레시피로는 마을 회관 밖으로 나갈 수 없다
-  [E: LONG41].
+  [H: log/source account: LONG41; receipt provenance unresolved].
 - `scratchpad/oracle/tap-fullpad` -- 오라클 조건과 그 비교 표.
 
 **영수증과 진단은 같은 주장이 아니다.** 영수증은 READY 파이프라인 아티팩트에 대해
 `port/tools/run.py --receipt`를 통해 실행하고 봉인된 로그를 그 옆에 복사·해시한 실행이다;
 진단은 직접 `acww.exe`를 띄운 것이다. 어느 쪽인지, 그리고 런처, 아티팩트 출처, 경로,
 종료점을 말해야 한다 (B1, B8, B32)
-[E: `docs/kb/hybrid/recipes.md` section 5].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 5; receipt provenance unresolved].
 
 ## 비교가 말해 주는 것
 
@@ -113,8 +113,8 @@ BUDGET`].
 원본의 스타일러스 샘플은 포트보다 1~2 프레임 늦게 도착하므로, 누름과 탭의 순서가 두 쪽에서
 다르게 잡힌다. `ACWW_TOUCH2_AT=24700`으로 하면 양쪽 모두 확정하고 일치한다 -- 24,000..27,000의
 11 프레임에서 평균 ncc 0.9955, 위 화면 1.0000
-[S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-O: `scratchpad/oracle/tap-24700`]. **따라서 공식 레시피는 24,700을 사용하며**, 위의 표는
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; H: historical measurement account: `tap-D62`;
+O: `scratchpad/oracle/tap-24700`; direct ROM-source provenance unresolved]. **따라서 공식 레시피는 24,700을 사용하며**, 위의 표는
 기록을 위해 남겨 둔 24,600 실행이다. 오라클은 아직 마을을 보여 주지 못하므로, 하늘과
 마을 회관은 아직 점수가 매겨지지 않았다.
 
@@ -129,7 +129,7 @@ O: `scratchpad/oracle/tap-24700`]. **따라서 공식 레시피는 24,700을 사
   이미지로 판단한다.
 - 트리를 git 기준으로만 동결하는 것: 파이프라인 스냅샷은 추적되지 않는 파일도 포함하며,
   한 빌드는 빌드 도중 운영자의 새 파일이 나타나 게시 시점에 거부되었다 (S10)
-  [E: `docs/kb/hybrid/recipes.md` section 8].
+  [H: log/source account: `docs/kb/hybrid/recipes.md` section 8; receipt provenance unresolved].
 
 ## 관련 문서
 
@@ -143,12 +143,12 @@ O: `scratchpad/oracle/tap-24700`]. **따라서 공식 레시피는 24,700을 사
 `ACWW_TOUCH2_AT=24700`으로 DeSmuME 레퍼런스는 같은 경로를 따른다: 37,500에서 마을,
 40,500부터 마을 회관, 27000..48000의 15 프레임에서 평균 ncc 0.8967, 마을 회관 프레임은
 0.98-0.998이며 위 화면은 동일하다(마을 회관 안에서는 양쪽 모두 검은색)
-[O: `scratchpad/oracle/tap-town`] [E: `tap-D63`]. 두 전환 프레임(39,000과 46,500)은 페이드의
+[O: `scratchpad/oracle/tap-town`] [E: `tap-D63` ; `scratchpad/cycle40/runs/tap-D63`]. 두 전환 프레임(39,000과 46,500)은 페이드의
 서로 반대편에 떨어진다. 37,500에서 원본의 하늘은 지평선을 향해 원근 스케일링되어 있고
 포트의 하늘은 평평하다 [H: the HBlank handler `func_01ffcc30` updates the affine
 parameters per scanline; capture BG3 P*/X/Y per line and compare `tap-D63` 37,500 again].
 
 갱신 (SKY41): 스캔라인별 레지스터 캡처(HBlank 콜백이 BG3의 아핀 파라미터와
 BLDCNT/BLDALPHA를 줄마다 다시 쓴다)를 적용하면 37,500에서 포트의 하늘은 원본처럼
-지평선을 향해 평평해지고 배경(backdrop)으로 페이드된다 [E: `tap-D71`]
-[S: docs/log/cycle40-keyboard-gate-probe.md SKY41].
+지평선을 향해 평평해지고 배경(backdrop)으로 페이드된다 [H: log/source account: `tap-D71`; receipt provenance unresolved]
+[H: source account: docs/log/cycle40-keyboard-gate-probe.md SKY41; direct ROM-source provenance unresolved].

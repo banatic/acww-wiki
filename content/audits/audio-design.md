@@ -246,7 +246,7 @@ FINISH로 콜백을 발화한다 [P: pokediamond `SND_exChannel.c`].
 6단계 이전의 어떤 것도 90,000프레임 프런티어를 퇴행시킬 수 없다.
 
 **상태 (2026-09-09): 여덟 단계 모두 완료.** 7단계와 8단계는 오디오 마일스톤 7과 8로 착지했다;
-`docs/kb/hybrid/audio.md` §7-§10이 그것들이 오늘 무엇을 하는지 말하는 페이지다. 6단계는
+`docs/kb/hybrid/audio.md` §7-§9; `docs/kb/hybrid/audio-differential.md` §A10이 그것들이 오늘 무엇을 하는지 말하는 페이지다. 6단계는
 `port/shim/audio/driver.c`(34개 명령 디스패처), `port/shim/audio/sink_win32.c`(WASAPI 공유
 모드, waveOut 폴백), 그리고 `port/shim/os/pxisend.c`와 `port/platform/frame.c`의 배선으로
 착지했다. 아래의 모든 내용은 쓰인 그대로 보존되는데, 순서 논증이 여전히 이 작업이 안전한
@@ -322,7 +322,7 @@ DirectSound 대화상자 해제기를 둠). `SNDSharedWork`는 ARM9 전역 `SNDi
 그리고 시퀀서의 틱 레이트(TICK RATE)가 모두 정확히 일치하는 반면, 첫 시퀀스는 원본에서
 트랙당 하나인 데 반해 **포트에서는 트랙당 세 채널**을 울리고, **원본의 틱 123에 대해 틱
 84**에서 끝난다. 전체 표와 영수증:
-`docs/kb/hybrid/audio.md` §10, `scratchpad/audio8/`.
+`docs/kb/hybrid/audio-differential.md` §A10, `scratchpad/audio8/`.
 
 ### 상태: 여덟 단계 모두 완료 (AUDIO6 `115984f9`, AUDIO7 `36ee5abe`, 2026-09-09)
 
@@ -461,7 +461,7 @@ chanalloc,mixer}.c`가 존재하고, `port/tools/sndrender.py`가 포트의 링�
   드라이버의 유일한 부분이다: 거기서 일치하는 두 드라이버는 게임이 관측할 수 있는 모든 것에서
   일치한다. 양쪽의 도구는 존재한다(`ACWW_SND_DUMP`, `oracle.py --snd-dump`,
   `port/tools/oracle/snddiff.py`); 그것들이 쓰인 세션에서 에뮬레이터가 시작되지 않았으므로,
-  아직 일치 표는 존재하지 않는다 [`docs/kb/hybrid/audio.md` §10].
+  아직 일치 표는 존재하지 않는다 [`docs/kb/hybrid/audio-differential.md` §A10].
 
 ## 관련 문서
 

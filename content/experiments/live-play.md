@@ -28,6 +28,35 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 아니라 **A 버튼**을 원한다; 그리고 `play.py`의 실제 시계 때문에 저녁에는 마을이 잠들어
 있다 -- 같은 세이브에서 `--time 113000`을 주자 80 s 안에 주민이 걸어와 말을 걸었다.
 
+**회귀 검사로 다시 실행, 2026-09-11 (LIVE44, `24b1a636` IRIS54, C 변경 없음).** 픽셀별
+창과 마스터 밝기를 갖춘 빌드(FADE52), 스캔라인별 아이리스(IRIS54), 스위치로 보호된
+서브프레임 시계(TICK53/MEM54, 둘 다 기본값은 OFF이며 여기서도 꺼져 있음을 확인함), 로더
+계측기와 스레드 쿼터를 갖춘 빌드에서 같은 결과물을 다시 확인했다: **다섯 번의 실행,
+246,510프레임, 모두 exit 0, `unimplemented`, `STOP status`, `fault_pc`, queue-full 줄은
+0건**이다. 타이틀 화면은 이제 **24 s**에 도착하고, 저장된 마을은 이어하기 경로로 로드되며,
+해변에서는 `X`를 한 번 눌러 조개를 얻고 세이브 파일에도 남는다. 벚나무는 흔들려 빈 나무가
+되었고, **너굴 상점은 360벨짜리 조개에 190벨, 2,000벨짜리 체리에 100벨을 지급했다 --
+90 = base/4이고 과일에는 고정 100이다**. 지갑은 385 -> 575가 되었고, START ->
+저장하고 마치기는 양쪽 뱅크에서 검증되는 세이브를 쓴다.
+
+**핵심은 전환이다.** 건물에서 걸어 나오면 이제 둥근 IRIS가 닫힌다. 프레임에 고정한 캡처가
+아니라 픽셀에서 라이브로 측정했으며, 빛이 드는 열 범위는 DS 자체의 14단계를 따라
+`119..136`으로 줄어들고 빛이 드는 행도 함께 닫힌다. 아래 화면의 평균 휘도는
+`30.51, 24.98, 20.45, 15.73, 10.49, 6.32, 2.84, 0.62`로 읽혔다 -- 외부 캡처에서
+사람이 직접 누른 키로 얻은 IRIS54의 프레임 고정 수치와 소수점 둘째 자리까지 같다.
+프레임 레이트는 300 s 동안 호스트 시계 대비 **59.8366 fps**이다(더 짧은 창은 캡션의
+양자화 때문에 0.1 높게 읽힌다). 포트 자체 카운터의 창 198개 평균은 59.71이고 모든 하락은
+씬 로드에서 발생했으며, `ACWW_FRAMETIME`은 마을 렌더링이 **4.2 ms**라고 말한다. PERF42의
+6.5-7.0과 비교하면 창 마스크에는 측정 가능한 비용이 없다. 사운드는 `FIRST SOUND at
+frame 38`, 피크 32,006, 싱크 `dropped 0 frames`였고 다섯 실행 중 네 실행에서는 모든
+노트가 울렸다. 다섯 번째는 **`no instrument`로 22,224개 중 19개가 누락**되어 LIVE43보다
+한 수치 나쁘며 원인은 아직 특정되지 않았다 [E: `scratchpad/live44/RECEIPTS.md`, `runs/*/receipt.json`;
+`docs/log/cycle42-save.md` LIVE44]. 여기서 얻은 라이브 관측 세 가지: 너굴 표지판 아래의
+어두운 틈은 WINDOW이고 문은 그 옆 패널이며, Redd의 비밀번호 키보드는 빈 칸에 노란
+PLACEHOLDER 표시를 그리고 무엇인가 입력할 때까지 결정 입력을 조용히 거부한다. 그리고
+걸어 다니는 주민은 아홉 번 시도해도 대화하려고 세울 수 없었지만, 두 상점 주인은 첫 `Z`에
+대답했다.
+
 ## 목적
 
 다른 페이지의 모든 레시피는 스크립트다: 시계를 고정하고, 스토어를 끄고, 진행 줄을
@@ -39,7 +68,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 
     python port/tools/play.py
 
-그게 전부다 [E: `port/tools/play.py`; `docs/kb/hybrid/live-play.md`]. 이 명령은
+그게 전부다 [H: log/source account: `port/tools/play.py`; `docs/kb/hybrid/live-play.md`; receipt provenance unresolved]. 이 명령은
 `port/build/acww.exe`를 인터프리터 경로에서 실제 시계로, `%LOCALAPPDATA%/acww/town.sav`의
 세이브와 함께, 페이서를 켜고, 인터프리터의 진행 줄을 끄고, 콘솔 창 없이 실행한다; 로그는
 세이브 옆에 남는다. 옵션: `--save PATH`, `--log PATH`, `--date YYYYMMDD --time HHMMSS`,
@@ -51,7 +80,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 틀리다 -- RTC는 모든 레시피에서 고정되고, `ACWW_SAVE`는 의도적으로 설정되지 않으며,
 인터프리터의 진행 줄은 9,000프레임 OFF 레시피에서 1,738,500번의 쓰기와 101 MB의 로그(프레임
 시간의 약 20%)를 소모하고, 콘솔 서브시스템 exe는 터미널에서 실행되지 않으면 콘솔 창을
-띄운다 [E: `docs/kb/hybrid/live-play.md`].
+띄운다 [H: log/source account: `docs/kb/hybrid/live-play.md`; receipt provenance unresolved].
 
 ### 키 맵
 
@@ -78,7 +107,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 `ACWW_SHOT*` 변수 중 하나라도, 또는 `ACWW_STOP_FRAME`, 또는 `ACWW_NOPACE=1`이 있으면
 꺼진다; 환경은 접두사로 한 번 스캔되므로 새로운 `ACWW_KEYS4`도 아무것도 고치지 않고
 포함된다. `ACWW_PACE=1` 또는 `ACWW_NOPACE=0`은 페이서 자체를 측정하기 위해 강제로 켠다
-[E: `docs/kb/hybrid/live-play.md`].
+[H: log/source account: `docs/kb/hybrid/live-play.md`; receipt provenance unresolved].
 
 ## 플레이어가 하는 일, 단계별로
 
@@ -93,14 +122,14 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 | # | 할 일 | 나타나는 것 | 프레임 | E |
 |---|---|---|---|---|
 | 1 | 기다린다 | 타이틀 화면, 낮에 -- 시계가 실제여서, LIVE41의 것은 밤이었다 | 3,510 | `01-title.png` |
-| 2 | 아래 화면을 한 번 클릭 | 여울: 안녕하세요！놀러 오셨군요 | 4,290 | `02-after-title-tap.png` |
+| 2 | 아래 화면을 한 번 클릭 | Rover: 안녕하세요！놀러 오셨군요 | 4,290 | `02-after-title-tap.png` |
 | 3 | `Z` x4 | 택시 안 | 5,100 | `03-menu.png` |
-| 4 | `Z` | 여울의 질문들, 일부는 두 선택지 상자 포함 | 7,050 | `04-taxi.png` |
+| 4 | `Z` | Rover의 질문들, 일부는 두 선택지 상자 포함 | 7,050 | `04-taxi.png` |
 | 5 | 선택지를 클릭 | 받아들인다 -- 스타일러스가 대화에서 동작한다 | 8,490 | `05-after-choice-tap.png` |
 | 6 | `Z` | **이름 키보드**, 당신 이름은? | 9,601 | `06-taxi2.png`, `06-lower-4x.png` |
 | 7 | DS(33,128)의 ㅁ을 클릭, 그다음 DS(193,128)의 ㅣ | 두 탭이 한 음절을 조합한다 | 12,630 | `07-typed-mi.png` |
 | 8 | DS(231,112)의 백스페이스를 클릭 | 음절이 다시 지워진다 | 18,090 | `08-bksp.png` |
-| 9 | 이름을 입력하고 DS(220,179)의 결정을 클릭 | 한 번의 탭으로 확정; 여울이 이름을 읽어 준다 | 20,190 | `09-typed-mimi.png`, `10-nameline.png` |
+| 9 | 이름을 입력하고 DS(220,179)의 결정을 클릭 | 한 번의 탭으로 확정; Rover가 이름을 읽어 준다 | 20,190 | `09-typed-mimi.png`, `10-nameline.png` |
 | 10 | `Z` | **마을 이름 키보드**, 마을 이름은? | 24,390 | `12-townkbd.png` |
 | 11 | 입력하고 결정 | 헤헷 농담이야, 농담ー！ | 27,390 | `13-townname.png`, `14-townconfirm.png` |
 | 12 | `Z` | **택시 밖으로**, 마을 회관 앞 포장도로 위, 위 화면에 하늘 | 31,500 | `16-taxi4.png` |
@@ -134,25 +163,24 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 **세이브는 진짜다.** 게임은 256바이트 페이지를 `0x00000..0x2e7f8`에 걸쳐 썼고, 각 페이지는
 한 프레임 뒤에 검증되었으며, 불일치는 0이었다. 그 이미지에 대한 `savetool.py check`는
 `checksum stored 0xaf74 computed 0xaf74 VERIFIES`와 `the game would LOAD this bank`를 읽고,
-주민 8명 중 3명이 차 있다 -- 새 마을이다 [E: `scratchpad/live42/sessionA.log`; SAVE43은
-패드 스크립트 아래에서 같은 체인에 도달했다].
+주민 8명 중 3명이 차 있다 -- 새 마을이다 [E: `scratchpad/live42/sessionA.log`; SAVE43 reached the same chain under a pad script].
 
 ### 워크스루가 배워야 했던 세 가지
 
 **도착 대화는 저절로 다시 시작된다** -- 플레이어가 펠리의 카운터에 서 있는 동안: 상자는
 `A`로 닫히고 아무것도 누르지 않아도 2.5 s 안에 어머 무슨 일 있으신가요?가 돌아온다
-[E: `shots/32-free.png`, 프레임 56,310, 닫는 입력 150프레임 뒤]. 마지막 상자가 닫히기
+[H: log/source account: `shots/32-free.png`, frame 56,310, 150 frames after the closing press; receipt provenance unresolved]. 마지막 상자가 닫히기
 전에 떠나고 싶은 방향을 미리 누르고 있으면 조작이 돌아오는 순간 걸어 나간다. 안내는
 혹시 지도를 어떻게 꺼내는지 잊으셨나요?에서 반복되기도 하는데, `A`가 첫 번째 선택지,
-즉 "네, 다시 알려 주세요"를 고르기 때문이다 -- 먼저 아래를 누른다 [E: `shots/21-pelly4.png`
-대 `24-declined.png`].
+즉 "네, 다시 알려 주세요"를 고르기 때문이다 -- 먼저 아래를 누른다 [H: log/source account: `shots/21-pelly4.png` against
+`24-declined.png`; receipt provenance unresolved].
 
 **키 격자는 캡처 하나로 측정할 수 있다.** 창 캡처에서 아래 화면을 잘라내고(클라이언트
 512x768이므로 아래 화면은 아래쪽 절반이고, 기본 2배에서 DS = 클라이언트/2), 다시 2배로
 확대하면 DS 좌표는 그 이미지의 픽셀을 4로 나눈 것이다. 행은 DS y = 96, 112, 128, 144에
 있고, 열은 x = 14부터 DS 20픽셀 간격이다; 백스페이스는 DS(231,112)이고 결정은
 DS(220,179)다 -- `run_town.py`가 오래전부터 쓰던 `ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181`이
-줄곧 가리키던 바로 그곳이다 [E: `shots/06-lower-4x.png`].
+줄곧 가리키던 바로 그곳이다 [H: log/source account: `shots/06-lower-4x.png`; receipt provenance unresolved].
 
 **지도 페이지로 길 찾기가 된다.** `scratchpad/live42/nav.py`는 화살표로 걷고, 지도를 열고,
 플레이어 마커(B173 G90 R247)와 플레이어 자신의 집 아이콘(B0 G165 R0)을 색으로 찾는다;
@@ -187,25 +215,24 @@ DS(220,179)다 -- `run_town.py`가 오래전부터 쓰던 `ACWW_TOUCH_X=221 ACWW
 이상이 들고, 캡션의 프레임 번호는 초당 두 번만 갱신되므로 둘 다 입력의 시간을 잴 수 없다.
 창 자신의 DC에서 `BitBlt`(`GetDC(hwnd)`; 클래스가 `CS_OWNDC`이고 `acww_present`가 거기로
 곧장 StretchBlt한다)는 200x160 패치에 **0.21 ms**가 들고, 화면 DC에서의 BitBlt가 검게
-나오는 세션에서도 실제 픽셀을 돌려준다 [E: `drive.py`, `FastProbe`].
+나오는 세션에서도 실제 픽셀을 돌려준다 [H: log/source account: `drive.py`, `FastProbe`; receipt provenance unresolved].
 
 ## 사운드: 이제 플레이어가 듣는다, 그리고 이 기계에서 장치까지 도달했다
 
 `play.py`는 `ACWW_SND`를 설정한 적이 없었고, 이 변수는 모든 레시피에서 설정되지 않아
-꺼져 있으므로, 런처는 소리 없는 게임을 내보내고 있었다 [E: `scratchpad/live42/session1.log`,
-포기된 첫 실행]. 이제 기본적으로 켜지고, `--mute`, `--wav PATH`, `--no-sink`가 있다.
+꺼져 있으므로, 런처는 소리 없는 게임을 내보내고 있었다 [E: `scratchpad/live42/session1.log`, the abandoned first launch]. 이제 기본적으로 켜지고, `--mute`, `--wav PATH`, `--no-sink`가 있다.
 
 측정됨: `acww snd: driver ON (ACWW_SND=1)`, `FIRST SOUND at frame 38`, 센서스에 21개의
 서로 다른 tag-7 명령 id(`PREPARE_SEQ` 38, `START_PREPARED_SEQ` 38, `TRACK_PARAM` 111,
 `PLAYER_PARAM` 75; `SETUP_ALARM`만이 아직 디스패치되지 않고 로그만 된다), 노트 43개
 시도에 **43개 울림, 어떤 이유로도 누락 0**, 최대 동시 채널 7, 그리고 32,768 Hz 스테레오의
-33.73 s WAV 티(tee), 피크 20,357, 샘플의 57.7%가 64 초과 [E: `sessionC.log`, `sessionC.wav`].
+33.73 s WAV 티(tee), 피크 20,357, 샘플의 57.7%가 64 초과 [H: log/source account: `sessionC.log`, `sessionC.wav`; receipt provenance unresolved].
 
 **그리고 `docs/kb/hybrid/audio.md`의 "이 기계의 세션에는 오디오 엔드포인트가 없다"는
 항상 참은 아니다.** 세션 A는 `GetDefaultAudioEndpoint failed, code 0x80070490`과
 `waveOutGetNumDevs = 0`을 받았다; 40분 뒤 같은 기계의 같은 사용자 세션에서 세션 B와 C는
 `acww snd: sink WASAPI shared mode, 32768 Hz stereo, device buffer 6554 frames`를 받았다 --
-싱크가 열렸고 게임이 소리를 내어 재생했다 [E: `sessionA.log` 대 `sessionB.log`].
+싱크가 열렸고 게임이 소리를 내어 재생했다 [H: log/source account: `sessionA.log` against `sessionB.log`; receipt provenance unresolved].
 
 **스타일러스 발견 사항, 그리고 이것이 라이브 플레이가 동작하기 위해 바뀌어야 했던 유일한
 것이다.** 창의 에지 큐는 이미 한 프레임보다 짧은 클릭이 유실되지 않음을 보장했다. 그러나
@@ -216,7 +243,7 @@ ROM은 최신 샘플로 끝나는 **연속 세 개의 양호한 샘플**이 있�
 메시지 펌프 한 번 안의 DOWN+UP은 `acww touch: DOWN x=128 y=96`을 냈고 `TP_POINT` 변화는
 전혀 없었다; 같은 클릭을 400 ms 유지하자 `trig 1`인 `TP_POINT`가 나오고 화면이 넘어갔으며,
 ROM의 공개는 프레임 7569, 7572, 7581, 7584에 있었다 -- 세 프레임 주기가 눈에 보인다
-[E: `docs/kb/hybrid/live-play.md`; `../systems/input-and-touch.md`; `touch-latency.md`].
+[H: log/source account: `docs/kb/hybrid/live-play.md`; `../systems/input-and-touch.md`; `touch-latency.md`; receipt provenance unresolved].
 이제 소비된 접촉은 `ACWW_TOUCH_MIN_FRAMES` 프레임(4, 약 67 ms) 동안 유지되는데, 이는
 어떤 사람의 클릭보다도 훨씬 짧고, 그러면 같은 서브프레임 클릭이 ROM에 도달한다.
 
@@ -227,9 +254,10 @@ LIVE41 자체의 측정은 포트가 실제 게임 내용을 **두 경로 모두
 `acww_nds2d_frame`이 16.71 ms 프레임 중 14-22 ms를, 게임 자체의 프레임이 4-6 ms를 썼다
 [E: `ACWW_FRAMETIME=1`, `scratchpad/liveplay/frametime/`]. **PERF42가 같은 날 밤 그 간격을
 닫았다**: 그리기는 택시에서 7.3 ms, 마을에서 6.2 ms, 페이싱 없이 77과 92 fps이고, 페이싱된
-라이브 실행은 창을 연 채 59.82 Hz를 유지한다 [E: `docs/kb/hybrid/render-perf.md` section 5;
-`../engine/graphics-pipeline.md`]. LIVE41은 또한 잘못된 렌더러를 지목했다 -- 단계 보고서는
-26.5 ms 중 21.1이 2D 컴포지터가 아니라 3D 래스터라이저였음을 보여 준다 [E: same, section 3].
+라이브 실행은 창을 연 채 59.82 Hz를 유지한다 [H: log/source account: `docs/kb/hybrid/render-perf.md` section 5;
+`../engine/graphics-pipeline.md`; receipt provenance unresolved]. LIVE41은 또한 잘못된 렌더러를 지목했다 -- 단계 보고서는
+26.5 ms 중 21.1이 2D 컴포지터가 아니라 3D 래스터라이저였음을 보여 준다 [H: log/source account: `docs/kb/hybrid/render-perf.md` section 5;
+`../engine/graphics-pipeline.md`, section 3; receipt provenance unresolved].
 
 ## 스크립트된 실행이 영향받지 않는다는 영수증
 
@@ -262,10 +290,10 @@ LIVE41 자체의 측정은 포트가 실제 게임 내용을 **두 경로 모두
 - 페이싱된 실행의 58.4-59.7 fps 창을 렌더러 비용으로 읽는 것. 이 기계에서 그 창들은
   경합(B14)이다: 헤드리스 조건은 모든 창에서 59.82를 유지하고 같은 레시피를 페이싱 없이
   돌리면 91.7 fps다 -- 10 ms의 여유가 있는 프레임은 다른 무언가가 코어를 가져가지 않는 한
-  데드라인을 놓치지 않는다 [E: `docs/kb/hybrid/render-perf.md` section 5].
+  데드라인을 놓치지 않는다 [H: log/source account: `docs/kb/hybrid/render-perf.md` section 5; receipt provenance unresolved].
 - 라이브 세션을 스크립트된 레퍼런스와 비교하는 것. `play.py`는 실제 시계를 쓰고, RTC42
   이후로 시계는 낮/밤 블렌드를 통해 그림의 매 프레임을 움직인다
-  [E: `../systems/time-and-rtc.md`].
+  [H: log/source account: `../systems/time-and-rtc.md`; receipt provenance unresolved].
 
 ## 거친 모서리, 고친 것과 남긴 것
 
@@ -279,7 +307,7 @@ scratchpad/offgate/33376a19/offgate.json`은 손대지 않은 빌드에서, `win
 | 창이 포커스를 가져가지 않음 | 게임은 터미널에서 실행되고 터미널이 전경을 유지한다 -- 그래서 터치를 요구하는 게임에 처음 입력한 것이 셸로 갔다 | `ShowWindow` 뒤에 `SetForegroundWindow`, 선택적 임포트 |
 | DPI 비인식 | 150%/200% 디스플레이에서 Windows는 512x768 클라이언트를 작게 렌더링한 뒤 비트맵을 늘려서, `win_scale`이 정수이고 블릿이 `COLORONCOLOR`인 이유를 무너뜨린다 | `SetProcessDpiAwarenessContext(PER_MONITOR_AWARE_V2)`, 실패하면 `SetProcessDPIAware`로 폴백; 둘 다 선택적 임포트로, 이 링크에 매니페스트가 없어서 코드로 선언 |
 | 제목 표시줄이 게임 이름을 떨어뜨림 | "Animal Crossing: Wild World (port)"로 열리고 반 초 뒤 첫 상태 갱신이 "ACWW (port)"로 바꿔 놓았다 | 상태 캡션이 전체 이름을 담는다 |
-| 라이브 세션이 사운드 영수증을 남기지 않음 | `acww_snd_report()` -- tag-7 센서스, 드라이버 카운터, `ACWW_SND_WAV` 플러시 -- 는 `ACWW_STOP_FRAME` 경로에서만 돌았고, 라이브 실행은 정의상 Escape로 끝나므로 `ACWW_SND_WAV`는 파일을 쓰지 않았고 이유도 말하지 않았다 | `frame.c`가 창 닫힘 경로에서도 호출한다; 모든 레시피에는 무해한데, 전부 프레임에서 멈추기 때문 [E: `sessionC.wav`, 4.4 MB, Escape로 쓰임] |
+| 라이브 세션이 사운드 영수증을 남기지 않음 | `acww_snd_report()` -- tag-7 센서스, 드라이버 카운터, `ACWW_SND_WAV` 플러시 -- 는 `ACWW_STOP_FRAME` 경로에서만 돌았고, 라이브 실행은 정의상 Escape로 끝나므로 `ACWW_SND_WAV`는 파일을 쓰지 않았고 이유도 말하지 않았다 | `frame.c`가 창 닫힘 경로에서도 호출한다; 모든 레시피에는 무해한데, 전부 프레임에서 멈추기 때문 [H: log/source account: `sessionC.wav`, 4.4 MB, written by an Escape; receipt provenance unresolved] |
 
 남긴 것:
 
@@ -287,7 +315,7 @@ scratchpad/offgate/33376a19/offgate.json`은 손대지 않은 빌드에서, `win
   칸, 마을 이름은 여덟 칸 -- 그리고 입력한 것은 그 뒤에 덧붙는다. 그림 아티팩트가 아니다:
   이 세션에서 입력한 마을 이름은 세이브 파일에서 원시 바이트 `43 31 43 31 43 31 60 be 34 bb`,
   즉 `ㅃ ㅃ ㅃ 빠 무`로 돌아왔고, 이름을 출력하는 모든 대화 줄이 ㅃ들을 출력한다
-  [E: `shots/10-nameline.png`, `shots/17-townhall.png`, 플레이한 세이브에 대한 `savetool.py check`].
+  [H: log/source account: `shots/10-nameline.png`, `shots/17-townhall.png`, `savetool.py check` on the played save; receipt provenance unresolved].
   우회책은 입력 전에 필드 폭만큼 백스페이스를 누르는 것이다. **원본이 이렇게 하는지는
   확립되지 않았다** -- 여기에는 오라클 조건이 없으므로, 이는 열린 질문이지 아직 결함
   주장이 아니다. 새 플레이어가 마주치는 가장 눈에 띄는 것이다.
@@ -305,7 +333,7 @@ scratchpad/offgate/33376a19/offgate.json`은 손대지 않은 빌드에서, `win
   페이지의 탭들에 대한 첫 두 탭은 눈에 보이는 일이 없었고 다음 넷은 모두 12.2-13.3프레임에
   응답했다. TOUCH41의 스타일러스 모드 전환이 라이브로 보인 것이다. 마을을 탭하는 후속
   시행에서는 재현되지 않았으므로, 규칙이 아니라 메뉴 대상에서 관측된 것으로 보고한다
-  [E: `shots/54-saving.png` 대 `55-saved.png`; `lat-taps.txt` 대 `lat-firsttap.txt`].
+  [H: log/source account: `shots/54-saving.png` against `55-saved.png`; `lat-taps.txt` against `lat-firsttap.txt`; receipt provenance unresolved].
 - **창 아이콘 없음** (`wc.hIcon = 0`): 이 링크에는 리소스가 없고 만들 SDK도 없다.
 - **Escape는 확인 없이 종료한다.** 스토어는 플러시하므로 게임이 쓴 것은 아무것도 잃지
   않는다 -- 그러나 마지막 게임 내 저장 이후의 모든 것은 잃는다. 확인에는 `-nostdlib`

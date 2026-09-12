@@ -45,9 +45,9 @@
   소스가 설명하기 전까지 E에 머무른다.
 - **2026-09-09 이전에 찍힌 실행과 비교할 때는 시계를 동결한다.** 포트의 RTC는 이제
   전진하며, 분(minute)이 낮/밤 블렌드를 구동하므로 모든 프레임이 달라진다;
-  `ACWW_RTC_FREEZE=1`을 설정한다 [E: `../systems/time-and-rtc.md`].
+  `ACWW_RTC_FREEZE=1`을 설정한다 [H: log/source account: `../systems/time-and-rtc.md`; receipt provenance unresolved].
 - **종료 코드 1은 다른 누군가의 `taskkill`이지 실패가 아니다.** 이미지 안의 어떤 것도
-  1로 종료하지 않는다 [E: `run-stability.md`].
+  1로 종료하지 않는다 [H: log/source account: `run-stability.md`; receipt provenance unresolved].
 
 ## 관련 문서
 

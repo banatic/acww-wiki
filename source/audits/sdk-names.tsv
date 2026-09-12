@@ -1,0 +1,75 @@
+address	proposed_name	library	source_url	confidence
+0x01ff82f8	OSi_IrqDma0	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_irqTable.c	high
+0x01ff8308	OSi_IrqDma1	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_irqTable.c	high
+0x01ff9580	NNSi_G3dFuncSbc_NODEDESC	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/sbc.c	high
+0x021062cc	NNSi_G3dFuncSbc_NODEMIX	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/sbc.c	high
+0x0211482c	OS_Sleep	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_thread.c	high
+0x02114e1c	OSi_KillThreadWithPriority	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_thread.c	medium
+0x021145d4	OS_SNPrintf	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_printf.c	high
+0x0211461c	OS_SPrintf	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_printf.c	high
+0x02114740	OS_PutStringInit	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_printf.c	medium
+0x021163ec	OS_IsTickAvailable	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_tick.c	high
+0x02116528	OS_SetAlarmTag	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_alarm.c	high
+0x021166e0	OS_SetAlarm	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_alarm.c	medium
+0x021168a8	OS_IsAlarmAvailable	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_alarm.c	high
+0x02116a1c	OSi_VCountArr	NitroSDK os	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_valarm.c	low
+0x021197c0	FSi_CloseFileCommand	NitroSDK fs	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/fs/src/fs_command_default.c	high
+0x0211ed4c	CARD_Enable	NitroSDK card	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/card/src/card_common.c	high
+0x0211ed88	CARD_IsEnabled	NitroSDK card	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/card/src/card_common.c	high
+0x0211ec44	CARD_GetRomHeader	NitroSDK card	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/card/src/card_common.c	medium
+0x0211eea0	CARDi_UnlockResource	NitroSDK card	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/card/src/card_common.c	high
+0x0211f230	CARD_WaitBackupAsync	NitroSDK card	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/card/src/card_backup.c	medium
+0x0211f23c	CARD_IdentifyBackup	NitroSDK card	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/card/src/card_backup.c	high
+0x0211d8dc	PM_GetLEDPattern	NitroSDK spi	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/spi/src/pm.c	high
+0x0211d968	PMi_SendLEDPatternCommand	NitroSDK spi	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/spi/src/pm.c	high
+0x0211dc78	PM_SetBackLight	NitroSDK spi	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/spi/src/pm.c	medium
+0x0211e954	RTC_GetDate	NitroSDK rtc	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/rtc/src/external.c	high
+0x0211ec34	RTCi_IsLeapYear	NitroSDK rtc	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/rtc/src/convert.c	medium
+0x0211c9c0	DGT hash-2 (MD5) block transform, file-scope static	NitroSDK math	https://github.com/ntrtwl/NitroSDK/blob/main/libraries/math/src/dgt.c	low
+0x02101c54	NNS_FndResizeForMBlockExpHeap	NitroSystem fnd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/fnd/src/expheap.c	high
+0x02101e20	NNS_FndDestroyExpHeap	NitroSystem fnd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/fnd/src/expheap.c	high
+0x021023c8	NNS_FndResizeForMBlockFrmHeap	NitroSystem fnd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/fnd/src/frameheap.c	high
+0x0210285c	NNS_FndUnmountArchive	NitroSystem fnd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/fnd/src/archive.c	high
+0x02105178	NNS_G3dPlttSetPlttKey	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/kernel.c	high
+0x02105294	NNS_G3dRenderObjSetInitFunc	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/kernel.c	medium
+0x021054e4	NNS_G3dRenderObjInit	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/kernel.c	medium
+0x021057f4	NNS_G3dGlbSetBaseScale	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/glbstate.c	high
+0x0210581c	NNS_G3dGlbSetBaseTrans	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/glbstate.c	high
+0x02107b44	NNS_G3dGetJntAnmByIdx	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/binres/res_struct_accessor_anm.c	medium
+0x02107b80	NNS_G3dGetMatCAnmByIdx	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/binres/res_struct_accessor_anm.c	high
+0x02107bbc	NNS_G3dGetTexSRTAnmByIdx	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/binres/res_struct_accessor_anm.c	high
+0x02107bf8	NNS_G3dGetTexPatAnmByIdx	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/binres/res_struct_accessor_anm.c	high
+0x02107cf0	NNS_G3dGetVisAnmByIdx	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/binres/res_struct_accessor_anm.c	medium
+0x02108b80	NNSi_G3dAnmObjInitNsBma	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/anm/nsbma.c	medium
+0x02108f30	NNSi_G3dAnmObjInitNsBta	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/anm/nsbta.c	high
+0x0210744c	NNS_G3dMdlSetMdl<field>All (family, reverse source order)	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/model.c	low
+0x02107494	NNS_G3dMdlSetMdl<field>All (family, reverse source order)	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/model.c	low
+0x021074dc	NNS_G3dMdlSetMdl<field>All (family, reverse source order)	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/model.c	low
+0x02107524	NNS_G3dMdlSetMdl<field>All (family, reverse source order)	NitroSystem g3d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g3d/src/model.c	low
+0x02103218	NNS_G2dFontInitAuto	NitroSystem g2d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g2d/src/g2d_Font.c	medium
+0x02103334	NNS_G2dArrangeOBJ1D	NitroSystem g2d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g2d/src/g2d_CharCanvas.c	high
+0x021037f8	NNS_G2dCharCanvasInitForOBJ1D	NitroSystem g2d	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/g2d/src/g2d_CharCanvas.c	high
+0x0210a9e4	NNSi_SndReadDriverPlayerInfo	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/main.c	high
+0x0210aa44	NNS_SndUpdateDriverInfo	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/main.c	medium
+0x0210ab38	NNS_SndSetMasterVolume	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/main.c	medium
+0x0210b498	NNS_SndPlayerReadDriverTrackInfo	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	high
+0x0210b4cc	NNS_SndPlayerReadDriverPlayerInfo	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	high
+0x0210b500	NNS_SndPlayerWriteGlobalVariable	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	medium
+0x0210b604	NNS_SndPlayerSetTempoRatio	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	low
+0x0210b634	NNS_SndPlayerSetTrackPan	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	low
+0x0210b6d4	NNS_SndPlayerSetTrackMute	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	medium
+0x0210b734	NNS_SndPlayerSetPlayerPriority	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	high
+0x0210b7e0	NNS_SndHandleInit	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/player.c	high
+0x0210e658	SetupStreamFunction (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210e6c0	MakeWaveData (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210ef74	OnDataEnd (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210f0c0	StrmCallback (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210f20c	DisposeCallback (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210f404	CreateThread (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	medium
+0x0210f500	ShutdownPlayer (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	medium
+0x0210f988	AllocPlayer (file-scope static)	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210fbf8	NNS_SndStrmHandleInit	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	high
+0x0210fc50	NNS_SndArcStrmSetVolume	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	medium
+0x0210fc7c	NNS_SndArcStrmStop	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	medium
+0x0210fd2c	NNS_SndArcStrmSetupPlayer	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	medium
+0x0210fe08	NNS_SndArcStrmInit	NitroSystem snd	https://github.com/ntrtwl/NitroSystem/blob/main/libraries/snd/src/sndarc_stream.c	medium

@@ -6,7 +6,7 @@ what this page asked for. The answer: the game emits ids 2, 3, 6, 7 and 9 **from
 the cap had been the whole of the evidence for "the game never sends a playback command" (M1).
 With the driver on, the OFF recipe sees 371 each of `PREPARE_SEQ` and `START_PREPARED_SEQ`; with
 it off, 967 each, because a silent ARM7 never publishes `playerStatus` and the game restarts
-every sequence it starts [E: `docs/kb/hybrid/audio.md` section 8(c); `../systems/audio.md`]. The
+every sequence it starts [H: log/source account: `docs/kb/hybrid/audio.md` section 8(c); `../systems/audio.md`; receipt provenance unresolved]. The
 page below is kept because its reasoning is the reasoning that got there; every sentence in it
 about the port's ARM7 being silent is superseded by `../systems/audio.md`.
 
@@ -44,7 +44,7 @@ must not move a pixel; if it does, the change is not print-only (M15).
 48,000 frames. Then pull the counts out of the log in Python -- **not with a shell `grep`
 alternation**: the shell here is ripgrep, whose alternation is `|` and not `\|`, and the old
 pattern silently matched nothing twice in one cycle
-[E: `docs/kb/hybrid/recipes.md` section 8; `docs/log/cycle40-keyboard-gate-probe.md` ENTRY40].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 8; `docs/log/cycle40-keyboard-gate-probe.md` ENTRY40; receipt provenance unresolved].
 
 ## Expected observations
 
@@ -69,12 +69,12 @@ is not reaching the driver on this build, or the archive load failed silently --
 has a known failure signature: the host sound facade once answered "no archive",
 `NNS_SndArcGetSeqArcParam` returned NULL to `func_020f4b1c`, which called the ROM's fatal path
 `func_0206e3ec`, and the ROM's crash screen looped from frame ~830 with both screens black
-[E: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40]. That run reaches the town, so that
+[H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40; receipt provenance unresolved]. That run reaches the town, so that
 particular failure is excluded -- which makes an all-absent result genuinely surprising and
 worth chasing.
 
 A second, free observation from the same log: whether the ARM9 ever *waits*. `SND_WaitForCommandProc`
-spins until a tag is finished [S: `src/matched/SND_WaitForCommandProc.c`]. A run that finishes
+spins until a tag is finished [S: `src/matched/SND_WaitForCommandProc.c`; source account: `src/matched/SND_WaitForCommandProc.c`]. A run that finishes
 proves no such wait deadlocked, which is the standing evidence that the silent ARM7 is adequate
 -- 90,000 frames without re-entering the ROM's fatal path
 [E: `scratchpad/cycle40/runs/tap-D59`, LONG41].
@@ -82,7 +82,7 @@ proves no such wait deadlocked, which is the standing evidence that the silent A
 ## What would falsify the hypothesis it tests
 
 The hypothesis is that the silent ARM7 is adequate for the game's logic indefinitely
-[S: `docs/kb/hybrid/hardware-services.md` section 7]. It is falsified by a stall whose waiting
+[H: source account: `docs/kb/hybrid/hardware-services.md` section 7; direct ROM-source provenance unresolved]. It is falsified by a stall whose waiting
 function is a `SND_*` or `NNS_Snd*` symbol -- the ROM's sound stack runs against a consumer that
 never reports a real player state, so a sequence whose progression the game waits on would hang.
 This probe cannot produce that; it can only tell you which commands are in play, which is what

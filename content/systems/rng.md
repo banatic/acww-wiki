@@ -14,7 +14,7 @@
 **이 페이지에 필요한 명명 주석.** `MATH_Rand16`, `MATH_Rand32`, `MATH_InitRand16/32`,
 `OS_IsTickAvailable`은 NitroSDK 라이브러리 이름이지 이 ROM의 심볼 테이블에 있는 이름이
 아니다: 어떤 `config/adm-kr/arm9/**/symbols.txt`에도 그런 심볼은 존재하지 않으며, 이들 모두는
-`src/matched/`에서 `func_*` 이름으로 도달된다 [S: `config/adm-kr/arm9/**/symbols.txt`, name sweep].
+`src/matched/`에서 `func_*` 이름으로 도달된다 [H: source account: `config/adm-kr/arm9/**/symbols.txt`, name sweep; direct ROM-source provenance unresolved].
 `../STYLE.md` 규칙 2가 SDK 이름을 허용하기 때문에 여기서는 그 이름을 사용하며, `func_*` 이름이
 존재하는 곳에서는 함께 병기한다.
 
@@ -64,7 +64,7 @@
 초기화 버스트 안에서(포트 프레임 758, 인덱스 0..280), 그 다음 진짜 생성 전에 `0x86` / `0xfff1`로
 리셋된다. 따라서 id 추출을 고정하는 레시피는 지도를 고정하지 않으며, 지도를 고정하는 레시피는
 같은 프레임이기 때문에 명단을 덤으로 얻는다
-[E: `docs/log/cycle41-gameplay.md` ORACLE49 O49-1/O49-2]. `func_0209ccd4`의 6x6 루프 -- 에이커당
+[E: `docs/log/cycle41-gameplay.md` ORACLE49 O49-1/O49-2; current receipt locator: `scratchpad/oracle49/RECEIPTS.md`]. `func_0209ccd4`의 6x6 루프 -- 에이커당
 범위 제한 추출 하나, 36개 -- 는 그 버스트 안에 있다 [S: `src/matched/func_0209ccd4.c`].
 
 **시드는 견고하지만, 추출 횟수는 그렇지 않다.** 시드는 실행의 첫 1초 안에 취해지기
@@ -84,8 +84,8 @@
 
 **추출은 프레임당 한 번이 아니라 메인 루프 본체당 한 번 소비된다.** 포트에서 프레임
 852..1,002에 걸친 연속 51회 저장은 정확히 세 프레임 간격이며, 메인 루프는 포트와 원본
-양쪽에서 세 프레임에 한 번 돈다 [E: same, and INPUT46 on `0x021fbdd0`,
-`docs/kb/hybrid/stall-playbook.md` case 70]. 비율은 씬에 따라 다르다 -- 타이틀에서는 세
+양쪽에서 세 프레임에 한 번 돈다 [H: log/source account: `docs/log/cycle41-gameplay.md` ORACLE47, and INPUT46 on `0x021fbdd0`,
+`docs/kb/hybrid/stall-playbook.md` case 70; receipt provenance unresolved]. 비율은 씬에 따라 다르다 -- 타이틀에서는 세
 프레임에 한 번, 마을 이름 페이지에서는 ~12 프레임에 한 번 -- 이므로 **씬에 일찍 도달하는
 실행은 더 적은 추출을 취한 채로 도착하며**, 이것이 씬 시간에서 원본보다 ~280 프레임 앞선
 포트가 마을이 뽑힐 때 스트림 위치에서는 ~176 프레임 뒤처지는 이유다. LCG는 전단사이므로
@@ -103,7 +103,7 @@
 경우 `(top32 * max) >> 32`를 반환한다
 [S: `MATH_Rand32`, ov065, `src/matched/func_ov065_0227ef00.c`]. 상수는 승수
 `0x5D588B656C078965`와 가수 `0x269EC3`이다; 승수는 소스에
-`(1566083941 << 32) + 1812433253`으로 적혀 있다 [S: same].
+`(1566083941 << 32) + 1812433253`으로 적혀 있다 [S: `src/matched/func_ov065_0227ef00.c`; historical account: `src/matched/func_ov065_0227ef00.c`].
 
 `MATHRandContext16`은 같은 계열을 절단한 것이다: 32비트 상태, 승수 `0x5D588B65` -- 정확히
 64비트 승수의 상위 절반 -- 가수 `0x269EC3`, 출력은 상위 16비트
@@ -129,8 +129,7 @@ ov001의 `AOSS_Rand`는 SDK를 호출하는 대신 16비트 상수를 자신만�
 
 `OS_GetTick`이 지배적인 소스다. `func_ov065_0227876c`(임시 로그인 id를 꾸며내는 데 쓰이는
 일회용 컨텍스트)와 `func_021013d0`(틱을 읽고, LCG 한 스텝을 손으로 돌리며, 곱의 상위 32비트만
-연결별 시드로 저장)에서 직접 시드가 된다 [S: `src/matched/func_ov065_0227876c.c`,
-`src/matched/func_021013d0.c`]. 공유 네트워크 컨텍스트 `DWCi_GetMathRand32`는 본체의 MAC
+연결별 시드로 저장)에서 직접 시드가 된다 [S: `src/matched/func_ov065_0227876c.c`, `src/matched/func_021013d0.c`]. 공유 네트워크 컨텍스트 `DWCi_GetMathRand32`는 본체의 MAC
 주소와 틱을 결합해 한 번, 지연 방식으로 스스로를 시드한다
 [S: `func_ov065_0227ef00`, ov065, `src/matched/func_ov065_0227ef00.c`].
 
@@ -142,18 +141,18 @@ RTC가 다른 하나다. `DWCi_AUTH_GetNewWiFiInfo`와 `DWCi_AUTH_RemakeWiFiID`�
 `hour << 10 + minute << 3 + second`를 시드에 접어 넣으며, RTC 읽기가 실패하면 시드 0으로
 대체한다 [S: `AOSS_Rand`, ov001, `src/matched/AOSS_Rand.c`].
 
-매칭된 코퍼스에서 아무도 소비하는 것으로 나타나지 않는 엔트로피 풀도 있다.
+위의 마을 생성기들이 전혀 소비하지 않는 엔트로피 풀도 있다.
 `OS_GetLowEntropyData`는 `OS_GetTickLo`와 결합한 VCOUNT(`0x04000006`), MAC 바이트 및 VBlank
 카운터와 XOR한 64비트 틱, `0x04000600`의 지오메트리 엔진 상태 레지스터, 하위 WRAM의 RTC
 바이트, 마이크 데이터, 터치 패널 상태, Wi-Fi RSSI 풀로부터 여덟 워드를 채운다
 [S: `OS_GetLowEntropyData`, autoload_2,
-`src/matched/OS_GetLowEntropyData.c`]. 이것은 위의 어느 생성기에도 연결된 것이 아니라 사용
-가능한 인프라로 읽힌다 [S: absence of callers in `src/matched`].
+`src/matched/OS_GetLowEntropyData.c`]. 이것은 위의 어느 생성기에도 연결되지 않는다. 매칭된 호출자는 Wi-Fi 오버레이의 `src/matched/func_ov065_02275b94.c` 세 지점에 있다 [S: `src/matched/func_ov065_02275b94.c`, lines 546, 593, 696
+(wiki-provenance-1, HANDOFF16)]. 따라서 오프라인 세션에서 실행되는지는 별도 문제다 [H: no watch on its entry has been run].
 
 ### 아직 발견되지 않은 것
 
 세이브 측이나 마을 측의 시드 필드는 없다. `src/matched` 전체에서 `SaveData`, `TownData`,
-`randomSeed`, `worldSeed`, `townSeed` 등을 검색해도 아무것도 나오지 않으며 [S: absence in `src/matched`],
+`randomSeed`, `worldSeed`, `townSeed` 등을 검색해도 아무것도 나오지 않으며 [H: source account: absence in `src/matched`; direct ROM-source provenance unresolved],
 ORACLE46의 측정은 이 경로에서 찾을 것이 없다는 것과 일치한다: `0x021cb5a0`의 상태는
 부팅 시 시계로부터 시드되고 그저 돈다. 아직 열려 있는 것은 게임의 추출 중 어느 것이
 이 스트림에서 나오고 어느 것이 다른 스트림에서 나오는가이다 -- 주민 선택기와
@@ -209,7 +208,7 @@ log: `docs/log/cycle41-gameplay.md` O47-3].
 | `func_020ff994` | main | `g_rng_state`에 대한 세 번째 파티클 류 스트림 | [S: `src/matched/func_020ff994.c`] |
 | `AOSS_Rand` `0x02207cd4` | ov001 | Wi-Fi 설정 LCG, `RTC_GetTime`으로 시드 | [S: `src/matched/AOSS_Rand.c`] |
 | `OS_GetLowEntropyData` `0x02116da8` | autoload_2 | VCOUNT, 틱, MAC, GX 상태, RTC, 마이크, 터치, RSSI로부터의 여덟 워드 풀 | [S: `src/matched/OS_GetLowEntropyData.c`] |
-| `MATH_CalcCRC8` / `CalcCRC16` / `CalcCRC32` | autoload_2 | CRC 헬퍼; 세이브 폴러는 대신 `func_02050920`을 호출한다 | [S: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5] |
+| `MATH_CalcCRC8` / `CalcCRC16` / `CalcCRC32` | autoload_2 | CRC 헬퍼; 세이브 폴러는 대신 `func_02050920`을 호출한다 | [S: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5; source locator: `src/matched/MATH_CalcCRC8.c`, `src/matched/func_02050920.c`] |
 
 ## 읽고 쓰는 데이터
 
@@ -247,16 +246,15 @@ log: `docs/log/cycle41-gameplay.md` O47-3].
   id만 맞추는 것도 나중의 배치/명단 버스트를 고정하지 않는다: 역방향 조건은
   거기에 두 추출 일찍 진입하는 반면, 정방향 레시피는 지도와 명단을 맞춘다
   [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2, O49-4, O49-5].
-- `OS_GetLowEntropyData`는 이 ROM에서 죽은 코드다. 전체 마을 실행에 걸쳐 그 진입 주소에
-  `ACWW_WATCH`를 걸어 확정한다.
+- `OS_GetLowEntropyData`는 Wi-Fi 오버레이(`func_ov065_02275b94.c`의 세 지점)에서만 호출되며 마을 생성기는 호출하지 않는다. 오프라인 세션에서 실행되는지는 전체 마을 실행에 걸쳐 진입 주소에 `ACWW_INTERP_WATCH`를 걸면 확정할 수 있다(아직 미실행). 이전의 "죽은 코드" 표현은 철회됐다(HANDOFF16).
 - 포트의 프레임 계수 틱과 에뮬레이터의 사이클 정확 틱은 네트워크 생성기를 다르게 시드하며,
   네트워크 코드가 실행되지 않으므로 상관없다
-  [E: no DWC or WM symbol is reached on any recorded run; see `network.md`].
+  [H: log/source account: no DWC or WM symbol is reached on any recorded run; see `network.md`; receipt provenance unresolved].
 
 ## 관련 문서
 
 - `time-and-rtc.md` -- 두 엔트로피 소스.
-- `save-data.md` -- 세이브 체크섬과 뱅크 수용 [S: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5].
+- `save-data.md` -- 세이브 체크섬과 뱅크 수용 [H: `port/shim/game/savepoll.c`; log: `docs/log/cycle41-gameplay.md` GP45-5 ; provenance unresolved].
 - `network.md` -- 모든 SDK 생성기의 유일하게 확립된 소비자.
 
 ## 누가 뽑는가 (`draw-caller-1`)
@@ -271,7 +269,7 @@ log: `docs/log/cycle41-gameplay.md` O47-3].
 저장 LR이 생성자를 말해 준다. `func_020644cc`는 그 범위 제한 추출을 꼬리 호출하므로
 스택 프레임을 더하지 않는다. 반면 원시 리프 호출은 LR에서 직접 호출자를 식별한다;
 LR2=0은 사용 불가를 뜻하지 주소 0의 호출자를 뜻하지 않는다
-[S: `port/interp/interp_cpu.c` `watch_lr_parent`; E: `scratchpad/handoff/draw-caller-1/fixture-run.stdout.log`].
+[H: `port/interp/interp_cpu.c` `watch_lr_parent`; E: `scratchpad/handoff/draw-caller-1/fixture-run.stdout.log` ; provenance unresolved].
 
 **주기적 호출은 `func_ov068_0226c520`, 반환 주소 `0x0226c52d`다: 828, 831, ..., 1179에서
 118회 추출, 정확히 세 프레임에 한 번.** 그 첫 표현식은 호출마다 무조건 범위 5 값을

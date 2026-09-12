@@ -17,8 +17,8 @@
 
 ## 스냅샷이란 무엇인가
 
-스냅샷 파일은 세 가지를 담는다 [S: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`
-sections 1 and 3]:
+스냅샷 파일은 세 가지를 담는다 [H: source account: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`
+sections 1 and 3; direct ROM-source provenance unresolved]:
 
 1. **매핑된 NDS 영역 일곱 개** -- `0x02000000`의 메인 RAM(4 MB, `0x02400000`과
    `0x027f0000` 시스템 RAM 창은 같은 매핑의 뷰이므로 한 번만 나열), `0x027e0000`의
@@ -34,22 +34,22 @@ sections 1 and 3]:
    스크립트된 키 위상. 서브에이전트의 영수증을 채취할 때는 111개였고, SAVE41의 병합된
    트리에서는 113개였으며 -- RTC42가 시계의 부팅 시각, 동결 플래그, 결정 플래그를 더한
    이후로는 **20개 등록자의 118개**다
-   [E: `docs/kb/hybrid/savestate.md` section 3; `docs/log/cycle41-gameplay.md` RTC42, item 6,
-   whose savestate pair is 21/21 identical with the clock coming from the blob]. 아래의
+   [H: log/source account: `docs/kb/hybrid/savestate.md` section 3; `docs/log/cycle41-gameplay.md` RTC42, item 6,
+   whose savestate pair is 21/21 identical with the clock coming from the blob; receipt provenance unresolved]. 아래의
    모든 영수증은 113에서 채취되었고 `.st` 파일은 어차피 다른 빌드에서는 거부되므로, 이
    개수는 포맷이 아니라 빌드에 관한 사실이다(TOUCH41 샘플러의 `tp_auto_on` /
    `tp_frequence`와 `raster3d.c`의 `ever`는 병합 중에 등록되었다)
-   [S: `docs/log/cycle40-keyboard-gate-probe.md` SAVE41].
+   [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` SAVE41; direct ROM-source provenance unresolved].
 3. **살아 있는 스레드마다 인터프리터 레지스터 파일 하나.** ROM 스레드는 Windows 파이버이며,
    파이버가 멈추는 유일한 곳은 `OS_LoadContext` 안의 `SwitchToFiber`이므로, 일시 중단된
    파이버의 호스트 스택은 항상 정확히 인터프리터 프레임 **하나** 깊이이고 그 아래의 모든
-   것은 NDS 메모리에 있다 [S: `port/shim/os/thread.c`; `docs/kb/hybrid/savestate.md` section 5].
+   것은 NDS 메모리에 있다 [H: source account: `port/shim/os/thread.c`; `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved].
 
 헤더는 **링크를 고정한다**: 이미지 베이스, PE TimeDateStamp, `SizeOfImage`,
 `AddressOfEntryPoint`, 디스크상의 exe 크기, 그리고 인터프리터 레지스트리의 항목 수.
 로드는 여섯 가지 모두를 비교하고 어느 하나라도 다르면 이름을 들어 거부하는데, 이것이
 막는 실패는 오래된 파일이 아니라 게임 버그처럼 보일 것이기 때문이다. 다시 링크하면,
-이전의 모든 스냅샷은 거부된다 [S: `docs/kb/hybrid/savestate.md` section 5].
+이전의 모든 스냅샷은 거부된다 [H: source account: `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved].
 
 ## 캡처가 아니라 재구성되는 것
 
@@ -61,17 +61,17 @@ sections 1 and 3]:
 `call rel32` 변위가 이 이미지의 것이 되도록 함; 그리고 가상 카트리지, 그
 `acww_romfs_mount()`는 재개된 실행이 결코 도달하지 않는 호출자(`CARD_Init`) 정확히 하나만
 가지므로 로드 경로가 명시적으로 호출한다
-[S: `docs/kb/hybrid/savestate.md` section 4].
+[H: source account: `docs/kb/hybrid/savestate.md` section 4; direct ROM-source provenance unresolved].
 
 환경에서 파생된 캐시는 다시 읽히므로, **로드하는 실행은 동작을 바꾸는 모든 것에 대해
 저장한 실행과 같은 `ACWW_*` 환경을 써야 한다** -- `ACWW_RTC_DATE`와 `ACWW_RTC_TIME`이
 날카로운 사례다. 스크립트된 키 위상은 의도된 예외로서 블롭으로 운반되므로, 재개된 실행은
-다르게 설정된 실행이 아니라 저장한 실행을 재현한다 [S: same].
+다르게 설정된 실행이 아니라 저장한 실행을 재현한다 [H: source account: `docs/kb/hybrid/savestate.md` section 4; direct ROM-source provenance unresolved].
 
 ## 거부 규칙 -- 계측 장치가 하기를 거절하는 것
 
 이들 각각은 나중에 미묘하게 실패할 스냅샷을 만드는 대신 아무것도 쓰지 않고 이유를
-말한다 [S: `docs/kb/hybrid/savestate.md` sections 5, 6, 8]:
+말한다 [H: source account: `docs/kb/hybrid/savestate.md` sections 5, 6, 8; direct ROM-source provenance unresolved]:
 
 | 거부 | 이유 |
 |---|---|
@@ -85,13 +85,13 @@ sections 1 and 3]:
 파일을 지금 있는 그대로 본다(스크립트된 레시피들은 `ACWW_SAVE`를 해제한다); 그리고
 환경 변수로 게이트되는 몇몇 일회성 동작(`ACWW_GENTOWN`, `ACWW_REQ_SCENE`, `ACWW_DEMO_OV4`,
 `ACWW_LOAD_OVL`, `ACWW_FORCE_CHAN`, `ACWW_FORCE_FIELD`, 새 게임 프로브)은 운반되지 않으며
-같은 변수가 설정된 로드에서 다시 발화할 것이다 [S: `docs/kb/hybrid/savestate.md` sections 5 and 3].
+같은 변수가 설정된 로드에서 다시 발화할 것이다 [H: source account: `docs/kb/hybrid/savestate.md` sections 5 and 3; direct ROM-source provenance unresolved].
 
 ## 레시피
 
 두 변수 모두 **절대** 경로를 받는다: `run_direct.py`는 exe를 cwd `port/build`로 띄우므로,
 저장소 상대 경로는 엉뚱한 디렉터리를 기준으로 해석되어 전체 실행이 끝난 뒤 늦게 저장이
-실패한다 [S: `docs/kb/hybrid/savestate.md` section 7]. 이들은 DIAGNOSTIC 실행이지 프론티어
+실패한다 [H: source account: `docs/kb/hybrid/savestate.md` section 7; direct ROM-source provenance unresolved]. 이들은 DIAGNOSTIC 실행이지 프론티어
 주장이 아니다(B38).
 
 OFF 대조, 6,000에서 저장(`off-recipe.md`의 환경):
@@ -118,17 +118,17 @@ OFF 대조, 6,000에서 저장(`off-recipe.md`의 환경):
 
 저장 다음 프레임부터 끝점까지의 모든 프레임이 `exact-rgb yes`로 읽혀야 한다. 그렇지
 않은 프레임은 호스트 상태 한 조각이 블롭 레지스트리에서 빠져 있다는 뜻이며, 고치는
-방법은 그것을 찾는 것이다 -- 대신 `ncc` 열을 읽는 것이 **아니다** [S: `docs/kb/hybrid/savestate.md` section 7].
+방법은 그것을 찾는 것이다 -- 대신 `ncc` 열을 읽는 것이 **아니다** [H: source account: `docs/kb/hybrid/savestate.md` section 7; direct ROM-source provenance unresolved].
 
 | 쌍 | 프레임 | 결과 | 비용 |
 |---|---|---|---|
-| `st-off-save` / `st-off-load` | 6,000..9,000, 300마다 | **11/11 exact-rgb** | 309 s -> 110 s [E: their `receipt.json`] |
-| `st-town-save` / `st-town-load` | 24,000..27,000, 300마다 | **11/11 exact-rgb**, 24,700의 접촉과 그것이 시작하는 탑승을 가로질러 | 756 s -> 65 s [E: their `receipt.json`] |
+| `st-off-save` / `st-off-load` | 6,000..9,000, 300마다 | **11/11 exact-rgb** | 309 s -> 110 s [H: log/source account: their `receipt.json`; receipt provenance unresolved] |
+| `st-town-save` / `st-town-load` | 24,000..27,000, 300마다 | **11/11 exact-rgb**, 24,700의 접촉과 그것이 시작하는 탑승을 가로질러 | 756 s -> 65 s [H: log/source account: their `receipt.json`; receipt provenance unresolved] |
 
 저장 줄은 실제로 안착한 프레임을 명시한다:
 `acww state: saved frame 6000 -- 113 blobs, 5 threads`, 그리고 로드 줄은 어디서 재개했는지
-말한다: `resuming pc 0x01ffa4fc` [E: the two `*-run.log` files;
-`docs/log/cycle40-keyboard-gate-probe.md` SAVE41].
+말한다: `resuming pc 0x01ffa4fc` [H: log/source account: the two `*-run.log` files;
+`docs/log/cycle40-keyboard-gate-probe.md` SAVE41; receipt provenance unresolved].
 
 이 기능이 만들어진 워크트리에서 나온 이전 영수증들, 그 워크트리가 제거되기 전에 복사해
 둔 것: 두 변수 모두 설정하지 않은 상태에서 프론티어는 **31/31 exact**로 온전하고, OFF는
@@ -138,7 +138,7 @@ OFF 대조, 6,000에서 저장(`off-recipe.md`의 환경):
 ## 반증 조건 -- 그리고 이미 잡아낸 것
 
 정확성 기준은 `ncc`라면 통과시켰을 실제 결함 두 가지를 찾아냈다
-[S: `docs/kb/hybrid/savestate.md` section 6]:
+[H: source account: `docs/kb/hybrid/savestate.md` section 6; direct ROM-source provenance unresolved]:
 
 - 첫 번째 쌍은 모든 프레임에서 `diff% 49.9`에 `ncc-top 1.0000`으로 `exact-rgb no`였다 --
   엔진 B의 화면 전체가 검은색이었는데, 팔레트 RAM과 OAM이 2 KB, 즉 4 KB 페이지의 절반이라
@@ -155,14 +155,14 @@ OFF 대조, 6,000에서 저장(`off-recipe.md`의 환경):
 
 - [H] **페이스 조절된 라이브** 실행, 즉 사람이 키보드 앞에 있는 실행에서 스냅샷을 채취한
   적은 한 번도 없다. 호스트 입력 상태는 등록되어 있지만, 어떤 라이브 실행도 저장되고
-  재로드된 적이 없다. 한 번 해 보면 해결된다 [S: `docs/kb/hybrid/savestate.md` section 8].
+  재로드된 적이 없다. 한 번 해 보면 해결된다 [H: source account: `docs/kb/hybrid/savestate.md` section 8; direct ROM-source provenance unresolved].
 - [H] 무엇이 프레임을 거부 대상으로 만드는가. 거부는 슬롯 하나를 지목하는데, 이는
   프레임의 속성이라기보다 생애 대부분을 인터프리터 프레임 두 개 깊이에서 보내는 스레드를
   시사한다; 어느 스레드인지 왜 그런지는 아무것도 측정하지 않았다. 거부된 슬롯의 체인을
-  출력하면 해결된다 [S: same].
+  출력하면 해결된다 [H: source account: `docs/kb/hybrid/savestate.md` section 8; direct ROM-source provenance unresolved].
 - [H] 오라클 레코더와 결합한 로드. `oracle.c`와 `oracle_events.c` 모두 엄격한 프레임
   단조성을 강제하며 로드를 가로질러서는 트레이스를 중단할 것이다; `run_on2.py`는 이미
-  이들을 해제하며, 아무도 시도해 보지 않았다 [S: `docs/kb/hybrid/savestate.md` section 5].
+  이들을 해제하며, 아무도 시도해 보지 않았다 [H: source account: `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved].
 
 ## 위키 독자가 이것을 쓰는 법
 
@@ -170,14 +170,14 @@ OFF 대조, 6,000에서 저장(`off-recipe.md`의 환경):
 
 1. 마을 레시피를 `ACWW_STATE_SAVE=24000:<absolute>.st`로 한 번 돌린다. 프레임이 거부되면
    다른 것을 고른다; 근처 프레임은 재생이 아니라 기존 스냅샷에서 시도하면 값싸다
-   [S: `scratchpad/state-agent/state/probe_frames.py`].
+   [H: source account: `scratchpad/state-agent/state/probe_frames.py`; direct ROM-source provenance unresolved].
 2. 질문의 모든 변형을 `ACWW_STATE_LOAD=<that file>`과 **같은** `ACWW_*` 환경으로 돌리되,
    추가하는 계측 장치만 바꾼다.
 3. 산출물을 보관한다. 재링크는 설계상 스냅샷을 무효화하므로, 포트도 함께 바꾸는 세션은
    매 링크 뒤에 다시 저장해야 한다.
 
 `python port/tools/test_savestate.py`는 게임을 실행하지 않고 1초 이내에 헤더, 두 거부
-규칙, 블롭 레지스트리를 검사한다 [S: `docs/kb/hybrid/savestate.md` section 7].
+규칙, 블롭 레지스트리를 검사한다 [H: source account: `docs/kb/hybrid/savestate.md` section 7; direct ROM-source provenance unresolved].
 
 ## 관련 문서
 

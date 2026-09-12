@@ -15,7 +15,7 @@
 이 실험이 제안될 당시에는 보관된 게임 실행 중 어느 것도 영속성을 입증하지 못했다.
 그 뒤 SAVEFLOW41이 위의 1바이트 쓰기를 측정했고, SAVE43은 저장된 마을이 다시 로드되는
 것을 입증했다 [E: `scratchpad/save43/RECEIPTS.md`, `gp-S3`, `boot-A` and `boot-B`;
-`docs/log/cycle42-save.md` SAVE43]. 아래의 원래 질문들은 역사로서 남겨 둔다. 세 가지를 분리할 가치가 있으며,
+`docs/log/cycle42-save.md` SAVE43 ; `scratchpad/save43/runs/gp-S3`]. 아래의 원래 질문들은 역사로서 남겨 둔다. 세 가지를 분리할 가치가 있으며,
 오직 도구만이 이들을 분리할 수 있다:
 
 1. 게임이 마을 회관으로 가는 길에 백업 요청을 *발행*하는가(요청 타입 6, 그리고 혹시
@@ -25,7 +25,7 @@
 
 세 번째는 이미 절반이 측정되어 있다: 읽기 채움(read fill)을 켠 상태에서 키 입력 START
 실행은 프레임 10 근처에서 `unimplemented: func_02225a90`에 멈췄고(심볼 테이블은 이를
-`func_ov003_02225a90`, `ov003`으로 명명한다 [S: `config/adm-kr/arm9/overlays/ov003/symbols.txt`]),
+`func_ov003_02225a90`, `ov003`으로 명명한다 [S: `src/matched/func_ov003_02225a90.c`; source account: `config/adm-kr/arm9/overlays/ov003/symbols.txt`]),
 채움을 끈 같은 빌드는 깨끗하게 실행된다 [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe]. 이는 정직한 답이
 부팅을 포트가 아직 따라갈 수 없는 경로로 옮긴다는 뜻이다 -- 어느 경로인지는 말해 주지
 않는다.

@@ -27,8 +27,8 @@ so both registers are active low and the button space is the mask `0x2fff`
 halfword the ARM7 maintains in shared low WRAM and carries X, Y and the debug bit
 [S: `func_ov001_0222db68`, ov001, `src/matched/func_ov001_0222db68.c`]. Released is therefore
 `0x03ff` in the register and `0x2c00` in the shared halfword, which OR to exactly `0x2fff`
-[E: `port/platform/hostinput.c`; the ARM7 halfword reads `2c00` on every frame of the oracle's
-probe run, O: `port/tools/oracle/README.md`, the `TP_POINT` probe table].
+[H: log/source account: `port/platform/hostinput.c`; the ARM7 halfword reads `2c00` on every frame of the oracle's
+probe run, O: `port/tools/oracle/README.md`, the `TP_POINT` probe table; receipt provenance unresolved].
 
 **Bit 15 of `0x027fffa8` means "report nothing"**, and it is checked all over the game rather
 than only in the input path: `func_0200f748` and `func_020089b0` in main gate state
@@ -66,7 +66,7 @@ bitfield (x:12, y:12, touch:1, validity:2) from the shared system-work area
 
 When the pen is up the ARM7 writes x=0, y=0, touch=0 and validity=3 (INVALID_XY); a
 pen-down sample carries the raw counts with validity 0 unless the pressure test rejects it
-[S: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c` (public source, `TP_ExecSampling`)].
+[H: source account: NitroSDK `libraries/spi/src/ARM7/tp/tp_sampling.c` (public source, `TP_ExecSampling`); direct ROM-source provenance unresolved].
 The game's per-frame sample `func_020e9314` reads the four entries before the latest and
 publishes only when three consecutive entries are touched and valid -- the middle one -- and
 writes x=y=0xff when none is touched; otherwise it leaves the previous point in place
@@ -74,7 +74,7 @@ writes x=y=0xff when none is touched; otherwise it leaves the previous point in 
 original's one-to-two-frame stylus latency comes from: with four samples a frame, a contact
 that begins mid-frame is published the next frame [E: `scratchpad/cycle40/runs/tap-T41pd`,
 contact scheduled at 8,700, TP_POINT set at 8,701]. The port models the ARM7 this way on the
-interpreter path (`port/shim/os/pxisend.c`, TOUCH41) [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41].
+interpreter path (`port/shim/os/pxisend.c`, TOUCH41) [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved].
 
 Calibration turns 12-bit ADC counts into pixels. The console's owner touched two crosses during
 firmware setup; `TP_GetUserInfo` reads those two raw/display point pairs out of NVRAM and
@@ -101,7 +101,7 @@ transcribed and pinned by `port/tools/test_scheduled_touch.py`
 `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. Whichever branch ran, the
 tail is the same: the pressed flag is XORed against the previous frame's to make a trigger
 byte at `0x021fbddc`, the previous flag at `0x021fbdd8` is updated, and x and y are republished
-to `0x021fbde0` and `0x021fbde4` [S: transcribed in `port/shim/input/touch.c`].
+to `0x021fbde0` and `0x021fbde4` [S: `config/adm-kr/arm9/autoload_2/symbols.txt`, `func_020e9314` at `0x020e9314`; historical account: transcribed in `port/shim/input/touch.c`].
 
 The consumer is `func_020b9280`, the only caller, and it truncates both coordinates to `u8` --
 which is why the published x is 0..255 and y is 0..191. **It calls `func_020e9314` only when bit
@@ -117,8 +117,8 @@ the AUTO_ON request and writes `frequence` samples a VBlank into the ROM's own `
 `0x02206134`, doing `TPi_TpCallback`'s AUTO_SAMPLING step on the host, under an identity
 calibration that `port/shim/boot/usersettings.c` publishes (raw = pixel x 16). The samples land
 **after** the ROM's VBlank handler, which is the hardware's order
-[S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41, TOUCH42;
-see `../experiments/touch-latency.md`]. The rest of this section describes the NATIVE path,
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41, TOUCH42;
+see `../experiments/touch-latency.md`; direct ROM-source provenance unresolved]. The rest of this section describes the NATIVE path,
 which is still what runs without `ACWW_INTERP=1`.
 
 There is no panel and no ARM7, so the port replaces `func_020e9314` with the no-touch branch
@@ -143,8 +143,8 @@ Scheduled contacts are the instrument every touch measurement uses:
 `ACWW_TOUCH_ENABLE`, `_X`, `_Y`, `_AT`, `_FOR`, plus `_EVERY` (repeat period, must exceed
 `_FOR`) and `_REPEAT` (contact count; absent means unbounded), and an independent second
 contact `ACWW_TOUCH2_*` with the same six fields. **The second contact is tested first and wins
-its own window** [E: `port/shim/input/touch.c`;
-`docs/kb/hybrid/hardware-services.md` section 6]. The config is parsed once through
+its own window** [H: log/source account: `port/shim/input/touch.c`;
+`docs/kb/hybrid/hardware-services.md` section 6; receipt provenance unresolved]. The config is parsed once through
 `GetEnvironmentVariableA` directly, because the port's own `acww_env_dec` folds unset,
 unparsable and zero into one answer; anything short of a fully valid config prints one refusal
 line and stays disabled for the run [H: host-source account from `port/shim/input/touch.c`; verify with a retained scripted run and frame using this page's recipe].
@@ -156,13 +156,13 @@ pad rows OR together and the first matching stylus row wins
 [H: source/log account from `port/platform/hostinput.c`; verify with a retained run using this page's recipe]. While a script is live it owns both pad registers from the
 frame boundary and `port/shim/gfx/frameswap.c` writes neither, because `frameswap.c`'s phase2
 and phase3 come back from a savestate as blobs with their old schedule still armed
-[E: `port/platform/hostinput.c`; `port/shim/gfx/frameswap.c`;
-S: `docs/kb/hybrid/savestate.md` section 4]. Its stylus rows are asked for before the
+[H: log/source account: `port/platform/hostinput.c`; `port/shim/gfx/frameswap.c`;
+S: `docs/kb/hybrid/savestate.md` section 4; receipt provenance unresolved]. Its stylus rows are asked for before the
 `ACWW_TOUCH*` schedule and before the mouse [H: source/log account from `port/shim/input/touch.c`; verify with a retained run using this page's recipe]. Unset, it changes
 nothing: the OFF recipe on the build carrying it is 31/31 byte-identical to a relink of
 untouched HEAD [H: `scratchpad/cycle40/runs/off-ps` vs `off-base`;
 `docs/log/cycle41-gameplay.md`; receipt lost with its worktree; repeat the named recipe and retain the stated frames]. It is what let a scripted player walk out of the town hall and
-around the town [E: `wiki/experiments/gameplay-walkthrough.md`].
+around the town [H: log/source account: `wiki/experiments/gameplay-walkthrough.md`; receipt provenance unresolved].
 
 ## The port and the original disagree, measurably
 
@@ -181,11 +181,11 @@ the contact scheduled at 221,181 for 10 frames every 60, twice, from frame 1000:
 Three things follow. The contact does reach the game. **The coordinates come back one pixel
 high** -- 221,181 in, 222,182 out -- because the emulator converts screen pixels to raw ADC
 counts and `TP_GetCalibratedPoint` converts them back, a round trip the port deliberately skips
-[O: same]. And **the game sees the contact one to two frames late and holds it one frame long**,
+[O: `port/tools/oracle/README.md`, "...and the tap reaches the GAME"]. And **the game sees the contact one to two frames late and holds it one frame long**,
 because the ring is filled a frame before the ARM9 reads it, where the port publishes on the
-exact frame [O: same]. That two-frame difference is real, measured and unavoidable between the
+exact frame [O: `port/tools/oracle/README.md`, "...and the tap reaches the GAME"]. That two-frame difference is real, measured and unavoidable between the
 two producers, and it is the standing candidate explanation for any tap that works on one side
-only [O: same].
+only [O: `port/tools/oracle/README.md`, "...and the tap reaches the GAME"].
 
 One caveat on the instrument itself, since corrected: `memory.readword` in that Lua build
 returned 255 in the no-touch rows, which looked like a low-8-bit truncation against a port
@@ -193,7 +193,7 @@ transcription that wrote 0xffff. The ROM's own no-touch value is **0x00ff**, so 
 is right [S: `func_020e9314`, disassembly `0x020e9314`..`0x020e9470`;
 `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. Whether that Lua build's `readword` is wide
 in general is still untested, and every value in the table is below 256 either way
-[O: same; M1].
+[O: `port/tools/oracle/README.md`, "...and the tap reaches the GAME"; M1].
 
 The disagreement it may explain is the second keyboard. Under the town recipe the port and the
 original are on the same screen step for step from frame 6000 to 24000 -- whole-frame ncc
@@ -220,7 +220,7 @@ Result section at the end of this page: neither side was wrong, the tap frame wa
 | `TP_CheckError`, `TP_WaitBusy` | autoload_2 | poll `err_flg`, spin on `command_flg` | [S: `src/matched/TP_WaitBusy.c`] |
 | `TPi_TpCallback` | autoload_2 | the PXI tag-6 receive handler; unpacks x:12 y:12 touch:1 validity:2 | [S: `src/matched/TPi_TpCallback.c`] |
 | `func_020e948c` | autoload_2 | the game's touch bring-up; starts a 9-sample ring at period 4 | [S: `src/matched/func_020e948c.c`] |
-| `func_020e9314` | autoload_2 | the per-frame publish and its three branches | [S: literal pool, transcribed in `port/shim/input/touch.c`] |
+| `func_020e9314` | autoload_2 | the per-frame publish and its three branches | [H: source account: literal pool, transcribed in `port/shim/input/touch.c`; direct ROM-source provenance unresolved] |
 | `func_020b9280` | main | the only consumer; truncates to u8; gates on bit 15 of `0x027fffa8` | [S: `src/matched/func_020b9280.c`] |
 | `func_ov001_0222d9b0` | ov001 | DWC's own "readTouch": walks the ring backwards, skips invalid, derives edges | [S: `src/matched/func_ov001_0222d9b0.c`] |
 | `func_ov126_022a04e8` | ov126 | the keyboard hit-test; calls bare `sub_229c54c` / `sub_229c448` whose resident bodies are `func_ov095_0229c54c` / `0229c448` | [S: `src/matched/func_ov126_022a04e8.c`; `docs/kb/port/input-save-audio.md`, KBD39] |
@@ -232,11 +232,11 @@ Result section at the end of this page: neither side was wrong, the tap frame wa
 | `0x04000130` | `REG_KEYINPUT`, bits 0..9, active low | the hardware (the port: `acww_input_publish`) | `func_020e9548`, `func_02001324`, `func_ov001_0222db68` [S: `src/matched/func_020e9548.c`] |
 | `0x027fffa8` | ARM7 shared halfword: X bit 10, Y bit 11, debug bit 13, active low; bit 15 = report nothing | the ARM7 (the port parks `0x2c00`) | the same three, plus six gates in main/ov001/ov055 [S: `src/matched/func_ov001_0222db68.c`] |
 | `0x021fbde8` | `TP_POINT`: `{u16 x, u16 y, u16 touch, u16 validity}` | `func_020e9314` | `func_020b9280` [S: `src/matched/func_020b9280.c`] [O: probe mode, `port/tools/oracle/README.md`] |
-| `0x021fbdd8` | the previous frame's touch flag, one byte | `func_020e9314` | itself, next frame [S: transcribed in `port/shim/input/touch.c`] |
-| `0x021fbddc` | the trigger byte: this frame's flag XOR the last | `func_020e9314` | the UI [S: same] |
-| `0x021fbde0` / `0x021fbde4` | the republished x and y | `func_020e9314` | `func_020b9280` [S: same] |
+| `0x021fbdd8` | the previous frame's touch flag, one byte | `func_020e9314` | itself, next frame [S: `config/adm-kr/arm9/autoload_2/symbols.txt`, `func_020e9314` at `0x020e9314`; historical account: transcribed in `port/shim/input/touch.c`] |
+| `0x021fbddc` | the trigger byte: this frame's flag XOR the last | `func_020e9314` | the UI [S: `config/adm-kr/arm9/autoload_2/symbols.txt`, `func_020e9314` at `0x020e9314`; historical account: `port/shim/input/touch.c`] |
+| `0x021fbde0` / `0x021fbde4` | the republished x and y | `func_020e9314` | `func_020b9280` [S: `config/adm-kr/arm9/autoload_2/symbols.txt`, `func_020e9314` at `0x020e9314`; historical account: `port/shim/input/touch.c`] |
 | `0x021fbdf0` | the nine-entry auto-sampling ring `gAutoData` | the ARM7 through `TPi_TpCallback` (nothing on the port) | `func_020e9314` [S: `src/matched/func_020e948c.c`] |
-| `0x021f6c54` | the touch Y the keyboard's `< 0x48` compare tests -- a coordinate, not a counter | the keyboard | `func_ov126_022a1228` [S: `docs/kb/port/input-save-audio.md`, KBD39] |
+| `0x021f6c54` | the touch Y the keyboard's `< 0x48` compare tests -- a coordinate, not a counter | the keyboard | `func_ov126_022a1228` [H: source account: `docs/kb/port/input-save-audio.md`, KBD39; direct ROM-source provenance unresolved] |
 | `0x04000280` | the hardware divider, used to precompute the calibration reciprocals | `TP_SetCalibrateParam` | itself [S: `src/matched/TP_SetCalibrateParam.c`] |
 
 ## How to check it
@@ -258,11 +258,11 @@ kept because the negatives cost as much as the positive.
   `acww touch: DOWN x=222 y=182`, four contacts, exit 100 at 27,000 frames
   [E: `scratchpad/cycle40/runs/tap-D61`, `ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182`]; against
   `scratchpad/oracle/tap-220` the two sides still part
-  [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42].
+  [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; direct ROM-source provenance unresolved].
 - **Settled positive.** The frame is the cause, and the latency is the reason the frame
   matters. Moving the tap off the KEYS3 A-press frame to 24,700 makes both sides confirm and
-  agree [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-  O: `scratchpad/oracle/tap-24700`].
+  agree [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
+  O: `scratchpad/oracle/tap-24700`; direct ROM-source provenance unresolved].
 - **Settled positive (TOUCH41/TOUCH42).** The port should model the lag rather than have the
   recipe avoid it, and does. The ROM's own `func_020e9314` now runs on the interpreter path
   and the port fills the ARM7's ring, *after* the ROM's VBlank handler -- and the 24,600 recipe
@@ -292,11 +292,11 @@ kept because the negatives cost as much as the positive.
   `../experiments/touch-latency.md`, Open.
 - **Hold duration on the interpreter path.** [H] `FOR=10` and `FOR=90` at the same frame and
   coordinate produced byte-identical images at all nine sampled frames on the *native* path
-  [E: `docs/kb/port/input-save-audio.md`, TOUCH39]. It has not been re-measured since the
+  [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39; receipt provenance unresolved]. It has not been re-measured since the
   ROM's own publish took over. Settled by repeating that pair with `ACWW_INTERP=1`.
 - **Is the oracle probe's `memory.readword` wide?** [H] The reason to doubt it is gone -- the
   255 it returned in the no-touch rows is the ROM's own 0x00ff, not a truncation of 0xffff
-  [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41] -- but nothing has positively shown
+  [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved] -- but nothing has positively shown
   the accessor returning a value above 255. It does not matter for anything on this page,
   where every field is below 256. Settled by probing an address the ROM writes wide.
 
@@ -305,24 +305,24 @@ kept because the negatives cost as much as the positive.
 
 The one-pixel test is negative: the port with contacts at 222,182 still confirms the town
 name (`tap-D61`, top screen black from 25,200 = the ride) and the original with contacts at
-220,180 still does not (`scratchpad/oracle/tap-220`, keyboard to 27,000) [E: `tap-D61`]
+220,180 still does not (`scratchpad/oracle/tap-220`, keyboard to 27,000) [E: `tap-D61`; `scratchpad/cycle40/runs/tap-D61`]
 [O: `scratchpad/oracle/tap-220`]. The frame is the cause: 24,600 is a KEYS3 A-press frame
 (2400 + 37 x 600) while 8,700 is not, and the original's stylus sample reaches the game 1-2
 frames after the port's, so the press and the tap are ordered differently on the two sides
-[S: docs/log/cycle40-keyboard-gate-probe.md ORACLE42]. With `ACWW_TOUCH2_AT=24700` both
+[H: source account: docs/log/cycle40-keyboard-gate-probe.md ORACLE42; direct ROM-source provenance unresolved]. With `ACWW_TOUCH2_AT=24700` both
 confirm and agree: 11 frames 24000..27000 at mean ncc 0.9955, top screen 1.0000
-[E: `tap-D62`] [O: `scratchpad/oracle/tap-24700`]. The recipe of record uses 24,700.
+[E: `tap-D62`; `scratchpad/cycle40/runs/tap-D62`] [O: `scratchpad/oracle/tap-24700`]. The recipe of record uses 24,700.
 The latency is now modelled (TOUCH41): the ROM's `func_020e9314` runs on the interpreter
-path and the port fills the ARM7's ring [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41].
+path and the port fills the ARM7's ring [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; direct ROM-source provenance unresolved].
 Under the model the contact scheduled at 24,600 reaches TP_POINT at 24,601 and the port
 still confirms the town name where the original does not [E: `scratchpad/cycle40/runs/tap-T41h`]
 [O: `scratchpad/oracle/tap-window`]; the 24,700 recipe scores 0.9986 over 24,000..27,000
-[E: `tap-T41i`] [O: `scratchpad/oracle/tap-24700`]. **Settled (TOUCH42)**: the position of the samples relative to the ROM's VBlank handler
+[E: `tap-T41i`; `scratchpad/cycle40/runs/tap-T41i`] [O: `scratchpad/oracle/tap-24700`]. **Settled (TOUCH42)**: the position of the samples relative to the ROM's VBlank handler
 is what orders a same-frame press and tap. With the four samples delivered after the
 handler (the hardware's order: the handler reads the pad at VBlank, the ARM7 samples the
 panel during the frame that follows) the port stays on the keyboard at 24,600 like the
 original -- 11 frames 24,000..27,000 at ncc 0.9981 [E: `scratchpad/cycle40/runs/tap-T42b`]
-[O: `scratchpad/oracle/tap-window`] [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42].
+[O: `scratchpad/oracle/tap-window`] [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH42; direct ROM-source provenance unresolved].
 
 ## Result (INPUT46): the scripted pad, measured against the original
 
@@ -362,7 +362,7 @@ REGISTERED function and this one is not among the 85 the boot line names, so NON
 runs on an interpreter run -- measured, a run with the witness fully configured printed neither
 its samples nor the shim's own capped register log. It cannot be registered by configuration
 either. Read the three words out of RAM instead, with the region ledger
-[S: `docs/kb/hybrid/stall-playbook.md` case 71; `docs/kb/hybrid/instruments.md` section 3d].
+[H: source account: `docs/kb/hybrid/stall-playbook.md` case 71; `docs/kb/hybrid/instruments.md` section 3d; direct ROM-source provenance unresolved].
 
 ## Related
 

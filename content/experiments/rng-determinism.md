@@ -9,7 +9,7 @@
 부팅 시드와 생성 시점의 스트림 위치를 분리한다: 시계 시드는
 `minute | day<<8 | hour<<16 | second<<24`를 접으므로(fold), 1초를 바꾸면 시드 바이트 하나가
 바뀌지만, 연도나 월만 바꾸면 이 접기는 바뀌지 않는다
-[S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
+[S: `src/matched/func_0209dbbc.c`; source account: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
 그 소스 사실만으로는 프레임 전체의 동일성이나, 바뀐 모든 시드가 다른 마을을 준다는 것을
 증명하지 못한다 [H: the A/B/C experiment below is not a retained result].
 ORACLE46은 같은 시드 `0x000a0f00`을 원본의 동결 조건 유무에서 측정했다;
@@ -66,12 +66,12 @@ ORACLE49는 그 빌드에서 정방향 탭 창을 24,907..24,909로 재보정했
 | 비교 | 예측 | 틀렸을 때의 의미 |
 |---|---|---|
 | A 대 B | 29 중 29 동일 [H: proposed repeat test, not an ORACLE47..49 result] | 원인을 귀속하기 전에 달라진 입력이나 비결정성을 조사한다 [H] |
-| A 대 C | 마을부터 프레임이 다를 수 있음 [H: proposed test] | 초는 시드의 최상위 바이트를 바꾸지만, 프레임 동일성만으로는 그 접기를 반증하지 못한다 [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
-| 네 번째 조건, `ACWW_RTC_DATE=20060615` (연도만) | 같은 부팅 시드; 프레임 전체의 동일성은 미측정 [H: proposed test] | 연도는 이 접기에 없다; 다른 연도 의존 동작은 배제되지 않는다 [S: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
+| A 대 C | 마을부터 프레임이 다를 수 있음 [H: proposed test] | 초는 시드의 최상위 바이트를 바꾸지만, 프레임 동일성만으로는 그 접기를 반증하지 못한다 [S: `src/matched/func_0209dbbc.c`; source account: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
+| 네 번째 조건, `ACWW_RTC_DATE=20060615` (연도만) | 같은 부팅 시드; 프레임 전체의 동일성은 미측정 [H: proposed test] | 연도는 이 접기에 없다; 다른 연도 의존 동작은 배제되지 않는다 [S: `src/matched/func_0209dbbc.c`; source account: `src/matched/func_0209dbbc.c`; log: `docs/log/cycle41-gameplay.md` O46-1] |
 
 조건이 이미 있으므로 저렴한, 유용한 세 번째 비교: A와 B의 두 로그를 정규화하여 diff한다.
 깨끗한 실행에서 예상되는 유일한 차이는 호스트 주소 공간 레이아웃 블록과 릴리스 줄이다 --
-네이티브 경로에서 관측된 매칭 쌍의 모양이 그러했다 [E: `docs/kb/port/input-save-audio.md`, TOUCH39, the `FOR=10` versus `FOR=90` diff].
+네이티브 경로에서 관측된 매칭 쌍의 모양이 그러했다 [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39, the `FOR=10` versus `FOR=90` diff; receipt provenance unresolved].
 
 ## 반증 조건
 

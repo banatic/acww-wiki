@@ -13,10 +13,10 @@ town, so that the port and the original can be compared over 48,000 frames.
 confirm the name either -- the interpreter run and the native run matched 9 of 9 frames -- so
 the port was never wrong on that path; the recipe was
 [E: `docs/log/cycle40-keyboard-gate-probe.md` H4 RESULT and TAP40;
-`scratchpad/cycle40/runs/tap-native`, `tap-interp`]. The first tap switches the keyboard from
+`scratchpad/cycle40/runs/tap-native`, `tap-interp` ; `scratchpad/cycle40/runs/tap-interp`]. The first tap switches the keyboard from
 pad mode to stylus mode and the state that would act on it only runs from the next frame, when
 the press edge is gone; a second tap inside the stylus-mode window is what the confirm button
-can see [E: `port/shim/input/touch.c`].
+can see [H: log/source account: `port/shim/input/touch.c`; receipt provenance unresolved].
 
 **Why the taps must stop.** Repeating taps hold the yes/no menu and stall the conversation,
 because a contact during a dialogue does not advance it. `ACWW_TOUCH_REPEAT=2` is what lets the
@@ -32,8 +32,8 @@ OVL40; `scratchpad/cycle40/runs/tap-D55b`].
       ACWW_TOUCH2_EVERY=60 ACWW_TOUCH2_REPEAT=2 \
       ACWW_STOP_FRAME=48000 ACWW_SHOT_AFTER=6000 ACWW_SHOT_EVERY=1500 ACWW_PAD_SAMPLE=0
 
-[E: `docs/kb/hybrid/recipes.md` section 3; `docs/state/port-frontier.md`, verified-at
-`6ca48706`].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 3; `docs/state/port-frontier.md`, verified-at
+`6ca48706`; receipt provenance unresolved].
 
 The script's own base supplies the rest: the custom START pad phases -- primary mask 9 at frame
 300, `FOR` 10, `EVERY` 30; phase 2 mask 8 at 1,800 with `RELEASE_FOR` 60; phase 3 mask 1 at
@@ -76,21 +76,21 @@ unpaced, 811 seconds, 31 shots, a 59,808-line log
 ## The runs that produced them
 
 - `scratchpad/cycle40/runs/tap-D56` -- the diagnostic run TOWN40 reports, 48,000 frames
-  [E: its `receipt.json` carries `diagnostic: true`].
+  [H: log/source account: its `receipt.json` carries `diagnostic: true`; receipt provenance unresolved].
 - `scratchpad/cycle40/runs/tap-D57` -- the same with affine backgrounds drawn (SKY40).
 - `scratchpad/cycle40/runs/town-R1` -- **the receipted run**, and the first receipted run of the
   interpreter path: launcher exit 0, child exit 100 at 48,000, 801 seconds, 29 shots, no fault
-  markers [E: `docs/log/cycle40-keyboard-gate-probe.md` RECEIPT41, commit `6ca48706`].
+  markers [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` RECEIPT41, commit `6ca48706`; receipt provenance unresolved].
 - `scratchpad/cycle40/runs/tap-D59` -- 90,000 frames; Pelly says goodbye at 60,000 and the A
   pulses talk to her again through 90,000. The recipe cannot walk out of the town hall
-  [E: LONG41].
+  [H: log/source account: LONG41; receipt provenance unresolved].
 - `scratchpad/oracle/tap-fullpad` -- the oracle arm and its comparison table.
 
 **A receipt and a diagnostic are not the same claim.** A receipt is a run through
 `port/tools/run.py --receipt` on a READY pipeline artifact with the sealed log copied and hashed
 beside it; a diagnostic is a direct `acww.exe` launch. Say which, plus the launcher, the
 artifact provenance, the path and the endpoint (B1, B8, B32)
-[E: `docs/kb/hybrid/recipes.md` section 5].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 5; receipt provenance unresolved].
 
 ## What the comparison says
 
@@ -112,8 +112,8 @@ wrong about the keyboard; the recipe was.** 24,600 is a KEYS3 A-press frame (240
 and the original's stylus sample arrives one to two frames after the port's, so the press and
 the tap are ordered differently on the two sides. With `ACWW_TOUCH2_AT=24700` both confirm and
 agree -- 11 frames 24,000..27,000 at mean ncc 0.9955, top screen 1.0000
-[S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-O: `scratchpad/oracle/tap-24700`]. **The recipe of record therefore uses 24,700**, and the table
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; H: historical measurement account: `tap-D62`;
+O: `scratchpad/oracle/tap-24700`; direct ROM-source provenance unresolved]. **The recipe of record therefore uses 24,700**, and the table
 above is the 24,600 run kept for the record. The oracle cannot yet show the town, so the sky and
 the town hall are still unscored.
 
@@ -128,7 +128,7 @@ the town hall are still unscored.
   failure identity and the images.
 - Freezing the tree in git terms only: the pipeline snapshot includes untracked files, and one
   build was refused at publication because an operator's new file appeared mid-build (S10)
-  [E: `docs/kb/hybrid/recipes.md` section 8].
+  [H: log/source account: `docs/kb/hybrid/recipes.md` section 8; receipt provenance unresolved].
 
 ## Related
 
@@ -142,12 +142,12 @@ the town hall are still unscored.
 With `ACWW_TOUCH2_AT=24700` the DeSmuME reference follows the same path: town at 37,500,
 town hall from 40,500, 15 frames 27000..48000 at mean ncc 0.8967 and the town-hall frames at
 0.98-0.998 with identical top screens (black on both sides inside the town hall)
-[O: `scratchpad/oracle/tap-town`] [E: `tap-D63`]. Two transition frames (39,000 and 46,500)
+[O: `scratchpad/oracle/tap-town`] [E: `tap-D63` ; `scratchpad/cycle40/runs/tap-D63`]. Two transition frames (39,000 and 46,500)
 fall on opposite sides of a fade. At 37,500 the original's sky is perspective-scaled toward
 the horizon and the port's is flat [H: the HBlank handler `func_01ffcc30` updates the affine
 parameters per scanline; capture BG3 P*/X/Y per line and compare `tap-D63` 37,500 again].
 
 Update (SKY41): with per-scanline register capture (the HBlank callbacks rewrite BG3's
 affine parameters and BLDCNT/BLDALPHA per line) the port's sky at 37,500 flattens toward
-the horizon and fades into the backdrop like the original's [E: `tap-D71`]
-[S: docs/log/cycle40-keyboard-gate-probe.md SKY41].
+the horizon and fades into the backdrop like the original's [H: log/source account: `tap-D71`; receipt provenance unresolved]
+[H: source account: docs/log/cycle40-keyboard-gate-probe.md SKY41; direct ROM-source provenance unresolved].

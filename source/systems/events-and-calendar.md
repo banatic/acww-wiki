@@ -11,12 +11,12 @@ naming the channel, actor, overlay and flag that would bring that visitor in. Th
 ## What happens
 
 Date and time come from the SDK: `RTC_GetDateTime`, `RTC_GetTime` and `RTC_GetDate` at
-`0x0211e7c0` and its neighbours [S: NitroSDK, port/shim/os/rtcclock.c]. The game also SETS the
+`0x0211e7c0` and its neighbours [H: source account: NitroSDK, port/shim/os/rtcclock.c; direct ROM-source provenance unresolved]. The game also SETS the
 clock: `func_0209e5b4` calls `RTC_SetDateTime(date, time)` with `r1` untouched across the call,
 so the time pointer is carried in flight
 [S: func_0209e5b4, main, port/shim/game/arity_func_0209e5b4.c]. That path contains a date check
 that forces weekday 6 for year 0 / month 1 / day 1, which corroborates that `r0` is the date
-[S: port/shim/game/arity_func_0209e5b4.c].
+[S: `src/matched/func_0209e5b4.c`; historical account: port/shim/game/arity_func_0209e5b4.c].
 
 The day change itself is `func_02040c90`. Its seventeen calls line up one for one with the
 disassembly, in order: `func_0209e474`, `func_0209ded0`, `func_0209e314`, `func_020409c8`
@@ -41,13 +41,13 @@ followed by "the RTC advance that moves villagers in", then a post-generation sy
 `func_020a1038`'s save-erase path
 [S: func_0209e6ec, main, port/shim/gfx/pmflist.c]. So a fresh town gets its residents by
 running the day-change machinery forward, not by a separate move-in routine
-[S: port/shim/gfx/pmflist.c].
+[H: source account: port/shim/gfx/pmflist.c; direct ROM-source provenance unresolved].
 
 The player's 64-bit event bitfield at `player + 0x23f8` is the progress record. `func_02099020`
 tests a bit and `func_02098ff8` sets one
 [S: main, port/shim/game/spnpc.c]. Flag 1 is the arrival sequence: set by all four new-game
 commits, cleared only by `func_ov050_02262628` (Nook's side) and `func_ov068_0226e948`
-[S: port/shim/game/spnpc.c, port/shim/game/newgameprobe.c].
+[H: source account: port/shim/game/spnpc.c, port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved].
 
 The special-NPC scheduler is the game's visitor calendar and it is worth reading as one
 mechanism. Channel `0xd0` builds an object whose vtable is `0x020e1cc0`; its per-frame slot 0
@@ -63,7 +63,7 @@ returns 1 only when the first, third and fourth are ZERO and the second is non-z
 `func_02084af0` is `player && func_02099020(player, 1)` -- the arrival flag -- and every one of
 the eleven predicates bails while it is set, so the entire visitor schedule is silent BY
 DESIGN during the opening [S: func_02084af0, main, port/shim/game/spnpc.c]. That is a real
-mechanic and not a port defect [S: port/shim/game/spnpc.c].
+mechanic and not a port defect [H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved].
 
 Past the gate, `func_02084840` applies two further tests when its parameter is non-zero: it
 requires the indoor/outdoor byte `data_020e54a8` to be 0 and the mode from `func_020b65c4` not
@@ -81,7 +81,7 @@ mounts the overlay with `func_0204f934(0x50)` and opens the channel with
 `func_02003348(86, 0xd012, ...)`
 [S: func_02084b74, main, port/shim/game/spnpc.c]. So each of the 23 rows is one special
 visitor with everything needed to bring them in
-[S: port/shim/game/spnpc.c].
+[H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved].
 
 The same table is reached from a second entry point: `func_020842b8` ends in
 `func_02084d5c(&v, &data_020e1d8c, data_020d0644)` after a three-call chain
@@ -146,32 +146,32 @@ from "no value given" [H: host/prose inference from port/platform/win32.c, port/
 - **H: the 23 rows at `0x020e1d8c` are the game's full roster of special visitors (Kapp'n,
   Nook, Redd, Gulliver, Katrina, Wendell, Saharah, Gracie, Joan, Pete, Phyllis, Copper,
   Booker, Blathers, Tortimer and the rest), one row each.** Each row already carries channel,
-  actor, overlay and a flag [S: port/shim/game/spnpc.c], and ov068's own pool names twelve
+  actor, overlay and a flag [H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved], and ov068's own pool names twelve
   special-NPC models `rcn, rcc, rcs, rcd, pga, pgb, poo, ott, wip, xct, mof, end`
-  [S: docs/kb/modules/ov003-068.md]. Experiment: dump the 23 rows, resolve each overlay id,
+  [H: source account: docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. Experiment: dump the 23 rows, resolve each overlay id,
   and read each overlay's pool for the model name it loads.
 - **H: the eleven predicates at `0x020e1d08` are eleven SCHEDULING RULES in priority order
   (today's date, a weekday rule, a holiday rule, a random visitor rule ...), each of which may
   stage at most one visitor per day.** The table is described as PMF/priority
-  [S: port/shim/game/spnpc.c]. Experiment: instrument each of the eleven and log which fires
+  [H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved]. Experiment: instrument each of the eleven and log which fires
   across seven simulated days.
 - **H: holidays are rows of a date table consulted by one of those eleven predicates, and
   `func_0204fa8c`'s fourteen-value index is that table's row selector.** The index splits
   exactly the two months where a real holiday falls late
-  [S: port/shim/game/seasonidx.c]. Experiment: find the consumer of `func_0204fa8c`'s result
+  [S: `src/matched/func_0204fa8c.c`; historical account: port/shim/game/seasonidx.c]. Experiment: find the consumer of `func_0204fa8c`'s result
   besides `func_0204fb80` and read its table.
 - **H: birthdays are read from the villager record and compared against the RTC date once per
   day inside `func_02040c90`.** The routine is the only per-day rewrite found so far
-  [S: port/tools/known_callees.txt]. Experiment: set the RTC to a known villager's birthday
+  [H: source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved]. Experiment: set the RTC to a known villager's birthday
   and diff the eight records at `0x021e5a2c` across the rollover.
 - **H: the five `MI_CpuCopy8` blocks in `func_02040c90` shift "yesterday" into "the day
   before" for five separate subsystems (weather, shop stock, visitor, turnip price, mail).**
   Five copies, five subsystems that all need a previous value
-  [S: port/tools/known_callees.txt]. Experiment: name each copy's source and destination and
+  [H: source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved]. Experiment: name each copy's source and destination and
   match them against the save layout.
 - **H: `func_02084ad0`, the third gate term, is "a special NPC is already present", which is
   why it must be zero.** It is called with no arguments and its result must be 0 for the gate
-  to pass [S: port/shim/game/spnpc.c]. Experiment: read `func_02084ad0` and log it while a
+  to pass [S: `src/matched/func_02084ad0.c`; historical account: port/shim/game/spnpc.c]. Experiment: read `func_02084ad0` and log it while a
   visitor's channel is open.
 
 ## Related

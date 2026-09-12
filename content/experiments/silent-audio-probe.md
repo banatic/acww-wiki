@@ -7,7 +7,7 @@
 "게임은 재생 명령을 결코 보내지 않는다"(M1)는 주장의 근거 전부였다. 드라이버를 켜면 OFF
 레시피는 `PREPARE_SEQ`와 `START_PREPARED_SEQ`를 각각 371번 본다; 끄면 각각 967번인데,
 무음 ARM7은 `playerStatus`를 결코 공개하지 않아 게임이 시작하는 모든 시퀀스를 다시 시작하기
-때문이다 [E: `docs/kb/hybrid/audio.md` section 8(c); `../systems/audio.md`]. 아래 페이지는
+때문이다 [H: log/source account: `docs/kb/hybrid/audio.md` section 8(c); `../systems/audio.md`; receipt provenance unresolved]. 아래 페이지는
 그 추론이 거기까지 도달하게 한 추론이므로 남겨 둔다; 포트의 ARM7이 무음이라는 아래의 모든
 문장은 `../systems/audio.md`로 대체되었다.
 
@@ -46,7 +46,7 @@
 그 다음 Python으로 로그에서 카운트를 뽑아낸다 -- **셸 `grep` 대안(alternation)으로
 하지 말 것**: 여기의 셸은 ripgrep이며 그 대안 기호는 `\|`가 아니라 `|`이고, 옛 패턴은
 한 사이클 안에서 두 번이나 조용히 아무것도 매치하지 않았다
-[E: `docs/kb/hybrid/recipes.md` section 8; `docs/log/cycle40-keyboard-gate-probe.md` ENTRY40].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 8; `docs/log/cycle40-keyboard-gate-probe.md` ENTRY40; receipt provenance unresolved].
 
 ## 예상 관측
 
@@ -70,12 +70,12 @@ id 2, 3, 6, 9가 48,000 프레임에 걸쳐 모두 없다면, 이 빌드에서 �
 실패 시그니처가 있다: 호스트 사운드 파사드가 한 번 "아카이브 없음"이라고 답했고,
 `NNS_SndArcGetSeqArcParam`이 `func_020f4b1c`에 NULL을 반환했으며, 이것이 ROM의 치명적
 경로 `func_0206e3ec`를 호출했고, ROM의 크래시 화면이 프레임 ~830부터 두 화면 모두 검은
-채로 루프했다 [E: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40]. 그 실행은
+채로 루프했다 [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40; receipt provenance unresolved]. 그 실행은
 마을에 도달하므로 그 특정 실패는 배제된다 -- 따라서 전부 없음이라는 결과는 진정으로
 놀라운 것이며 추적할 가치가 있다.
 
 같은 로그에서 공짜로 얻는 두 번째 관측: ARM9가 *기다린* 적이 있는가. `SND_WaitForCommandProc`는
-태그가 완료될 때까지 스핀한다 [S: `src/matched/SND_WaitForCommandProc.c`]. 끝까지 도달한
+태그가 완료될 때까지 스핀한다 [S: `src/matched/SND_WaitForCommandProc.c`; source account: `src/matched/SND_WaitForCommandProc.c`]. 끝까지 도달한
 실행은 그런 대기가 데드락되지 않았음을 증명하며, 이것이 무음 ARM7이 충분하다는 상시
 근거이다 -- ROM의 치명적 경로에 다시 들어가지 않은 90,000 프레임
 [E: `scratchpad/cycle40/runs/tap-D59`, LONG41].
@@ -83,7 +83,7 @@ id 2, 3, 6, 9가 48,000 프레임에 걸쳐 모두 없다면, 이 빌드에서 �
 ## 이 실험이 검증하는 가설의 반증 조건
 
 가설은 무음 ARM7이 게임의 로직에 무기한으로 충분하다는 것이다
-[S: `docs/kb/hybrid/hardware-services.md` section 7]. 대기 함수가 `SND_*` 또는 `NNS_Snd*`
+[H: source account: `docs/kb/hybrid/hardware-services.md` section 7; direct ROM-source provenance unresolved]. 대기 함수가 `SND_*` 또는 `NNS_Snd*`
 심볼인 정체(stall)가 있으면 반증된다 -- ROM의 사운드 스택은 실제 플레이어 상태를 결코
 보고하지 않는 소비자를 상대로 돌아가므로, 게임이 진행을 기다리는 시퀀스는 멈출 것이다.
 이 프로브는 그것을 만들어 낼 수 없다; 어떤 명령이 사용 중인지만 알려 줄 수 있으며, 이는

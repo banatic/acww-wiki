@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" open>
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,30 +136,33 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>주민과 특수 캐릭터</span></div><header class="page-head"><h1>주민과 특수 캐릭터</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 1</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/data/villagers.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 일반 주민 모델은 150개로, 0부터 149까지 번호가 붙어 <code>npc/model/</code> 아래에 디렉터리당 여덟 개씩
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../data/index.html">데이터</a> <span class="sep">›</span> <span>주민과 특수 캐릭터</span></div><header class="page-head"><h1>주민과 특수 캐릭터</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 1</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/data/villagers.md"><code>wiki/data/villagers.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/data/villagers.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="villagers-and-special-characters"></span><p><strong>요약.</strong> 일반 주민 모델은 150개로, 0부터 149까지 번호가 붙어 <code>npc/model/</code> 아래에 디렉터리당 여덟 개씩
 저장되며, 여기에 <code>npc_sp/model/</code> 아래에 세 글자 코드로 저장된 37명의 특수 캐릭터가 더해진다. 두
 계열은 중요한 모든 면에서 다르게 처리된다: 주민은 공유 애니메이션과 성격에 따라 선택되는 대화를 가진
 숫자 id인 반면, 각 특수 캐릭터는 자신의 모델을 로드하는 자신만의 오버레이를 가진다. 이름은 어떤
 테이블도 아닌 메시지 시스템에 있다.</p>
 <p>등급 주석: 이 페이지의 <strong>S</strong>는 심볼 테이블, 매칭된 소스, 그리고 추출된 ROM 이미지에서 직접 읽어낸
 바이트(경로와 필드를 항상 명시)를 포함한다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
-<h3 id="일반-주민">일반 주민</h3>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="ordinary-villagers"></span><h3 id="일반-주민">일반 주민</h3>
 <p>모델 경로는 <code>npc/model/%d/%d.nsbmd</code>이고 대응되는 <code>npc/model/%d/%d.nsbtx</code>가 있으며, ARM9 이미지에
 컴파일되어 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code>, path-format string literals</span></span>. 첫 번째 <code>%d</code>는
 디렉터리이고 두 번째는 주민 id이며, 디렉터리는 여덟씩 증가한다: <code>npc/model/0/</code>은 <code>0</code>..<code>7</code>을,
 <code>npc/model/8/</code>은 <code>8</code>..<code>15</code>를, 마지막인 <code>npc/model/144/</code>는 <code>144</code>..<code>149</code>를 담는다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/npc/model/0/</code>, <code>/8/</code>, <code>/144/</code>, directory listings</span></span>.
 디렉터리는 19개로, 모델 여덟 개짜리 18개와 여섯 개짜리 하나이며, <strong>150명의 주민, id 0-149</strong>가 된다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/npc/model/</code>, per-directory counts; 150 <code>.nsbmd</code> and 150 <code>.nsbtx</code> in the extension census</span></span>. 그 옆에 낱개 파일 하나 <code>npc/ta_test.nsbtp</code>가 있다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/npc/model/</code>, per-directory counts; 150 <code>.nsbmd</code> and 150 <code>.nsbtx</code> in the
+extension census</span></span>. 그 옆에 낱개 파일 하나 <code>npc/ta_test.nsbtp</code>가 있다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/npc/</code>, listing</span></span>.</p>
 <p>주민 애니메이션은 주민별이 아니라 공유된다: <code>anm/</code>은 32개씩 열한 개의 디렉터리에 걸쳐 0부터 323까지
 번호가 붙은 324개의 <code>.nsbca</code> 파일을 담으며, 같은 디렉터리-블록 방식으로 <code>/anm/%d/%d.nsbca</code>로 지정된다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/anm/</code>, per-directory counts and the <code>anm/10/</code> listing <code>320</code>..<code>323</code>; <code>extract/adm-kr/arm9/arm9.bin</code>, path literal</span></span>.</p>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/anm/</code>, per-directory counts and the
+<code>anm/10/</code> listing <code>320</code>..<code>323</code>; <code>extract/adm-kr/arm9/arm9.bin</code>, path literal</span></span>.</p>
 <p>대화는 주민 id가 아니라 <em>성격</em>에 따라 선택된다. 메시지 트리에는 여섯 개의 성격 디렉터리 — <code>bo</code>, <code>ta</code>,
 <code>ge</code>, <code>fu</code>, <code>ko</code>, <code>ha</code> — 가 있고, 게임은 정확히 그 여섯 문자열을 담은 <code>0x020d72a4</code>의 성격 접두사
 테이블로부터 경로를 조합한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/</code>, subdirectory listing; <code>port/TAXI-ROAD.md</code>, the prefix table; <code>src/matched/func_0200366c.c</code></span></span>. <code>bo</code>와 <code>ta</code>는 각각 열여덟 개의 하위 디렉터리에 242개의
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/</code>, subdirectory listing; <code>port/TAXI-ROAD.md</code>, the
+prefix table; <code>src/matched/func_0200366c.c</code></span></span>. <code>bo</code>와 <code>ta</code>는 각각 열여덟 개의 하위 디렉터리에 242개의
 파일을 담고 있으며, 나머지 네 성격도 같은 형태이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/bo/</code>, <code>/ta/</code>, counts and subdirectory names</span></span>.
 메시지 트리는 또한 각 성격 안에 <code>3p</code> 디렉터리를 가지며, 여기에는 <em>다른</em> 성격마다 하나씩의 파일 —
@@ -156,14 +171,15 @@
 <p>주민 이름은 <code>script/KOR/string/st_npc_name.bmg</code>(1,466바이트)에서, 말버릇은
 <code>st_npc_habit.bmg</code>(1,401바이트)에서, 플레이어가 지어준 별명은 <code>st_nickn.bmg</code>(522바이트)에서 나온다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/string/</code>, file names and sizes</span></span>.</p>
-<h3 id="특수-캐릭터">특수 캐릭터</h3>
+<span class="source-anchor" id="special-characters"></span><h3 id="특수-캐릭터">특수 캐릭터</h3>
 <p><code>npc_sp/model/</code>은 37개의 서로 다른 세 글자 어간(stem)을 담으며, 각각 <code>&lt;stem&gt;.nsbmd</code>와, 그중 36개에
 대해서는 <code>&lt;stem&gt;_tex.nsbtx</code>를 가진다: <code>boa</code>, <code>bpt</code>, <code>cml</code>, <code>dnk</code>, <code>end</code>, <code>fox</code>, <code>grf</code>, <code>hgh</code>, <code>hgs</code>,
 <code>los</code>, <code>lrc</code>, <code>mka</code>, <code>mof</code>, <code>mol</code>, <code>mum</code>, <code>ott</code>, <code>owl</code>, <code>ows</code>, <code>pga</code>, <code>pgb</code>, <code>pge</code>, <code>pla</code>, <code>plb</code>,
 <code>plc</code>, <code>poo</code>, <code>rcc</code>, <code>rcd</code>, <code>rcn</code>, <code>rcs</code>, <code>seg</code>, <code>seo</code>, <code>tti</code>, <code>ttl</code>, <code>upa</code>, <code>wip</code>, <code>wrl</code>, <code>xct</code>
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/npc_sp/model/</code>, 73 files, stems after stripping <code>_tex</code></span></span>. <code>mka</code>가 텍스처
 파일이 없는 유일한 것이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same listing</span></span>. 모든 경로는 템플릿이 아닌 리터럴이다 — ARM9 이미지가 이들
-전부를 그대로 적어 가지고 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code>, the <code>npc_sp/model/*</code> literals</span></span>.</p>
+전부를 그대로 적어 가지고 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9/arm9.bin</code>, the <code>npc_sp/model/*</code>
+literals</span></span>.</p>
 <p>강력한 구조적 사실은 <strong>각 특수 캐릭터가 자신만의 오버레이를 가진다</strong>는 것이며, 그 오버레이의
 이미지에는 해당 캐릭터의 두 경로 문자열만 들어 있다. 이를 읽어내면 오버레이-캐릭터의 직접적인
 바인딩을 얻는다
@@ -313,19 +329,22 @@
 이름 붙이는 유일한 오버레이이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov068.bin</code>, path literals</span></span>. <code>ttl</code>이 또 하나의 예외이다 —
 <code>ov080</code>부터 <code>ov086</code>까지 일곱 개의 오버레이가 각각 같은 모델만을 이름 붙이고 그 외에는 아무것도 없다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov080.bin</code>..<code>ov086.bin</code></span></span>. 게임 자체의 항상 로드되는 C++ 모듈인 <code>ov004</code>가 이름 붙이는 네 어간은
-오버레이 교체 없이 필요한 것들이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov004.bin</code>, path literals; <code>docs/kb/modules/ov004.md</code></span></span>.</p>
+오버레이 교체 없이 필요한 것들이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>ov004.bin</code>, path literals;
+<code>docs/kb/modules/ov004.md</code></span></span>.</p>
 <p>특수 캐릭터 이름은 <code>script/KOR/string/st_spnpc_name.bmg</code>(433바이트)에서 나온다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/string/</code>, file name and size</span></span>. 이들의 대화는 메시지 트리의 <code>sp</code>
 가지로, <code>etc</code>와 <code>npc</code> 두 하위 디렉터리와 60개의 파일을 가진다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/files/script/KOR/message/sp/</code>, listing; <code>port/TAXI-ROAD.md</code>, <code>sp</code> = 60</span></span>.</p>
-<h3 id="집">집</h3>
+<span class="source-anchor" id="houses"></span><h3 id="집">집</h3>
 <p>주민의 집은 <code>str/npcHs/</code>와 <code>str/npcHsTex/</code>이며, <code>/str/npcHs/%d/%s%c.arc</code>, <code>/str/npcHs/%d/%s%c.nsbtx</code>,
 <code>/str/npcHsTex/%c/house_%c%d%c.nsbtx</code>, <code>/str/npcHsTex/%c/light_%c%d.nsbtx</code>로 지정되고, 공유
 <code>/str/npcHsX.arc</code>가 더해진다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov003.bin</code>, path-format string literals; <code>extract/adm-kr/files/str/</code>, 80 files under <code>npcHs/</code> and 75 under <code>npcHsTex/</code></span></span>. <code>%c</code> 매개변수는
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>extract/adm-kr/arm9_overlays/ov003.bin</code>, path-format string literals;
+<code>extract/adm-kr/files/str/</code>, 80 files under <code>npcHs/</code> and 75 under <code>npcHsTex/</code></span></span>. <code>%c</code> 매개변수는
 같은 디렉터리가 플레이어 집에 사용하는 계절 및 변형 문자이다
-(<code>/str/plHsTex/home%c%c.nsbtx</code>, <code>/str/house_pl/house_pl_%c.nsbtx</code>) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same overlay, path literals</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+(<code>/str/plHsTex/home%c%c.nsbtx</code>, <code>/str/house_pl/house_pl_%c.nsbtx</code>) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same overlay, path
+literals</span></span>.</p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -398,7 +417,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -429,7 +448,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p>위의 오버레이-어간 바인딩은 문자열 리터럴에서 읽은 것으로, 경로가 오버레이 안에 <em>존재한다</em>는 것을
 증명할 뿐 그 오버레이가 유일한 로더라는 것을 증명하지는 않는다. 바인딩 하나를 실제로 확인하려면 해당
 캐릭터가 등장하는 씬까지 실행하고 로드된 오버레이 집합을 기록한다; 마을 레시피
@@ -448,7 +467,7 @@ print(len(stems))
 PY
 </code></pre>
 <p>예상 출력: <code>150 0 149 True</code> 및 <code>37</code>.</p>
-<h2 id="가설">가설</h2>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li><strong>세 글자 어간은 종(species) 또는 캐릭터의 약어이다.</strong> 몇몇 해석은 유혹적이지만(네 명으로 이루어진
   그룹의 <code>rc*</code>, 한 쌍의 <code>owl</code>/<code>ows</code>) 여기서 어떤 것도 단일 캐릭터를 이름으로 식별하지 않으며, 팬 위키의
@@ -472,7 +491,7 @@ PY
   <code>test</code>가 들어 있다 [H]. 모든 모듈 이미지에서 문자열 <code>ta_test</code>를 검색하여 결정한다 — 어떤 모듈도
   이름 붙이지 않는다면, 아무것도 이를 열 수 없다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>rom-layout.md</code> — 디렉터리 조사와 오버레이 표.</li>
 <li><code>../engine/text-and-messages.md</code> — 성격과 레이블이 어떻게 <code>.bmg</code> 경로가 되는가.</li>
@@ -481,7 +500,7 @@ PY
 </ul></div><nav class="prevnext"><a class="pn prev" href="../data/items.html"><small>◀ 이전</small>아이템과 가구</a><a class="pn next" href="../data/fish-and-bugs.html"><small>다음 ▶</small>물고기와 곤충</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

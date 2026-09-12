@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</span></div><header class="page-head"><h1>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-P"><b>P</b> 72</span></div><div class="source-line">원문: <code>wiki/audits/sdk-names.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> ROM의 <code>autoload_2</code> 대역(<code>0x020e8840</code>..)과 <code>itcm</code>은 거의 전부가
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</span></div><header class="page-head"><h1>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-P"><b>P</b> 72</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/audits/sdk-names.md"><code>wiki/audits/sdk-names.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/audits/sdk-names.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="audit-naming-the-sdk-layer-func_xxxxxxxx"></span><span class="source-anchor" id="audit-naming-the-sdk-layer-func-xxxxxxxx"></span><p><strong>요약.</strong> ROM의 <code>autoload_2</code> 대역(<code>0x020e8840</code>..)과 <code>itcm</code>은 거의 전부가
 NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 코드이며, 그 중 대략 절반이
 <code>config/adm-kr/arm9/**/symbols.txt</code>에서 익명 상태이다. 이 감사는 저장소에 어떤 코드도 읽어 들이거나
 복사하지 않고, 공개 라이브러리 소스만으로 그 주소 중 74개의 이름을 복원한다. 지렛대는 링크 순서의
@@ -138,7 +150,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 취급하지 않고 교차 확인됨(cross-confirmed)으로 표시한다.</p>
 <p>기계 판독용 행: <code>wiki/audits/sdk-names.tsv</code> (주소, 제안 이름, 라이브러리, 소스 URL, 신뢰도).</p>
 <hr />
-<h2 id="1-순서-규칙과-그-근거">1. 순서 규칙과 그 근거</h2>
+<span class="source-anchor" id="1-the-ordering-rule-and-its-evidence"></span><h2 id="1-순서-규칙과-그-근거">1. 순서 규칙과 그 근거</h2>
 <p><code>src/matched/&lt;name&gt;.c</code> 헤더는 이미 이름이 붙은 많은 함수에 대해 실제 라이브러리 파일을 명시한다
 (예: <code>Real source: NitroSDK 2.2a (20050826) build/libraries/os/common/src/os_alarm.c</code>).
 한 모듈의 <code>symbols.txt</code>를 주소순으로 정렬하고 이름 있는 각 함수에 소스 파일을 주석으로 달면
@@ -170,7 +182,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
    뒤집힌 소스 순서의 부분 수열이므로, 익명 슬롯의 후보 집합은 정확히 그 두 이름 있는 이웃 사이에
    엄격히 놓이는 소스 함수들이다.</li>
 </ol>
-<h3 id="이-감사에서-발견한-두-가지-예외">이 감사에서 발견한 두 가지 예외</h3>
+<span class="source-anchor" id="two-exceptions-this-audit-found"></span><h3 id="이-감사에서-발견한-두-가지-예외">이 감사에서 발견한 두 가지 예외</h3>
 <ul>
 <li><strong>ITCM은 소스 순서가 아니다 — 심볼 이름의 알파벳순이다.</strong> <code>CP_RestoreContext</code>,
   <code>CP_SaveContext</code>, <code>OS_DisableIrqMask</code>, <code>OS_EnableIrqMask</code>, <code>OS_LoadContext</code>,
@@ -184,14 +196,14 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
   <code>src/matched/OSi_AlarmHandler.c</code>는 이를 그 파일에서 옮겨 적은 손으로 작성한 <code>asm void</code>로
   기록한다. <code>asm</code>으로 선언된 SDK 함수는 순서가 없는 것으로 취급한다.</li>
 </ul>
-<h3 id="이-규칙이-할-수-없는-것">이 규칙이 할 수 없는 것</h3>
+<span class="source-anchor" id="what-the-rule-cannot-do"></span><h3 id="이-규칙이-할-수-없는-것">이 규칙이 할 수 없는 것</h3>
 <p>이 규칙은 후보의 <em>집합</em>을 주며, 항상 유일한 이름을 주지는 않는다. 크기가 비슷한 두 소스 함수가
 같은 두 이름 있는 이웃 사이에 놓이고 그 중 하나만 링크에서 살아남은 경우, 크기와 호출 대상(callee)으로
 판가름해야 한다; 그것으로도 판가름할 수 없으면 그 행은 <code>low</code> 등급을 받고 함수가 아니라 계열(family)의
 이름을 적는다. 크기는 <code>symbols.txt</code>에서 온다; 대역 전체에 걸쳐 성립한 대략적인 규칙은 <code>-O4,p</code>에서
 문장당 약 4바이트이며, 한 줄짜리 setter/getter는 0x8-0x20이다.</p>
 <hr />
-<h2 id="2-계열별-커버리지">2. 계열별 커버리지</h2>
+<span class="source-anchor" id="2-coverage-by-family"></span><h2 id="2-계열별-커버리지">2. 계열별 커버리지</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -282,7 +294,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 심볼이 있고 이름은 139개뿐이지만, 그 중 97개는 BIOS/SWI 썽크이고 나머지는 게임 진입점이다;
 이웃 논증이 작동할 SDK 대역이 거기에는 없다. <code>main</code>에서 SDK 이름 붙이기는 아무것도 얻지 못한다.</p>
 <hr />
-<h2 id="3-os-스레드-알람-타이머-printf">3. OS: 스레드, 알람, 타이머, printf</h2>
+<span class="source-anchor" id="3-os-thread-alarm-timer-printf"></span><h2 id="3-os-스레드-알람-타이머-printf">3. OS: 스레드, 알람, 타이머, printf</h2>
 <p>이웃과 소스 순서는
 <a href="https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/">https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/</a> 기준이다.</p>
 <div class="table-wrap"><table>
@@ -373,7 +385,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 <code>os_irqTable.c</code>는 정확히 <code>OSi_IrqDma0..3</code>을 선언한다 <span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body"><a href="https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_irqTable.c">https://github.com/ntrtwl/NitroSDK/blob/main/libraries/os/src/os_irqTable.c</a></span></span>. 이 쌍에 대한
 신뢰도는 high이다; 0 다음 1의 배정은 다른 여섯 심이 이미 보여주는 오름차순 숫자 순서를 따른다.</p>
 <hr />
-<h2 id="4-fs와-card">4. FS와 CARD</h2>
+<span class="source-anchor" id="4-fs-and-card"></span><h2 id="4-fs와-card">4. FS와 CARD</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -546,7 +558,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 </tbody>
 </table></div>
 <hr />
-<h2 id="7-nns-g3d와-g2d">7. NNS G3D와 G2D</h2>
+<span class="source-anchor" id="7-nns-g3d-and-g2d"></span><h2 id="7-nns-g3d와-g2d">7. NNS G3D와 G2D</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -873,7 +885,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 </tbody>
 </table></div>
 <hr />
-<h2 id="9-가설">9. 가설</h2>
+<span class="source-anchor" id="9-hypotheses"></span><h2 id="9-가설">9. 가설</h2>
 <ul>
 <li><code>0x0210744c</code>..<code>0x02107524</code>의 네 <code>NNS_G3dMdlSetMdl*All</code> 슬롯은 호출자의 즉치값(immediate)을
   읽어 못 박을 수 있다: 각 <code>...All</code> 기록 함수는 재질 필드 하나를 마스킹하므로, 호출자가 넘기는
@@ -890,7 +902,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
   <code>resource_mgr.c</code> / <code>capture.c</code>의 틈은 오직 그 소스 파일을 읽지 않았기 때문에 이름 없이 남겨졌다;
   같은 방법이 그대로 적용된다.</li>
 </ul>
-<h2 id="10-이-중-어느-것이든-채택하기-전에-검증해야-할-것">10. 이 중 어느 것이든 채택하기 전에 검증해야 할 것</h2>
+<span class="source-anchor" id="10-what-must-be-verified-before-adopting-any-of-this"></span><h2 id="10-이-중-어느-것이든-채택하기-전에-검증해야-할-것">10. 이 중 어느 것이든 채택하기 전에 검증해야 할 것</h2>
 <ol>
 <li><strong>SDK 리비전은 ROM의 것이 아니다.</strong> <code>ntrtwl/NitroSDK</code>와 <code>ntrtwl/NitroSystem</code>은 하나의
    리비전에서의 전체 트리이다; <code>src/matched/</code> 헤더는 이 ROM이 혼합물을 링크한다는 것을 보여준다 —
@@ -918,7 +930,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 <li><strong>교차 확인된 일곱 행은 나머지 67행의 근거가 아니다.</strong> 그것들은 <em>방법</em>이 알려진 답을 재현한다는
    근거이다. 나머지 각 행은 여전히 자신의 이웃 논증 위에 홀로 서 있다.</li>
 </ol>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>wiki/audits/hardware-services.md</code> 3절 — 이 감사가 기반으로 삼는 공개 레퍼런스 목록.</li>
 <li><code>docs/kb/modules/autoload2.md</code>, <code>docs/kb/modules/sdk-nns.md</code> — SDK 대역이 무엇이며 포트가
@@ -926,7 +938,7 @@ NitroSDK 2.2a / NITRO-System <code>NNS_Library-20050901</code> 라이브러리 �
 </ul></div><nav class="prevnext"><a class="pn prev" href="../audits/audio-design.html"><small>◀ 이전</small>감사와 설계: 호스트 측 ARM7 사운드 드라이버</a><a class="pn next" href="../audits/night-2026-09-09.html"><small>다음 ▶</small>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

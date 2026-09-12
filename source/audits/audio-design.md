@@ -248,7 +248,7 @@ The ordering rule is **silence-preserving**: nothing before step 6 can change wh
 does, so nothing before step 6 can regress the 90,000-frame frontier.
 
 **STATUS (2026-09-09): ALL EIGHT STEPS ARE DONE.** Steps 7 and 8 landed as audio milestones
-7 and 8; `docs/kb/hybrid/audio.md` §7-§10 is the page that says what they do today. Step 6 landed with
+7 and 8; `docs/kb/hybrid/audio.md` §7-§9; `docs/kb/hybrid/audio-differential.md` §A10 is the page that says what they do today. Step 6 landed with
 `port/shim/audio/driver.c` (the 34-command dispatcher), `port/shim/audio/sink_win32.c` (WASAPI
 shared mode, waveOut fallback) and the wiring in `port/shim/os/pxisend.c` and
 `port/platform/frame.c`. Everything below is kept as written because the ordering argument is
@@ -325,7 +325,7 @@ the two screens are byte-exact (frames 100..300), `captureStatus`, `channelStatu
 capture pair, `finishCommandTag` and the sequencer's TICK RATE all agree exactly, while the
 first sequence sounds **three channels per track on the port against one on the original** and
 ends at **tick 84 against tick 123**. Full table and receipts:
-`docs/kb/hybrid/audio.md` §10, `scratchpad/audio8/`.
+`docs/kb/hybrid/audio-differential.md` §A10, `scratchpad/audio8/`.
 
 ### Status: ALL EIGHT STEPS DONE (AUDIO6 `115984f9`, AUDIO7 `36ee5abe`, 2026-09-09)
 
@@ -467,7 +467,7 @@ New measurements below are grade **[S: image]**, read from
   game code can see: two drivers that agree there agree on everything the game can observe. The
   tooling on both sides exists (`ACWW_SND_DUMP`, `oracle.py --snd-dump`,
   `port/tools/oracle/snddiff.py`); the emulator would not start in the session they were
-  written in, so no agreement table exists yet [`docs/kb/hybrid/audio.md` §10].
+  written in, so no agreement table exists yet [`docs/kb/hybrid/audio-differential.md` §A10].
 
 ## Related
 

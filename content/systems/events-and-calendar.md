@@ -12,12 +12,12 @@
 ## 무슨 일이 일어나는가
 
 날짜와 시간은 SDK에서 온다. `0x0211e7c0`과 그 이웃에 있는 `RTC_GetDateTime`, `RTC_GetTime`,
-`RTC_GetDate`이다 [S: NitroSDK, port/shim/os/rtcclock.c]. 게임은 시계를 설정하기도 한다.
+`RTC_GetDate`이다 [H: source account: NitroSDK, port/shim/os/rtcclock.c; direct ROM-source provenance unresolved]. 게임은 시계를 설정하기도 한다.
 `func_0209e5b4`는 `RTC_SetDateTime(date, time)`을 호출하며, 호출 전후로 `r1`이 건드려지지 않으므로
 시간 포인터가 그대로 전달된다
 [S: func_0209e5b4, main, port/shim/game/arity_func_0209e5b4.c]. 그 경로에는 연도 0 / 월 1 / 일 1일 때
 요일을 6으로 강제하는 날짜 검사가 있어, `r0`이 날짜라는 것을 뒷받침한다
-[S: port/shim/game/arity_func_0209e5b4.c].
+[S: `src/matched/func_0209e5b4.c`; historical account: port/shim/game/arity_func_0209e5b4.c].
 
 날짜 변경 자체는 `func_02040c90`이다. 이 함수의 열일곱 개 호출은 디스어셈블리와 하나하나 순서대로
 일치한다: `func_0209e474`, `func_0209ded0`, `func_0209e314`, `func_020409c8`(두 번), `func_0204101c`,
@@ -27,8 +27,8 @@
 [S: func_02040c90, main, port/tools/known_callees.txt:245-264]. 이 피호출 함수 중 하나에는 이름 붙이기
 문제가 있다. `0x0209ded0`에는 `func_` 심볼이 없고, 테이블은 이를 `MB_GetBeaconRecvStatus`라고
 부르는데, 이는 멀티부트 이름이라 날짜 변경 루틴의 피호출 함수로는 맞을 수 없으므로, 거기서는 절단
-위치나 라벨 중 하나가 잘못되었다 (결함 분류 D12) [S: `config/adm-kr/arm9/symbols.txt`,
-`MB_GetBeaconRecvStatus` addr `0x0209ded0`; `docs/rules/D-defects.md` D12]. 다섯 개의 블록 복사는
+위치나 라벨 중 하나가 잘못되었다 (결함 분류 D12) [S: `config/adm-kr/arm9/symbols.txt`, `MB_GetBeaconRecvStatus` addr
+`0x0209ded0`; `docs/rules/D-defects.md` D12]. 다섯 개의 블록 복사는
 오늘의 상태를 쓰기 전에 어제의 상태를 이력 슬롯으로 옮기는 날짜 롤오버의 형태다
 [H: read `func_02040c90`'s disassembly and name the source and destination of each copy].
 
@@ -41,13 +41,13 @@
 RTC 전진"이 오고, 그 뒤에 `func_020a1038`의 세이브 삭제 경로를 그대로 따르는 생성 후 동기화가 온다
 [S: func_0209e6ec, main, port/shim/gfx/pmflist.c]. 즉 새 마을은 별도의 이사 루틴이 아니라 날짜 변경
 기구를 앞으로 돌려서 주민을 얻는다
-[S: port/shim/gfx/pmflist.c].
+[H: source account: port/shim/gfx/pmflist.c; direct ROM-source provenance unresolved].
 
 `player + 0x23f8`에 있는 플레이어의 64비트 이벤트 비트필드가 진행 기록이다. `func_02099020`은 비트를
 검사하고 `func_02098ff8`은 비트를 설정한다
 [S: main, port/shim/game/spnpc.c]. 플래그 1은 도착 시퀀스다. 네 가지 새 게임 커밋 모두가 이를
 설정하고, `func_ov050_02262628`(너굴 쪽)과 `func_ov068_0226e948`만이 이를 지운다
-[S: port/shim/game/spnpc.c, port/shim/game/newgameprobe.c].
+[H: source account: port/shim/game/spnpc.c, port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved].
 
 특수 NPC 스케줄러는 게임의 방문객 달력이며, 하나의 기구로서 읽을 가치가 있다. 채널 `0xd0`은 vtable이
 `0x020e1cc0`인 객체를 만든다. 그 프레임당 슬롯 0은 `func_02085558`이고, 이는
@@ -63,7 +63,7 @@ RTC 전진"이 오고, 그 뒤에 `func_020a1038`의 세이브 삭제 경로를 
 `func_02084af0`은 `player && func_02099020(player, 1)`, 즉 도착 플래그이며, 열한 개 술어 모두가 이
 플래그가 설정되어 있는 동안 중단하므로, 오프닝 동안 방문객 스케줄 전체가 의도적으로 침묵한다
 [S: func_02084af0, main, port/shim/game/spnpc.c]. 이는 실제 게임 메커니즘이지 포트 결함이 아니다
-[S: port/shim/game/spnpc.c].
+[H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved].
 
 게이트를 지나면, `func_02084840`은 매개변수가 0이 아닐 때 두 가지 검사를 더 적용한다. 실내/실외
 바이트 `data_020e54a8`이 0이어야 하고, `func_020b65c4`가 주는 모드가 `0x2c`가 아니어야 한다
@@ -80,7 +80,7 @@ RTC 전진"이 오고, 그 뒤에 `func_020a1038`의 세이브 삭제 경로를 
 `func_0204f934(0x50)`으로 오버레이를 마운트하고 `func_02003348(86, 0xd012, ...)`로 채널을 연다
 [S: func_02084b74, main, port/shim/game/spnpc.c]. 즉 23개의 행 각각은 특수 방문객 한 명이며, 그를
 데려오는 데 필요한 모든 것을 담고 있다
-[S: port/shim/game/spnpc.c].
+[H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved].
 
 같은 테이블에는 두 번째 진입점에서도 도달한다. `func_020842b8`은 세 호출로 이어진 체인
 (`func_0208602c -> func_020860c4 -> func_02087f30`) 뒤에
@@ -144,30 +144,30 @@ RTC 전진"이 오고, 그 뒤에 `func_020a1038`의 세이브 삭제 경로를 
 
 - **H: `0x020e1d8c`의 23개 행은 게임의 특수 방문객 전체 명단(갑돌이, 너굴, 여우, 걸리버, 카트리나,
   웬델, 사하라, 그레이스, 조안, 피트, 필리스, 코퍼, 부커, 부엉, 거북이 촌장 등)이며, 각각 한 행씩이다.**
-  각 행은 이미 채널, 액터, 오버레이, 플래그를 담고 있고 [S: port/shim/game/spnpc.c], ov068 자체의
+  각 행은 이미 채널, 액터, 오버레이, 플래그를 담고 있고 [H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved], ov068 자체의
   풀은 열두 개의 특수 NPC 모델 `rcn, rcc, rcs, rcd, pga, pgb, poo, ott, wip, xct, mof, end`를 지정한다
-  [S: docs/kb/modules/ov003-068.md]. 실험: 23개 행을 덤프하고, 각 오버레이 id를 해석하고, 각
+  [H: source account: docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. 실험: 23개 행을 덤프하고, 각 오버레이 id를 해석하고, 각
   오버레이의 풀에서 로드하는 모델 이름을 읽는다.
 - **H: `0x020e1d08`의 열한 개 술어는 우선순위 순으로 나열된 열한 개의 스케줄링 규칙(오늘 날짜,
   요일 규칙, 휴일 규칙, 무작위 방문객 규칙 ...)이며, 각각 하루에 최대 한 명의 방문객을 준비시킬 수
   있다.** 테이블은 PMF/우선순위로 설명되어 있다
-  [S: port/shim/game/spnpc.c]. 실험: 열한 개 각각을 계측하고 시뮬레이션한 7일에 걸쳐 어느 것이
+  [H: source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved]. 실험: 열한 개 각각을 계측하고 시뮬레이션한 7일에 걸쳐 어느 것이
   발동하는지 기록한다.
 - **H: 휴일은 그 열한 개 술어 중 하나가 참조하는 날짜 테이블의 행이며, `func_0204fa8c`의 열네 값
   인덱스가 그 테이블의 행 선택자다.** 인덱스는 실제 휴일이 월말에 오는 정확히 그 두 달을 나눈다
-  [S: port/shim/game/seasonidx.c]. 실험: `func_0204fb80` 외에 `func_0204fa8c`의 결과를 소비하는 곳을
+  [S: `src/matched/func_0204fa8c.c`; historical account: port/shim/game/seasonidx.c]. 실험: `func_0204fb80` 외에 `func_0204fa8c`의 결과를 소비하는 곳을
   찾아 그 테이블을 읽는다.
 - **H: 생일은 주민 레코드에서 읽어 `func_02040c90` 안에서 하루에 한 번 RTC 날짜와 비교된다.** 이
   루틴은 지금까지 발견된 유일한 하루 단위 재기록이다
-  [S: port/tools/known_callees.txt]. 실험: RTC를 알려진 주민의 생일로 설정하고 롤오버 전후로
+  [H: source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved]. 실험: RTC를 알려진 주민의 생일로 설정하고 롤오버 전후로
   `0x021e5a2c`의 여덟 레코드를 비교한다.
 - **H: `func_02040c90`의 다섯 `MI_CpuCopy8` 블록은 다섯 개의 별도 하위 시스템(날씨, 상점 재고,
   방문객, 무 가격, 우편)에 대해 "어제"를 "그저께"로 옮긴다.** 다섯 개의 복사, 그리고 이전 값이
   필요한 다섯 개의 하위 시스템이다
-  [S: port/tools/known_callees.txt]. 실험: 각 복사의 원본과 대상을 명명하고 세이브 레이아웃과
+  [H: source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved]. 실험: 각 복사의 원본과 대상을 명명하고 세이브 레이아웃과
   대조한다.
 - **H: 세 번째 게이트 항인 `func_02084ad0`은 "특수 NPC가 이미 존재한다"이며, 그래서 0이어야 한다.**
-  인수 없이 호출되며 게이트가 통과하려면 결과가 0이어야 한다 [S: port/shim/game/spnpc.c]. 실험:
+  인수 없이 호출되며 게이트가 통과하려면 결과가 0이어야 한다 [S: `src/matched/func_02084ad0.c`; historical account: port/shim/game/spnpc.c]. 실험:
   `func_02084ad0`을 읽고 방문객의 채널이 열려 있는 동안 기록한다.
 
 ## 관련 문서

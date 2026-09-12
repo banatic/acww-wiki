@@ -100,12 +100,12 @@ expected row, edges on the exact frames, and the two contacts told apart by coor
   [O: their `manifest.json` and `.out` files]. Neither has been compared against a port arm yet.
 - `scratchpad/cycle40/runs/tap-D60` -- the port at 221,181 with shots every 60 frames from
   24,000, exit 100 at 27,000, four contacts logged
-  [E: its `receipt.json` and `tap-D60-run.log`].
+  [H: log/source account: its `receipt.json` and `tap-D60-run.log`; receipt provenance unresolved].
 - `scratchpad/cycle40/runs/tap-D61` -- **the one-pixel test**: the same recipe with the contacts
   moved to `ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182`, the coordinates the original's game actually
   sees. Exit 100 at 27,000, log shows `acww touch: DOWN x=222 y=182` for all four contacts
-  [E: its `receipt.json` and `tap-D61-run.log`]. Compared against `tap-220` under ORACLE42 --
-  see the Result section below [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42].
+  [H: log/source account: its `receipt.json` and `tap-D61-run.log`; receipt provenance unresolved]. Compared against `tap-220` under ORACLE42 --
+  see the Result section below [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; direct ROM-source provenance unresolved].
 
 ## What would falsify it
 
@@ -122,7 +122,7 @@ partly explained: `memory.readword` in that Lua build returned 255 in the no-tou
 was read as "it delivers only the low 8 bits" against a port transcription that wrote 0xffff.
 TOUCH41 read the ROM instead -- `mov r1,#0xff` and a `strh` at `0x020e941c` -- so the ROM's own
 no-touch value is **0x00ff**, and the probe's 255 is the right answer rather than a truncated
-one [S: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`;
+one [S: `config/adm-kr/arm9/autoload_2/symbols.txt` (`func_020e9314` at 0x020e9314); source account: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`;
 `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. That removes the reason to doubt these
 rows; whether that Lua build's `readword` is wide in general is untested and is not needed
 here, since every value in the table is below 256
@@ -140,13 +140,13 @@ waiting, while a tap that lands outside a button's hit window simply does not ha
 
 The one-pixel test is negative: the port with contacts at 222,182 still confirms the town
 name (`tap-D61`, top screen black from 25,200 = the ride) and the original with contacts at
-220,180 still does not (`scratchpad/oracle/tap-220`, keyboard to 27,000) [E: `tap-D61`]
+220,180 still does not (`scratchpad/oracle/tap-220`, keyboard to 27,000) [E: `tap-D61` ; `scratchpad/cycle40/runs/tap-D61`]
 [O: `scratchpad/oracle/tap-220`]. The frame is the cause: 24,600 is a KEYS3 A-press frame
 (2400 + 37 x 600) while 8,700 is not, and the original's stylus sample reaches the game 1-2
 frames after the port's, so the press and the tap are ordered differently on the two sides
-[S: docs/log/cycle40-keyboard-gate-probe.md ORACLE42]. With `ACWW_TOUCH2_AT=24700` both
+[H: source account: docs/log/cycle40-keyboard-gate-probe.md ORACLE42; direct ROM-source provenance unresolved]. With `ACWW_TOUCH2_AT=24700` both
 confirm and agree: 11 frames 24000..27000 at mean ncc 0.9955, top screen 1.0000
-[E: `tap-D62`] [O: `scratchpad/oracle/tap-24700`]. The recipe of record uses 24,700.
+[E: `tap-D62` ; `scratchpad/cycle40/runs/tap-D62`] [O: `scratchpad/oracle/tap-24700`]. The recipe of record uses 24,700.
 **Since settled (TOUCH41, TOUCH42):** the latency is modelled rather than avoided. The ROM's
 own `func_020e9314` runs on the interpreter path and the port fills the ARM7's ring, after the
 ROM's VBlank handler; the 24,600 recipe then stays on the keyboard exactly as the original does

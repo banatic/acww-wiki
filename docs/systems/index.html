@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,12 +136,13 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>시스템</span></div><header class="page-head"><h1>시스템</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/README.md</code> (영문, 기록 문서)</div></header><div class="cards"><a class="card" href="../systems/time-and-rtc.html"><h3>시간과 실시간 시계</h3><p>동물의 숲은 날짜에 관한 게임이고, 그 날짜는 DS의 ARM7 프로세서만 읽을 수 있는 배터리 백업 시계 칩에서 온다. 게임은 비동기 요청을 통해 날짜를 요청하고, 칩의 BCD 자릿수를 숫자로 변환…</p></a><a class="card" href="../systems/save-data.html"><h3>세이브 데이터</h3><p>놀러오세요 동물의 숲은 마을을 카트리지의 백업 저장소, 즉 DS의 ARM7 프로세서가 소유하고 게임의 ARM9 코드는 요청을 통해서만 접근할 수 있는 256 KB 플래시 칩에 보관한다. 게임은 그 …</p></a><a class="card" href="../systems/town.html"><h3>마을</h3><p>마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마…</p></a><a class="card" href="../systems/villagers.html"><h3>주민</h3><p>마을에는 최대 여덟 명의 주민이 산다. 각 주민은 세이브 이미지 안에서 고정 스트라이드 레코드 하나를 차지하며, 각 레코드는 집 하위 레코드를 품고 있다: 저장소 안에서 주민과 집은 하나의 객체이다…</p></a><a class="card" href="../systems/player.html"><h3>플레이어</h3><p>세이브에는 각각 0x249c바이트인 플레이어 슬롯 네 개가 세이브 이미지의 앞부분 근처에 끝과 끝을 맞대고 배치되어 있다. 각 슬롯은 게임이 자체 진행 기록으로 쓰는 64비트 이벤트 비트필드를 갖는…</p></a><a class="card" href="../systems/economy.html"><h3>경제</h3><p>이것은 위키에서 가장 덜 읽힌 시스템이며, 이 문서는 메커니즘을 지어내는 대신 그 사실을 그대로 밝힌다. 확립된 것은 돈이 쓰이는 대상의 형태이다: 아이템은 16비트 id이고 그 최상위 니블(TOP…</p></a><a class="card" href="../systems/weather-and-seasons.html"><h3>날씨와 계절</h3><p>계절은 달력 날짜의 순수 함수이다 -- 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다.…</p></a><a class="card" href="../systems/events-and-calendar.html"><h3>이벤트와 달력</h3><p>게임의 달력은 NitroSDK를 통해 읽은 DS의 실시간 시계(RTC)이며, 열두 갈래의 switch 문으로 계절에 대응되고, 두 번째 매핑으로 열네 값의 계절/이벤트 인덱스에 대응된다. 특정 날에…</p></a><a class="card" href="../systems/dialogue.html"><h3>대화</h3><p>누군가와 대화하는 것은 NPC 안이 아니라 NPC 곁에 존재하는 작은 상태 머신이다. {enter, update} 멤버 함수 쌍으로 이루어진 다섯 항목의 테이블이 정적 초기화 시점에 만들어지고, 대…</p></a><a class="card" href="../systems/input-and-touch.html"><h3>입력과 터치</h3><p>DS는 게임에 두 개의 입력 장치를 제공하며 ARM9는 그 어느 쪽도 혼자서 완전히 읽을 수 없다. 열 개의 버튼 중 여덟 개는 ARM9가 직접 읽을 수 있는 레지스터에 있다; X, Y와 디버그 비…</p></a><a class="card" href="../systems/rng.html"><h3>난수</h3><p>이 ROM에는 단일한 난수 생성기가 없다. 알려진 것은 넷이다. 셋은 라이브러리 생성기다 -- 네트워킹 코드가 사용하는 NitroSDK의 MATH_Rand16과 MATH_Rand32; 시각적 흔들림…</p></a><a class="card" href="../systems/network.html"><h3>네트워크</h3><p>놀러오세요 동물의 숲(Wild World)에는 완전히 별개인 두 개의 네트워킹 스택이 있다. 로컬 무선(같은 방에 있는 두 대의 DS 본체)은 무선 매니저와 그 연결 매니저에서 멈추며 IP 주소를 …</p></a><a class="card" href="../systems/audio.html"><h3>오디오</h3><p>놀러오세요 동물의 숲(Wild World)의 모든 사운드는 하나의 10.7 MB 아카이브 파일에 들어 있으며, 그중 어떤 것도 게임이 실행되는 프로세서에서 믹싱되지 않는다. ARM9는 명령의 연결 …</p></a></div><div class="md"><p>게임이 어떻게 동작하는가를 다룬다. 모든 페이지는 <code>../STYLE.md</code>를 따른다: 사실을 서술하는 모든
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>시스템</span></div><header class="page-head"><h1>시스템</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/README.md"><code>wiki/systems/README.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/README.md"><code>aa8cc07f</code></a></div></header><div class="cards"><a class="card" href="../systems/time-and-rtc.html"><h3>시간과 실시간 시계</h3><p>동물의 숲은 날짜에 관한 게임이고, 그 날짜는 DS의 ARM7 프로세서만 읽을 수 있는 배터리 백업 시계 칩에서 온다. 게임은 비동기 요청을 통해 날짜를 요청하고, 칩의 BCD 자릿수를 숫자로 변환…</p></a><a class="card" href="../systems/save-data.html"><h3>세이브 데이터</h3><p>놀러오세요 동물의 숲은 마을을 카트리지의 백업 저장소, 즉 DS의 ARM7 프로세서가 소유하고 게임의 ARM9 코드는 요청을 통해서만 접근할 수 있는 256 KB 플래시 칩에 보관한다. 게임은 그 …</p></a><a class="card" href="../systems/town.html"><h3>마을</h3><p>마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마…</p></a><a class="card" href="../systems/villagers.html"><h3>주민</h3><p>마을에는 최대 여덟 명의 주민이 산다. 각 주민은 세이브 이미지 안에서 고정 스트라이드 레코드 하나를 차지하며, 각 레코드는 집 하위 레코드를 품고 있다: 저장소 안에서 주민과 집은 하나의 객체이다…</p></a><a class="card" href="../systems/player.html"><h3>플레이어</h3><p>세이브에는 각각 0x249c바이트인 플레이어 슬롯 네 개가 세이브 이미지의 앞부분 근처에 끝과 끝을 맞대고 배치되어 있다. 각 슬롯은 게임이 자체 진행 기록으로 쓰는 64비트 이벤트 비트필드를 갖는…</p></a><a class="card" href="../systems/economy.html"><h3>경제</h3><p>이것은 위키에서 가장 덜 읽힌 시스템이며, 이 문서는 메커니즘을 지어내는 대신 그 사실을 그대로 밝힌다. 확립된 것은 돈이 쓰이는 대상의 형태이다: 아이템은 16비트 id이고 그 최상위 니블(TOP…</p></a><a class="card" href="../systems/weather-and-seasons.html"><h3>날씨와 계절</h3><p>계절은 달력 날짜의 순수 함수이다 -- 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다.…</p></a><a class="card" href="../systems/events-and-calendar.html"><h3>이벤트와 달력</h3><p>게임의 달력은 NitroSDK를 통해 읽은 DS의 실시간 시계(RTC)이며, 열두 갈래의 switch 문으로 계절에 대응되고, 두 번째 매핑으로 열네 값의 계절/이벤트 인덱스에 대응된다. 특정 날에…</p></a><a class="card" href="../systems/dialogue.html"><h3>대화</h3><p>누군가와 대화하는 것은 NPC 안이 아니라 NPC 곁에 존재하는 작은 상태 머신이다. {enter, update} 멤버 함수 쌍으로 이루어진 다섯 항목의 테이블이 정적 초기화 시점에 만들어지고, 대…</p></a><a class="card" href="../systems/input-and-touch.html"><h3>입력과 터치</h3><p>DS는 게임에 두 개의 입력 장치를 제공하며 ARM9는 그 어느 쪽도 혼자서 완전히 읽을 수 없다. 열 개의 버튼 중 여덟 개는 ARM9가 직접 읽을 수 있는 레지스터에 있다; X, Y와 디버그 비…</p></a><a class="card" href="../systems/rng.html"><h3>난수</h3><p>이 ROM에는 단일한 난수 생성기가 없다. 알려진 것은 넷이다. 셋은 라이브러리 생성기다 -- 네트워킹 코드가 사용하는 NitroSDK의 MATH_Rand16과 MATH_Rand32; 시각적 흔들림…</p></a><a class="card" href="../systems/acre-grid.html"><h3>에이커 격자</h3><p>마을의 지면은 에이커로 이루어진 2차원 배열 하나이며, 각 에이커는 16비트 타일 id로 구성된 독립적인 16x16 레이어를 최대 두 개 가진다. 게임은 타일을 직접 인덱싱하지 않는다. 모든 읽기와…</p></a><a class="card" href="../systems/network.html"><h3>네트워크</h3><p>로컬 마을 방문과 온라인 방문은 게임 통신 코드를 공유하지만 서로 다른 전송을 사용한다. 로컬 멀티플레이어는 오버레이 66을 통해 WM에 도달하고, 온라인 플레이는 오버레이 65의 DWC, 소켓, …</p></a><a class="card" href="../systems/multiplayer-callbacks.html"><h3>멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</h3><p>게임의 무선 코드는 0x0226bdec, 0x0226bdf0, 0x0226bdf4, 0x0226bdf8의 **16바이트에 모인 전역 변수 네 개**에 상태를 유지한다. 세션 구조체, 스캔/비컨 구조…</p></a><a class="card" href="../systems/multiplayer-protocol.html"><h3>멀티플레이어 프로토콜: 소스 맵과 미해결 경계</h3><p>게임에는 로컬 WM과 온라인 DWC 위에 공통 통신 계층이 있다. 매칭된 소스는 제어 메시지 엔벨로프, 청크 단위 벌크 전송, 네 개의 참가자 슬롯, 여러 동기화 배리어를 드러낸다. 게이트에서 도착…</p></a><a class="card" href="../systems/multiplayer-visit.html"><h3>멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</h3><p>MP가 시작된 뒤 방문은 호스트(부모)와 도착하는 게스트(자식) 사이의 **10단계 제어 교환**으로 진행되며, [프로토콜 맵](multiplayer-protocol.md)에 열거된 24개 제어 i…</p></a><a class="card" href="../systems/online-server.html"><h3>온라인 서버: 아키텍처와 위협 모델</h3><p></p></a><a class="card" href="../systems/wifi-port-plan.html"><h3>Wi-Fi 포트 계획</h3><p>제안 순서는 ARM9 게임/WM 코드를 보존하고, 한 호스트에서 두 포트를 지원하는 제한된 ARM7 WM 서비스를 구현한 뒤, LAN에서 두 마을을 입증하고, WFC와 에뮬레이터 피어를 독립적으로 …</p></a><a class="card" href="../systems/wifi-g0.html"><h3>Wi-Fi G0: 문지기 경로와 첫 WM 요청</h3><p>문지기 메뉴의 행 0은 방문, 행 1은 초대를 선택한다. 아래의 초기 wifi-g0-1 추적은 요청을 제출하지 않았다. wifi-g0-2는 WM_Init 앞에서 펌웨어 접두부가 0인지 검사하는 조건…</p></a><a class="card" href="../systems/wifi-g1.html"><h3>오프라인 ARM7 모델의 WM 요청 수명</h3><p>기본으로 꺼진 WM 모델은 기존 PXI 인터럽트 경로와 WM 전용 IRQ 활성화 경계에서 제한된 요청을 완료한다. 콜백, 슬롯 재사용, 문 UI는 원래 ARM9 WM과 게임 코드가 계속 담당한다. …</p></a><a class="card" href="../systems/wifi-g2.html"><h3>WM 릴레이 브리지: G2 검증</h3><p></p></a><a class="card" href="../systems/audio.html"><h3>오디오</h3><p>놀러오세요 동물의 숲(Wild World)의 모든 사운드는 하나의 10.7 MB 아카이브 파일에 들어 있으며, 그중 어떤 것도 게임이 실행되는 프로세서에서 믹싱되지 않는다. ARM9는 명령의 연결 …</p></a></div><div class="md"><span class="source-anchor" id="systems"></span><p>게임이 어떻게 동작하는가를 다룬다. 모든 페이지는 <code>../STYLE.md</code>를 따른다: 사실을 서술하는 모든
 문장에 등급과 출처가 붙고, 가설(Hypotheses) 섹션은 그 페이지가 요구하는 실험의 대기열이다.</p>
-<h2 id="작성됨">작성됨</h2>
+<span class="source-anchor" id="written"></span><h2 id="작성됨">작성됨</h2>
 <ul>
 <li><a href="town.html"><code>town.md</code></a> &ndash; 에이커, 96x96 타일 격자, 시드가 아닌 세이브로부터의 생성, 아이템
   레이어, 원통형 세계, 마을 이름</li>
+<li><a href="acre-grid.html"><code>acre-grid.md</code></a> &ndash; 격자 아래의 데이터 모델: 에이커 배열의 스트라이드와 범위, 에이커당 두 16x16타일 레이어, 위치의 에이커·타일 분할, 읽기·쓰기 접근자 계열과 그 호출자</li>
 <li><a href="villagers.html"><code>villagers.md</code></a> &ndash; 여덟 개의 집 레코드, 여섯 클래스 선택, 스폰 체인과 액터
   매니저, 얼굴과 표정</li>
 <li><a href="player.html"><code>player.md</code></a> &ndash; 네 개의 플레이어 슬롯, 64비트 이벤트 비트필드, 이름 키보드,
@@ -142,9 +155,10 @@
   술어와 스물세 개의 방문객 행</li>
 <li><a href="dialogue.html"><code>dialogue.md</code></a> &ndash; 다섯 항목의 대화 테이블, 요청/래치 상태 바이트, 스크립트
   바인드, 선택 프롬프트와 두 개의 키보드</li>
+<li><a href="multiplayer-callbacks.html"><code>multiplayer-callbacks.md</code></a> &ndash; 방문을 뒷받침하는 무선 구조체 다섯 개: 16바이트 안의 전역 변수 네 개, 통신 컨텍스트의 여덟 워드 콜백 블록과 이를 설치하는 함수 하나 및 분기하는 열두 지점, 비컨/AP 테이블 매니저와 항목별 알람, 게임이 사용하는 WM 포트</li>
 </ul>
 <hr />
-<h2 id="작성됨-하드웨어-대면-시스템">작성됨 (하드웨어 대면 시스템)</h2>
+<span class="source-anchor" id="written-hardware-facing-systems"></span><h2 id="작성됨-하드웨어-대면-시스템">작성됨 (하드웨어 대면 시스템)</h2>
 <p>아래 여섯 페이지는 첫 번째 패스에서 "계획됨"으로 나열되었고 하드웨어 시스템 패스에서
 작성되었다; 이제 <code>systems/</code> 아래에 미작성 페이지는 없다.</p>
 <div class="table-wrap"><table>
@@ -184,10 +198,10 @@
 <p>여기의 모든 페이지는 가설 섹션을 가지며 <code>../experiments/</code> 아래의 페이지로 링크한다. 실험
 색인은 <code>../experiments/README.md</code>이며, 실행됨과 설계만 됨(아직 미실행)으로 나뉜다;
 2026-09-10 기준 아홉 개가 실행되었고 세 개는 아직 설계만 되어 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>../experiments/README.md</code>, its two tables</span></span>.</p></div>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>../experiments/README.md</code>, its two tables; direct ROM-source provenance unresolved</span></span>.</p></div>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

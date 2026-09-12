@@ -57,7 +57,16 @@
 <li><a href="./systems/dialogue.html">대화</a></li>
 <li><a href="./systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="./systems/rng.html">난수</a></li>
+<li><a href="./systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="./systems/network.html">네트워크</a></li>
+<li><a href="./systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="./systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="./systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="./systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="./systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="./systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="./systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="./systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="./systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="./engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="./engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="./engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="./engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="./engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="./engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="./experiments/index.html">실험</a></summary><ul>
 <li><a href="./experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="./experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="./experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="./experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="./experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="./experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="./experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,12 +136,12 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>이 위키에 대하여</span></div><header class="page-head"><h1>이 위키에 대하여</h1><div class="source-line">원문: <code>wiki/README.md</code> (영문, 기록 문서)</div></header><div class="md"><p>근거 기준에 맞춰 쓰인 게임 메커니즘 위키(Animal Crossing: Wild World, 한국 발매판 "ADMK"):
+    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>이 위키에 대하여</span></div><header class="page-head"><h1>이 위키에 대하여</h1><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/README.md"><code>wiki/README.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/README.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="acww-wiki-animal-crossing-wild-world-korean-release-admk"></span><p>근거 기준에 맞춰 쓰인 게임 메커니즘 위키(Animal Crossing: Wild World, 한국 발매판 "ADMK"):
 모든 주장은 등급과 출처를 달고 있으며, 독자는 이를 심볼 테이블, 매칭된 소스, PC 포트의
 스크립트 실행, 또는 에뮬레이터 오라클로 다시 확인할 수 있다. 본문은 독자를 위한 것이고,
 출처는 검증하거나 정정하려는 사람을 위한 것이다. 한국어 페이지는 나중에 영어 페이지 옆에
 추가될 수 있다; 영어 페이지가 공식 기록(page of record)이다.</p>
-<h2 id="계층">계층</h2>
+<span class="source-anchor" id="layers"></span><h2 id="계층">계층</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -171,7 +183,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="근거-등급-모든-주장에-필수">근거 등급 (모든 주장에 필수)</h2>
+<span class="source-anchor" id="evidence-grades-mandatory-on-every-claim"></span><h2 id="근거-등급-모든-주장에-필수">근거 등급 (모든 주장에 필수)</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -211,7 +223,7 @@
 <p>두 등급을 가진 주장(S+O, E+O)은 하나만 가진 주장보다 강하다; S만으로는 코드가 무엇을
 하는지를 말할 뿐, 게임이 실제로 그렇게 하는 것을 보았다는 뜻은 아니다. <strong>가설</strong>이라는
 제목의 페이지 절은 위키가 요청하는 실험의 대기열이다.</p>
-<h2 id="경계">경계</h2>
+<span class="source-anchor" id="boundaries"></span><h2 id="경계">경계</h2>
 <ul>
 <li>디컴파일된 코드, 화면을 식별하는 데 필요한 짧은 인용 UI 문구를 넘어서는 ROM 문자열,
   사운드나 이미지 에셋, 테이블 덤프는 싣지 않는다. 구조와 동작을 서술하고, 주소와 이름을
@@ -224,7 +236,7 @@
 <p>페이지 템플릿은 <code>STYLE.md</code>를 참조한다.</p></div>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

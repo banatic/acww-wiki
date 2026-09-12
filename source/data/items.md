@@ -143,17 +143,17 @@ by a name the GAME printed, so the band boundaries are measured rather than assu
 |---|---|---|
 | `0x1100`..`0x1143` | the 68 `wall/wall_%d.nsbtx` wallpapers | `0x111f` = `wall_31`, and Nook's shop calls it a `벽지` — a wallpaper |
 | `0x1144`..`0x1187` | the 68 `carpet/floor_%d.nsbtx` floorings | `0x114b` = `floor_7`, and the shop calls it a `바닥` — a flooring |
-| `0x1188`..`0x1287` | the 256 `cloth/%d/cloth%03d.nsbtx` shirts | `0x11a8` = `cloth032`, which the save reads as the WORN SHIRT [S: `port/tools/savetool.py check`] |
+| `0x1188`..`0x1287` | the 256 `cloth/%d/cloth%03d.nsbtx` shirts | `0x11a8` = `cloth032`, which the save reads as the WORN SHIRT [H: `port/tools/savetool.py check` ; provenance unresolved] |
 
 So **`0x117c` is `carpet/floor_56.nsbtx`**, the 57th flooring — which is what the villager who gave
 it calls a `바닥`. A fourth witness comes from the save itself: a villager's stored `wallpaper` and
 `carpet` bytes are raw indices under 68, so the SAVE keeps the index where a POCKET keeps
-`base + index` [S: `savetool.py check` on `scratchpad/gameplay54/town3.sav`].
+`base + index` [H: `savetool.py check` on `scratchpad/gameplay54/town3.sav` ; provenance unresolved].
 
 **Names are not in a KOR message archive.** The largest of the 91 under `script/KOR/` has 256
 entries and none is near 1,536, so an item-name table lives in `a_mes/`, `str/arc/` or an overlay
 and is still unfound — which is why `0x1547`, `item_info` slot 1351, is identified only by its slot
-[S: entry counts over every `script/KOR/**/*.bmg`].
+[H: entry counts over every `script/KOR/**/*.bmg` ; provenance unresolved].
 
 ## How to check it
 

@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>디스플레이 오브젝트</span></div><header class="page-head"><h1>디스플레이 오브젝트</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 72</span><span class="gchip g-E"><b>E</b> 4</span><span class="gchip g-H"><b>H</b> 7</span></div><div class="source-line">원문: <code>wiki/engine/display-objects.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 게임이 그리거나 스텝하는 모든 것은 "디스플레이 오브젝트(display object)"이다: 두 개의
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>디스플레이 오브젝트</span></div><header class="page-head"><h1>디스플레이 오브젝트</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 38</span><span class="gchip g-H"><b>H</b> 45</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/engine/display-objects.md"><code>wiki/engine/display-objects.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/engine/display-objects.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="display-objects"></span><p><strong>요약.</strong> 게임이 그리거나 스텝하는 모든 것은 "디스플레이 오브젝트(display object)"이다: 두 개의
 리스트 노드를 소유하고 네 개의 전역 리스트 — 초기화, 업데이트, 그리기, 파괴 — 중 하나에 존재하는 C++ 오브젝트이다.
 프레임마다 한 번씩 스테퍼가 각 리스트를 순회하며 발견하는 모든 오브젝트에 대해
 멤버 함수 포인터를 호출한다. 각 스테퍼는 고정된 패턴으로 세 개의 vtable 슬롯을 구동한다: 동작 여부를
@@ -132,22 +144,23 @@
 채널 생성자에 의해 만들어지고, 대기 리스트에 join되고, 실제 리스트에 commit되며, 게이트가 열릴
 때까지 매 스텝 거부된다. 씬은 존재하는데 아무것도 움직이지 않는다면, 그 게이트가
 읽어야 할 대상이다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
-<h3 id="네-개의-리스트">네 개의 리스트</h3>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="the-four-lists"></span><h3 id="네-개의-리스트">네 개의 리스트</h3>
 <p>네 개의 리스트 헤드가 메인 RAM에 인접하여 위치한다: <code>0x021fd004</code>, <code>0x021fd014</code>, <code>0x021fd024</code>,
-<code>0x021fd034</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:28-30, 55-58</code></span></span>. 이것들은 역참조할 포인터가 아니라
+<code>0x021fd034</code> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:28-30, 55-58</code>; direct ROM-source provenance unresolved</span></span>. 이것들은 역참조할 포인터가 아니라
 주소(ADDRESS) 자체이다 — ROM은 각각을 PC 상대 리터럴 로드로 적재하고 리스트 호출에
-그대로 넘긴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:29-31</code></span></span>. 그 역할은 초기화 리스트
+그대로 넘긴다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:29-31</code>; direct ROM-source provenance unresolved</span></span>. 그 역할은 초기화 리스트
 (<code>0x021fd014</code>), 업데이트 리스트(<code>0x021fd004</code>), 그리기 리스트(<code>0x021fd024</code>), 파괴
-리스트(<code>0x021fd034</code>)이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:22-24</code>; <code>port/shim/gfx/dispsteppers.c:24-28</code></span></span>.</p>
-<h3 id="네-개의-스테퍼와-3슬롯-패턴">네 개의 스테퍼와 3슬롯 패턴</h3>
+리스트(<code>0x021fd034</code>)이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/commit.c:22-24</code>; <code>port/shim/gfx/dispsteppers.c:24-28</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-four-steppers-and-the-three-slot-pattern"></span><h3 id="네-개의-스테퍼와-3슬롯-패턴">네 개의 스테퍼와 3슬롯 패턴</h3>
 <p>각 리스트에는 자체 스테퍼가 있으며, 넷 모두 같은 형태이다: 리스트 오브젝트와 함수의 리터럴 풀에서
 읽어 낸 세 개의 멤버 포인터를 넘기는 <code>func_01ffd44c</code> 호출이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:10-18</code></span></span>. <code>func_01ffd44c</code>는 세 번째(THIRD) 매개변수를 먼저 호출하고,
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:10-18</code>; direct ROM-source provenance unresolved</span></span>. <code>func_01ffd44c</code>는 세 번째(THIRD) 매개변수를 먼저 호출하고,
 그 다음 두 번째(SECOND), 마지막으로 네 번째(FOURTH)를 호출하며, 두 번째의 반환값에서 파생된 마커를 넘긴다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:16-18</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:16-18</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>어떤 재구성본의 매개변수 이름이 아니라 풀 워드에서 읽어 낸 것이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:20-31</code>, from <code>extract/adm-kr/arm9/itcm.bin</code> and <code>unk_autoload_2.bin</code></span></span>:</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:20-31</code>, from <code>extract/adm-kr/arm9/itcm.bin</code> and
+<code>unk_autoload_2.bin</code>; direct ROM-source provenance unresolved</span></span>:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -191,43 +204,44 @@
 </table></div>
 <p>하나의 패턴이 네 번 반복된다: 가운데 슬롯은 술어(PREDICATE)이며 먼저 실행되고, 낮은 슬롯은
 작업(WORK)이며 성공 시 1을 반환하고, 높은 슬롯은 핸들러(HANDLER)이며 작업이 1을 반환했을 때
-2를 받으며 진입한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:32-36</code></span></span>. 이 규칙성이 이
+2를 받으며 진입한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:32-36</code>; direct ROM-source provenance unresolved</span></span>. 이 규칙성이 이
 해석이 옳다는 논거이다 — 다른 해석은 네 그룹 모두에 같은 순열을 아무 목적 없이
-적용하는 셈이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:36-40</code></span></span>. 이 열두 개의 멤버 포인터 모두
-this 조정값이 0이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:41-43</code></span></span>.</p>
+적용하는 셈이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:36-40</code>; direct ROM-source provenance unresolved</span></span>. 이 열두 개의 멤버 포인터 모두
+this 조정값이 0이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:41-43</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>구체적인 결과 하나: <code>func_020a553c</code>는 슬롯 5이며, <code>func_020a536c</code>가 새 씬 로드를
 거부하는 데 쓰는 바이트를 지우고, 두 번째 인수가 2일 때만 동작한다 — 이것이 바로
-네 번째 매개변수가 받는 값이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:32-38</code></span></span>.</p>
+네 번째 매개변수가 받는 값이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispsteppers.c:32-38</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>바이트 매칭으로는 어떤 풀 워드가 무엇인지 확정할 수 없는데, 하네스가 리터럴 풀
 재배치를 마스킹하기 때문이다: 풀에서 세 개의 데이터 주소를 로드하는 함수는 세 이름의
 어떤 순열에서도 바이트 동일하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/shim/gfx/dispsteppers.c:8-14</code>; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
-<h3 id="순회-자체">순회 자체</h3>
+<span class="source-anchor" id="the-walk-itself"></span><h3 id="순회-자체">순회 자체</h3>
 <p><code>func_020ee834</code>가 리스트 순회이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020ee834</code>, autoload_2, <code>port/shim/gfx/pmflist.c</code> header</span></span>. 그 인수는
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code> (<code>func_020ee834</code> at 0x020ee834); source account: <code>func_020ee834</code>, autoload_2, <code>port/shim/gfx/pmflist.c</code> header</span></span>. 그 인수는
 리스트 헤드와 2워드
 멤버 함수 포인터를 담고 있다; 각 노드의 오브젝트를 가져와 그것에 멤버 포인터를 호출한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020ee834</code>, autoload_2, <code>port/shim/gfx/pmflist.c</code> header and <code>:104-118</code></span></span>. 이 네 리스트 중
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code> (<code>func_020ee834</code> at 0x020ee834); source account: <code>func_020ee834</code>, autoload_2, <code>port/shim/gfx/pmflist.c</code> header and <code>:104-118</code></span></span>. 이 네 리스트 중
 하나에 있는 노드는 3워드이다 — 이전, 다음, 그리고 오브젝트로의 역포인터
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:106-119</code></span></span>. <code>0x021fcff8</code>에 다섯 번째(FIFTH) 리스트가 있으며, 그 노드는
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:106-119</code>; direct ROM-source provenance unresolved</span></span>. <code>0x021fcff8</code>에 다섯 번째(FIFTH) 리스트가 있으며, 그 노드는
 각 디스플레이 오브젝트의 <code>+0x14</code>에 있는 <code>sub</code> 블록이고 레이아웃이 다르다; <code>func_020ee9a0</code>은
 네 리스트를 <code>func_020ee834</code>로 순회하고 그 다섯 번째는 자체 순회로 처리한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:961-972</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:961-972</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>순회의 두 가지 속성은 ROM의 것이며 필수적이다: <code>next</code>는 호출 전(BEFORE)에 읽는데,
 호출이 자기 대상 노드를 언링크할 수 있기 때문이다; 그리고 현재 노드는 루프 전과 각 스텝 후에
 <code>0x021fcff4</code>에 공개되는데, 콜백이 실행되는 동안 다른 무언가가 이를 읽기 때문이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:36-39, 726-729</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:36-39, 726-729</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>멤버 포인터는 mwcc의 2워드 레이아웃이며, 이 함수 자체의 명령어들이 조정값을 적용하며
 디코딩되는 모습을 보여 준다: 워드 0은 함수 주소이거나 vtable
 바이트(BYTE) 오프셋이고, 워드 1은 <code>(delta &lt;&lt; 1) | isVirtual</code>이다 — 비트 0이 가상 여부를 선택하고,
 this 포인터는 오브젝트에 워드 1을 산술적으로 오른쪽 1비트 시프트한 값을 더한 것이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020ee834</code>, autoload_2, <code>port/shim/gfx/pmflist.c:22-34</code></span></span>. 이것은 그 레이아웃의
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code> (<code>func_020ee834</code> at 0x020ee834); source account: <code>func_020ee834</code>, autoload_2, <code>port/shim/gfx/pmflist.c:22-34</code></span></span>. 이것은 그 레이아웃의
 세 번째 독립적 확인이며, 조정값이 사용되는 모습을 보여 주는 유일한 것이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:22-24</code></span></span>.</p>
-<h3 id="오브젝트별-스텝-재구축-또는-동기화">오브젝트별 스텝: 재구축 또는 동기화</h3>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:22-24</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="per-object-step-rebuild-or-sync"></span><h3 id="오브젝트별-스텝-재구축-또는-동기화">오브젝트별 스텝: 재구축 또는 동기화</h3>
 <p>프레임별 상태 스텝은 <code>func_01ffd1b4</code>로, <code>itcm</code>의 0x230바이트 ARM 코드이며, 오브젝트의 vtable을 통해
 <code>func_020ee934 -&gt; func_020ee9a0 -&gt; func_020eea4c</code>로 프레임마다 오브젝트당 한 번
-도달된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_01ffd1b4</code>, itcm, <code>port/shim/gfx/dispstep.c</code> header</span></span>. 두 부분으로 되어 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:19-27</code></span></span>:</p>
+도달된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/itcm/symbols.txt</code> (<code>func_01ffd1b4</code> at 0x01ffd1b4); source account: <code>func_01ffd1b4</code>, itcm,
+<code>port/shim/gfx/dispstep.c</code> header</span></span>. 두 부분으로 되어 있다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:19-27</code>; direct ROM-source provenance unresolved</span></span>:</p>
 <ul>
 <li><code>+0x0f</code>의 더티 바이트가 설정되어 있으면 재구축(REBUILD): 오브젝트의 두 노드(<code>+0x28</code>과
   <code>+0x38</code>)를 그것들을 담고 있는 리스트에서 언링크하고, 첫 번째를 다시 링크하고,
@@ -237,66 +251,70 @@ this 포인터는 오브젝트에 워드 1을 산술적으로 오른쪽 1비트 
   노드 각각을 다시 정렬한다.</li>
 </ul>
 <p>노드의 <code>+0x0e</code> 상태 바이트는 1(라이브, 정렬됨)에서 2(재구축 중)로 갔다가 돌아온다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:32-35</code></span></span>. 이 바이트들을 단일 enum으로 읽는 것은 틀렸다:
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:32-35</code>; direct ROM-source provenance unresolved</span></span>. 이 바이트들을 단일 enum으로 읽는 것은 틀렸다:
 <code>0x01ffd35c</code>는 특별히 2인지를 검사하고 그 외에는 그냥 통과시키므로, 네 번째 값이
-가능하며 아무것도 하지 않음으로써 처리된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:33-35</code></span></span>.</p>
-<h3 id="join과-commit">join과 commit</h3>
+가능하며 아무것도 하지 않음으로써 처리된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:33-35</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="joining-and-committing"></span><h3 id="join과-commit">join과 commit</h3>
 <p><code>func_020edec8</code>은 새로 만들어진 디스플레이 오브젝트를 대기 리스트에 넣는 훅이며,
 거절하는 방법이 네 가지로 구분된다: 오브젝트가 준비되지 않았다는 플래그 둘, 이미 라이브라는
 플래그 하나, 그리고 현재 실행 중인 순회가 잘못된 것이라는 플래그 하나이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020edec8</code>, autoload_2, <code>port/shim/gfx/dispjoin.c</code> header</span></span>. <code>func_020ee59c</code>는
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020edec8.c</code>; source account: <code>func_020edec8</code>, autoload_2, <code>port/shim/gfx/dispjoin.c</code> header</span></span>. <code>func_020ee59c</code>는
 commit이며, ROM에서 <code>+0x10</code>의 지연(deferral) 바이트를 쓰는 유일한 함수이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020ee59c</code>, autoload_2, <code>port/shim/gfx/commit.c</code> header, body from <code>src/matched/func_020ee59c.c</code></span></span>. commit의 동작은 <code>0x0213e7fc</code>의 전역 워크 모드에
-따라 달라진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:21, 64</code></span></span>. 모드 3이 라이브인 동안 commit하면
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ee59c.c</code>; source account: <code>func_020ee59c</code>, autoload_2, <code>port/shim/gfx/commit.c</code> header, body from
+<code>src/matched/func_020ee59c.c</code></span></span>. commit의 동작은 <code>0x0213e7fc</code>의 전역 워크 모드에
+따라 달라진다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/commit.c:21, 64</code>; direct ROM-source provenance unresolved</span></span>. 모드 3이 라이브인 동안 commit하면
 바로 그 리스트가 순회되는 도중에 <code>0x021fd004</code>에 추가한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:58-63</code></span></span>.</p>
-<h3 id="모든-스텝-앞에-있는-게이트">모든 스텝 앞에 있는 게이트</h3>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/commit.c:58-63</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-gate-every-step-is-behind"></span><h3 id="모든-스텝-앞에-있는-게이트">모든 스텝 앞에 있는 게이트</h3>
 <p><code>func_01ffd41c</code>는 여섯 명령어와 하나의 검사이다: 스텝은 오브젝트의
-<code>+0x0f</code>가 클리어이고(AND) <code>+0x13</code>의 비트 1이 클리어일 때만 일어난다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_01ffd41c</code>, itcm, <code>port/shim/gfx/dispgate.c</code> header</span></span>. <code>+0x0f</code>는 디스플레이 스텝이 쓰고 <code>+0x13</code>은
-생성자가 부모의 값을 복사하며 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispgate.c:10-12</code></span></span>.</p>
+<code>+0x0f</code>가 클리어이고(AND) <code>+0x13</code>의 비트 1이 클리어일 때만 일어난다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_01ffd41c.c</code>; source account: <code>func_01ffd41c</code>, itcm,
+<code>port/shim/gfx/dispgate.c</code> header</span></span>. <code>+0x0f</code>는 디스플레이 스텝이 쓰고 <code>+0x13</code>은
+생성자가 부모의 값을 복사하며 쓴다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispgate.c:10-12</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>그 게이트의 상류에는 하나의 술어가 있다: <code>func_020edd74</code>는 <code>func_01ffcfc0</code>을 끝 센티널로,
 <code>func_01ffcffc</code>를 후속자로 하여 자식 리스트를 순회함으로써 "내 자식 중 아직 라이브가 아닌 것이
-있는가?"에 답한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020edd74</code>, autoload_2, <code>port/shim/gfx/childlive.c</code> header, body from <code>src/matched/func_020edd74.c</code></span></span>. 답이
+있는가?"에 답한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020edd74.c</code>; source account: <code>func_020edd74</code>, autoload_2,
+<code>port/shim/gfx/childlive.c</code> header, body from <code>src/matched/func_020edd74.c</code></span></span>. 답이
 1이면 <code>func_020a5430</code>은 씬의 <code>+0x13</code> 비트 0을 설정된 채로 둔다; 생성자는 비트 0을
 모든 자식에게 비트 1로, 비트 2를 비트 3으로 전파한다; 그러면 게이트는 서브트리 전체에 대해
-모든 스텝을 거부한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/childlive.c:7-16</code></span></span>. <code>+0x13 = 0x05</code>인 씬 오브젝트는
-자식에게 <code>0x0a</code>를 주고, <code>0x0a</code>는 거부된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/childlive.c:17-19</code></span></span>.</p>
-<h3 id="vblank-태스크-리스트">VBlank 태스크 리스트</h3>
+모든 스텝을 거부한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/childlive.c:7-16</code>; direct ROM-source provenance unresolved</span></span>. <code>+0x13 = 0x05</code>인 씬 오브젝트는
+자식에게 <code>0x0a</code>를 주고, <code>0x0a</code>는 거부된다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/childlive.c:17-19</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-vblank-task-list"></span><h3 id="vblank-태스크-리스트">VBlank 태스크 리스트</h3>
 <p>네 리스트와 별도로 <code>0x021f6ca0</code>에 VBlank 태스크 리스트가 있으며, <code>func_020b98ec</code>가 순회한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/vbtask.c:22-25</code></span></span>. 각 태스크의 노드는 자기 오브젝트의 4바이트 안쪽에 위치하고, 각각은 VBlank 안에서
-vtable 슬롯 0을 통해 실행된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020b98ec</code>, main, <code>port/shim/gfx/vbtask.c</code> header, body from <code>src/matched/func_020b98ec.cpp</code></span></span>. ROM에는 거기에 null vtable 검사가 없는데, NDS에서는
-null 읽기가 ITCM 미러 바이트를 반환하기 때문이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/vbtask.c:8-11</code></span></span>.</p>
-<h3 id="그리기">그리기</h3>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/vbtask.c:22-25</code>; direct ROM-source provenance unresolved</span></span>. 각 태스크의 노드는 자기 오브젝트의 4바이트 안쪽에 위치하고, 각각은 VBlank 안에서
+vtable 슬롯 0을 통해 실행된다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code> (<code>func_020b98ec</code> at 0x020b98ec); source account: <code>func_020b98ec</code>, main, <code>port/shim/gfx/vbtask.c</code> header, body from
+<code>src/matched/func_020b98ec.cpp</code></span></span>. ROM에는 거기에 null vtable 검사가 없는데, NDS에서는
+null 읽기가 ITCM 미러 바이트를 반환하기 때문이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/vbtask.c:8-11</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="drawing"></span><h3 id="그리기">그리기</h3>
 <p>오브젝트가 거치는 그리기 경로는 <code>func_02055e7c</code>이며, <code>func_02055e10</code>을 통해 오브젝트의 카메라 상태를
 설정한 다음 <code>func_02055e04</code>로 그린다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02055e7c</code>, main, <code>port/shim/gfx/drawobj.c</code> header</span></span>. <code>func_02055e10</code>은 두 번째 인수로
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02055e7c.c</code>, <code>src/matched/func_02055e10.c</code>, <code>src/matched/func_02055e04.c</code>; source account: <code>func_02055e7c</code>, main, <code>port/shim/gfx/drawobj.c</code> header</span></span>. <code>func_02055e10</code>은 두 번째 인수로
 스케일을 받으며(null 스케일은 단위 스케일을 선택한다) <code>NNS_G3dGlbFlushP</code>로 끝나는데, 이것이
 실제로 카메라와 투영 상태를 지오메트리 엔진에 업로드하는 것이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/drawobj.c:1-16</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/drawobj.c:1-16</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>두 오브젝트는 이름을 밝혀 둘 만한데, 상수로는 어떤 것도 그것들을 가리킬 수 없기 때문이다 — 그
 할당 위치가 실행마다 바뀐다. 첫 번째는 채널 189의 오브젝트로, vtable <code>0x022382ac</code>이다; 지오메트리는
-그 <code>+0x5c</code>를 기준으로 그려진다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:52-56</code></span></span>. <strong>그 오브젝트는
+그 <code>+0x5c</code>를 기준으로 그려진다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:52-56</code>; direct ROM-source provenance unresolved</span></span>. <strong>그 오브젝트는
 마을의 필드 렌더러가 아니라 눈사람(SNOWMAN)이며</strong>, 포트 자체의 심 헤더가 아직 달고 있는
 "필드 렌더러" 라벨은 철회된 오식별이다: 채널 189의 바인드 로그는
 <code>/snowman/snowball1.nsbmd</code>(<code>SNW0</code>, id <code>0x022383ac</code>)와 <code>/snowman/snow_face.nsbmd</code>(<code>SNW1</code>,
 id <code>0x022383c8</code>)를 이름 짓고, 두 문자열 모두 <code>ov003</code>의 해당 주소에 상주한다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/BOOT-STATE.md:1159-1171</code>, "CHANNEL 189 IS THE SNOWMAN"; see <code>../systems/town.md</code></span></span>.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/BOOT-STATE.md:1159-1171</code>, "CHANNEL 189 IS THE SNOWMAN"; see <code>../systems/town.md</code>; receipt provenance unresolved</span></span>.
 필드 카메라(FIELD CAMERA)의 vtable은 <code>0x020da87c</code>이고 그 그리기
 슬롯 <code>func_0203c610</code>은 투영 행렬과 뷰 행렬을 모두 설정하며, <code>at</code>을 <code>+0x188</code>에서,
 <code>eye</code>를 <code>+0x194</code>에서, <code>up</code>을 <code>+0x1a0</code>에서, near를 <code>+0x1b0</code>에서, far를 <code>+0x1b4</code>에서, 시야각
-인덱스를 <code>+0x1c8</code>에서 읽는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:59-63, 184-190</code></span></span>.</p>
-<h3 id="프레임워크는-하나의-서브시스템이다-포팅에서-얻은-교훈">프레임워크는 하나의 서브시스템이다 — 포팅에서 얻은 교훈</h3>
+인덱스를 <code>+0x1c8</code>에서 읽는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:59-63, 184-190</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-framework-is-one-subsystem--a-lesson-from-porting-it"></span><span class="source-anchor" id="the-framework-is-one-subsystem-a-lesson-from-porting-it"></span><h3 id="프레임워크는-하나의-서브시스템이다-포팅에서-얻은-교훈">프레임워크는 하나의 서브시스템이다 — 포팅에서 얻은 교훈</h3>
 <p>PC 포트에서 디스플레이 오브젝트 프레임워크는 손으로 작성한 호스트 코드 29개 파일에 걸쳐 있으며,
 그중 일부(SUBSET)만 ROM에 거부하면 부팅이 멈춘다: ROM의 순회는 인터프리트되지만
 네이티브 join과 commit이 여전히 링크되어 네이티브 VBlank 핸들러에서 호출되는 상태에서는, join이
 순회가 기대하는 것을 거부하여 아무것도 업데이트 리스트에 들어가지 못했다 — 닌텐도 로고에서
-36,000개의 동일한 프레임이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> REG40b and REG40c</span></span>. 29개 모두를 거부하면
-통과한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same</span></span>. 이 규칙은 일반화된다: 프레임워크는 하나의 서브시스템이며,
-ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/runtime.md</code> section 5</span></span>.</p>
+36,000개의 동일한 프레임이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> REG40b and REG40c; receipt provenance unresolved</span></span>. 29개 모두를 거부하면
+통과한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> REG40b and REG40c; receipt provenance unresolved</span></span>. 이 규칙은 일반화된다: 프레임워크는 하나의 서브시스템이며,
+ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/runtime.md</code> section 5; receipt provenance unresolved</span></span>.</p>
 <p>업데이트 리스트가 죽는 측정된 증상은 조용하다: 마을이 계속 그려지는 동안 업데이트 리스트가
 프레임 0에서 한 번 순회되고 다시는 순회되지 않는 실행이다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/gfx/pmflist.c:696-700</code>, the per-list pass counters; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -311,97 +329,97 @@ ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 <span class=
 <td><code>func_020ee834</code></td>
 <td>autoload_2</td>
 <td>디스플레이 리스트 순회; 멤버 함수 포인터를 인라인으로 디코딩</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code> (<code>func_020ee834</code> at 0x020ee834); source account: <code>port/shim/gfx/pmflist.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_01ffd44c</code></td>
 <td>itcm</td>
 <td>오브젝트당 세 슬롯 실행: 술어, 작업, 핸들러</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:16-18</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/itcm/symbols.txt</code> (<code>func_01ffd44c</code> at 0x01ffd44c); source account: <code>port/shim/gfx/dispsteppers.c:16-18</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_020ede60</code> / <code>func_01ffd14c</code> / <code>func_01ffd0e4</code> / <code>func_020edddc</code></td>
 <td>autoload_2, itcm</td>
 <td>init / update / draw / destroy 스테퍼</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:24-28</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ede60.c</code>, <code>src/matched/func_01ffd14c.c</code>, <code>src/matched/func_01ffd0e4.c</code>, <code>src/matched/func_020edddc.c</code>; source account: <code>port/shim/gfx/dispsteppers.c:24-28</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_01ffd1b4</code></td>
 <td>itcm</td>
 <td>오브젝트별 재구축 또는 동기화 상태 스텝</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/itcm/symbols.txt</code> (<code>func_01ffd1b4</code> at 0x01ffd1b4); source account: <code>port/shim/gfx/dispstep.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_020ee934</code> / <code>func_020ee9a0</code> / <code>func_020eea4c</code></td>
 <td>autoload_2</td>
 <td>오브젝트별 스텝에 도달하는 체인</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:17-19</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ee934.c</code>, <code>src/matched/func_020ee9a0.c</code>; source account: <code>port/shim/gfx/dispstep.c:17-19</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_01ffd41c</code></td>
 <td>itcm</td>
 <td>게이트: <code>+0x0f</code> 클리어 및 <code>+0x13</code> 비트 1 클리어</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispgate.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_01ffd41c.c</code>; source account: <code>port/shim/gfx/dispgate.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_020edd74</code></td>
 <td>autoload_2</td>
 <td>"아직 라이브가 아닌 자식이 있는가?"</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/childlive.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020edd74.c</code>; source account: <code>port/shim/gfx/childlive.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_01ffcfc0</code> / <code>func_01ffcffc</code></td>
 <td>itcm</td>
 <td>리스트 끝 센티널과 후속자</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/childlive.c:22-23</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_01ffcfc0.c</code>, <code>src/matched/func_01ffcffc.c</code>; source account: <code>port/shim/gfx/childlive.c:22-23</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_020edec8</code></td>
 <td>autoload_2</td>
 <td>대기 리스트에 join; 거절 방법 넷</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispjoin.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020edec8.c</code>; source account: <code>port/shim/gfx/dispjoin.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_020ee59c</code></td>
 <td>autoload_2</td>
 <td>commit; <code>+0x10</code> 지연 바이트의 유일한 쓰기자</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ee59c.c</code>; source account: <code>port/shim/gfx/commit.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_020e8ce0</code> / <code>func_020e8c70</code> / <code>func_020ee8a8</code></td>
 <td>autoload_2</td>
 <td>언링크, 추가, 정렬 순서 삽입</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:44-47</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020e8ce0.c</code>, <code>src/matched/func_020e8c70.c</code>, <code>src/matched/func_020ee8a8.c</code>; source account: <code>port/shim/gfx/dispstep.c:44-47</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_020ee45c</code> / <code>func_020ee470</code></td>
 <td>autoload_2</td>
 <td>동기화가 플래그 비트를 복사해 오는 오브젝트</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:48-49</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ee45c.c</code>, <code>src/matched/func_020ee470.c</code>; source account: <code>port/shim/gfx/dispstep.c:48-49</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_020b98ec</code></td>
 <td>main</td>
 <td>VBlank 태스크 리스트 순회</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/vbtask.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code> (<code>func_020b98ec</code> at 0x020b98ec); source account: <code>port/shim/gfx/vbtask.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>func_02055e7c</code> / <code>func_02055e10</code> / <code>func_02055e04</code></td>
 <td>main</td>
 <td>카메라 상태 설정 후 그리기</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/drawobj.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02055e7c.c</code>, <code>src/matched/func_02055e10.c</code>, <code>src/matched/func_02055e04.c</code>; source account: <code>port/shim/gfx/drawobj.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>NNS_G3dGlbFlushP</code></td>
 <td>main</td>
 <td>카메라와 투영을 지오메트리 엔진에 업로드</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/drawobj.c:11-13</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/NNS_G3dGlbFlushP.c</code>; source account: <code>port/shim/gfx/drawobj.c:11-13</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_0203c610</code></td>
 <td>main</td>
 <td>필드 카메라의 그리기 슬롯: 투영과 뷰</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:59-61</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0203c610.c</code>; source account: <code>port/shim/gfx/pmflist.c:59-61</code></span></span></td>
 </tr>
 <tr>
 <td>vtable <code>0x022382ac</code></td>
@@ -411,7 +429,7 @@ ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 <span class=
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -426,117 +444,121 @@ ROM의 것이거나 포트의 것이지, 결코 반반이 아니다 <span class=
 <td><code>0x021fd014</code></td>
 <td>초기화(INITIALISE) 리스트 헤드</td>
 <td>join/commit</td>
-<td><code>func_020ede60</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:22</code></span></span></td>
+<td><code>func_020ede60</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ede60.c</code>; source account: <code>port/shim/gfx/commit.c:22</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x021fd004</code></td>
 <td>업데이트(UPDATE) 리스트 헤드</td>
 <td>join/commit</td>
-<td><code>func_01ffd14c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:23</code></span></span></td>
+<td><code>func_01ffd14c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_01ffd14c.c</code>; source account: <code>port/shim/gfx/commit.c:23</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x021fd024</code></td>
 <td>그리기(DRAW) 리스트 헤드</td>
 <td>join/commit</td>
-<td><code>func_01ffd0e4</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:24</code></span></span></td>
+<td><code>func_01ffd0e4</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_01ffd0e4.c</code>; source account: <code>port/shim/gfx/commit.c:24</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x021fd034</code></td>
 <td>파괴(DESTROY) 리스트 헤드</td>
 <td>join/commit</td>
-<td><code>func_020edddc</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispsteppers.c:28</code></span></span></td>
+<td><code>func_020edddc</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020edddc.c</code>; source account: <code>port/shim/gfx/dispsteppers.c:28</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x021fcff4</code></td>
 <td>순회가 지금 스텝 중인 노드</td>
 <td><code>func_020ee834</code></td>
-<td>콜백 실행 중 무언가가 읽음 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:36-39</code></span></span></td>
+<td>콜백 실행 중 무언가가 읽음 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt</code> (<code>func_020ee834</code> at 0x020ee834); source account: <code>port/shim/gfx/pmflist.c:36-39</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x0213e7fc</code></td>
 <td>전역 워크 모드; 3이면 commit을 지연</td>
 <td>스테퍼들</td>
-<td><code>func_020ee59c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/commit.c:21, 64</code></span></span></td>
+<td><code>func_020ee59c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ee59c.c</code>; source account: <code>port/shim/gfx/commit.c:21, 64</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x021f6ca0</code></td>
 <td>VBlank 태스크 리스트 헤드</td>
 <td>태스크 등록</td>
-<td><code>func_020b98ec</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/vbtask.c:22-25</code></span></span></td>
+<td><code>func_020b98ec</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code> (<code>func_020b98ec</code> at 0x020b98ec); source account: <code>port/shim/gfx/vbtask.c:22-25</code></span></span></td>
 </tr>
 <tr>
 <td>오브젝트 <code>+0x0f</code></td>
 <td>더티 바이트: 재구축 요청; 스텝의 게이트 역할도 함</td>
 <td>디스플레이 스텝</td>
-<td><code>func_01ffd1b4</code>, <code>func_01ffd41c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:21</code>, <code>dispgate.c</code> header</span></span></td>
+<td><code>func_01ffd1b4</code>, <code>func_01ffd41c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_01ffd41c.c</code>; source account: <code>port/shim/gfx/dispstep.c:21</code>, <code>dispgate.c</code> header</span></span></td>
 </tr>
 <tr>
 <td>오브젝트 <code>+0x10</code>, <code>+0x11</code></td>
 <td>두 개의 요청 바이트, 소비 후 클리어됨</td>
 <td><code>func_020ee59c</code>가 <code>+0x10</code>을 씀</td>
-<td><code>func_01ffd1b4</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:32-33</code></span></span></td>
+<td><code>func_01ffd1b4</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ee59c.c</code>; source account: <code>port/shim/gfx/dispstep.c:32-33</code></span></span></td>
 </tr>
 <tr>
 <td>오브젝트 <code>+0x13</code></td>
 <td>플래그 비트; 비트 1은 스텝을 거부하며 자식에게 전파됨</td>
 <td>생성자, <code>func_020a5430</code></td>
-<td><code>func_01ffd41c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/childlive.c:7-16</code></span></span></td>
+<td><code>func_01ffd41c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a5430.c</code>, <code>src/matched/func_01ffd41c.c</code>; source account: <code>port/shim/gfx/childlive.c:7-16</code></span></span></td>
 </tr>
 <tr>
 <td>오브젝트 <code>+0x18</code></td>
 <td>자식 리스트</td>
 <td>생성자</td>
-<td><code>func_020edd74</code>, 재구축 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:21-23</code></span></span></td>
+<td><code>func_020edd74</code>, 재구축 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020edd74.c</code>; source account: <code>port/shim/gfx/dispstep.c:21-23</code></span></span></td>
 </tr>
 <tr>
 <td>오브젝트 <code>+0x28</code>, <code>+0x38</code></td>
 <td>오브젝트의 두 리스트 노드</td>
 <td>join/commit</td>
-<td>재구축 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:21-22</code></span></span></td>
+<td>재구축 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:21-22</code>; direct ROM-source provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td>노드 <code>+0x0c</code>, <code>+0x0e</code></td>
 <td>마지막 정렬 키와 현재 정렬 키</td>
 <td>동기화</td>
-<td>재정렬 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/dispstep.c:25-26</code></span></span></td>
+<td>재정렬 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/dispstep.c:25-26</code>; direct ROM-source provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td>필드 카메라 <code>+0x188</code> / <code>+0x194</code> / <code>+0x1a0</code> / <code>+0x1b0</code> / <code>+0x1b4</code> / <code>+0x1c8</code></td>
 <td>at, eye, up, near, far, fov 인덱스</td>
 <td>카메라 자체 로직</td>
-<td><code>func_0203c610</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:184-190</code></span></span></td>
+<td><code>func_0203c610</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0203c610.c</code>; source account: <code>port/shim/gfx/pmflist.c:184-190</code></span></span></td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p><code>docs/kb/hybrid/recipes.md</code>의 아무 레시피나 <code>ACWW_TRACE_STATE</code>를 설정하고 실행한 뒤, 포트가 순회 내부에서
 출력하는 세 가지 계측을 읽는다: 600프레임마다 출력되는 <code>acww passes: frame N init=... update=...
 draw=... destroy=...</code>는 멈춘 패스를 멈춘 카운터로
-보이게 한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:696-722</code></span></span>; <code>acww listwalk: list ... node
+보이게 한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:696-722</code>; direct ROM-source provenance unresolved</span></span>; <code>acww listwalk: list ... node
 ... back-pointer ... is not an object</code>는 링크되어 있지만 오브젝트 워드가
-메인 RAM이 아닌 노드를 지목한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:731-757</code></span></span>; 그리고 <code>acww camnf: obj ... near ... far
+메인 RAM이 아닌 노드를 지목한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:731-757</code>; direct ROM-source provenance unresolved</span></span>; 그리고 <code>acww camnf: obj ... near ... far
 ...</code>는 필드 카메라의 near/far 쌍이 바뀔 때마다 출력된다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:203-232</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:203-232</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>"프레임워크가 실행 중이다"에 대한 반증 관측은 업데이트 리스트 카운터이다:
 <code>draw=</code>는 계속되는데 <code>update=</code>가 진행을 멈추면, 오브젝트는 그려지고 있지만 아무것도
 스텝되고 있지 않은 것이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/gfx/pmflist.c:696-700</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
-<h2 id="가설">가설</h2>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li>(해결됨, 기록용으로 유지.) 노드의 오브젝트 역포인터를 두고 <code>+0x08</code>과 <code>node+0x10</code>이
   불일치한 것은 하나의 모순이 아니라 두 종류의 서로 다른 노드였다. <code>func_020ee834</code>의
   네 리스트는 오브젝트가 <code>+0x08</code>에 있는 3워드 노드 <code>{prev, next, obj}</code>를 사용한다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:106-119</code></span></span>. <code>0x021fcff8</code>의 다섯 번째(FIFTH) 리스트 — 노드가 각 디스플레이
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:106-119</code>; direct ROM-source provenance unresolved</span></span>. <code>0x021fcff8</code>의 다섯 번째(FIFTH) 리스트 — 노드가 각 디스플레이
   오브젝트의 <code>+0x14</code>에 있는 <code>sub</code> 블록이고 <code>func_020ee9a0</code>이 순회하는 — 는 <code>head</code>가 <code>+0</code>에,
   멤버 포인터가 <code>+4</code>/<code>+8</code>에, 오브젝트가 <code>node+0x10</code>에 있으며, 콜백이 노드를 언링크할 수 있기
   때문에 필드를 로드하는 대신 <code>func_01ffcffc(node)</code>를 호출(CALLING)하여 <code>next</code>를 얻는다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:961-981</code>, read off the ROM's instructions</span></span>.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:961-981</code>, read off the ROM's instructions; direct ROM-source provenance unresolved</span></span>.</li>
 <li><code>+0x28</code>과 <code>+0x38</code>의 두 노드는 자유로운 쌍이 아니라 고정된 리스트 쌍에 대한 "리스트 X 위의 이 오브젝트"와
-  "리스트 Y 위의 이 오브젝트"이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by logging, per object, which list head each of its two nodes is linked into across a scene change</span></span>.</li>
+  "리스트 Y 위의 이 오브젝트"이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by logging, per object, which list
+  head each of its two nodes is linked into across a scene change</span></span>.</li>
 <li><code>+0x0e</code>의 노드 상태 바이트의 네 번째 값은 원리상만이 아니라 실제 플레이에서도 존재한다
-  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by a watchpoint on that byte over the town recipe, recording every distinct value</span></span>.</li>
-<li>열두 개의 스테퍼 슬롯 하나하나가 적어도 하나의 라이브 클래스에 의해 채워져 있다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by counting dispatches per slot over the town recipe with the per-object trace already in <code>port/shim/gfx/dispsteppers.c</code></span></span>.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by a watchpoint on that byte over the town recipe, recording every distinct
+  value</span></span>.</li>
+<li>열두 개의 스테퍼 슬롯 하나하나가 적어도 하나의 라이브 클래스에 의해 채워져 있다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by
+  counting dispatches per slot over the town recipe with the per-object trace already in
+  <code>port/shim/gfx/dispsteppers.c</code></span></span>.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>scenes-and-channels.md</code> — 이 오브젝트들을 생성하는 것, 그리고 게이트 위의 게이트</li>
 <li><code>threads-and-interrupts.md</code> — 태스크 리스트가 그 안에서 실행되는 VBlank</li>
@@ -545,7 +567,7 @@ draw=... destroy=...</code>는 멈춘 패스를 멈춘 카운터로
 </ul></div><nav class="prevnext"><a class="pn prev" href="../engine/scenes-and-channels.html"><small>◀ 이전</small>씬과 채널</a><a class="pn next" href="../engine/memory-map.html"><small>다음 ▶</small>메모리 맵</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

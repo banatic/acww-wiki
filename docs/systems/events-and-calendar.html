@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,21 +136,21 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>이벤트와 달력</span></div><header class="page-head"><h1>이벤트와 달력</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 28</span><span class="gchip g-H"><b>H</b> 6</span></div><div class="source-line">원문: <code>wiki/systems/events-and-calendar.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 게임의 달력은 NitroSDK를 통해 읽은 DS의 실시간 시계(RTC)이며, 열두 갈래의 switch 문으로
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>이벤트와 달력</span></div><header class="page-head"><h1>이벤트와 달력</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 18</span><span class="gchip g-H"><b>H</b> 16</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/events-and-calendar.md"><code>wiki/systems/events-and-calendar.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/events-and-calendar.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="events-and-calendar"></span><p><strong>요약.</strong> 게임의 달력은 NitroSDK를 통해 읽은 DS의 실시간 시계(RTC)이며, 열두 갈래의 switch 문으로
 계절에 대응되고, 두 번째 매핑으로 열네 값의 계절/이벤트 인덱스에 대응된다. 특정 날에 무슨 일이
 일어나는지는 두 곳에서 결정된다. 하나는 날짜가 넘어갈 때마다 한 번 실행되어 상태 블록을 다시 쓰는
 날짜 변경 루틴이고, 다른 하나는 매 프레임 실행되는 특수 NPC 스케줄러다. 후자는 스물세 개 항목으로
 된 방문객 테이블 위에서 우선순위 순으로 열한 개의 술어(predicate)를 평가하며, 각 항목은 그 방문객을
 데려오는 데 필요한 채널, 액터, 오버레이, 플래그를 지정한다. 플레이어 자신의 64비트 이벤트 비트필드가
 두 쪽 모두가 참조하는 진행 기록이다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p>날짜와 시간은 SDK에서 온다. <code>0x0211e7c0</code>과 그 이웃에 있는 <code>RTC_GetDateTime</code>, <code>RTC_GetTime</code>,
-<code>RTC_GetDate</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">NitroSDK, port/shim/os/rtcclock.c</span></span>. 게임은 시계를 설정하기도 한다.
+<code>RTC_GetDate</code>이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: NitroSDK, port/shim/os/rtcclock.c; direct ROM-source provenance unresolved</span></span>. 게임은 시계를 설정하기도 한다.
 <code>func_0209e5b4</code>는 <code>RTC_SetDateTime(date, time)</code>을 호출하며, 호출 전후로 <code>r1</code>이 건드려지지 않으므로
 시간 포인터가 그대로 전달된다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209e5b4, main, port/shim/game/arity_func_0209e5b4.c</span></span>. 그 경로에는 연도 0 / 월 1 / 일 1일 때
 요일을 6으로 강제하는 날짜 검사가 있어, <code>r0</code>이 날짜라는 것을 뒷받침한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/arity_func_0209e5b4.c</span></span>.</p>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209e5b4.c</code>; historical account: port/shim/game/arity_func_0209e5b4.c</span></span>.</p>
 <p>날짜 변경 자체는 <code>func_02040c90</code>이다. 이 함수의 열일곱 개 호출은 디스어셈블리와 하나하나 순서대로
 일치한다: <code>func_0209e474</code>, <code>func_0209ded0</code>, <code>func_0209e314</code>, <code>func_020409c8</code>(두 번), <code>func_0204101c</code>,
 <code>func_02041140</code>, <code>func_02040e44</code>, <code>func_02040f8c</code>, <code>func_02040f04</code>, <code>func_02040da8</code>, <code>func_02040bcc</code>이며,
@@ -147,7 +159,8 @@
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02040c90, main, port/tools/known_callees.txt:245-264</span></span>. 이 피호출 함수 중 하나에는 이름 붙이기
 문제가 있다. <code>0x0209ded0</code>에는 <code>func_</code> 심볼이 없고, 테이블은 이를 <code>MB_GetBeaconRecvStatus</code>라고
 부르는데, 이는 멀티부트 이름이라 날짜 변경 루틴의 피호출 함수로는 맞을 수 없으므로, 거기서는 절단
-위치나 라벨 중 하나가 잘못되었다 (결함 분류 D12) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code>, <code>MB_GetBeaconRecvStatus</code> addr <code>0x0209ded0</code>; <code>docs/rules/D-defects.md</code> D12</span></span>. 다섯 개의 블록 복사는
+위치나 라벨 중 하나가 잘못되었다 (결함 분류 D12) <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code>, <code>MB_GetBeaconRecvStatus</code> addr
+<code>0x0209ded0</code>; <code>docs/rules/D-defects.md</code> D12</span></span>. 다섯 개의 블록 복사는
 오늘의 상태를 쓰기 전에 어제의 상태를 이력 슬롯으로 옮기는 날짜 롤오버의 형태다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">read <code>func_02040c90</code>'s disassembly and name the source and destination of each copy</span></span>.</p>
 <p>계절은 월과 일의 순수 함수(<code>func_02063bb4</code>)이며, 두 번째 매핑 <code>func_0204fa8c</code>는 월을 열네 값의
@@ -158,12 +171,12 @@
 RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제 경로를 그대로 따르는 생성 후 동기화가 온다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209e6ec, main, port/shim/gfx/pmflist.c</span></span>. 즉 새 마을은 별도의 이사 루틴이 아니라 날짜 변경
 기구를 앞으로 돌려서 주민을 얻는다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/gfx/pmflist.c</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/gfx/pmflist.c; direct ROM-source provenance unresolved</span></span>.</p>
 <p><code>player + 0x23f8</code>에 있는 플레이어의 64비트 이벤트 비트필드가 진행 기록이다. <code>func_02099020</code>은 비트를
 검사하고 <code>func_02098ff8</code>은 비트를 설정한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">main, port/shim/game/spnpc.c</span></span>. 플래그 1은 도착 시퀀스다. 네 가지 새 게임 커밋 모두가 이를
 설정하고, <code>func_ov050_02262628</code>(너굴 쪽)과 <code>func_ov068_0226e948</code>만이 이를 지운다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c, port/shim/game/newgameprobe.c</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/spnpc.c, port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved</span></span>.</p>
 <p>특수 NPC 스케줄러는 게임의 방문객 달력이며, 하나의 기구로서 읽을 가치가 있다. 채널 <code>0xd0</code>은 vtable이
 <code>0x020e1cc0</code>인 객체를 만든다. 그 프레임당 슬롯 0은 <code>func_02085558</code>이고, 이는
 <code>func_02084c60(self)</code>를 호출한다. 이것은 <code>0x020e1d08</code>에 있는 열한 항목의 PMF/우선순위 테이블이다
@@ -177,7 +190,7 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 <p><code>func_02084af0</code>은 <code>player &amp;&amp; func_02099020(player, 1)</code>, 즉 도착 플래그이며, 열한 개 술어 모두가 이
 플래그가 설정되어 있는 동안 중단하므로, 오프닝 동안 방문객 스케줄 전체가 의도적으로 침묵한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02084af0, main, port/shim/game/spnpc.c</span></span>. 이는 실제 게임 메커니즘이지 포트 결함이 아니다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved</span></span>.</p>
 <p>게이트를 지나면, <code>func_02084840</code>은 매개변수가 0이 아닐 때 두 가지 검사를 더 적용한다. 실내/실외
 바이트 <code>data_020e54a8</code>이 0이어야 하고, <code>func_020b65c4</code>가 주는 모드가 <code>0x2c</code>가 아니어야 한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02084840, main, port/shim/game/spnpc.c</span></span>. <code>data_020e54a8</code>은 <code>func_02085558</code>이 분기에 사용하는
@@ -192,7 +205,7 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 <code>func_0204f934(0x50)</code>으로 오버레이를 마운트하고 <code>func_02003348(86, 0xd012, ...)</code>로 채널을 연다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02084b74, main, port/shim/game/spnpc.c</span></span>. 즉 23개의 행 각각은 특수 방문객 한 명이며, 그를
 데려오는 데 필요한 모든 것을 담고 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved</span></span>.</p>
 <p>같은 테이블에는 두 번째 진입점에서도 도달한다. <code>func_020842b8</code>은 세 호출로 이어진 체인
 (<code>func_0208602c -&gt; func_020860c4 -&gt; func_02087f30</code>) 뒤에
 <code>func_02084d5c(&amp;v, &amp;data_020e1d8c, data_020d0644)</code>로 끝나는데, 이 체인은 레지스터 하나를 세 함수
@@ -200,7 +213,7 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 <p>펌웨어 자체의 생일 필드(사용자 설정 레코드의 <code>+0x03</code>에 있는 <code>birthMonth</code>, <code>+0x04</code>에 있는
 <code>birthDay</code>)는 게임이 읽으며, 그래서 포트는 이를 0으로 두지 않고 유효한 날짜를 공급하며 그렇게
 밝히고 있다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -291,7 +304,7 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -365,7 +378,7 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 </tbody>
 </table></div>
 <p>모든 행은 S 등급이며, 이전 표의 파일에서 인용했다.</p>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p><code>port/shim/game/spnpc.c</code>는 게이트 전체를 하나의 압축된 워드로 출력한다. 거절한 이유(0 준비됨,
 1 게이트가 거부, 2 실내, 3 모드 <code>0x2c</code>), 게이트 비트, 네 개의 하위 결과, 실내/실외 바이트, 모드를
 포함하며, 변화가 있을 때만 출력하므로 한 번도 움직이지 않는 실행은 한 줄만 출력한다
@@ -376,37 +389,37 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 <p>스케줄이 아니라 달력을 시험하려면, <code>ACWW_RTC_*</code> 계측 도구로 시계를 설정하고 자정을 넘겨 스텝하면
 된다. <code>ACWW_RTC_TIME=000000</code>은 "값이 주어지지 않음"과 명시적으로 구별된다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from port/platform/win32.c, port/shim/os/rtcclock.c; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
-<h2 id="가설">가설</h2>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li><strong>H: <code>0x020e1d8c</code>의 23개 행은 게임의 특수 방문객 전체 명단(갑돌이, 너굴, 여우, 걸리버, 카트리나,
   웬델, 사하라, 그레이스, 조안, 피트, 필리스, 코퍼, 부커, 부엉, 거북이 촌장 등)이며, 각각 한 행씩이다.</strong>
-  각 행은 이미 채널, 액터, 오버레이, 플래그를 담고 있고 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>, ov068 자체의
+  각 행은 이미 채널, 액터, 오버레이, 플래그를 담고 있고 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved</span></span>, ov068 자체의
   풀은 열두 개의 특수 NPC 모델 <code>rcn, rcc, rcs, rcd, pga, pgb, poo, ott, wip, xct, mof, end</code>를 지정한다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/ov003-068.md</span></span>. 실험: 23개 행을 덤프하고, 각 오버레이 id를 해석하고, 각
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved</span></span>. 실험: 23개 행을 덤프하고, 각 오버레이 id를 해석하고, 각
   오버레이의 풀에서 로드하는 모델 이름을 읽는다.</li>
 <li><strong>H: <code>0x020e1d08</code>의 열한 개 술어는 우선순위 순으로 나열된 열한 개의 스케줄링 규칙(오늘 날짜,
   요일 규칙, 휴일 규칙, 무작위 방문객 규칙 ...)이며, 각각 하루에 최대 한 명의 방문객을 준비시킬 수
   있다.</strong> 테이블은 PMF/우선순위로 설명되어 있다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>. 실험: 열한 개 각각을 계측하고 시뮬레이션한 7일에 걸쳐 어느 것이
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/spnpc.c; direct ROM-source provenance unresolved</span></span>. 실험: 열한 개 각각을 계측하고 시뮬레이션한 7일에 걸쳐 어느 것이
   발동하는지 기록한다.</li>
 <li><strong>H: 휴일은 그 열한 개 술어 중 하나가 참조하는 날짜 테이블의 행이며, <code>func_0204fa8c</code>의 열네 값
   인덱스가 그 테이블의 행 선택자다.</strong> 인덱스는 실제 휴일이 월말에 오는 정확히 그 두 달을 나눈다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/seasonidx.c</span></span>. 실험: <code>func_0204fb80</code> 외에 <code>func_0204fa8c</code>의 결과를 소비하는 곳을
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0204fa8c.c</code>; historical account: port/shim/game/seasonidx.c</span></span>. 실험: <code>func_0204fb80</code> 외에 <code>func_0204fa8c</code>의 결과를 소비하는 곳을
   찾아 그 테이블을 읽는다.</li>
 <li><strong>H: 생일은 주민 레코드에서 읽어 <code>func_02040c90</code> 안에서 하루에 한 번 RTC 날짜와 비교된다.</strong> 이
   루틴은 지금까지 발견된 유일한 하루 단위 재기록이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/known_callees.txt</span></span>. 실험: RTC를 알려진 주민의 생일로 설정하고 롤오버 전후로
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved</span></span>. 실험: RTC를 알려진 주민의 생일로 설정하고 롤오버 전후로
   <code>0x021e5a2c</code>의 여덟 레코드를 비교한다.</li>
 <li><strong>H: <code>func_02040c90</code>의 다섯 <code>MI_CpuCopy8</code> 블록은 다섯 개의 별도 하위 시스템(날씨, 상점 재고,
   방문객, 무 가격, 우편)에 대해 "어제"를 "그저께"로 옮긴다.</strong> 다섯 개의 복사, 그리고 이전 값이
   필요한 다섯 개의 하위 시스템이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/known_callees.txt</span></span>. 실험: 각 복사의 원본과 대상을 명명하고 세이브 레이아웃과
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved</span></span>. 실험: 각 복사의 원본과 대상을 명명하고 세이브 레이아웃과
   대조한다.</li>
 <li><strong>H: 세 번째 게이트 항인 <code>func_02084ad0</code>은 "특수 NPC가 이미 존재한다"이며, 그래서 0이어야 한다.</strong>
-  인수 없이 호출되며 게이트가 통과하려면 결과가 0이어야 한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/spnpc.c</span></span>. 실험:
+  인수 없이 호출되며 게이트가 통과하려면 결과가 0이어야 한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02084ad0.c</code>; historical account: port/shim/game/spnpc.c</span></span>. 실험:
   <code>func_02084ad0</code>을 읽고 방문객의 채널이 열려 있는 동안 기록한다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>weather-and-seasons.md</code> &ndash; 같은 날짜가 만들어내는 계절</li>
 <li><code>player.md</code> &ndash; 이벤트 비트필드 상세</li>
@@ -415,7 +428,7 @@ RTC 전진"이 오고, 그 뒤에 <code>func_020a1038</code>의 세이브 삭제
 </ul></div><nav class="prevnext"><a class="pn prev" href="../systems/weather-and-seasons.html"><small>◀ 이전</small>날씨와 계절</a><a class="pn next" href="../systems/dialogue.html"><small>다음 ▶</small>대화</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

@@ -14,7 +14,7 @@ replaced the one-line-per-request-type instrument this page's table describes.
 At the time this experiment was proposed, no retained game run had demonstrated persistence.
 SAVEFLOW41 subsequently measured the one-byte write above, and SAVE43 demonstrated a saved
 town reloading [E: `scratchpad/save43/RECEIPTS.md`, `gp-S3`, `boot-A` and `boot-B`;
-`docs/log/cycle42-save.md` SAVE43]. The original questions below are retained as history. Three things are worth
+`docs/log/cycle42-save.md` SAVE43 ; `scratchpad/save43/runs/gp-S3`]. The original questions below are retained as history. Three things are worth
 separating, and only instruments can separate them:
 
 1. does the game *issue* backup requests on the way to the town hall (request type 6, and ever
@@ -24,7 +24,7 @@ separating, and only instruments can separate them:
 
 The third has a measured half already: with the read fill on, the keyed START run stopped at
 `unimplemented: func_02225a90` around frame 10 (the symbol tables name it
-`func_ov003_02225a90`, `ov003` [S: `config/adm-kr/arm9/overlays/ov003/symbols.txt`]), where the same build with the fill off runs
+`func_ov003_02225a90`, `ov003` [S: `src/matched/func_ov003_02225a90.c`; source account: `config/adm-kr/arm9/overlays/ov003/symbols.txt`]), where the same build with the fill off runs
 clean [H: host-source account from `port/shim/fs/cardreq.c`; verify with a retained scripted run and frame using this page's recipe]. That says the honest answer moves the boot onto a path the
 port cannot yet follow -- it does not say which path.
 

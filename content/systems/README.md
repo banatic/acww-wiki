@@ -8,6 +8,7 @@
 
 - [`town.md`](town.md) -- 에이커, 96x96 타일 격자, 시드가 아닌 세이브로부터의 생성, 아이템
   레이어, 원통형 세계, 마을 이름
+- [`acre-grid.md`](acre-grid.md) -- 격자 아래의 데이터 모델: 에이커 배열의 스트라이드와 범위, 에이커당 두 16x16타일 레이어, 위치의 에이커·타일 분할, 읽기·쓰기 접근자 계열과 그 호출자
 - [`villagers.md`](villagers.md) -- 여덟 개의 집 레코드, 여섯 클래스 선택, 스폰 체인과 액터
   매니저, 얼굴과 표정
 - [`player.md`](player.md) -- 네 개의 플레이어 슬롯, 64비트 이벤트 비트필드, 이름 키보드,
@@ -20,6 +21,7 @@
   술어와 스물세 개의 방문객 행
 - [`dialogue.md`](dialogue.md) -- 다섯 항목의 대화 테이블, 요청/래치 상태 바이트, 스크립트
   바인드, 선택 프롬프트와 두 개의 키보드
+- [`multiplayer-callbacks.md`](multiplayer-callbacks.md) -- 방문을 뒷받침하는 무선 구조체 다섯 개: 16바이트 안의 전역 변수 네 개, 통신 컨텍스트의 여덟 워드 콜백 블록과 이를 설치하는 함수 하나 및 분기하는 열두 지점, 비컨/AP 테이블 매니저와 항목별 알람, 게임이 사용하는 WM 포트
 
 ---
 
@@ -40,4 +42,4 @@
 여기의 모든 페이지는 가설 섹션을 가지며 `../experiments/` 아래의 페이지로 링크한다. 실험
 색인은 `../experiments/README.md`이며, 실행됨과 설계만 됨(아직 미실행)으로 나뉜다;
 2026-09-10 기준 아홉 개가 실행되었고 세 개는 아직 설계만 되어 있다
-[S: `../experiments/README.md`, its two tables].
+[H: source account: `../experiments/README.md`, its two tables; direct ROM-source provenance unresolved].

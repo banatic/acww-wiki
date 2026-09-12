@@ -63,10 +63,10 @@ PXI 요청을 버리는 호스트가 0을 반환하는 대신 버퍼를 건드�
 심볼은 어떤 매칭된 파일에도 정의되어 있지 않고 링크된 이미지 어디에도 나타나지 않는다; ROM
 자체의 `0x0211e7d0` 분기 워드는 `bl 0x0211e804`이며 이는 `RTC_GetDateTimeAsync`다; 그리고 세
 개의 68바이트 래퍼는 NitroSDK가 내보내는 순서대로 각자의 비동기 짝 바로 앞에 놓여 있다
-[S: read from `extract/adm-kr/arm9/unk_autoload_2.bin` and the autoload_2 symbol table, as
-recorded in `port/shim/os/rtcclock.c`]. `0x0211e7c0`은 `RTC_GetDateTime`이다. 하니스가 호출
+[H: source account: read from `extract/adm-kr/arm9/unk_autoload_2.bin` and the autoload_2 symbol table, as
+recorded in `port/shim/os/rtcclock.c`; direct ROM-source provenance unresolved]. `0x0211e7c0`은 `RTC_GetDateTime`이다. 하니스가 호출
 변위를 마스킹하기 때문에 바이트 매칭으로는 둘을 구별할 수 없다 -- 이것은 결함 클래스 D12,
-잘못 타이핑된 대상을 인코딩한 이름이다 [S: `docs/rules/D-defects.md` D12].
+잘못 타이핑된 대상을 인코딩한 이름이다 [H: source account: `docs/rules/D-defects.md` D12; direct ROM-source provenance unresolved].
 
 ### 게임의 시계
 
@@ -89,24 +89,21 @@ recorded in `port/shim/os/rtcclock.c`]. `0x0211e7c0`은 `RTC_GetDateTime`이다.
 [S: `func_020bbb6c` / `func_0209def4`, main, quoted in
 `port/shim/os/rtcclock.c`].
 
-**이 시계가 게임 자체의 난수 생성기를 시드하는 것이고, 그것이 마을을 결정한다**
-(ORACLE46). `func_02061530`은 `0x021cb5a0`의 상태 워드를 `func_0209dbbc()`로 설정하는데,
-이 함수는 위 전역 변수의 네 바이트 -- `minute | day<<8 | hour<<16 | second<<24`, 즉
-`0x021dc758`, `0x021dc74c`, `0x021dc754`, `0x021dc75c` -- 를 접어 넣으며, 연, 월, 요일, 틱은
-쓰지 않는다 [S: `src/matched/func_02061530.c`, `src/matched/func_0209dbbc.c`]. 포트에서 그
-블록에 로드 워치포인트를 걸면 **프레임 3**에서 세 개의 읽기 pc(`0x0209dbc0`, `0x0209dbc4`,
-`0x0209dbcc`)가 `0`, `0x0f`, `0x0a`를 보는 것이 잡힌다 -- 기본 순간에 대한 시드 `0x000a0f00` --
-그리고 두 마을 생성 구간에 대해 같은 조사를 하면 이들이 없으므로, 이 경로에서 시딩은
-한 번 일어나고 다시는 일어나지 않는다 [E: `scratchpad/oracle46/RECEIPTS.md`, O46-1; `docs/log/cycle41-gameplay.md` ORACLE46]. **실질적인
-결과: 첫 1초 이후에 효력을 갖는 시계 조건은 시드를 바꿀 수 없고**, 부팅 순간의 분, 일, 시,
-초를 바꾸는 조건은 마을 전체를 바꾼다.
+**시계는 게임플레이 RNG를 한 번 시드하며, 이후 시계 조건은 추출 횟수를 바꾼다.** `func_02061530`은 `func_0209dbbc()`로 `0x021cb5a0`을 설정한다. 이 함수는 `minute | day<<8 | hour<<16 | second<<24`를 접어 넣고 연·월·요일·틱은 제외한다 [S: `src/matched/func_02061530.c`, `src/matched/func_0209dbbc.c`].
+ORACLE46은 포트의 프레임 3과 시계 조건을 적용한 원본 및 적용하지 않은 원본의 프레임 44에서 같은 시드 `0x000a0f00`을 측정했다 [E: `scratchpad/oracle46/RECEIPTS.md`;
+log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
+ORACLE47에서는 프레임 10,000의 두 원본 모두 추출 인덱스 1,430이었으나 11,000에서는 조건 적용 시 1,532, 미적용 시 1,529였다. 조건 적용으로 늘어난 14개 추출은 모두 10,000 이후 마을 이름 화면에서 확정할 때까지 소비됐다 [E: `scratchpad/oracle46/ledgers/o-townarm.jsonl`,
+`scratchpad/oracle46/ledgers/o-townoff.jsonl`; log: `docs/log/cycle41-gameplay.md` O47-3].
+마을 id 추출 인덱스는 포트 2,667, 조건 없는 원본 2,684, 조건을 적용한 원본 2,698이므로 시드만 맞춰서는 마을이 같아지지 않았다 [E: `scratchpad/oracle46/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4].
+같은 맵에서 게임플레이를 비교하려면 `port/tools/oracle/README.md`의 레시피 선택 표에 있는 정방향 레시피를 쓴다. 포트의 두 번째 탭은 24,908, 오라클 시계 조건 없는 원본은 24,700이며, 마을 `0x8365`에서 새로 만든 체인과 문서에 기록된 HUD 시계 차이 13m22s를 사용한다 [E: `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-0, O50-3;
+recipe: `port/tools/oracle/README.md`].
 
 게임 자체의 시계 밖에서 RTC는 엔트로피 소스다. Wi-Fi 신원 생성기는 초로 변환한 RTC 날짜와
 시각으로 16비트 LCG를 시드하며, 틱 카운터가 사용 가능하면 그것으로 솔트한다
 [S: `func_02100cbc` (`DWCi_AUTH_GetNewWiFiInfo`), autoload_2,
 `src/matched/func_02100cbc.c`], 그리고 AOSS 설정 RNG는 `hour<<10 + minute<<3 + second`를
 시드에 접어 넣는다 [S: `AOSS_Rand`, ov001, `src/matched/AOSS_Rand.c`]. **매칭된 `func_ov004_*`
-파일 중 RTC를 참조하는 것은 하나도 없다** [S: absence across 2,886 ov004 files in `src/matched`].
+파일 중 RTC를 참조하는 것은 하나도 없다** [H: source account: absence across 2,886 ov004 files in `src/matched`; direct ROM-source provenance unresolved].
 
 ### 틱
 
@@ -126,8 +123,8 @@ recorded in `port/shim/os/rtcclock.c`]. `0x0211e7c0`은 `RTC_GetDateTime`이다.
 포트는 `OS_GetTick`을 심(shim)으로 대체하는 대신 *레지스터*를 구동한다. 매 프레임
 `TICKS_PER_FRAME` = 8,728을 `0x04000100`과 카운터에 쓰므로, `OS_GetTick`, `OS_GetTickLo`, 알람
 경로와 스레드 슬립 경로가 모두 일관된 진실을 읽는다
-[E: `port/platform/tick.c`; the one-second wait in `func_020b5898` compares against 523,656,
-which is 8,728 x 60]. 이것은 벽시계 시간이 아니라 프레임을 세는 시계다: 절반 속도로 도는
+[H: log/source account: `port/platform/tick.c`; the one-second wait in `func_020b5898` compares against 523,656,
+which is 8,728 x 60; receipt provenance unresolved]. 이것은 벽시계 시간이 아니라 프레임을 세는 시계다: 절반 속도로 도는
 포트는 시간도 절반 속도로 흐르는 것을 본다 [H: host-source account from `port/platform/tick.c`; verify with a retained scripted run and frame using this page's recipe]. 이것이 존재하기 전에는
 두 읽기 모두 0을 답했고, `func_020b5898`의 상태 2는 영원히 `now - saved == 0`을 계산했으며,
 프레임 900의 Nintendo 로고 화면은 프레임 120과 동일했다 [H: host-source account from `port/platform/tick.c`; verify with a retained scripted run and frame using this page's recipe].
@@ -155,8 +152,8 @@ ROM이 없으므로, 세 getter는 여전히 같은 모델에서 직접 답한�
 클록으로 560190사이클이며, 포트의 프레임 페이서가 쓰는 것과 같은 쌍이다 -- 이고, 순간은
 프레임 수의 순수 함수, 즉 `boot + floor(frames * 560190 / 33513982)`초이며, 자정 넘김, 월
 길이, 윤일, 요일이 거기서 계산된다
-[E: `port/shim/os/rtcclock.c`; `port/tools/test_rtc.py` calibrates fourteen cases including a
-leap day, three month ends and midnight]. 이는 긴장 관계에 있던 두 속성을 모두 지킨다:
+[H: log/source account: `port/shim/os/rtcclock.c`; `port/tools/test_rtc.py` calibrates fourteen cases including a
+leap day, three month ends and midnight; receipt provenance unresolved]. 이는 긴장 관계에 있던 두 속성을 모두 지킨다:
 플레이하는 동안 게임 시간이 흐르고, 같은 레시피를 두 번 실행해도 여전히 같은 실행인데,
 아무것도 벽시계 시간을 읽지 않기 때문이다. 틱이 하는 것과 같은 거래다 -- 절반 속도로 도는
 포트는 게임 시간도 절반 속도로 흐르는 것을 본다.
@@ -171,7 +168,7 @@ leap day, three month ends and midnight]. 이는 긴장 관계에 있던 두 속
 [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. 시계는 세이브스테이트에 실린다 --
 부팅 순간, 고정 플래그, "순간 결정됨" 플래그 -- 그래서 재개된 실행은 로딩 셸의 환경을 다시
 읽는 대신 스냅샷 당시의 시계를 유지한다
-[E: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`].
+[H: log/source account: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`; receipt provenance unresolved].
 
 오라클도 같은 부팅 순간을 고정한다. 생성된 무비의 `rtcStart 2005-06-15T10:00:00Z`이며,
 DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 칩을 진행시키므로, 둘은 부팅
@@ -196,7 +193,7 @@ E: `docs/log/cycle41-gameplay.md` ORACLE44 item 4]. 53,100프레임은 에뮬레
 변함이 없다(둘 다 0.997413, 최악 프레임 -0.000008)
 [E: `scratchpad/rtc42/analyse.txt`; `docs/log/cycle41-gameplay.md` RTC42]. 고정 조건은 PXI
 재작성 자체가 중립적이라는 영수증이기도 하다: 고정하면 RTC42 이전 빌드와 31/31 동일하다
-[E: same].
+[E: `scratchpad/rtc42/analyse.txt`].
 
 **왜 호스트의 시계가 아니라 프레임 구동 시계인가.** `rtcclock.c`가 존재하기 전에 포트는 PXI
 요청을 버렸으므로 `func_0209e49c`의 지역 변수는 결코 기록되지 않았고, 게임의 시계 전역 변수는
@@ -207,7 +204,7 @@ E: `docs/log/cycle41-gameplay.md` ORACLE44 item 4]. 53,100프레임은 에뮬레
 0x000008cc가 기록되었다 [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. 죽은 코드만 다른
 두 실행 파일이 세계를 다르게 비추었고, 이는 모든 고정 프레임 스크린샷 비교 아래에 20-26%의
 픽셀 노이즈 바닥을 깔았으며 이미 발표된 발견 사항 하나를 철회하게 만들었다
-[E: `port/shim/os/rtcclock.c`; M1]. 조용히 호스트 시간을 따라가는 포트는 정확히 그 부류의
+[H: log/source account: `port/shim/os/rtcclock.c`; M1; receipt provenance unresolved]. 조용히 호스트 시간을 따라가는 포트는 정확히 그 부류의
 결함을 한 단계 위에서 다시 불러들일 것이다 -- 하나의 레시피를 두 번 실행해도 하루 중 다른
 시각에 시작했다는 이유로 달라질 것이다. 프레임 수로 시계를 구동하면 결정성을 지키면서
 게임에 달력을 돌려준다; 그 대가는 길이가 다른 두 실행이 더는 같은 순간에 있지 않다는
@@ -227,9 +224,9 @@ E: `docs/log/cycle41-gameplay.md` ORACLE44 item 4]. 53,100프레임은 에뮬레
 | `RTC_GetDateAsync` `0x0211e998`, `RTC_GetTimeAsync` `0x0211e8d8` | autoload_2 | 날짜만 / 시각만 읽는 비동기 읽기 | [S: `src/matched/RTC_GetDateAsync.c`] |
 | `RTC_SetDateTime` `0x0211e7c0` | autoload_2 | **이름이 잘못됨**; ROM은 `RTC_GetDateTimeAsync`로 분기하므로 이것은 `RTC_GetDateTime`이다 | [S: `src/matched/RTC_SetDateTime.c` vs the ROM word at `0x0211e7d0`] |
 | `RTC_ConvertDateToDay`, `RTCi_ConvertTimeToSecond`, `RTC_ConvertDateTimeToSecond` | autoload_2 | 날짜를 일 번호로, 시각을 초로, 그리고 그 곱 | [S: `src/matched/RTC_ConvertDateToDay.c`] |
-| `func_0209e49c` / `func_0209e5b4` | main | 시계를 `0x021dc744` / `0x021dc754`로 읽어 들이고, 기본 날짜에서 요일을 강제 | [S: quoted in `port/shim/os/rtcclock.c`] |
+| `func_0209e49c` / `func_0209e5b4` | main | 시계를 `0x021dc744` / `0x021dc754`로 읽어 들이고, 기본 날짜에서 요일을 강제 | [S: `src/matched/func_0209e49c.c`, `src/matched/func_0209e5b4.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
 | `func_0207b05c` | main | 날짜 따라잡기: 일 단위 델타, 그 횟수만큼의 하루 단위 스텝; 시계 조작 분기 | [S: `src/matched/func_0207b05c.c`] |
-| `func_020bbb6c` | main | 분으로부터의 낮/밤 블렌드 가중치 | [S: quoted in `port/shim/os/rtcclock.c`] |
+| `func_020bbb6c` | main | 분으로부터의 낮/밤 블렌드 가중치 | [S: `src/matched/func_020bbb6c.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
 | `func_ov092_02299324` | ov092 | 시계 설정 오버레이의 디스패처; 코드 0x43과 0x44가 RTC와 통신 | [S: `src/matched/func_ov092_02299324.c`] |
 | `OS_GetTick`, `OS_GetTickLo` (itcm), `OS_InitTick`, `OSi_CountUpTick` (autoload_2) | itcm / autoload_2 | 프리스케일러 64의 타이머 0, 소프트웨어로 64비트 확장 | [S: `src/matched/OS_GetTick.c`, `src/matched/OS_InitTick.c`] |
 
@@ -240,9 +237,9 @@ E: `docs/log/cycle41-gameplay.md` ORACLE44 item 4]. 53,100프레임은 에뮬레
 | `0x027ffde8` (`OSSystemWork.real_time_clock[8]`) | 칩의 원시 BCD 레지스터 미러 | ARM7 | `RtcCommonCallback` [S: `src/matched/RtcCommonCallback.c`] |
 | `rtcWork.lock` | RTC 바쁨 플래그, 콜백이 해제 | `RtcCommonCallback` | `RtcWaitBusy` [S: `src/matched/RtcWaitBusy.c`] |
 | `rtcWork.buffer[0..1]` | *호출자의* 날짜 및 시각 구조체를 가리키는 포인터 | 비동기 getter들 | `RtcCommonCallback` [S: `src/matched/RTC_GetDateTimeAsync.c`] |
-| `0x021dc744` | 게임의 `RTCDate` (year, month, day, week) | `func_0209e49c` | 달력과 이벤트 코드 [S: quoted in `port/shim/os/rtcclock.c`] |
-| `0x021dc754` | 게임의 `RTCTime.hour` | `func_0209e49c` | 시계 경로 [E: `ACWW_WATCH=0x021dc754`, `port/shim/os/rtcclock.c`] |
-| `0x021dc758` | 게임의 `RTCTime.minute` | `func_0209e49c` | `func_0209def4` 다음 `func_020bbb6c` [S: quoted in `port/shim/os/rtcclock.c`] |
+| `0x021dc744` | 게임의 `RTCDate` (year, month, day, week) | `func_0209e49c` | 달력과 이벤트 코드 [S: `src/matched/func_0209e49c.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
+| `0x021dc754` | 게임의 `RTCTime.hour` | `func_0209e49c` | 시계 경로 [H: log/source account: `ACWW_WATCH=0x021dc754`, `port/shim/os/rtcclock.c`; receipt provenance unresolved] |
+| `0x021dc758` | 게임의 `RTCTime.minute` | `func_0209e49c` | `func_0209def4` 다음 `func_020bbb6c` [S: `src/matched/func_0209def4.c`, `src/matched/func_020bbb6c.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
 | 세이브 `+0x4046` | 세이브가 마지막으로 기록된 날짜 | 세이브 경로 | `func_0207b05c` [S: `src/matched/func_0207b05c.c`] |
 | `0x04000100` (`REG_TM0CNT_L`) | 하드웨어 타이머 0의 16비트 카운트 | 타이머 (포트: `acww_tick_advance`) | `OS_GetTick`, `OS_GetTickLo` [S: `src/matched/OS_GetTick.c`] |
 | `OSi_TickCounter` | 틱의 소프트웨어 확장 상위 절반 | `OSi_CountUpTick` (포트: `acww_tick_advance`) | `OS_GetTick` [S: `src/matched/OSi_CountUpTick.c`] |

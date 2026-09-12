@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,112 +136,151 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>오버레이</span></div><header class="page-head"><h1>오버레이</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 49</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-H"><b>H</b> 4</span></div><div class="source-line">원문: <code>wiki/engine/overlays.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 상주하는 <code>main</code>, <code>itcm</code>, <code>autoload_2</code> 이미지 외에도, ACWW의 코드는 필요할 때 메인 RAM에
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>오버레이</span></div><header class="page-head"><h1>오버레이</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 15</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-H"><b>H</b> 41</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/engine/overlays.md"><code>wiki/engine/overlays.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/engine/overlays.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="overlays"></span><p><strong>요약.</strong> 상주하는 <code>main</code>, <code>itcm</code>, <code>autoload_2</code> 이미지 외에도, ACWW의 코드는 필요할 때 메인 RAM에
 페이징되어 들어오는 148개의 오버레이(overlay) 슬롯에 들어 있다. 대부분이 서로 주소를 공유하므로,
 "<code>0x02260020</code>에 무엇이 있는가"는 어느 오버레이가 상주해 있는지를 알지 못하면 답이 없다.
 오버레이를 로드하면 그 이미지를 복사하고(선택적으로 압축을 풀고) C++ 정적 초기화자를 실행한다;
 언로드하면 전역 체인에서 그 소멸자들을 쓸어낸다. 마을은 다섯 개의 오버레이가 동시에 상주해야
 하며, 거기까지 데려다주는 택시가 여섯 번째다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
-<h3 id="몇-개이고-얼마나-큰가">몇 개이고 얼마나 큰가</h3>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="how-many-and-how-big"></span><h3 id="몇-개이고-얼마나-큰가">몇 개이고 얼마나 큰가</h3>
 <p>빌드 설정은 메인 모듈과 네 개의 오토로드(<code>itcm</code>, <code>dtcm</code>, <code>autoload_2</code>, <code>autoload_3</code>) 옆에
 <code>ov000</code>부터 <code>ov147</code>까지 148개의 오버레이 슬롯을 선언한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/config.yaml</code>; 148 directories under <code>config/adm-kr/arm9/overlays/</code></span></span>. 그 슬롯 중 138개는 적어도 하나의 함수 심볼을 가지고 있고; 열 개는
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>config/adm-kr/arm9/config.yaml</code>; 148 directories under
+<code>config/adm-kr/arm9/overlays/</code>; direct ROM-source provenance unresolved</span></span>. 그 슬롯 중 138개는 적어도 하나의 함수 심볼을 가지고 있고; 열 개는
 전혀 없다 — <code>ov000</code>, <code>ov057</code>부터 <code>ov064</code>, 그리고 <code>ov089</code>
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">counted from <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>, <code>kind:function</code> lines</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: counted from <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>, <code>kind:function</code> lines; direct ROM-source provenance unresolved</span></span>.</p>
 <p>모든 모듈에 걸쳐 심볼 테이블은 25,516개의 함수와 15,313개의 데이터 심볼을 이름 짓는다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">counted from <code>config/adm-kr/arm9/**/symbols.txt</code></span></span>. <code>main</code>이 함수 중 11,923개를,
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: counted from <code>config/adm-kr/arm9/**/symbols.txt</code>; direct ROM-source provenance unresolved</span></span>. <code>main</code>이 함수 중 11,923개를,
 <code>autoload_2</code>가 2,199개를 가지며; <code>itcm</code>은 158개; 오버레이들이 합쳐서 11,236개를 가진다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same count</span></span>. 오버레이 띠의 함수 주소는 <code>0x02207cc0</code>부터 <code>0x022a31d8</code>까지다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">minimum and maximum <code>addr:</code> over <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>, <code>kind:function</code> lines</span></span>.</p>
-<h3 id="오버레이는-겹치며-그것이-오버레이에-관한-핵심-사실이다">오버레이는 겹치며, 그것이 오버레이에 관한 핵심 사실이다</h3>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code> (<code>main</code> at 0x02000c38); source account: counted from <code>config/adm-kr/arm9/**/symbols.txt</code> count</span></span>. 오버레이 띠의 함수 주소는 <code>0x02207cc0</code>부터 <code>0x022a31d8</code>까지다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/symbols.txt</code> (<code>main</code> at 0x02000c38); source account: minimum and maximum <code>addr:</code> over <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>,
+<code>kind:function</code> lines</span></span>.</p>
+<span class="source-anchor" id="overlays-overlap-and-that-is-the-central-fact-about-them"></span><h3 id="오버레이는-겹치며-그것이-오버레이에-관한-핵심-사실이다">오버레이는 겹치며, 그것이 오버레이에 관한 핵심 사실이다</h3>
 <p>인접한 오버레이 137쌍 중 129쌍이 주소가 겹친다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span>. 공유는 사소하지 않다: 35개의 오버레이가
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c</code> header; direct ROM-source provenance unresolved</span></span>. 공유는 사소하지 않다: 35개의 오버레이가
 <code>0x02260020</code>에서 시작하고, 19개가 <code>0x02278a00</code>, 14개가 <code>0x0229c180</code>, 12개가 <code>0x02260420</code>에서 시작한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">counted from the minimum function address of each <code>config/adm-kr/arm9/overlays/*/symbols.txt</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: counted from the minimum function address of each <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>두 가지 결과가 따르며, 둘 다 포트에 오류를 일으킨 적이 있다. 첫째, 공유된 주소의 워드는
 어느 오버레이가 로드되어 있든 그것에 속하므로, 재배치(relocation) 테이블을 모든 후보에
 미리 적용할 수 없다 — 테이블은 오버레이 id별로 생성되고 로드 시점에 적용된다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span>. 둘째, 주소만으로는 명령어 집합이 결정되지 않는다:
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c</code> header; direct ROM-source provenance unresolved</span></span>. 둘째, 주소만으로는 명령어 집합이 결정되지 않는다:
 <code>ov003</code>과 <code>ov004</code>는 주소를 공유하며, 주소만으로 키를 잡은 테이블이
 Thumb 함수 <code>func_ov003_02226048</code>을 ARM으로 실행하여, 푸시 대상 함수의 호스트 주소에서 푸시를
-실행했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40..SND40, second fault</span></span>. 그런 이유로 명령어 집합 테이블은 모든 항목 옆에 오버레이 id를 담고 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/interp/interp.h:64-68</code></span></span>.</p>
-<h3 id="하나를-로드하기">하나를 로드하기</h3>
+실행했다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40..SND40, second
+fault; receipt provenance unresolved</span></span>. 그런 이유로 명령어 집합 테이블은 모든 항목 옆에 오버레이 id를 담고 있다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/interp/interp.h:64-68</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="loading-one"></span><h3 id="하나를-로드하기">하나를 로드하기</h3>
 <p>오버레이의 헤더는 고정된 레코드다: id, RAM 주소, RAM 크기, BSS 크기, 정적 초기화자
 배열의 경계, 파일 id, 24비트 압축 크기, 8비트 플래그
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FSOverlayInfoHeader</code>, <code>port/shim/fs/ovlreloc.c:31-41</code></span></span>. <code>FS_LoadOverlayImage</code>가
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>FSOverlayInfoHeader</code>, <code>port/shim/fs/ovlreloc.c:31-41</code>; direct ROM-source provenance unresolved</span></span>. <code>FS_LoadOverlayImage</code>가
 오버레이의 바이트를 RAM에 복사하고, <code>FS_StartOverlay</code>가 작업을 마무리한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_StartOverlay</code> / <code>FS_LoadOverlayImage</code>, <code>port/shim/fs/ovlreloc.c</code> header</span></span>. 플래그의
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_StartOverlay.c</code>, <code>src/matched/FS_LoadOverlayImage.c</code>; source account: <code>FS_StartOverlay</code> / <code>FS_LoadOverlayImage</code>, <code>port/shim/fs/ovlreloc.c</code> header</span></span>. 플래그의
 비트 0은 이미지가 역방향 압축되어 있고 <code>MIi_UncompressBackward</code>로 풀린다는 뜻이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_OVERLAY_FLAG_COMP</code>, <code>port/shim/fs/ovlreloc.c:50, 56</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>FS_OVERLAY_FLAG_COMP</code>, <code>port/shim/fs/ovlreloc.c:50, 56</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p><code>FS_StartOverlay</code>가 마지막으로 하는 일은 <code>sinit_init</code>부터 <code>sinit_init_end</code>까지의 배열을 순회하며
 그 안의 각 워드를 호출하는 것이다 — 오버레이의 C++ 정적 초기화자들이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header, and the walk at <code>:243-258</code></span></span>. 그 워드들은 방금 복사된
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c</code> header, and the walk at <code>:243-258</code>; direct ROM-source provenance unresolved</span></span>. 그 워드들은 방금 복사된
 이미지 안의 NDS 주소이며, 바로 이것이 포트에서 첫 오버레이 호출이 <code>0x02266905</code>의 날것 ARM 코드로의
 점프로 나타난 이유다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/fs/ovlreloc.c</code> header; verify with a retained scripted run and frame using this page's recipe</span></span>. 하나의 오버레이는 많아야 이백여 개를 담으며;
-인터프리터 경로는 최대 256개까지 읽는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:206-212</code></span></span>.</p>
+인터프리터 경로는 최대 256개까지 읽는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c:206-212</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p>인증 블록도 있다: <code>FSi_CompareDigest</code>는 이미지를 다이제스트 테이블과 대조하며 그 유일한
-실패 경로는 <code>OS_Terminate()</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span>.
+실패 경로는 <code>OS_Terminate()</code>이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c</code> header; direct ROM-source provenance unresolved</span></span>.
 PC 포트는 이를 의도적으로 생략하며, 조용히 생략하는 대신 그렇게 한다고 밝힌다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span>.</p>
-<h3 id="하나를-언로드하기-그리고-소멸자-체인">하나를 언로드하기, 그리고 소멸자 체인</h3>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c</code> header; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="unloading-one-and-the-destructor-chain"></span><h3 id="하나를-언로드하기-그리고-소멸자-체인">하나를 언로드하기, 그리고 소멸자 체인</h3>
 <p><code>FS_EndOverlay</code>는 전역 소멸자 체인을 쓸어내며 주소가 언로드되는 범위 안에 들어가는 등록된
 소멸자를 모두 끊어낸다 — 검사는 저장된 워드에 대한 <code>lo &lt;= dtor &lt; hi</code>이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>FS_EndOverlay</code>, <code>port/shim/fs/ovlreloc.c:213-220</code></span></span>. 이 검사가 PC 포트가 인터프리터 경로에서
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_EndOverlay.c</code>; source account: <code>FS_EndOverlay</code>, <code>port/shim/fs/ovlreloc.c:213-220</code></span></span>. 이 검사가 PC 포트가 인터프리터 경로에서
 오버레이 풀 워드를 다시 쓸 수 없는 이유다: 코드 주소를 호스트 주소로 바꿔 쓰면 그것이 모든 NDS
 범위 밖에 놓이고, 노드는 연결된 채 남으며, 다음 오버레이가 그 위에 로드되고, 체인은
 쓰레기 속으로 걸어 들어간다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> OVL40, runs <code>tap-D53</code> and <code>tap-D54</code></span></span>.</p>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> OVL40, runs <code>tap-D53</code> and <code>tap-D54</code> ; <code>scratchpad/cycle40/runs/tap-D53</code>, <code>scratchpad/cycle40/runs/tap-D54</code></span></span>.</p>
 <p>같은 오류의 이전 변형도 알아 둘 가치가 있는데, 실수로 재현하기 쉽기 때문이다: 호스트
 <code>FS_EndOverlay</code>가 ROM의 체인 대신 호스트 C++ 런타임의 <code>__global_destructor_chain</code>을
 순회했고, 이는 완전히 다른 체인이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> OVL40, <code>tap-D52</code></span></span>.</p>
-<h3 id="어느-오버레이가-어느-기능을-담는가">어느 오버레이가 어느 기능을 담는가</h3>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> OVL40, <code>tap-D52</code> ; <code>scratchpad/cycle40/runs/tap-D52</code></span></span>.</p>
+<span class="source-anchor" id="which-overlay-carries-which-feature"></span><h3 id="어느-오버레이가-어느-기능을-담는가">어느 오버레이가 어느 기능을 담는가</h3>
 <p>아래의 식별은 출력 가능한 ROM 텍스트를 가리키는 리터럴 풀 워드를 해석한 데서 나온다 —
 오버레이는 자신의 에셋 경로를 통해 스스로의 주제를 이름 짓는다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov003-068.md</code>, "What these modules are"</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov003-068.md</code>, "What these modules are"; direct ROM-source provenance unresolved</span></span>.</p>
 <p><code>ov003</code>은 야외 마을/필드 3D 씬 모듈이다: 전체 전경 에셋 트리(나무, 풀, 꽃, 구멍, 돌),
 집, 지면, 눈사람 NPC, 물고기, 곤충, 표지판, 그리고 계절별 텍스처 변형
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov003-068.md</code></span></span>. <code>ov004</code>는 그 실내 대응물이다 — 방 오브젝트, 가구,
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov003-068.md</code>; direct ROM-source provenance unresolved</span></span>. <code>ov004</code>는 그 실내 대응물이다 — 방 오브젝트, 가구,
 TV 프로그램, 벽과 바닥 — 그리고 <code>ov003</code>과 소스 트리를 공유하며, 동일한 곤충 테이블에 이르기까지
-같다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov003-068.md</code>; <code>docs/kb/modules/ov004.md</code></span></span>. <code>ov068</code>은 특수 NPC와 도착 시퀀스다: 특수 NPC
+같다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov003-068.md</code>;
+<code>docs/kb/modules/ov004.md</code>; direct ROM-source provenance unresolved</span></span>. <code>ov068</code>은 특수 NPC와 도착 시퀀스다: 특수 NPC
 모델, 개, 택시와 그 부품, 비와 물튀김 효과, 그리고 새 게임 질문 시퀀스의 스크립트
-레이블 — 캇페이의 택시 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov003-068.md</code></span></span>.</p>
+레이블 — 캇페이의 택시 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov003-068.md</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p><code>ov001</code>은 NitroDWC의 <code>util</code> 씬/UI 라이브러리와 AOSS/Aterm 벤더 접합부(seam)다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov001.md</code></span></span>. <code>ov065</code>는 세 벤더에서 온 네 컴포넌트가 한 오버레이에 들어 있는
-것이다: NitroWiFi, NitroDWC, GameSpy <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov065.md</code></span></span>. <code>ov067</code>은
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov001.md</code>; direct ROM-source provenance unresolved</span></span>. <code>ov065</code>는 세 벤더에서 온 네 컴포넌트가 한 오버레이에 들어 있는
+것이다: NitroWiFi, NitroDWC, GameSpy <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov065.md</code>; direct ROM-source provenance unresolved</span></span>. <code>ov067</code>은
 NitroSDK의 <code>add-ins/wxc</code>, 즉 Wireless eXchange 라이브러리이며, 54개 함수 중 54개가 완전히
-식별되었다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov067.md</code></span></span>. <code>ov068</code>의 <code>0x022667e0</code> 슬롯은
+식별되었다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov067.md</code>; direct ROM-source provenance unresolved</span></span>. <code>ov068</code>의 <code>0x022667e0</code> 슬롯은
 <code>ov065</code>, <code>ov066</code>, <code>ov067</code> 옆에 있지만, 그것은 재사용되는 일시적 메모리이지 Wi-Fi 영역이 아니다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov003-068.md</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov003-068.md</code>; direct ROM-source provenance unresolved</span></span>.</p>
 <p><code>ov126</code>은 화면 키보드의 터치 디스패처 <code>func_ov126_022a1228</code>을 담고 있는데, 이것은 함수
 포인터로만 존재한다 — 오버레이의 <code>0x022a1ff0</code> 재배치 항목이 Thumb 진입점인 <code>0x022a1229</code>를
-담고 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> PROBE40 unit block</span></span>. <code>ov147</code>은
+담고 있다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> PROBE40 unit block; direct ROM-source provenance unresolved</span></span>. <code>ov147</code>은
 <code>0x0229ad4c</code>의 BSS에 부팅 머신 상태 테이블을 두며, 자체 정적 초기화자가 채운다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:213-222</code></span></span>.</p>
-<h3 id="마을-시퀀스-중의-상주-상태">마을 시퀀스 중의 상주 상태</h3>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/gfx/pmflist.c:213-222</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="residency-during-the-town-sequence"></span><h3 id="마을-시퀀스-중의-상주-상태">마을 시퀀스 중의 상주 상태</h3>
 <p>스크립트된 마을 실행의 프레임 37,500 — 플레이어가 마을 회관 앞에 서 있는 시점 — 에서
 오버레이 5, 36, 54, 120, 117이 로드되어 있다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code>, frame 37500; <code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40</span></span>. 오버레이 5는 그보다 일찍, 마을 진입 중에,
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code>, frame 37500;
+<code>docs/log/cycle40-keyboard-gate-probe.md</code> TOWN40</span></span>. 오버레이 5는 그보다 일찍, 마을 진입 중에,
 마을의 씬 6 스테이지가 실행되기 전에 로드된다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> CALL40</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> CALL40; receipt provenance unresolved</span></span>.</p>
 <p>심볼 테이블도 이것들이 작은 모듈임에 동의한다: <code>ov005</code>는 함수 하나, <code>ov036</code>도
 하나, <code>ov054</code>는 88개, <code>ov117</code>은 31개, <code>ov120</code>은 95개를 이름 짓는다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">counted from <code>config/adm-kr/arm9/overlays/*/symbols.txt</code></span></span>. <code>ov054</code>는 <code>0x02260420</code>에서
-시작하고 <code>ov120</code>은 <code>0x0229a340</code>에서 시작한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">same tables</span></span>.</p>
-<h3 id="확정됨-ov004에-함수가-몇-개-있는가">확정됨: <code>ov004</code>에 함수가 몇 개 있는가</h3>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: counted from <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>; direct ROM-source provenance unresolved</span></span>. <code>ov054</code>는 <code>0x02260420</code>에서
+시작하고 <code>ov120</code>은 <code>0x0229a340</code>에서 시작한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: counted from <code>config/adm-kr/arm9/overlays/*/symbols.txt</code> tables; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="what-a-scene-transition-loads-with-a-frame-on-it"></span><h3 id="씬-전환이-로드하는-것과-그-프레임">씬 전환이 로드하는 것과 그 프레임</h3>
+<p>PC 포트에서는 로딩이 전환 전체에 분산되지 않는다. 문에 필요한 모든 것은 씬 로더가 실행되는 <strong>단일 프레임</strong>에 도착한다. 두 프레임 모두 ROM-FS 계측을 켜고 측정했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> LOAD52 L52-3, <code>ACWW_FSTRACE=1</code> ; <code>scratchpad/load52/RECEIPTS.md</code></span></span>.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>문</th>
+<th>프레임</th>
+<th>읽기 요청</th>
+<th>바이트</th>
+<th>시작한 오버레이</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>마을 회관 출구</td>
+<td>49,656</td>
+<td>35,631</td>
+<td>1,322,272</td>
+<td>네 개 — 2, 3, 5, 9</td>
+</tr>
+<tr>
+<td>주민-1의 현관</td>
+<td>57,372</td>
+<td>7,413</td>
+<td>724,265</td>
+<td>세 개 — 2, 4, 29</td>
+</tr>
+</tbody>
+</table></div>
+<p>요청 대부분은 작다. 현관의 요청 7,413건 중 4,729건은 FNT 이름 순회의 1~2바이트 읽기이며, 오버레이 이미지 세 개는 16,896, 306,432, 544바이트다. <strong>일곱 번의 로드 모두 <code>FS_OVERLAY_FLAG_COMP</code> 비트가 꺼져 있다.</strong> 따라서 어느 문에서도 <code>MIi_UncompressBackward</code>는 실행되지 않는다. 이는 <code>arm9_overlays/overlays.yaml</code>의 <code>compressed:</code> 항목과 다른 필드다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> LOAD52 L52-3, <code>ACWW_FSTRACE=1</code> ; <code>scratchpad/load52/RECEIPTS.md</code></span></span>.</p>
+<p><strong>앞서 로드한 오버레이도 전환 시 다시 로드되며, id마다 한 번만 나오는 <code>acww ovl:</code> 줄은 이를 보여 주지 못한다.</strong> 오버레이 2, 3, 5, 9는 모두 부팅 중 출력되므로, 프레임을 찍는 계측이 반증하기 전에는 마을 회관 퇴장이 아무것도 로드하지 않는 것처럼 보였다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">LOAD52 L52-3, retracting TRANSITION51 T51-6; playbook case 116 ; <code>scratchpad/transition51/RECEIPTS.md</code>, <code>scratchpad/load52/RECEIPTS.md</code></span></span>.</p>
+<span class="source-anchor" id="settled-how-many-functions-ov004-has"></span><h3 id="확정됨-ov004에-함수가-몇-개-있는가">확정됨: <code>ov004</code>에 함수가 몇 개 있는가</h3>
 <p><code>ov004</code>에 대해 기록된 두 숫자는 모순이 아니라 두 개의 테이블이다.
 커밋된 <code>symbols.txt</code>는 121개의 <code>kind:function</code> 항목을 나열하며, 그중 90개는 0이 아닌 크기를 가지고
-31개는 크기 0의 <code>_unk</code> 자리표시자다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/ov004/symbols.txt</code>, counted over <code>kind:function</code> lines</span></span>. 그 옆에는 3,060개의 경계 복원된 타깃이 모두 크기를 가진 채
-들어 있는 사이드카(SIDECAR)인 <code>recovered.txt</code>가 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/ov004/recovered.txt</code>, same count</span></span>. 사이드카가 존재하는 이유는 dsd가 <code>symbols.txt</code>를 소유하고 다시 쓰기 때문에, 복원된
-추측을 섞어 넣을 수 없어서다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>tools/agent/target.py:183-215</code>, the "WHY A SIDECAR BESIDE symbols.txt" note, which records the same 90 sized symbols covering 3.8% of the module</span></span>.
+31개는 크기 0의 <code>_unk</code> 자리표시자다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>config/adm-kr/arm9/overlays/ov004/symbols.txt</code>,
+counted over <code>kind:function</code> lines; direct ROM-source provenance unresolved</span></span>. 그 옆에는 3,060개의 경계 복원된 타깃이 모두 크기를 가진 채
+들어 있는 사이드카(SIDECAR)인 <code>recovered.txt</code>가 있다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>config/adm-kr/arm9/overlays/ov004/recovered.txt</code>,
+same count; direct ROM-source provenance unresolved</span></span>. 사이드카가 존재하는 이유는 dsd가 <code>symbols.txt</code>를 소유하고 다시 쓰기 때문에, 복원된
+추측을 섞어 넣을 수 없어서다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>tools/agent/target.py:183-215</code>, the "WHY A SIDECAR BESIDE
+symbols.txt" note, which records the same 90 sized symbols covering 3.8% of the module; direct ROM-source provenance unresolved</span></span>.
 <code>T.load_all()</code>은 둘 다 로드하므로, <code>recovered.txt</code>에만 등장하는 <code>func_ov004_*</code> 이름은
-<code>../STYLE.md</code> 규칙 2에 따라 정당한 심볼 테이블 이름이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>tools/agent/target.py:50-65, 224</code></span></span>.
+<code>../STYLE.md</code> 규칙 2에 따라 정당한 심볼 테이블 이름이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>tools/agent/target.py:50-65, 224</code>; direct ROM-source provenance unresolved</span></span>.
 kb 문서의 "90 symbols to 3,075 targets"는 같은 사건을 조금 이전 리비전에서 센 것이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/modules/ov004.md</code></span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/modules/ov004.md</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -244,53 +295,53 @@ kb 문서의 "90 symbols to 3,075 targets"는 같은 사건을 조금 이전 리
 <td><code>FS_LoadOverlayImage</code></td>
 <td>main</td>
 <td>오버레이의 바이트를 RAM에 복사한다</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_LoadOverlayImage.c</code>; source account: <code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>FS_StartOverlay</code></td>
 <td>main</td>
 <td>압축 해제, 인증, 정적 초기화자 실행</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_StartOverlay.c</code>; source account: <code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>FS_EndOverlay</code></td>
 <td>main</td>
 <td>주소가 언로드 범위에 있는 소멸자를 쓸어낸다</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:213-220</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_EndOverlay.c</code>; source account: <code>port/shim/fs/ovlreloc.c:213-220</code></span></span></td>
 </tr>
 <tr>
 <td><code>FSi_CompareDigest</code></td>
 <td>main</td>
 <td>오버레이 무결성 검사; 실패는 <code>OS_Terminate()</code></td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FSi_CompareDigest.c</code>; source account: <code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
 </tr>
 <tr>
 <td><code>MIi_UncompressBackward</code></td>
 <td>autoload_2</td>
 <td>압축된 오버레이 이미지를 푼다</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:56</code></span></span></td>
+<td><span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c:56</code>; direct ROM-source provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td><code>func_ov126_022a1228</code></td>
 <td>ov126</td>
 <td>키보드의 터치 디스패처, 포인터로만 도달</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">cycle40 log, PROBE40</span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov126_022a1228.c</code>; source account: cycle40 log, PROBE40</span></span></td>
 </tr>
 <tr>
 <td><code>func_ov003_02226048</code></td>
 <td>ov003</td>
 <td>Thumb; <code>ov004</code> 함수와 주소를 공유</td>
-<td><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">cycle40 log, CARD40..SND40</span></span></td>
+<td><span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: cycle40 log, CARD40..SND40; receipt provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td><code>__sinit_ov147_0229a700</code></td>
 <td>ov147</td>
 <td><code>0x0229ad4c</code>의 부팅 머신 상태 테이블을 채운다</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:213-217</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/__sinit_ov147_0229a700.c</code>; source account: <code>port/shim/gfx/pmflist.c:213-217</code></span></span></td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -305,61 +356,65 @@ kb 문서의 "90 symbols to 3,075 targets"는 같은 사건을 조금 이전 리
 <td>오버레이 헤더 <code>ram_address</code> / <code>ram_size</code> / <code>bss_size</code></td>
 <td>이미지가 놓이는 곳과 차지하는 양</td>
 <td>ROM의 오버레이 테이블</td>
-<td><code>FS_StartOverlay</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:31-41</code></span></span></td>
+<td><code>FS_StartOverlay</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_StartOverlay.c</code>; source account: <code>port/shim/fs/ovlreloc.c:31-41</code></span></span></td>
 </tr>
 <tr>
 <td>오버레이 헤더 <code>sinit_init</code> .. <code>sinit_init_end</code></td>
 <td>정적 초기화자 배열</td>
 <td>링커</td>
-<td><code>FS_StartOverlay</code>의 마지막 순회 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
+<td><code>FS_StartOverlay</code>의 마지막 순회 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_StartOverlay.c</code>; source account: <code>port/shim/fs/ovlreloc.c</code> header</span></span></td>
 </tr>
 <tr>
 <td>오버레이 헤더 <code>flag</code> 비트 0</td>
 <td>이미지가 역방향 압축됨</td>
 <td>링커</td>
-<td><code>FS_StartOverlay</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:50</code></span></span></td>
+<td><code>FS_StartOverlay</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_StartOverlay.c</code>; source account: <code>port/shim/fs/ovlreloc.c:50</code></span></span></td>
 </tr>
 <tr>
 <td>ROM의 전역 소멸자 체인</td>
 <td>등록된 오버레이 소멸자</td>
 <td>C++ 정적 초기화자</td>
-<td><code>FS_EndOverlay</code>의 <code>lo &lt;= dtor &lt; hi</code> 스윕 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:213-220</code></span></span></td>
+<td><code>FS_EndOverlay</code>의 <code>lo &lt;= dtor &lt; hi</code> 스윕 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/FS_EndOverlay.c</code>; source account: <code>port/shim/fs/ovlreloc.c:213-220</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x0229ad4c</code></td>
 <td><code>ov147</code>의 부팅 머신 상태 테이블 (첫 8워드가 폴링됨)</td>
 <td><code>__sinit_ov147_0229a700</code></td>
-<td><code>ov147</code>의 상태 머신 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/gfx/pmflist.c:213-222</code></span></span></td>
+<td><code>ov147</code>의 상태 머신 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/__sinit_ov147_0229a700.c</code>; source account: <code>port/shim/gfx/pmflist.c:213-222</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x022a1ff0</code> (<code>ov126</code> 재배치 슬롯)</td>
 <td>키보드 터치 디스패처인 <code>0x022a1229</code>를 담는다</td>
 <td><code>ov126</code>의 재배치</td>
-<td>키보드 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">cycle40 log, PROBE40</span></span></td>
+<td>키보드 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: cycle40 log, PROBE40; direct ROM-source provenance unresolved</span></span></td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p><code>docs/kb/hybrid/recipes.md</code> section 3의 두 번 탭 마을 레시피를 실행하고 로그에서 포트 자체의
 오버레이 줄을 읽는다: <code>FS_StartOverlay</code>는 인터프리터 경로에서 로드하는 첫 여덟 개의 오버레이에 대해
 <code>acww ovl: overlay N: M static initialisers run as ROM code</code>를 출력한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:219-231</code></span></span>. 그 실행의 프레임 37,500이
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/shim/fs/ovlreloc.c:219-231</code>; direct ROM-source provenance unresolved</span></span>. 그 실행의 프레임 37,500이
 위에서 인용한 오버레이 집합을 가진 마을 회관 프레임이다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D56</code></span></span>.</p>
+<p>오버레이가 <strong>어느 프레임</strong>에 로드됐는지와 함께 수행된 모든 파일 읽기를 확인하려면 프레임 구간을 지정하고 <code>ACWW_FSTRACE=1</code>을 켠다(<code>docs/kb/hybrid/instruments-runtime.md</code> 9e절). id마다 처음 한 번이 아니라 모든 <code>FS_StartOverlay</code> 호출을 한 줄씩 출력하며, 프레임별 요청·바이트·오버레이 요약도 출력한다. 요약 줄이 없는 프레임은 카트리지 작업을 전혀 하지 않은 것이다.</p>
 <p>실행 없이 주어진 주소가 어느 오버레이에 속하는지 확인하려면, 그 주소를 포함하는 모듈 디렉터리의
 함수 심볼을 센다: 모든 <code>config/adm-kr/arm9/overlays/ovNNN/symbols.txt</code>
 줄은 <code>addr:0x...</code>를 담고 있고 모듈은 그 디렉터리다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/*/symbols.txt</code></span></span>.</p>
-<h2 id="가설">가설</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>config/adm-kr/arm9/overlays/*/symbols.txt</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li>심볼이 없는 열 개의 슬롯(<code>ov000</code>, <code>ov057</code>-<code>ov064</code>, <code>ov089</code>)은 데이터 전용 오버레이다 —
-  코드가 아니라 아카이브나 테이블이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by reading their extracted images' section headers, or by showing no branch target in any module resolves into their address range</span></span>.</li>
+  코드가 아니라 아카이브나 테이블이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by reading their extracted images' section
+  headers, or by showing no branch target in any module resolves into their address range</span></span>.</li>
 <li>마을 회관에서 상주하는 다섯 오버레이(5, 36, 54, 117, 120)는 야외 마을 플레이를 위한
-  안정된 집합이지, 그 한 프레임의 일시적 상태가 아니다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by logging every <code>FS_StartOverlay</code> / <code>FS_EndOverlay</code> across the 40,500-48,000 window of the town recipe</span></span>.</li>
+  안정된 집합이지, 그 한 프레임의 일시적 상태가 아니다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by logging every
+  <code>FS_StartOverlay</code> / <code>FS_EndOverlay</code> across the 40,500-48,000 window of the town recipe</span></span>.</li>
 <li>리터럴 풀 텍스트로 이루어진 오버레이 식별은 작은 번호의 오버레이들에도 유효하며,
-  그 대부분은 그런 문서가 없다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by re-running the pool-text extraction over all 138 symbol-bearing overlays and publishing the subject of each</span></span>.</li>
+  그 대부분은 그런 문서가 없다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by re-running the pool-text extraction
+  over all 138 symbol-bearing overlays and publishing the subject of each</span></span>.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>memory-map.md</code> — 오버레이 띠가 어디에 있는지, 그리고 그 주소를 또 무엇이 차지하는지</li>
 <li><code>boot-and-entry.md</code> — 첫 오버레이가 로드되기 전에 실행되어야 하는 파일 시스템 초기화</li>
@@ -368,12 +423,12 @@ kb 문서의 "90 symbols to 3,075 targets"는 같은 사건을 조금 이전 리
 </ul></div><nav class="prevnext"><a class="pn prev" href="../engine/boot-and-entry.html"><small>◀ 이전</small>부팅과 진입점</a><a class="pn next" href="../engine/scenes-and-channels.html"><small>다음 ▶</small>씬과 채널</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>
 
-  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#몇-개이고-얼마나-큰가">몇 개이고 얼마나 큰가</a></li><li><a href="#오버레이는-겹치며-그것이-오버레이에-관한-핵심-사실이다">오버레이는 겹치며, 그것이 오버레이에 관한 핵심 사실이다</a></li><li><a href="#하나를-로드하기">하나를 로드하기</a></li><li><a href="#하나를-언로드하기-그리고-소멸자-체인">하나를 언로드하기, 그리고 소멸자 체인</a></li><li><a href="#어느-오버레이가-어느-기능을-담는가">어느 오버레이가 어느 기능을 담는가</a></li><li><a href="#마을-시퀀스-중의-상주-상태">마을 시퀀스 중의 상주 상태</a></li><li><a href="#확정됨-ov004에-함수가-몇-개-있는가">확정됨: ov004에 함수가 몇 개 있는가</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#몇-개이고-얼마나-큰가">몇 개이고 얼마나 큰가</a></li><li><a href="#오버레이는-겹치며-그것이-오버레이에-관한-핵심-사실이다">오버레이는 겹치며, 그것이 오버레이에 관한 핵심 사실이다</a></li><li><a href="#하나를-로드하기">하나를 로드하기</a></li><li><a href="#하나를-언로드하기-그리고-소멸자-체인">하나를 언로드하기, 그리고 소멸자 체인</a></li><li><a href="#어느-오버레이가-어느-기능을-담는가">어느 오버레이가 어느 기능을 담는가</a></li><li><a href="#마을-시퀀스-중의-상주-상태">마을 시퀀스 중의 상주 상태</a></li><li><a href="#씬-전환이-로드하는-것과-그-프레임">씬 전환이 로드하는 것과 그 프레임</a></li><li><a href="#확정됨-ov004에-함수가-몇-개-있는가">확정됨: ov004에 함수가 몇 개 있는가</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
 </div>
 <div class="backdrop" id="backdrop"></div>
 

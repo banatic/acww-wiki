@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오프라인 ARM7 모델의 WM 요청 수명 · ACWW 근거 위키</title>
+<meta name="description" content="기본으로 꺼진 WM 모델은 기존 PXI 인터럽트 경로와 WM 전용 IRQ 활성화 경계에서 제한된 요청을 완료한다. 콜백, 슬롯 재사용, 문 UI는 원래 ARM9 WM과 게임 코드가 계속 담당한다. 초기화나 MP 시작 콜백의 성공이 무선 통신, 원격 마을, 멀티플레이 성">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li class="active"><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>오프라인 ARM7 모델의 WM 요청 수명</span></div><header class="page-head"><h1>오프라인 ARM7 모델의 WM 요청 수명</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-H"><b>H</b> 1</span><span class="gchip g-P"><b>P</b> 3</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/wifi-g1.md"><code>wiki/systems/wifi-g1.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/wifi-g1.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="wm-request-lifetime-on-the-offline-arm7-model"></span><p><strong>요약.</strong> 기본으로 꺼진 WM 모델은 기존 PXI 인터럽트 경로와 WM 전용 IRQ 활성화 경계에서 제한된 요청을 완료한다. 콜백, 슬롯 재사용, 문 UI는 원래 ARM9 WM과 게임 코드가 계속 담당한다. 초기화나 MP 시작 콜백의 성공이 무선 통신, 원격 마을, 멀티플레이 성공을 뜻하지는 않는다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p><code>ACWW_WM_STUB=1</code>은 인터프리터 경로에서만 모델을 켠다. 부트스트랩 메타데이터가 없으면 합성된 로컬 관리 MAC과 채널 1..13 마스크를 제공한다. 스위치를 설정하지 않은 경로와 네이티브 경로는 이 메타데이터 워드를 읽지 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_bootstrap</code></span></span></p>
+<p>수락한 요청에는 단조 증가하는 토큰과 비공개 256바이트 요청 사본을 부여한다. 기존 PXI 큐가 응답을 전달하고 ARM9 <code>WmReceiveFifo</code>가 재사용 가능 비트를 설정할 때까지 원래 슬롯은 사용할 수 없다. 제한된 두 경계 IRQ 정책은 수락 후 첫 활성화/복원을 관측하고 그 이후 경계에서만 완료를 허용한다. 인터럽트가 꺼졌거나 재진입한 호출에서는 큐를 비우지 않는다. 이로써 Reset 호출자가 대기 플래그를 기록하기 전에 송신 후 메시지 큐 게시가 보존된다. 이는 ARM7 타이밍이 아니라 합성 지연이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>acww_wm_irq_poll</code>; <code>port/shim/os/interrupts.c</code>; <code>src/matched/WMi_SendCommand.c</code>, <code>func_ov066_02266a08.c</code></span></span></p>
+<p>중복 제출, 가득 찬 큐, 잘못된 슬롯 포인터는 수락 전에 거부한다. 이미 완료된 토큰은 두 번째 응답을 쓰거나 전달할 수 없다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_submit</code>, <code>wm_stub_complete</code>; <code>src/matched/WmReceiveFifo.c</code></span></span></p>
+<p>초기화 상태는 Enable에서 READY 0 -&gt; STOP 1, PowerOn에서 IDLE 2가 된다. 통합 Initialize는 IDLE에 도달한다. CLASS1은 내부 무선 전이이며 이 모델이 입증한 별도의 ARM9 초기화 콜백이 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_Enable.c</code>, <code>WM_PowerOn.c</code>, <code>WM_Initialize.c</code></span></span>
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">NitroSDK 2.2a, <code>man/en_US/wm/wm/WM_Enable.html</code></span></span></p>
+<p>Scan은 부모를 찾지 못한 성공 상태 코드 4를 반환한다. StartConnect에는 <code>WM_ERRCODE_NO_PARENT</code> 열거값이 없다. SDK 콜백은 부모를 찾지 못한 경우를 오류 코드 9인 타임아웃으로 문서화한다. 이 픽스처는 IDLE을 유지하면서 그 실패를 반환하며, 연결 통지나 AID 할당은 하지 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code>; <code>src/matched/WM_StartConnectEx.c</code></span></span>
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">NitroSDK 2.2a, <code>include/nitro/wm/common/wm.h</code>, WMStartConnectCallback</span></span></p>
+<p>StartParent는 SDK BEACON_SENT 통지(API 8, 상태 코드 2)도 예약한다. 공유 ARM7 콜백 버퍼, 별도 토큰 0, 콜백 제어 핸드셰이크를 사용하며 완료된 요청 슬롯을 재사용하거나 최종 응답으로 집계하지 않는다. TU 주기는 60 Hz를 사용해 프레임으로 올림하므로 타이밍 근사다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_frame</code>; <code>src/matched/WmClearFifoRecvFlag.c</code></span></span>
+<span class="cite" data-grade="P"><span class="cite-badge"><b class="g g-P" title="공개 기록">P</b></span><span class="cite-body">NitroSDK 2.2a, WMStartParentCallback</span></span></p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>경계</th>
+<th>모듈/파일</th>
+<th>역할</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PXI_SendWordByFifo</code></td>
+<td>host pxisend.c</td>
+<td>요청 수락과 기존 전달 큐. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WMi_SendCommand</code></td>
+<td>autoload_2</td>
+<td>ARM9 슬롯 큐, API 하프워드, 인자 워드. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WMi_SendCommand.c</code></span></span></td>
+<td></td>
+</tr>
+<tr>
+<td><code>WmReceiveFifo</code></td>
+<td>autoload_2</td>
+<td>ARM9 콜백 디스패치와 최종 슬롯 해제. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WmReceiveFifo.c</code></span></span></td>
+<td></td>
+</tr>
+<tr>
+<td><code>func_ov066_0226a074</code></td>
+<td>ov066</td>
+<td>채널 측정 콜백, 채널 +8과 바쁨 비율 +10. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/build/shadow/func_ov066_0226a160.c</code></span></span></td>
+<td></td>
+</tr>
+<tr>
+<td><code>acww_online_relay_send</code></td>
+<td>단독 실행 훅 / 오프라인 어댑터</td>
+<td>제한된 바이너리 프레임 경계. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span></td>
+<td></td>
+</tr>
+</tbody>
+</table></div>
+<p><code>0226a074</code>를 투표/확인 핸들러라고 부른 이전 복원 주석은 프로토콜 사실이 아니다. 섀도 호출자는 WM_MeasureChannel을 연결하며 읽는 필드도 해당 SDK 콜백과 일치한다. 매칭 소스는 수정하지 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/build/shadow/func_ov066_0226a160.c</code>, <code>src/matched/WM_MeasureChannel.c</code></span></span></p>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>API</th>
+<th>성공 시 모델 상태 / 결과</th>
+<th>응답 필드와 근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 Initialize</td>
+<td>0 -&gt; 2</td>
+<td>API +0, 오류 +2. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>3 Enable; 5 PowerOn</td>
+<td>0 -&gt; 1; 1 -&gt; 2</td>
+<td>API +0, 오류 +2. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>4 Disable; 6 PowerOff</td>
+<td>1 -&gt; 0; 2 -&gt; 1</td>
+<td>API +0, 오류 +2. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>7 Parent parameter</td>
+<td>2 유지</td>
+<td>제한된 64바이트 매개변수와 &lt;=112바이트의 불투명 사용자 데이터 복사. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>8 StartParent</td>
+<td>2 -&gt; 7</td>
+<td>+8의 시작 코드 0; 자식 비트맵 없음. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>10 Scan; 11 EndScan</td>
+<td>2/5 -&gt; 5; 5 -&gt; 2</td>
+<td>+8의 스캔 코드 4, 채널 +16. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>12 Connect</td>
+<td>2 유지, 오류 9</td>
+<td>AID 없음, 연결 성공 없음. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>14 StartMP; 16 EndMP</td>
+<td>7 -&gt; 9; 9 -&gt; 7</td>
+<td>+4의 MP 시작 코드 10; 수신 데이터 없음. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+<tr>
+<td>30 MeasureChannel</td>
+<td>2 유지</td>
+<td>채널 +8, 합성된 바쁨 비율 0은 +10. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>이는 실제 ARM7이나 피어의 관측이 아니라 스텁 전이 계약이다. Reset/End, 게임 정보 갱신, 비컨 표시, 부모 진입 활성화도 범위가 제한돼 있다. 지원하지 않는 동작은 성공을 주장하지 않고 명시적 오류로 끝난다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>wm_stub_complete</code></span></span></p>
+<p>ARM9이 사용하는 상태 필드는 상태 +0, MP 플래그 +0xc, 버퍼 +0x46..0x54, MAC +0xdc, 부모 매개변수 +0xe4, 자식 비트맵 +0x17e, AID +0x184, 크기 한도 +0x18e/+0x190, 채널 마스크 +0x1f0/+0x1f2다. 지속되는 호스트 요청 사본, 토큰, 상태 포인터, 부모 데이터는 세이브스테이트 블롭으로 등록된다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartMPEx.c</code>, <code>WM_SetMPDataToPortEx.c</code>; <code>port/shim/os/pxisend.c</code></span></span></p>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
+<p><code>python port/tools/test_wm_stub.py</code>로 실제 소스의 소유권, 부모 없음, 중복 완료, 릴레이 봉투, 제한된 비컨 서비스를 합성 검사한다. 의도적으로 틀린 타임아웃 기대값을 픽스처가 거부하는 검사도 포함한다. OFF와 네이티브 조건에서는 에뮬레이션 메타데이터를 매핑하지 않고도 안전하게 반환해야 한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/fixture-native-irq-fields/receipt.json</code></span></span></p>
+<p>게임플레이는 이전 문지기 계획, LIVE46 시드의 비공개 사본, <code>ACWW_CARD_FAST=32</code>, <code>ACWW_TICK_MODEL</code> 미설정, <code>ACWW_RTC_DATE=20260911</code>, <code>ACWW_RTC_TIME=113000</code>, <code>ACWW_RTC_FREEZE=0</code>, 프레임 3000과 7300의 같은 빌드 스냅샷을 사용한다. 각 분기 JSON에는 <code>ACWW_STOP_FRAME=18000</code>, <code>ACWW_WM_STUB=1</code>, <code>ACWW_WM_REQUEST_TRACE=1</code>을 명시한다. 이는 공개된 프런티어가 아니라 직접 진단이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/prepare.py</code>, <code>runner.py</code>, <code>guest-irq-1.json</code>, <code>host-irq-1.json</code></span></span></p>
+<p>같은 빌드의 스냅샷을 준비한 뒤 <code>python -B scratchpad/wifi-g1-1/control.py replay-guest scratchpad/wifi-g1-1/runner.py --json replay-guest scratchpad/wifi-g1-1/guest-irq-1.json</code>을 한 명령으로 실행해 재생한다. 매번 새 실행 이름을 쓰며, 초대 경로에는 호스트 JSON을 사용한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/control.py</code>, <code>runner.py</code></span></span></p>
+<p>최종 게스트 실행은 각각 요청 1445개를 수락하고 완료한다. Enable, PowerOn, 빈 스캔 1440회, Reset, PowerOff, Disable이다. 상태 변화는 12581에서 0 -&gt; 1 -&gt; 2 -&gt; 5, 13181에서 5 -&gt; 2 -&gt; 1 -&gt; 0이며 모두 WM 상태 워드에서 읽었다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/safe/guest-irq-1.json</code>, <code>guest-irq-2.json</code></span></span></p>
+<p>둘 다 고정된 프레임 18000 끝점에서 열린 마을이 없다는 게임 UI에 도달하며, 전체 이벤트 순서와 정지 화면 해시 36개가 모두 같다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/safe/comparison.json</code>; <code>scratchpad/wifi-g1-1/runs/guest-irq-1/shot_018000.bmp</code> inspected privately</span></span></p>
+<p>최종 호스트 실행은 각각 요청 18개(Enable, PowerOn, 채널 측정 13회, 부모 매개변수, StartParent, SetGameInfo)를 수락하고 완료한다. 별도 비컨 통지는 388회이며 프레임 12956부터 끝점 18000까지 PARENT 상태 7을 유지한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/safe/host-irq-1.json</code>, <code>host-irq-2.json</code></span></span></p>
+<p>최종 두 실행의 호스트 문 열림 UI, 전체 이벤트 메타데이터, 정지 화면 해시 36개가 모두 일치한다. 어느 전체 구간에서도 StartMP 요청은 발생하지 않는다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/safe/comparison.json</code>; <code>scratchpad/wifi-g1-1/runs/host-irq-1/shot_018000.bmp</code> inspected privately</span></span></p>
+<p>관측된 피어 경계는 CHILD_CONNECTED다. 그 핸들러는 컨텍스트 비트 0x20을 설정하며, SetGameInfo 콜백은 그 비트가 설정됐을 때만 StartMP 래퍼를 호출한다. 따라서 합성 픽스처는 MP 전이를 입증하지만 피어 없는 게임 경로는 실제 MP 제출을 입증하지 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/build/shadow/func_ov066_0226908c.c</code>, <code>func_ov066_02268798.c</code>, <code>func_ov066_022686f0.c</code></span></span></p>
+<p>IRQ 훅 이전에는 기본 시계 게스트가 수락된 요청을 대기 상태로 남긴 채 프레임 13181에서 멈췄다. TICK_MODEL=1은 18000에 도달했지만 정리 기한이 만료된 뒤였으며 통신 중단 UI를 보였다. 이는 실패한 별개의 시계 조건이다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/safe/guest-stub-1.json</code>, <code>guest-tick-1.json</code></span></span></p>
+<p>최종 새 링크는 stderr가 비어 있고 dark 슬롯 194/256으로 종료 0이다. 스위치를 설정하지 않은 정규 card32와 명시적 card0/2ea19722 비교는 각각 31/31 EXACT를 통과한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g1-1/safe/link-summary.json</code>; <code>off-irq32-data/offgate-check.json</code>, <code>off-irq0-data/offgate-check.json</code></span></span></p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
+<p>실제 피어 발견, 부모 선택, MAC 신원 할당, 채널 체류 시간의 정확성, 연결 손실, MP 전달, 실제 ARM7 타이밍은 아직 검증하지 않았다. 두 피어 전송과 원본 하드웨어 콜백 비교는 별도 실험이 될 것이다.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">compare a future peer run and original callback trace against these contracts</span></span></p>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="wifi-g0.html">G0 부트스트랩 근거</a>.</li>
+<li><a href="multiplayer-protocol.html">프로토콜 지도</a>.</li>
+<li><a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/online-spec.md">WM 릴레이 계약</a>.</li>
+<li><a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/wifi.md">런타임 안내</a>.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/wifi-g0.html"><small>◀ 이전</small>Wi-Fi G0: 문지기 경로와 첫 WM 요청</a><a class="pn next" href="../systems/wifi-g2.html"><small>다음 ▶</small>WM 릴레이 브리지: G2 검증</a></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

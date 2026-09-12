@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wi-Fi G0: 문지기 경로와 첫 WM 요청 · ACWW 근거 위키</title>
+<meta name="description" content="문지기 메뉴의 행 0은 방문, 행 1은 초대를 선택한다. 아래의 초기 wifi-g0-1 추적은 요청을 제출하지 않았다. wifi-g0-2는 WM_Init 앞에서 펌웨어 접두부가 0인지 검사하는 조건을 찾아, 기본으로 꺼진 진단 스위치 아래에서만 그 하프워드를 제공한다.">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li class="active"><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>Wi-Fi G0: 문지기 경로와 첫 WM 요청</span></div><header class="page-head"><h1>Wi-Fi G0: 문지기 경로와 첫 WM 요청</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 8</span><span class="gchip g-E"><b>E</b> 17</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/wifi-g0.md"><code>wiki/systems/wifi-g0.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/wifi-g0.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="wi-fi-g0-gatehouse-routes-and-the-first-wm-request"></span><p><strong>요약.</strong> 문지기 메뉴의 행 0은 방문, 행 1은 초대를 선택한다. 아래의 초기 wifi-g0-1 추적은 요청을 제출하지 않았다. wifi-g0-2는 WM_Init 앞에서 펌웨어 접두부가 0인지 검사하는 조건을 찾아, 기본으로 꺼진 진단 스위치 아래에서만 그 하프워드를 제공한다. 이제 경로별 두 실행은 정확히 하나의 WM_Enable 요청(API 3)을 제출한다. 방문은 600프레임 뒤 정리되며 초대는 프레임 18000까지 열린 채 남는다. ARM7 요청은 완료되지 않고 스캔이나 피어도 없다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>소유자의 답변으로 작업 설명의 위치를 문지기 건물 <code>0x500b</code>로 정정했다. 기존 내비게이터의 <code>gate</code> 목표는 비공개 LIVE46 세이브에서 재현했다.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md:2922</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/goto-gate.receipt.json</code></span></span></p>
+<p>포트 프레임 7300의 공통 스냅샷에는 선택 행 다섯 개가 있다. 이전에 네 행으로 읽었던 것은 로컬 전체 정지 화면을 측정한 뒤 정정했다. 폐기된 메타데이터는 로컬에 보존하되 최종 내보내기에서는 제외했다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/safe/menu-common-final.json</code></span></span></p>
+<p>행 0은 방문 대화, 행 1은 초대 대화로 이어지고, 뒤이어 전송 방식 세 행과 확인 두 행이 나온다. 두 추적 모두 전송 행 0과 확인 행 0을 선택한다. 이는 메시지 ID가 아니라 0부터 센 시각적 행 번호다. Whichline 후보는 오래된 것일 수 있으므로 로컬 정지 화면 해시와 짝지었다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/safe/menu-guest-transport.json</code>, <code>scratchpad/wifi-g0-1/revision2/safe/menu-host-transport.json</code>, <code>scratchpad/wifi-g0-1/revision2/safe/menu-host-confirm.json</code></span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>경로</th>
+<th>반복 / 정지</th>
+<th>최초 모드 표본</th>
+<th>ov066 로드 프레임</th>
+<th>끝점 관측</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>행 0, 방문 / 게스트 의도</td>
+<td>2 / 18000</td>
+<td>12600에서 2</td>
+<td>12581</td>
+<td>검색 대화; 실제 WM 스캔은 미입증.</td>
+</tr>
+<tr>
+<td>행 1, 초대 / 호스트 의도</td>
+<td>2 / 18000</td>
+<td>13000에서 1</td>
+<td>12953</td>
+<td>문이 열린 모습; 실제 피어 대기는 미입증.</td>
+</tr>
+</tbody>
+</table></div>
+<p>두 경로는 각 실행 쌍 안에서 표본 스크린샷 36개, 모드 표본, 선택한 실행 합계, 오버레이 이벤트를 모두 재현한다. 전부 요청한 정지 기록과 빈 stderr를 남기며 종료 100이다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/safe/comparison-residency.json</code>, <code>scratchpad/wifi-g0-1/revision2/runs/branch0-repeat1/receipt.json</code>, <code>scratchpad/wifi-g0-1/revision2/runs/branch1-repeat2/receipt.json</code></span></span></p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>심볼 / 경계</th>
+<th>모듈</th>
+<th>관측과 한계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_02074b44</code>, <code>0x02074b44</code></td>
+<td>main</td>
+<td>추적마다 인터프리터 95스텝과 호출 1회; 런타임 호출자 미상.</td>
+</tr>
+<tr>
+<td><code>CTRDG_WriteAgbFlashSectorAsync</code>, <code>0x020ed6c4</code></td>
+<td>autoload_2</td>
+<td>스텝/호출 0회; 설정은 이 주소를 이렇게 명명하므로 확정된 무선 콜백 브리지라는 해석과 다름.</td>
+</tr>
+<tr>
+<td><code>WM_Init</code>, <code>0x02120990</code></td>
+<td>autoload_2</td>
+<td>추적마다 인터프리터 호출 1회; 작업 버퍼 포인터는 0이 아님.</td>
+</tr>
+<tr>
+<td><code>WMi_SetCallbackTable</code>, <code>0x02120724</code></td>
+<td>autoload_2</td>
+<td>이 구간에서 인터프리터 실행 없음.</td>
+</tr>
+<tr>
+<td><code>WMi_SendCommand</code>, <code>0x021205d0</code></td>
+<td>autoload_2</td>
+<td>이 구간에서 인터프리터 실행 없음.</td>
+</tr>
+<tr>
+<td><code>PXI_SendWordByFifo</code>, tag 10</td>
+<td>호스트 심</td>
+<td>프로세스마다 한 번 켜짐, 제출 0회; 출력 상한 없음.</td>
+</tr>
+</tbody>
+</table></div>
+<p>합계는 게스트 2098행 또는 호스트 2191행에서 나왔으며 요청한 최대 32768보다 작고 7301..17900 구간이 완료됐다. 구간 개수는 런타임 호출 그래프가 아니며 프레임 구간은 인터프리터 4096스텝마다 확인한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/safe/branch0-repeat1.json</code>, <code>scratchpad/wifi-g0-1/revision2/safe/branch1-repeat1.json</code></span></span>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/autoload_2/symbols.txt:234</code>, <code>port/interp/interp_cpu.c:535</code></span></span></p>
+<p>공통 스냅샷 이후에는 ov066(<code>0x022667e0..0x0226be20</code>)만 로드된다. 복원된 호스트 주소 해석기는 ID 2, 3, 4, 9, 15, 48, 65, 68, 147의 범위도 유지한다. 일부는 덮이지 않은 오래된 꼬리 영역이다. <code>FS_EndOverlay</code>가 아무것도 하지 않으므로 관리 기록만으로 나열된 모든 모듈이 논리적으로 계속 활성화돼 있거나 실행된다고 입증할 수 없다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/safe/comparison-residency.json</code></span></span>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/fs/ovlreloc.c:75</code></span></span></p>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미 / 관측</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021fbef8</code>, 바이트</td>
+<td>행 0은 모드 0에서 2; 행 1은 0에서 1</td>
+<td>7350..17950을 50마다 기록한 표본 213개의 완결된 장부.</td>
+</tr>
+<tr>
+<td><code>0x021fbefc</code>, 하프워드</td>
+<td>온라인 상태 ID는 0 유지</td>
+<td>같은 장부; 온라인 경로를 선택하지 않음.</td>
+</tr>
+<tr>
+<td><code>0x02206aac</code>, 포인터</td>
+<td>끝점의 WM 작업 버퍼 주소 <code>0x022d7d20</code></td>
+<td>허용 목록에 든 끝점 조회.</td>
+</tr>
+<tr>
+<td>WM 작업 버퍼 +24</td>
+<td>끝점에서 API 콜백 슬롯 0..13이 0</td>
+<td>부분 표본이며 등록 이력은 아님.</td>
+</tr>
+<tr>
+<td>태그 10 요청 +0, 하프워드</td>
+<td>요청 자체의 상태/소유권과 API ID</td>
+<td>합성 범위 픽스처; 실제 요청은 관측되지 않음.</td>
+</tr>
+</tbody>
+</table></div>
+<p>축약한 ID/개수/주소만 내보내며 원시 장부와 정지 화면은 로컬에 둔다. 오라클은 일관성을 미검증으로 표시하고 입력 후 VBlank 전에 표본을 읽으므로, 모드 전환 시점은 직전 50프레임 표본과의 사이로 한정된다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/safe/branch0-repeat1.json</code>, <code>scratchpad/wifi-g0-1/revision2/safe/branch1-repeat1.json</code></span></span></p>
+<p><code>ACWW_WM_REQUEST_TRACE=1</code>은 첫 하프워드를 읽기 전에 정렬된 메인 RAM 포인터와 전체 256바이트 슬롯을 검사한다. FIFO 포인터 제출에는 독립적인 길이가 없으므로 요청 길이는 알 수 없다. OFF에는 서식화, 출력, 요청 역참조, 집계가 없지만 최초 환경 읽기와 캐시된 플래그 검사에는 여전히 CPU 시간이 든다. 오버헤드 벤치마크는 하지 않았다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c:659</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/trace-fixture-sealed/receipt.json</code></span></span></p>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
+<p>실행기의 정확한 기록을 사용한다. 인터프리터, card32, 프로세스별 비공개 시드 사본, 날짜 20260911/시간 113000, <code>RTC_FREEZE=0</code>으로 진행하는 결정론적 게임플레이 시계, 키 입력 부팅 단계 1160/1760이다. 상태/세이브의 절대 경로는 Python 환경을 통해 전달한다. 실행 파일 직접 진단은 정규 프런티어의 준비 상태를 주장하지 않는다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/boot-observer.json</code>, <code>scratchpad/wifi-g0-1/revision2/runs/common-observer/receipt.json</code></span></span></p>
+<p>프레임 3000부터 <code>plans/common-menu.pad</code>를 재생하고 7300에서 저장한 다음, <code>prepare_trace.py</code>와 <code>runner.py</code>로 <code>plans/branch0-trace.pad</code>, <code>plans/branch1-trace.pad</code>를 각각 두 번씩 18000까지 실행한다. <code>reduce_trace.py</code>, <code>finish_metadata.py</code>로 축약·비교하며 네이티브 실행 이름은 매번 새것이어야 한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/prepare_trace.py</code>, <code>scratchpad/wifi-g0-1/revision2/finish_metadata.py</code></span></span></p>
+<p>최종 자체 워크트리의 새 링크는 빈 stderr와 dark194/256으로 종료 0이다. 정규 card32 OFF는 과거의 고정 RTC20050615/100000으로 31/31 EXACT를 통과한다. 이는 시계가 진행하는 이번 게임플레이 실행들과 별도 레시피다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-1/revision2/link-observer-final.receipt.json</code>, <code>scratchpad/wifi-g0-1/revision2/offgate/offgate-check.json</code></span></span></p>
+<span class="source-anchor" id="wifi-g0-2-the-pre-submit-condition"></span><h2 id="wifi-g0-2-제출-전-조건">wifi-g0-2: 제출 전 조건</h2>
+<p>고정한 기준은 <code>27dc0df73a5739d7b1efcee0c31bd711bd752bb8</code>이다. main <code>0x02074b58</code>의 기준 WATCH_LR은 두 경로 모두 LR <code>0x02262651</code>을 기록한다. 실제 호출자는 코드상 main 호출자 <code>0x020a2d48</code>이 아니라 ov048 <code>func_ov048_02262618</code>이다. 인터프리터로 실행하는 로컬 초기화기 <code>0x0226748c</code>은 WM_Init 전에 <code>WM_IsExistAllowedChannel</code>이라는 판정을 호출한다. <code>0x02120d9c</code>의 로드는 하프워드 <code>0x027ffcf4</code>를 0으로 읽는다(게스트 12581, 호스트 12953). 이는 첫 MAC 접두부 하프워드이며 <code>WM_GetAllowedChannel</code>은 별도로 <code>0x027ffcfa</code>를 읽는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226748c.c</code>, <code>src/matched/WM_IsExistAllowedChannel.c</code>, <code>src/matched/WM_GetAllowedChannel.c</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-2/baseline-analysis.json</code>, <code>scratchpad/wifi-g0-2/source-analysis.json</code></span></span></p>
+<p>0 분기는 로컬 코드 <code>0x41</code>을 알리고 <code>0x022668c4</code>를 통해 등록된 해제 콜백을 호출한다. 다음 장치 할당이 드라이버 주소를 재사용하여 기준 컨텍스트와 장치가 모두 <code>0x022d7c44</code>다. 따라서 그 워드들은 유효한 드라이버 단계/상태가 아니라 장치 포인터다. 이후 WM_Init은 여전히 실행돼 포트 콜백 16개를 설치한다. <code>0x027fff8c</code>의 PXI 준비 상태는 이미 모두 1이며, WmInitCore는 태그 10 비트를 검사하고 요청 핸드셰이크 없이 성공을 반환한다. 태그당 한 번인 tag14 드롭은 응답도, 차단 요인의 증거도 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_022668c4.c</code>, <code>port/build/shadow/func_02077ae8.c</code>, <code>port/shim/os/heapfree.c</code>, <code>src/matched/WmInitCore.c</code>, <code>port/shim/os/pxi.c</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-2/baseline-analysis.json</code></span></span></p>
+<p>pxisend.c의 <code>ACWW_WM_STUB=1</code>은 인터프리터 필드가 0일 때만 합성 접두부 하프워드 2를 제공한다. 네이티브 실행, 기존의 0이 아닌 메타데이터, 나머지 MAC 바이트, 채널 마스크는 건드리지 않는다. 이는 유효한 무선 구현이나 실제 기기 신원이 아니라 진단용 부트스트랩 메타데이터다. OFF에는 메타데이터 읽기/쓰기가 없지만 캐시된 검사에는 여전히 CPU 시간이 든다. 메타데이터는 RAM 스냅샷 상태이고 스위치는 환경에서 유도된다. 네이티브 픽스처 네 조건은 OFF/미매핑, 활성 네이티브/미매핑, 0이 아닌 값 보존, 0 필드에 정확히 두 바이트 쓰기를 검사한다. 요청 핸들러, 수락 비트, 콜백은 추가하지 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-2/stub-fixture/receipt.json</code></span></span></p>
+<span class="source-anchor" id="wifi-g0-2-request-and-bounded-outcome"></span><h2 id="wifi-g0-2-요청과-한정된-결과">wifi-g0-2: 요청과 한정된 결과</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>경로 / 반복</th>
+<th>첫 요청</th>
+<th>완료가 없는 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>방문 / 2</td>
+<td>프레임 12581, API 3</td>
+<td>600프레임 뒤 13181에서 정리/ov068 로드; 18000에도 오류 대화 유지.</td>
+</tr>
+<tr>
+<td>초대 / 2</td>
+<td>프레임 12953, API 3</td>
+<td>5047프레임 뒤 18000에도 문 열림 유지; 오류나 타임아웃 미입증.</td>
+</tr>
+</tbody>
+</table></div>
+<p>보충 방문 실행은 13500에서 정지하고 13400의 오류를 캡처한다. <code>whichline</code>은 렌더 영역에 문지기 아카이브 항목 86을 보고하며 로컬 오류 대화 정지 화면과 짝지었다. 아카이브 2의 항목 21도 거기 상주한다. 이는 입증된 활성 메시지 디스패치 ID가 아니라 BMG 순번 후보이며 렌더 사본은 오래된 것일 수 있다. 게임 문자열이나 그림은 내보내지 않는다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-2/safe/error-dialogue.json</code>, <code>scratchpad/wifi-g0-2/runs/guest-detail/receipt.json</code></span></span></p>
+<p>네 요청 모두 슬롯 <code>0x02206b40</code>, state16 <code>0x0003</code>(수락 비트 꺼짐), 용량 256바이트를 사용한다. WMi_SendCommand는 WM_Enable의 API 하프워드와 인자 워드 세 개, 즉 WM7, 상태, ARM7-to-ARM9 FIFO 주소를 쓴다. 헤더와 인자는 16바이트를 차지하지만 제출 길이는 아니다. PXI에는 길이가 없고 관측기는 올바르게 <code>request_length=unavailable</code>을 유지한다. <code>0x022d8280</code>의 상태 하프워드는 Enable 전에 WMi_CheckStateEx가 0으로 읽는다. 이는 ARM7 부트스트랩 포인터이며 MP 프레임 바이트나 릴레이 kind 1/2/3 페이로드가 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_Enable.c</code>, <code>src/matched/WMi_SendCommand.c</code>, <code>src/matched/WMi_CheckStateEx.c</code>, <code>docs/kb/hybrid/online-spec.md</code></span></span></p>
+<p>완료된 각 7301..17900 집계에는 WM_Enable, WMi_SetCallbackTable, WMi_SendCommand 호출이 각각 1회, WmReceiveFifo는 0회이며 행 수는 32768 미만이다. 18000의 최종 PXI 수신 집계는 tag11 전달만 보고하고 tag10/tag14는 없다. 각 쌍의 요청 줄, 선택한 집계 합계, 표본 BMP 해시 36개가 모두 같다. 두 경로 모두 빈 stderr, 명명된 런타임 오류 없이 요청한 18000에서 종료 100이다. 호스트 끝점 드라이버 단계/상태는 3/2이며 컨텍스트와 장치는 별도로 할당돼 있다. 콜백 슬롯 3은 <code>0x02266b94</code>를 가리킨다. 게스트 정리는 WM 작업 포인터를 지우고 ov066을 교체하므로 이전 전역 변수를 해석해서는 안 된다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-2/safe/comparison.json</code>, <code>scratchpad/wifi-g0-2/safe/guest-stub-1.json</code>, <code>scratchpad/wifi-g0-2/safe/host-stub-1.json</code></span></span></p>
+<p>소스만 읽은 WCM 경로는 별도다. 단계 1은 WM_Init을 호출하고 WM_GetAllowedChannel이 0이면 WM_Finish/반환 5로 거부한다. 그렇지 않으면 indication 콜백을 등록하고 WM_Enable을 호출한 뒤 단계 2에서 기다린다(단계 3은 준비됨). 이 헬퍼는 채널 마스크를 0으로 남기며 WCM/온라인 시작을 주장하지 않는다. 요청 수명·완료와 모든 스캔/MP/릴레이 통신은 G1 이후의 작업이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227197c.c</code></span></span></p>
+<p>자체 워크트리의 새 링크는 종료 0, 빈 stderr, dark194/256이다. 스위치 미설정에서 정규 card32 OFF와 명시적 card0 기준 <code>2ea19722-dirty</code>는 각각 31/31 EXACT를 통과하고 기준 검사 두 개도 통과한다. 게임플레이는 비공개 LIVE46 사본과 진행하는 20260911/113000 시계를 사용하며 OFF는 과거의 고정 레시피를 쓴다. 경쟁 프로세스는 기록만 하고 건드리지 않으며 경과 시간은 비교 근거가 아니다. 직접 진단은 프런티어 산출물을 게시하지 않는다. 파이프라인이나 커밋은 실행하지 않았다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-g0-2/link-stub/receipt.json</code>, <code>scratchpad/wifi-g0-2/off-stub32-data/offgate-check.json</code>, <code>scratchpad/wifi-g0-2/off-stub0-data/offgate-check.json</code></span></span></p>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="network.html">네트워크 경계</a>.</li>
+<li><a href="multiplayer-protocol.html">프로토콜 지도</a>.</li>
+<li><a href="wifi-port-plan.html">G0-G5 계획</a>.</li>
+<li><a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/wifi.md">런타임 안내</a>.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/wifi-port-plan.html"><small>◀ 이전</small>Wi-Fi 포트 계획</a><a class="pn next" href="../systems/wifi-g1.html"><small>다음 ▶</small>오프라인 ARM7 모델의 WM 요청 수명</a></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#wifi-g0-2-제출-전-조건">wifi-g0-2: 제출 전 조건</a></li><li><a href="#wifi-g0-2-요청과-한정된-결과">wifi-g0-2: 요청과 한정된 결과</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

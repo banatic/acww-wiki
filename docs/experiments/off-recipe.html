@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" open>
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li class="active"><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,11 +136,11 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>OFF 레시피</span></div><header class="page-head"><h1>OFF 레시피</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-O"><b>O</b> 4</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/experiments/off-recipe.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 실행됨, 여러 번.</strong> 이것은 다른 모든 측정을 읽을 때 기준이 되는 대조 실행이다.</p>
-<h2 id="목적">목적</h2>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>OFF 레시피</span></div><header class="page-head"><h1>OFF 레시피</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 1</span><span class="gchip g-O"><b>O</b> 4</span><span class="gchip g-H"><b>H</b> 7</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/experiments/off-recipe.md"><code>wiki/experiments/off-recipe.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/experiments/off-recipe.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="the-off-recipe"></span><p><strong>상태: 실행됨, 여러 번.</strong> 이것은 다른 모든 측정을 읽을 때 기준이 되는 대조 실행이다.</p>
+<span class="source-anchor" id="purpose"></span><h2 id="목적">목적</h2>
 <p>스타일러스를 비활성화한 채 게임을 프레임 9,000까지 실행하고, 스크린샷 31장 전부를
 보관된 레퍼런스와 SHA-256으로 비교하여, 포트에 가한 변경이 아무것도 움직이지 <strong>않았음</strong>을
-확립한다. 31장 중 31장이 같으면 통과이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span>.</p>
+확립한다. 31장 중 31장이 같으면 통과이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/recipes.md</code> section 2; receipt provenance unresolved</span></span>.</p>
 <p><strong>이름은 함정이며 B1이 그 이유다.</strong> "OFF"는 <code>ACWW_TOUCH</code>가 꺼져 있음을 가리킨다. 그 외에는
 <strong>키 입력 START</strong> 레시피로, <code>ACWW_KEYS=9</code>(A와 START)가 프레임 300부터 펄스를 낸다
 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/README.md</code>, "THE RECIPE NAMED OFF IS NOT AN UNKEYED RUN"</span></span>. 정말로
@@ -136,7 +148,7 @@
 화면을 영영 벗어나지 않는 반면 포트는 택시 인트로 깊숙이 들어가 있어, 모든 프레임의
 정규화 상호상관(normalised cross-correlation)이 0.10 근처로 나왔고, 그 결과로 나온 31개
 불일치 표는 포트에 관해 아무것도 말해 주지 않았다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same</span></span>.</p>
-<h2 id="레시피">레시피</h2>
+<span class="source-anchor" id="recipe"></span><h2 id="레시피">레시피</h2>
 <p>먼저 재링크를 수행하는 반복 스크립트를 통해 실행한다:</p>
 <pre><code>sh scratchpad/cycle40/iterate.sh &lt;name&gt; [KEY=VAL ...]
 </code></pre>
@@ -156,8 +168,8 @@ grep한다
 <pre><code>python port/tools/oracle/oracle.py --frames 4500,4650,...,9000 --out scratchpad/oracle/off
 python port/tools/oracle/compare.py scratchpad/oracle/off scratchpad/cycle40/runs/off-&lt;name&gt;
 </code></pre>
-<p><span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 6</span></span>.</p>
-<h2 id="예상-관측">예상 관측</h2>
+<p><span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/recipes.md</code> section 6; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="expected-observations"></span><h2 id="예상-관측">예상 관측</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -180,21 +192,21 @@ python port/tools/oracle/compare.py scratchpad/oracle/off scratchpad/cycle40/run
 </tr>
 <tr>
 <td>로그</td>
-<td><code>acww touch: up</code> 줄이 하나, 그 이상은 없음 &ndash; 변경 시에만 출력하는 도구가 <code>last = -1</code>에서 시작하므로 모든 실행은 정확히 한 번의 초기 "up"을 출력한다; ON 실행은 세 개다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/port/input-save-audio.md</code>, TOUCH39</span></span></td>
+<td><code>acww touch: up</code> 줄이 하나, 그 이상은 없음 &ndash; 변경 시에만 출력하는 도구가 <code>last = -1</code>에서 시작하므로 모든 실행은 정확히 한 번의 초기 "up"을 출력한다; ON 실행은 세 개다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/port/input-save-audio.md</code>, TOUCH39; receipt provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td>소요 시간</td>
-<td>링크가 워밍업된 뒤에는 한 턴에 약 90초 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span></td>
+<td>링크가 워밍업된 뒤에는 한 턴에 약 90초 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/recipes.md</code> section 2; receipt provenance unresolved</span></span></td>
 </tr>
 </tbody>
 </table></div>
-<h2 id="이-관측을-만들어-낸-실행">이 관측을 만들어 낸 실행</h2>
+<span class="source-anchor" id="the-runs-that-produced-them"></span><h2 id="이-관측을-만들어-낸-실행">이 관측을 만들어 낸 실행</h2>
 <p>레퍼런스는 <code>scratchpad/cycle39/execution39-touch39-005/off</code>이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 2</span></span>. REG40b와 REG40c의 거부 목록(deny list) 이분 탐색
-전체가 이 루프 위에서 구축되었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> REG40b, REG40c</span></span>. 오라클
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/recipes.md</code> section 2; receipt provenance unresolved</span></span>. REG40b와 REG40c의 거부 목록(deny list) 이분 탐색
+전체가 이 루프 위에서 구축되었다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> REG40b, REG40c; receipt provenance unresolved</span></span>. 오라클
 쪽은 <code>scratchpad/oracle/off</code>이며, 그 옆에 <code>compare-off.json</code>과 <code>diff-off/</code>가 있다
 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/off</code></span></span>.</p>
-<h2 id="반증-조건">반증 조건</h2>
+<span class="source-anchor" id="what-would-falsify-it"></span><h2 id="반증-조건">반증 조건</h2>
 <ul>
 <li>포트에 의도적인 변경 없이 BMP가 하나라도 달라지는 것. 이는 노이즈가 아니라 변경의
   결함으로 읽어야 한다: 레퍼런스는 유사도 점수가 아니라 바이트 비교이다.</li>
@@ -204,14 +216,14 @@ python port/tools/oracle/compare.py scratchpad/oracle/off scratchpad/cycle40/run
 <li>이 대조 실행 전에 ON 조건을 실행하는 것 (M15). 31 프레임 비교가 있어야 ON 쪽의
   차이가 의미를 갖는다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>two-tap-town-recipe.md</code> &ndash; 이 레시피가 대조하는 ON 레시피.</li>
 <li><code>../systems/input-and-touch.md</code></li>
 </ul></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../experiments/two-tap-town-recipe.html"><small>다음 ▶</small>두 번 탭 마을 레시피</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

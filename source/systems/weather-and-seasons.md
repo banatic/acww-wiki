@@ -47,7 +47,7 @@ rasteriser modulates each texel by the lit vertex colour, which comes from the N
 colours, which come from the light manager's elements (channel 7, vtable `0x020de710`,
 flushed by `func_02065938`), whose elements sample `func_020bbf00` = that table
 [S: func_020bba14, main, port/shim/game/envlight.c]
-[E: port/BOOT-STATE.md, glb light words all four black before the repair].
+[H: log/source account: port/BOOT-STATE.md, glb light words all four black before the repair; receipt provenance unresolved].
 
 Decoded instruction by instruction, `func_020bba14` does this
 [S: func_020bba14, main, port/shim/game/envlight.c]:
@@ -72,13 +72,13 @@ The environment object's init `func_020baa28` (vtable `0x020e69a4`, slot 0) load
 `/sky/*_bg_ncl.bin` palettes; when its five globals were mis-bound those loads ran with NULL
 names and the whole town composed black
 [S: func_020baa28, main, port/BOOT-STATE.md]
-[E: port/BOOT-STATE.md, 38-42k pixels blended with full alpha and zero colour].
+[H: log/source account: port/BOOT-STATE.md, 38-42k pixels blended with full alpha and zero colour; receipt provenance unresolved].
 
 The hour drives the sky's appearance directly and visibly: with the clock reading 4 a.m. the
-title's sky is a starfield [E: port/BOOT-STATE.md, `acww envlight: hour 0x00000004`]. In the
+title's sky is a starfield [H: log/source account: port/BOOT-STATE.md, `acww envlight: hour 0x00000004`; receipt provenance unresolved]. In the
 town, the sky is a separate affine background: engine B in mode 1 with BG3 affine
 (`BG3CNT = 0x6f02`), and once affine layers were rendered the clouds appeared
-[E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57` frame 37800].
+[E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57` frame 37800; `scratchpad/cycle40/runs/tap-D57`].
 
 Weather state itself is reset by `func_02035dcc`, which every ROM caller invokes as
 `*(0x021c526c) + 0x2d0` -- so weather is a `0x2d0`-offset substructure of the field object
@@ -91,20 +91,20 @@ Weather state itself is reset by `func_02035dcc`, which every ROM caller invokes
 Snow is a channel, not an effect: channel 189 is the SNOWMAN, binding
 `/snowman/snowball1.nsbmd` (model `SNW0`, id `0x022383ac`) and `/snowman/snow_face.nsbmd`
 (model `SNW1`, id `0x022383c8`), and ov003 also names `sp_npc_snowman` in its own pool
-[E: port/BOOT-STATE.md, bind log] [S: ov003 pool words, docs/kb/modules/ov003-068.md]. A
+[H: log/source account: port/BOOT-STATE.md, bind log; receipt provenance unresolved] [H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. A
 53-polygon curved surface that a long line of work treated as terrain turned out to be a
-snowball [E: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"].
+snowball [H: log/source account: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"; receipt provenance unresolved].
 
 Rain is NOT a file. `m_rainA`, `m_rainB` and `m_splash` are model node or animation names
 inside the already-loaded `obj_taxi` model, and a filesystem search for `*rain*` returns only
 twelve BMG message files -- so there is no missing rain asset and nobody should hunt one
 [H: host/prose inference from port/VISIBLE-STATE.md, filesystem search; verify against the ROM function or symbol table and this page's recipe]. ov003's pool names them beside the taxi objects
-[S: ov003 pool words, docs/kb/modules/ov003-068.md]. The rain IS visible in the taxi interior
+[H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. The rain IS visible in the taxi interior
 on the interpreter path at frame 4,500
-[E: docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51].
+[E: docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51; `scratchpad/cycle40/runs/off-D51`].
 
 Seasonal appearance also lives in the assets: ov003's texture names carry `w`/`s`/`f`
-variants [S: ov003 pool words, docs/kb/modules/ov003-068.md].
+variants [H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved].
 
 ## Where it lives
 
@@ -151,8 +151,8 @@ November), which is the whole day-boundary rule
 
 For the sky, run with `ACWW_RTC_*` set to different hours and watch
 `acww envlight: hour <h>`; the title's sky is a starfield at hour 4
-[E: port/BOOT-STATE.md]. For the town's sky specifically, the town recipe's frame 37,800
-shows clouds over blue [E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57`].
+[H: log/source account: port/BOOT-STATE.md; receipt provenance unresolved]. For the town's sky specifically, the town recipe's frame 37,800
+shows clouds over blue [E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57`; `scratchpad/cycle40/runs/tap-D57`].
 
 ## Hypotheses
 
@@ -160,34 +160,34 @@ shows clouds over blue [E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D
   and `table_020d2364` is the flattening table.** The double indirection -- a word at
   `0x021f8ad4`, through `table_020d2364`, to a row -- is exactly what a two-dimensional
   lookup collapsed into one dimension looks like
-  [S: port/shim/game/envlight.c]. Experiment: force `func_02063bb4`'s result to each of 0..3
+  [H: source account: port/shim/game/envlight.c; direct ROM-source provenance unresolved]. Experiment: force `func_02063bb4`'s result to each of 0..3
   with the same date and record `*(u32 *)0x021f8ad4` and the resulting row.
 - **H: weather is chosen once per day from a per-season probability table, not per frame.**
   `func_02035dcc` is a RESET rather than a chooser, and its callers are transition points
-  [S: port/shim/game/weather.c]. Experiment: instrument every write to `0x021f8ad4` over a
+  [H: source account: port/shim/game/weather.c; direct ROM-source provenance unresolved]. Experiment: instrument every write to `0x021f8ad4` over a
   three-day `ACWW_RTC_*` run and count them; one write per day rollover supports the
   hypothesis.
 - **H: the `w`/`s`/`f` texture suffixes are winter / summer / fall, with spring being the
   unsuffixed default.** Three suffixes for four seasons is the tell
-  [S: docs/kb/modules/ov003-068.md]. Experiment: log every `/bg/t%d/%04x.nsbtx` and
+  [H: source account: docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. Experiment: log every `/bg/t%d/%04x.nsbtx` and
   `/fg/**` open with the season forced to each of 0..3 and compare the name sets.
 - **H: the August and September splits in `func_0204fa8c` are the two fireworks/festival
   windows, and `func_0204fafc` tests a day-of-month or day-of-week condition on the byte
   `func_0209df94` returns.** Only those two months split
-  [S: port/shim/game/seasonidx.c]. Experiment: decompile `func_0204fafc` and `func_0209df94`
+  [S: `src/matched/func_0204fa8c.c`; historical account: port/shim/game/seasonidx.c]. Experiment: decompile `func_0204fafc` and `func_0209df94`
   and evaluate the pair over all 365 dates.
 - **H: rain is drawn by the taxi/field model's own `m_rainA`/`m_rainB` nodes being enabled by
   the weather state, not by a particle system.** They are nodes inside a loaded model
-  [S: port/VISIBLE-STATE.md]. Experiment: force the weather word to each value in the town and
+  [H: source account: port/VISIBLE-STATE.md; direct ROM-source provenance unresolved]. Experiment: force the weather word to each value in the town and
   count large translucent polygons per frame.
 - **H: the snowman channel (189) is opened by the weather/season update when the season is
   winter and snow has accumulated, not by the field scene unconditionally.** The channel
-  exists and binds snow models [E: port/BOOT-STATE.md]. Experiment: run the town recipe with
+  exists and binds snow models [H: log/source account: port/BOOT-STATE.md; receipt provenance unresolved]. Experiment: run the town recipe with
   the RTC set to January and to July and record whether channel 189 opens.
 - **H: the two weights `func_020bbb6c` returns are (minutes-into-the-hour) and
   (progress-through-a-row-transition), and the second is what makes a season change fade over
   more than one day.** The second weight is used only for the two-row blend
-  [S: port/shim/game/envlight.c]. Experiment: log `w1` and `w2` across an hour boundary and
+  [H: source account: port/shim/game/envlight.c; direct ROM-source provenance unresolved]. Experiment: log `w1` and `w2` across an hour boundary and
   across a season boundary.
 
 ## Related

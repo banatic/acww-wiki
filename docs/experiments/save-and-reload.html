@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" open>
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li class="active"><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>저장과 재로드</span></div><header class="page-head"><h1>저장과 재로드</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 7</span><span class="gchip g-E"><b>E</b> 28</span><span class="gchip g-O"><b>O</b> 6</span><span class="gchip g-H"><b>H</b> 3</span></div><div class="source-line">원문: <code>wiki/experiments/save-and-reload.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 실행되어 답을 얻음, 2026-09-10 (SAVE43, <code>2e579f09</code>). 세 가지 주장 모두 성립한다: 게임이
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>저장과 재로드</span></div><header class="page-head"><h1>저장과 재로드</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 2</span><span class="gchip g-E"><b>E</b> 13</span><span class="gchip g-O"><b>O</b> 6</span><span class="gchip g-H"><b>H</b> 23</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/experiments/save-and-reload.md"><code>wiki/experiments/save-and-reload.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/experiments/save-and-reload.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="save-and-reload"></span><p><strong>상태: 실행되어 답을 얻음, 2026-09-10 (SAVE43, <code>2e579f09</code>). 세 가지 주장 모두 성립한다: 게임이
 스스로 두 뱅크를 쓰고, 그 바이트는 ROM 자신의 유효성 검사를 통과하며, 두 번째 실행은
 기존 마을 분기를 탄다.</strong> 답은 <strong>SAVE43</strong> 절을 읽으면 된다. 그 아래의 조건들은 측정된 그대로,
 측정된 순서대로 남겨 두었다. 두 중간 판독이 곧 내용이기 때문이다: 조건 B(SAVEFLOW41)는
@@ -132,7 +144,7 @@
 프롬프트에 도달해 규칙의 위치를 짚어 준 거부(REFUSAL)를 받았다.
 어떤 조건이 두 번째 실행이 막혀 있다고 말한다면, 그 문장은 SAVE43에 의해 대체되었으며
 당시 알려져 있던 것의 기록으로만 남겨 둔 것이다.</p>
-<h2 id="목적">목적</h2>
+<span class="source-anchor" id="purpose"></span><h2 id="목적">목적</h2>
 <p><code>save-store-probe.md</code>는 무엇이든 파일에 도달하는지를 묻는다. 이 페이지는 그 다음 질문을
 묻는다: <strong>플레이된 게임이 영속하는가</strong> &ndash; 게임이 카드 프로토콜을 통해 스스로 자기 레코드를
 쓰는가, 그 레코드가 ROM 자신의 유효성 검사를 통과하는가, 같은 <code>ACWW_SAVE</code>로 두 번째
@@ -143,7 +155,7 @@
 <li>바이트가 메모리 매핑만이 아니라 파일(FILE)에 도달한다;</li>
 <li>두 번째 실행이 그것을 읽어 들여 기존 마을 분기를 탄다.</li>
 </ol>
-<h2 id="레시피">레시피</h2>
+<span class="source-anchor" id="recipe"></span><h2 id="레시피">레시피</h2>
 <p><strong>조건 A &ndash; 대조, 먼저 (M15).</strong> 저장소 없이 두 번 탭 마을 레시피를 27,000 프레임까지:</p>
 <pre><code>python -B scratchpad/saveflow/run_sf.py town-nosave \
   ACWW_INTERP=1 \
@@ -162,7 +174,7 @@
 <p>실행이 정지 시점에 출력하는 센서스(census)를 읽고, 그 다음 파일(FILE)을 읽는다:</p>
 <pre><code>python port/tools/savetool.py check &lt;the same absolute path&gt;
 </code></pre>
-<h2 id="예상-관측">예상 관측</h2>
+<span class="source-anchor" id="expected-observations"></span><h2 id="예상-관측">예상 관측</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -189,7 +201,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="관측된-것">관측된 것</h2>
+<span class="source-anchor" id="what-was-observed"></span><h2 id="관측된-것">관측된 것</h2>
 <p><strong>조건 B, <code>scratchpad/saveflow/runs/town1</code></strong> (DIAGNOSTIC, B38; 48,000 프레임에서 exit 100,
 1,636 s, 스틸 29장, 폴트 없음, <code>unimplemented</code> 없음), <code>savetool.py make</code>로 새로 소거한
 256 KB 저장소 사용 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/saveflow/runs/town1/receipt.json</code></span></span>:</p>
@@ -202,27 +214,30 @@
 </code></pre>
 <ul>
 <li>부팅은 <strong>두 뱅크를 연달아</strong> 읽는다 &ndash; 프레임 10에 오프셋 0부터 0x2e7f8 바이트 &ndash;
-  이는 <code>func_020a1a40</code>의 슬롯 0과 슬롯 1이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/shim/game/savepoll.c</code>, <code>src/matched/func_020a1a40</code> tables <code>data_020d1c20</code> / <code>data_020d1bf0</code></span></span>.</li>
+  이는 <code>func_020a1a40</code>의 슬롯 0과 슬롯 1이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a1a40.c</code>; source account: <code>port/shim/game/savepoll.c</code>,
+  <code>src/matched/func_020a1a40</code> tables <code>data_020d1c20</code> / <code>data_020d1bf0</code></span></span>.</li>
 <li>프레임 757에 <strong><code>0x3fffc</code>에 한 바이트</strong>를 쓰고, 758에 검증한다. 그곳은 두 뱅크 바깥이자
   편지 저장소 바깥, 칩의 마지막 워드다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">the census above</span></span>.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: the census above; receipt provenance unresolved</span></span>.</li>
 <li><strong>48,000 프레임 동안 그 외에는 아무것도 저장소를 건드리지 않으며</strong>, 이후 <code>savetool.py check</code>는
-  두 뱅크 모두 <code>ALL 0xFF -- erased flash, no save here</code>라고 보고한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same run</span></span>.</li>
+  두 뱅크 모두 <code>ALL 0xFF -- erased flash, no save here</code>라고 보고한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: the census above run; receipt provenance unresolved</span></span>.</li>
 <li>정직한 0xFF 소거 읽기는 이 경로를 탈선시키지 <strong>않는다</strong>: <code>unimplemented: func_02225a90</code>
-  없음, 폴트 없음, 48,000 프레임 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same run</span></span>. 그 정지는 네이티브 경로에서의 관측이다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/fs/cardreq.c</code>'s comment; <code>../systems/save-data.md</code></span></span>.</li>
+  없음, 폴트 없음, 48,000 프레임 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: the census above run; receipt provenance unresolved</span></span>. 그 정지는 네이티브 경로에서의 관측이다
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/shim/fs/cardreq.c</code>'s comment; <code>../systems/save-data.md</code>; receipt provenance unresolved</span></span>.</li>
 </ul>
 <p><strong>차단 요인.</strong> 조건 B의 스틸은 프레임 24,000, 37,500, <strong>그리고</strong> 48,000에서 한결같이 택시
 내부와 마을 이름 키보드(<code>마을 이름은?</code>)를 보여 준다 &ndash; 24,600에 예정된 두 번째 접촉이
-이름을 확정하지 못한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/saveflow/runs/town1/shot_024000.bmp</code>, <code>shot_037500.bmp</code>, <code>shot_048000.bmp</code></span></span>. 커밋 <code>6ca48706</code>의 영수증 있는 실행 <code>town-R1</code>은
-37,500까지 플레이어를 마을 회관 앞에 세워 두었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/state/port-frontier.md</code>, RECEIPT41</span></span>.
+이름을 확정하지 못한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/saveflow/runs/town1/shot_024000.bmp</code>,
+<code>shot_037500.bmp</code>, <code>shot_048000.bmp</code></span></span>. 커밋 <code>6ca48706</code>의 영수증 있는 실행 <code>town-R1</code>은
+37,500까지 플레이어를 마을 회관 앞에 세워 두었다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/state/port-frontier.md</code>, RECEIPT41; receipt provenance unresolved</span></span>.
 따라서 커밋 <code>174ae9e3</code>에서는 레시피가 게임플레이에 도달하지 못하고, 게임플레이 하류의
 모든 것 &ndash; 저장 트리거를 포함해 &ndash; 은 스크립트로 도달할 수 없다.</p>
 <p><strong>이것은 회귀가 아니라 수렴이며, 오라클이 이를 결정한다.</strong> 바로 이 구간에서 측정된 포트와
 DeSmuME 원본 사이의 차이는, 포트의 두 탭은 마을 이름을 확정(CONFIRM)하고 원본의 동일한
 탭은 확정하지 못해서 원본이 48,000까지 마을 이름 키보드에 머문다는 것이었다 &ndash; 그리고
 그곳이 지금 조건 B가 머무는 곳이다
-<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>docs/kb/hybrid/open-questions.md</code> question 1, measured at <code>eb24787a</code>; <code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code></span></span>. 같은 오라클 캡처를 조건 B에 대해
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>docs/kb/hybrid/open-questions.md</code> question 1, measured at <code>eb24787a</code>;
+<code>scratchpad/oracle/tap-fullpad/compare-vs-tap-D56.txt</code></span></span>. 같은 오라클 캡처를 조건 B에 대해
 돌리면:</p>
 <pre><code>python port/tools/oracle/compare.py \
     scratchpad/saveflow/oracle-tap-fullpad scratchpad/saveflow/runs/town1
@@ -245,28 +260,30 @@ DeSmuME 원본 사이의 차이는, 포트의 두 탭은 마을 이름을 확정
 </table></div>
 <p>29 프레임, 평균 ncc 0.9762 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/saveflow/compare-oracle-vs-town1.txt</code></span></span>. 이 실행은
 오래된 레시피 줄인 <code>ACWW_TOUCH2_AT=24600</code>을 사용했고, TOUCH42 빌드에서 포트는 원본과
-정확히 같이 24,600에서 마을 이름 키보드에 머문다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42b</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span>; 마을 프론티어는 기록상의 24,700 레시피 위에 서 있으며,
-거기서는 양쪽 모두 확정한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42c</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-24700</code></span></span> &ndash; <code>touch-latency.md</code>
+정확히 같이 24,600에서 마을 이름 키보드에 머문다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42b</code> ; <code>scratchpad/cycle40/runs/tap-T42b</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-window</code></span></span>; 마을 프론티어는 기록상의 24,700 레시피 위에 서 있으며,
+거기서는 양쪽 모두 확정한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>tap-T42c</code> ; <code>scratchpad/cycle40/runs/tap-T42c</code></span></span> <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/tap-24700</code></span></span> &ndash; <code>touch-latency.md</code>
 참고. 예외는 두 프레임, 7,500과 13,500으로, 평균 휘도가 뒤바뀐 채 0.70을 기록하는 한편
 그 사이의 모든 프레임은 일치한다: 어두운 택시 탑승 구간이 포트에서 약 한 스크린샷 간격
 일찍 시작하고 끝나는 것이며, 다른 화면이 아니라 보정되지 않은 오라클 프레임 카운터에
-대한 위상 오프셋이다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same file</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by <code>--offset</code>, or by stills every 150 across 7,000..14,000 on both sides</span></span>.</p>
+대한 위상 오프셋이다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">same file</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">settled by <code>--offset</code>, or by
+stills every 150 across 7,000..14,000 on both sides</span></span>.</p>
 <p><strong>OFF 레시피도 같은 방향으로 움직였다.</strong> HEAD 자체의 OFF 실행은 보존된 cycle39 네이티브
 OFF 스틸과 31 프레임 전부에서 다르고(프레임 4,500에서 393,270 바이트 중 277,667 바이트가
 다름), <code>docs/kb/hybrid/recipes.md</code> 2절은 31/31을 통과 기준으로 명시한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/saveflow/runs/off-control</code> vs <code>scratchpad/cycle39/execution39-touch39-005/off</code>; receipt lost with its worktree; repeat the named recipe and retain the stated frames</span></span>.
 오라클 자체의 OFF 캡처에 대해 채점하면 HEAD는 평균 ncc <strong>0.9970</strong>, 그 레퍼런스는
-<strong>0.8401</strong>을 얻는다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/saveflow/compare-oracle-vs-off-control.txt</code>, <code>compare-oracle-vs-cycle39ref.txt</code></span></span> &ndash; 따라서 여기서도 트리는 원본 쪽으로 움직였고,
+<strong>0.8401</strong>을 얻는다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/saveflow/compare-oracle-vs-off-control.txt</code>,
+<code>compare-oracle-vs-cycle39ref.txt</code></span></span> &ndash; 따라서 여기서도 트리는 원본 쪽으로 움직였고,
 보존된 레퍼런스는 정확성 기준으로 취급할 것이 아니라 HEAD에서 다시 채취해야 한다.</p>
 <p><strong>조건 A가 결정한다: 레시피를 망가뜨린 것은 저장소가 아니다.</strong> <code>scratchpad/saveflow/runs/town-nosave</code>는
 <code>ACWW_SAVE</code>를 설정하지 않은 동일한 레시피를 27,000 프레임까지 돌린 것이며, 그 스틸은
 프레임 6,000..27,000에 걸쳐 조건 B와 <strong>15/15 SHA256 동일</strong>하다 &ndash; 택시, 플레이어 이름
 키보드, 탑승, 대화, 마을 이름 키보드 모두
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>runs/town-nosave</code> vs <code>runs/town1</code></span></span>. 이는 <code>save-store-probe.md</code>가 조건 A와 B에 대해
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>runs/town-nosave</code> vs <code>runs/town1</code>; receipt provenance unresolved</span></span>. 이는 <code>save-store-probe.md</code>가 조건 A와 B에 대해
 내놓은 예측이며, 확인되었다.</p>
 <p><strong>계측 변경은 꺼져 있을 때 무해하다.</strong> 카드 센서스, <code>FlushViewOfFile</code> 라이트스루, 새
 <code>ACWW_PADSCRIPT</code> 타임라인은 모두 OFF 레시피를 바이트 단위로 동일하게 남긴다:
 <code>runs/off-census</code>와 <code>runs/off-padscript</code>는 각각 이들 없이 HEAD 자체 소스를 다시 링크한
-<code>runs/off-control</code>과 <strong>31/31 SHA256 동일</strong>하다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">those three run directories</span></span>.</p>
+<code>runs/off-control</code>과 <strong>31/31 SHA256 동일</strong>하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: those three run directories; receipt provenance unresolved</span></span>.</p>
 <p><strong>...그리고 <code>ACWW_PADSCRIPT</code>는 켜져 있을 때 무해하지 않다</strong> (B6). 프레임 24,000 스냅샷에서
 세 번 재개하여 각각 25,500까지 150마다 스틸을 찍었다: <code>runs/r1</code>(스크립트 없음)은 겹치는
 두 스틸 모두에서 조건 B와 같으므로 스냅샷은 정확히 재개된다; <code>runs/r2a</code>(<code>24100:0</code> &ndash;
@@ -276,7 +293,7 @@ OFF 스틸과 31 프레임 전부에서 다르고(프레임 4,500에서 393,270 
 다르며, 화면에서 그 차이는 마을 이름 키보드의 탭 스트립이 선택을 옮기는 것이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">those three run directories; <code>scratchpad/saveflow/padscript-proof.png</code></span></span>.</p>
 <p><strong>조건 C</strong>는 위 내용을 쓸 당시 실행되지 않았다: 두 번째 실행이 읽을 것이 파일에 아무것도
 없었다. 지금은 실행되었다.</p>
-<h2 id="save43-세-가지-주장-모두-측정됨">SAVE43 &ndash; 세 가지 주장 모두 측정됨</h2>
+<span class="source-anchor" id="save43----all-three-claims-measured"></span><h2 id="save43-세-가지-주장-모두-측정됨">SAVE43 &ndash; 세 가지 주장 모두 측정됨</h2>
 <p>체인, 전부 DIAGNOSTIC 실행(B38), 워크트리 <code>.claude/worktrees/agent-a757560884bf9588e</code>의
 <code>fbfc987d</code>에 SAVE42의 <code>frame.c</code> 센서스 호출을 더해 다시 링크한 빌드
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>../../docs/log/cycle42-save.md</code> SAVE43; <code>scratchpad/save43/RECEIPTS.md</code></span></span>:</p>
@@ -295,9 +312,10 @@ persisted 190456 bytes; verify mismatches 0
 FlushViewOfFile calls 745
 </code></pre>
 <p><code>0x00000000</code>부터 연속된 256바이트 페이지, 각각 한 프레임 뒤에 검증됨: <code>func_020a1d94</code>의
-512바이트 스텝은 카드 페이지 두 장이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">the run's own request spans</span></span>. 화면에서는:
+512바이트 스텝은 카드 페이지 두 장이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: the run's own request spans; receipt provenance unresolved</span></span>. 화면에서는:
 <code>오늘은 여기까지 하시겠습니까?</code> -&gt; <code>저장하고 있습니다</code> -&gt; <strong><code>저장했습니다！</code></strong> &ndash; <code>sequence2_</code>
-메시지 0, 1, 2로, 이는 <code>func_0209f6e4</code>의 거부하지 않는 분기다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">SAVE42's transcription of that branch</span></span>.</p>
+메시지 0, 1, 2로, 이는 <code>func_0209f6e4</code>의 거부하지 않는 분기다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: SAVE42's transcription
+of that branch; direct ROM-source provenance unresolved</span></span>.</p>
 <p><strong>주장 2, 바이트가 ROM 자신의 검사를 통과한다.</strong> 이후 파일에 <code>savetool.py check</code>:
 뱅크 1 체크섬 저장값 <code>0xa6ad</code> 계산값 <code>0xa6ad</code> 잔차 <code>0x0000</code>, 게임코드 ok, 플래그
 <code>+0x173fa</code> ok, 워드 합 ok -&gt; <em>the game would LOAD this bank</em>; 뱅크 2도 같으며
@@ -308,14 +326,15 @@ FlushViewOfFile calls 745
 플레이어는 침대와 전화기가 있는 자기 집 안에 있고, 그 위에
 <code>시작 준비 중입니다 / 전원을 끄지 말고 그대로 기다려 주십시오</code>가 떠 있으며, 5,000부터는
 HUD와 함께 자기 집 현관 밖에 있다 &ndash; 택시도 없고, 어느 키보드도 없다. 대조는 소거된
-저장소에서의 동일한 실행으로, 이름 키보드가 뜬 택시 내부다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>boot-A</code>; SAVE42's <code>boot9000.png</code></span></span>. 패드 타임라인으로 구동한 두 번째 실행은 재로드된 마을을 걸어 다니며
-NPC를 만나므로, 마을은 단지 그려질 뿐 아니라 플레이 가능하다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>boot-B</code></span></span>.</p>
+저장소에서의 동일한 실행으로, 이름 키보드가 뜬 택시 내부다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>boot-A</code>; SAVE42's
+<code>boot9000.png</code>; receipt provenance unresolved</span></span>. 패드 타임라인으로 구동한 두 번째 실행은 재로드된 마을을 걸어 다니며
+NPC를 만나므로, 마을은 단지 그려질 뿐 아니라 플레이 가능하다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>boot-B</code>; receipt provenance unresolved</span></span>.</p>
 <p><strong>이것이 규칙(RULE)에 대해 바꾸는 것.</strong> 차단 요인은 입주 모드 워드 하나뿐이며, 그것은
 게임 자신의 코드에 의해 지워진다: <code>func_020a128c</code>는 열 번째 접근자, <code>mode := 0</code>이고,
 호출자는 <code>func_0209ec74</code>와 <code>func_ov068_0226e648</code>이며, 저장소 워치포인트로 포착되었다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>gp-W0</code></span></span>. SAVE42의 "<code>mode := 0</code>은 없다"는 철회된다. Nook의 다락방 침대는 하나의
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>gp-W0</code> ; <code>scratchpad/save43/runs/gp-W0</code></span></span>. SAVE42의 "<code>mode := 0</code>은 없다"는 철회된다. Nook의 다락방 침대는 하나의
 저장 지점이지 게이트가 아니다.</p>
-<h2 id="조건-d-save42-게임이-저장을-요청받을-때까지-계속-플레이하고-그-답을-읽는다">조건 D (SAVE42): 게임이 저장을 요청받을 때까지 계속 플레이하고, 그 답을 읽는다</h2>
+<span class="source-anchor" id="arm-d-save42-play-on-until-the-game-is-asked-to-save-and-read-its-answer"></span><h2 id="조건-d-save42-게임이-저장을-요청받을-때까지-계속-플레이하고-그-답을-읽는다">조건 D (SAVE42): 게임이 저장을 요청받을 때까지 계속 플레이하고, 그 답을 읽는다</h2>
 <p><strong>상태: 실행됨, 2026-09-10, 그리고 이것이 이 페이지에 빠져 있던 답이다.</strong> 조건 B는
 "어떤 레시피도 저장에 도달하지 못한다"에서 멈췄다. 조건 D는 거기에 도달하고, 게임은
 거부한다 &ndash; 추측이 아니라 이제 ROM 안에 위치가 특정된 이유로.</p>
@@ -338,11 +357,11 @@ NPC를 만나므로, 마을은 단지 그려질 뿐 아니라 플레이 가능�
 </tr>
 <tr>
 <td>메시지 아카이브</td>
-<td>그 문자열은 <code>script/KOR/message/sp/etc/sequence4_.bmg</code> 인덱스 <strong>4</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>scratchpad/save42/bmg.py find</code></span></span></td>
+<td>그 문자열은 <code>script/KOR/message/sp/etc/sequence4_.bmg</code> 인덱스 <strong>4</strong> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>scratchpad/save42/bmg.py find</code>; direct ROM-source provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td>ROM</td>
-<td><code>func_0209f6e4</code>는 <code>func_020a12d4() \|\| func_020a12c0()</code>일 때, 즉 <code>0x021f3c30</code>의 워드가 1 또는 2일 때에 한해 <code>sp_etc_sequence4</code>를 붙이고 <code>self+0x72</code>에 4를 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0209f6e4</code>, <code>func_020a12c0</code>, <code>func_020a12d4</code>, main</span></span></td>
+<td><code>func_0209f6e4</code>는 <code>func_020a12d4() \|\| func_020a12c0()</code>일 때, 즉 <code>0x021f3c30</code>의 워드가 1 또는 2일 때에 한해 <code>sp_etc_sequence4</code>를 붙이고 <code>self+0x72</code>에 4를 쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a12c0.c</code>, <code>src/matched/func_020a12d4.c</code>; source account: <code>func_0209f6e4</code>, <code>func_020a12c0</code>, <code>func_020a12d4</code>, main</span></span></td>
 </tr>
 <tr>
 <td>스냅샷</td>
@@ -350,11 +369,11 @@ NPC를 만나므로, 마을은 단지 그려질 뿐 아니라 플레이 가능�
 </tr>
 <tr>
 <td>~60,000 프레임 플레이 후의 저장소</td>
-<td>여전히 소거 상태와 한 바이트만 다름, <code>+0x3fffc</code>; 두 뱅크 모두 <code>ALL 0xFF</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>savetool.py check</code></span></span></td>
+<td>여전히 소거 상태와 한 바이트만 다름, <code>+0x3fffc</code>; 두 뱅크 모두 <code>ALL 0xFF</code> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>savetool.py check</code>; receipt provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td>이제 출력되는 센서스</td>
-<td><code>arm7 requests 748 ... NO WRITE_BACKUP REACHED THE STORE -- this run never saved</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>runs/off-fix</code></span></span></td>
+<td><code>arm7 requests 748 ... NO WRITE_BACKUP REACHED THE STORE -- this run never saved</code> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>runs/off-fix</code>; receipt provenance unresolved</span></span></td>
 </tr>
 </tbody>
 </table></div>
@@ -363,7 +382,7 @@ NPC를 만나므로, 마을은 단지 그려질 뿐 아니라 플레이 가능�
 그리고 <code>func_020a4454</code>(<code>:= 3</code>, <code>:= 4</code>)뿐이다; ROM의 어떤 함수도 0을 쓰지 않으므로 0은 BSS
 기본값이다.~~ <strong>위 SAVE43에 의해 철회됨</strong>: <code>func_020a128c</code>는 열 번째 접근자, <code>mode :=
 0</code>이며, 게임은 도착이 끝날 때 이를 호출한다. 여기 이름을 든 0이 아닌 값을 쓰는 세 곳은
-맞다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">their pool words</span></span>; "아무것도 0을 쓰지 않는다"는 절반은 함수 하나를 남기고 멈춘
+맞다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: their pool words; direct ROM-source provenance unresolved</span></span>; "아무것도 0을 쓰지 않는다"는 절반은 함수 하나를 남기고 멈춘
 검색이었다.</p>
 <p><strong>시계는 잘못된 지렛대이며, 이는 논증이 아니라 실행(RUN)으로 확인되었다.</strong> 같은
 55,400 프레임 스냅샷에서 <code>ACWW_RTC_DATE</code>만 다른 두 조건, 각각 START를 누르고 프롬프트를
@@ -395,13 +414,13 @@ A로 진행:</p>
 <p>시계는 정말로 움직였고 &ndash; 날짜 패널은 다음 날을 표시하고 요일이 넘어갔다 &ndash; 답은 바뀌지
 않았다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/save42/rtc0_a.png</code>, <code>rtc1_a.png</code></span></span>. 그것이 ROM이 예측하는 바다:
 <code>ACWW_RTC_DATE</code>는 <code>func_0207b05c</code>의 놓친 날짜 따라잡기를 구동하고
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>../systems/time-and-rtc.md</code></span></span> 거부 분기가 읽는 어떤 것도 건드리지 않는다. 차단을
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>../systems/time-and-rtc.md</code>; direct ROM-source provenance unresolved</span></span> 거부 분기가 읽는 어떤 것도 건드리지 않는다. 차단을
 푸는 것은 도착을 끝내는 것이며, ROM은 같은 아카이브에서 그렇게 말한다: <code>sequence4_[12]</code>는
 플레이어의 집에 온 Nook이다 &ndash; 다락방 침대(<code>옥탑방에 있는 침대</code>)에 누우면 그날의 결과를
 저장할 수 있다.</p>
 <p><strong>작업 중 발견된 계측 주의점 하나.</strong> 재개된 실행은 카드 요청을 전혀 발행하지 않으므로,
 지연 초기화되는 <code>flash_store()</code>는 파일을 한 번도 열지 않고, 센서스는 <code>ACWW_SAVE</code>가
-설정되어 있어도 <code>store absent</code>라고 보고한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>runs/gp-RTC0</code>, <code>gp-RTC1</code>, <code>arm7 requests 0</code></span></span>.
+설정되어 있어도 <code>store absent</code>라고 보고한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>runs/gp-RTC0</code>, <code>gp-RTC1</code>, <code>arm7 requests 0</code> ; <code>scratchpad/save42/runs/gp-RTC1</code></span></span>.
 그것은 누락된 쓰기가 아니라 "아무것도 요청하지 않음"이다. 그 줄은 센서스가 뜻하는 대로
 읽어야 한다.</p>
 <p><strong>이 경로에서 포트 결함 하나가 발견되어 고쳐졌다.</strong> 이 페이지가 인용하는 센서스인
@@ -409,12 +428,12 @@ A로 진행:</p>
 정지 프레임에서 출력된다고 말했다; 센서스는 SAVEFLOW41(B6) 이래 침묵하고 있었다. 이제
 양쪽 종료 경로에서 호출되며, OFF 대조는 이 변경이 보이지 않는다고 말한다: 프레임
 4,500..9,000을 150마다, <code>runs/off-fix</code> 대 <code>runs/off-control</code>(<code>frame.c</code>를 되돌려 다시 링크한
-같은 트리), <strong>31/31 exact (RGB), 평균 ncc 1.0000</strong> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">those two run directories</span></span>.</p>
+같은 트리), <strong>31/31 exact (RGB), 평균 ncc 1.0000</strong> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: those two run directories; receipt provenance unresolved</span></span>.</p>
 <p><strong>두 번째 실행 자체의 기계 장치는 증명되었으며, 이는 막힌 주장과 분리해 둘 가치가
 있다.</strong> <code>runs/boot-store</code>는 같은 <code>ACWW_SAVE</code>로 스냅샷 없이, 센서스가 연결된 빌드에서의
 새 실행이다: <code>req 6 READ flash 0x00000000..0x0002e7f8 (190456 bytes) from
 frame 10</code> &ndash; 두 뱅크를 연달아, <code>func_020a1a40</code>의 슬롯 0과 슬롯 1 &ndash; 그리고 요청 748,
-1바이트 영속, 검증 불일치 0의 센서스 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>runs/boot-store</code></span></span>. 뱅크가 소거되어 있으면
+1바이트 영속, 검증 불일치 0의 센서스 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>runs/boot-store</code>; receipt provenance unresolved</span></span>. 뱅크가 소거되어 있으면
 부팅은 <code>func_020b5724</code>의 새 게임 분기를 타고 9,000의 스틸은 플레이어 이름 키보드가 뜬
 택시다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/save42/boot9000.png</code></span></span>. <strong>그 스틸이 조건 C가 달라져야 할 대조</strong>이며,
 그것이 달라질 통로인 읽기 경로는 오늘 작동한다.</p>
@@ -423,9 +442,9 @@ frame 10</code> &ndash; 두 뱅크를 연달아, <code>func_020a1a40</code>의 �
 <strong>동쪽으로 프레임당 0.184 지도 px, 북쪽으로 프레임당 0.23</strong>으로 환산한다. 그리고 <strong>문으로
 걸어 들어가도 문은 열리지 않는다</strong> &ndash; <code>gp-D8</code>은 플레이어를 문간 한가운데에 세웠지만(Up을
 700 프레임 홀드, Left를 100 중 20 펄스, 패드 행은 OR로 합쳐지므로) 아무 일도 없었다;
-<code>gp-D9</code>는 A 펄스를 더해 안으로 들어갔다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">those two run directories</span></span>. 원본(ORIGINAL)도
+<code>gp-D9</code>는 A 펄스를 더해 안으로 들어갔다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: those two run directories; receipt provenance unresolved</span></span>. 원본(ORIGINAL)도
 A 누름이 필요한지는 미검증이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">one oracle arm over <code>st/door57700.st</code>'s approach settles it</span></span>.</p>
-<h2 id="반증-조건">반증 조건</h2>
+<span class="source-anchor" id="what-would-falsify-it"></span><h2 id="반증-조건">반증 조건</h2>
 <ul>
 <li>"persisted 1 bytes"를 "포트가 저장할 수 있다"로 읽는 것. 그것은 이 레시피가 한 주소에
   한 바이트를 썼다는 뜻이다; 쓰기, 검증, 플러시 기계 장치는 증명되었지만 게임의 저장은
@@ -437,11 +456,11 @@ A 누름이 필요한지는 미검증이다 <span class="cite" data-grade="H"><s
   bash가 값을 경로 목록으로 다시 쓰며, <code>24000:C:/...</code>는 <code>24000:/c/...</code>로 들어간다; 그러면
   스냅샷은 끝내 쓰이지 않고 실행은 끝날 때까지 그에 대해 아무 말도 하지 않는다.</li>
 <li>exit 1로 끝난 실행을 신뢰하는 것. 이미지 안의 어떤 것도 exit 1을 내지 않는다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>port/tools/measure.py</code>'s <code>acww_exit</code> table</span></span>; 이는 다른 세션이
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>port/tools/measure.py</code>'s <code>acww_exit</code> table; direct ROM-source provenance unresolved</span></span>; 이는 다른 세션이
   <code>taskkill /F /IM acww.exe</code>를 실행했다는 뜻이다. <code>run_sf.py</code>가 고유한 이름의 복사본을
   띄우는 것은 그 때문이다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>save-store-probe.md</code> &ndash; 이 실행이 함께 답하는 더 좁은 프로브(조건 B).</li>
 <li><code>../systems/save-data.md</code> &ndash; ROM 쪽 설명.</li>
@@ -453,7 +472,7 @@ A 누름이 필요한지는 미검증이다 <span class="cite" data-grade="H"><s
 </ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/live-play.html"><small>◀ 이전</small>라이브 플레이: 키보드로 포트를 조작하기</a><a class="pn next" href="../experiments/savestate-resume.html"><small>다음 ▶</small>세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

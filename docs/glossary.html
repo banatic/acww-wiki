@@ -57,7 +57,16 @@
 <li><a href="./systems/dialogue.html">대화</a></li>
 <li><a href="./systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="./systems/rng.html">난수</a></li>
+<li><a href="./systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="./systems/network.html">네트워크</a></li>
+<li><a href="./systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="./systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="./systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="./systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="./systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="./systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="./systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="./systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="./systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="./engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="./engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="./engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="./engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="./engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="./engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="./experiments/index.html">실험</a></summary><ul>
 <li><a href="./experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="./experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="./experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="./experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="./experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="./experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="./experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>용어집</span></div><header class="page-head"><h1>용어집</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span></div><div class="source-line">원문: <code>wiki/glossary.md</code> (영문, 기록 문서)</div></header><div class="md"><p>위키 전반에서 사용되는 용어로, 각각 그것을 정의하는 함수나 주소를 함께 적는다.</p>
+    <div class="crumbs"><a href="./index.html">🏠 홈</a> <span class="sep">›</span> <span>용어집</span></div><header class="page-head"><h1>용어집</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/glossary.md"><code>wiki/glossary.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/glossary.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="glossary"></span><p>위키 전반에서 사용되는 용어로, 각각 그것을 정의하는 함수나 주소를 함께 적는다.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -413,7 +425,7 @@
 </table></div></div>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

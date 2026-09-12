@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,16 +136,16 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>경제</span></div><header class="page-head"><h1>경제</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 21</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/economy.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 이것은 위키에서 가장 덜 읽힌 시스템이며, 이 문서는 메커니즘을 지어내는 대신 그 사실을 그대로 밝힌다. 확립된 것은 돈이 쓰이는 대상의 형태이다: 아이템은 16비트 id이고 그 최상위 니블(TOP NIBBLE)이 카테고리이며, <code>0xfff1</code>은 "아이템 없음"이고, 상점과 메뉴 오버레이 전반에서 공유되는 비교 루틴군이 그 id들을 검사하기 위해 존재한다. 벨, 가격, 무 시장, 카탈로그는 아직 ROM에서 읽어 내지 못했다. 아래에서 이들에 관한 모든 내용은 읽어야 할 함수군과 실행해야 할 실험이 딸린 가설이다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>경제</span></div><header class="page-head"><h1>경제</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 21</span><span class="gchip g-E"><b>E</b> 7</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/economy.md"><code>wiki/systems/economy.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/economy.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="economy"></span><p><strong>요약.</strong> 이것은 위키에서 가장 덜 읽힌 시스템이며, 이 문서는 메커니즘을 지어내는 대신 그 사실을 그대로 밝힌다. 확립된 것은 돈이 쓰이는 대상의 형태이다: 아이템은 16비트 id이고 그 최상위 니블(TOP NIBBLE)이 카테고리이며, <code>0xfff1</code>은 "아이템 없음"이고, 상점과 메뉴 오버레이 전반에서 공유되는 비교 루틴군이 그 id들을 검사하기 위해 존재한다. 벨, 가격, 무 시장, 카탈로그는 아직 ROM에서 읽어 내지 못했다. 아래에서 이들에 관한 모든 내용은 읽어야 할 함수군과 실행해야 할 실험이 딸린 가설이다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p>아이템은 맵의 아이템 레이어에 저장되는 16비트 id이며, 빈 슬롯은 <code>0xfff1</code>이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020a13e8, main, port/shim/gfx/pmflist.c</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>.
 이 값은 맵에 국한된 매직 넘버가 아니다: ROM 전반의 빈 아이템/타일 id이며, 이 값으로 grep하면 한 가지 구성물을 쓰는 함수가 아니라 아이템 도메인의 함수들이 선택된다 &ndash; 이 저장소가 한 번 잘못 주장했다가 나중에 제대로 측정한 사항이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md, retraction 2026-09-02</span></span>.</p>
 <p>id의 상위 4비트는 카테고리(CATEGORY)이다. 배치 게이트 <code>func_0204bcf8 -&gt; func_0204bcdc</code>는 <code>(*(u16 *)cell &gt;&gt; 12)</code>가 3 또는 4일 때만 셀을 받아들인다; <code>0xfff1</code>의 니블은 <code>0xf</code>이므로 손대지 않은 맵은 방의 256셀 전부를 거부한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204bcdc, main, docs/kb/port/sequencer-and-modes.md</span></span>
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/kb/port/sequencer-and-modes.md, <code>cells[0..7</span></span> = fff1 ...</code>, 256 refused, channel <code>0x37</code>
-never opens]. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <code>0x5001</code>..<code>0x5008</code>은 여덟 채의 주민 집, <code>0x500a</code>는 집터, <code>0x500d</code>는 상점, 그리고 <code>0x500e</code>/<code>0x500f</code>/<code>0x5010</code>은 플라이스루 카메라가 상점에 도달하기 전에 순회하는 키들이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/kb/port/sequencer-and-modes.md, <code>cells[0..7] = fff1 ...</code>, 256 refused, channel <code>0x37</code>
+never opens</span></span>. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <code>0x5001</code>..<code>0x5008</code>은 여덟 채의 주민 집, <code>0x500a</code>는 집터, <code>0x500d</code>는 상점, 그리고 <code>0x500e</code>/<code>0x500f</code>/<code>0x5010</code>은 플라이스루 카메라가 상점에 도달하기 전에 순회하는 키들이다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth and sixth passes</span></span>.</p>
 <p>두 아이템 id를 비교하는 것은 공유 루틴 <code>func_0204bcdc</code> / <code>func_0204bc64</code>이며, <code>ov049</code>, <code>ov050</code>, <code>ov052</code>, <code>ov079</code>에 걸쳐 반복해서 나타난다 &ndash; 한 경우에는 단일 함수 안에서 열두 번 &ndash; 그리고 <code>src/matched/func_ov052_02261054.c</code>가 참조 구현이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>. 이 네 오버레이는 상점과 메뉴 대역이다: 오버레이 집합 테이블 <code>data_020df5ec</code>는 오버레이 90-146을 포괄하며 상점/메뉴로 설명된다
@@ -147,7 +159,7 @@ never opens]. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md LONG40, run <code>long-a</code>, frames 16,500 and 18,000</span></span>.
 그 답변이 플레이어에게 어떤 비용을 물리는지는 확립되지 않았다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">instrument the player slot across those frames and diff</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -220,7 +232,7 @@ never opens]. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -272,11 +284,11 @@ never opens]. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <
 <p>등급: 셀 레이아웃과 <code>0xfff1</code>은 S
 [docs/kb/port/sequencer-and-modes.md, port/shim/gfx/pmflist.c]; <code>0x5xxx</code> 값들은 E
 [port/BOOT-STATE.md].</p>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p>아직 경제 레시피는 없다. 저렴한 출발점 두 가지는 다음과 같다: (1) 마을 레시피의 프레임 37,500에서 마을 안의 <code>func_0204bcdc</code> 인자를 계측하고, 생성된 마을의 아이템 레이어에 실제로 존재하는 니블의 히스토그램을 만든다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40, <code>tap-D56</code></span></span>; 그리고 (2) <code>src/matched/func_ov052_02261054.c</code>를 읽은 뒤 파티션에서 <code>bl 0x204bcdc</code>를 grep하여 아이템 id의 모든 소비자를 열거한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>.</p>
 <p>경제 측정 전반에 적용되는 상시 주의 사항에 유의한다: 포트는 진실이 아니라 계측 도구이며, 포트에서만 관측된 값은 오라클이 동의하거나 소스가 설명하기 전까지 E 등급이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">wiki/README.md</span></span>.</p>
-<h2 id="가설">가설</h2>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <p>이 절이 이 문서의 본체이다. 각 항목은 무엇을 읽어야 하고 무엇이 결론을 내릴지를 밝힌다.</p>
 <ul>
 <li><strong>H: 벨은 <code>0x249c</code> 플레이어 슬롯 안의 32비트 필드이며, 지갑과 은행은 그런 필드 두 개이다.</strong> 플레이어 슬롯은 크고, 지금까지 매핑된 유일한 영역은 <code>+0x23f8</code>의 이벤트 비트필드뿐이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>. 실험: 라이브 실행에서 플레이어 슬롯을 저장하고, 아이템 하나를 판 뒤, 다시 저장하고 diff한다 &ndash; 판매 가격만큼 변한 필드가 지갑이다.</li>
@@ -294,7 +306,7 @@ never opens]. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <
 <li><strong>H: 택시 요금 대사는 분위기용이며 도착에는 비용이 들지 않는데, 그 시점에 플레이어는 벨이 없기 때문이다.</strong> 대화로만 관측되었다
   <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md LONG40</span></span>. 실험: <code>long-a</code> 레시피의 프레임 16,000-20,000에 걸쳐 플레이어 슬롯을 계측하고 감소하는 필드가 있는지 찾는다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>town.md</code> &ndash; 이 id들이 사는 아이템 레이어</li>
 <li><code>player.md</code> &ndash; 지갑이 있으리라 추정되는 플레이어 슬롯</li>
@@ -303,7 +315,7 @@ never opens]. 마을의 고정 시설은 <code>0x5xxx</code> 대역을 쓴다: <
 </ul></div><nav class="prevnext"><a class="pn prev" href="../systems/player.html"><small>◀ 이전</small>플레이어</a><a class="pn next" href="../systems/weather-and-seasons.html"><small>다음 ▶</small>날씨와 계절</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

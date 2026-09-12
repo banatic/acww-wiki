@@ -10,112 +10,112 @@ same machinery: an overlay is just a file with a 32-byte header that says where 
 ## What happens
 
 The whole file system lives in `autoload_2`, in one contiguous run from `0x021195e0` to
-`0x0211bcfc` [S: `config/adm-kr/arm9/autoload_2/symbols.txt`, `FSi_TranslateCommand` addr
+`0x0211bcfc` [S: `src/matched/FSi_TranslateCommand.c`, `src/matched/FSi_GetOverlayBinarySize.c`; source account: `config/adm-kr/arm9/autoload_2/symbols.txt`, `FSi_TranslateCommand` addr
 `0x021195e0` through `FSi_GetOverlayBinarySize` addr `0x0211bce0`]. Sixty-six `FS_*` and `FSi_*`
 functions are byte-matched against NitroSDK 2.2a's `fs_file.c`, `fs_archive.c`, `fs_command.c`
-and `fs_overlay.c` [S: `src/matched/FS_*.c`, `src/matched/FSi_*.c`, file header comments]. One
+and `fs_overlay.c` [H: source account: `src/matched/FS_*.c`, `src/matched/FSi_*.c`, file header comments; direct ROM-source provenance unresolved]. One
 member is missing from the ROM's symbol table entirely: `FSi_CloseFileCommand`, eight bytes at
-`0x021197c0`, whose body is `mov r0,#0; bx lr` [S: `port/shim/fs/fscmd.c`, header].
+`0x021197c0`, whose body is `mov r0,#0; bx lr` [H: source account: `port/shim/fs/fscmd.c`, header; direct ROM-source provenance unresolved].
 
 Boot calls `FS_Init(dma)` exactly once; it guards on an `is_init` flag and delegates to
-`FSi_InitRom` [S: `FS_Init`, `autoload_2`, `src/matched/FS_Init.c`]. `FSi_InitRom` takes a lock
+`FSi_InitRom` [S: `src/matched/FS_Init.c`; source account: `FS_Init`, `autoload_2`, `src/matched/FS_Init.c`]. `FSi_InitRom` takes a lock
 id for the cartridge, zeroes the two overlay-table descriptors, calls `CARD_Init`, initialises
 the single ROM archive, registers it under the three-character name `rom`, installs
 `FSi_RomArchiveProc` for the `WRITEFILE`, `ACTIVATE` and `IDLE` commands, and loads the archive
 with the FAT and FNT regions taken from the ROM header image and a read callback of
-`FSi_ReadRomCallback` [S: `FSi_InitRom`, `autoload_2`, `src/matched/FSi_InitRom.c`]. The FAT,
+`FSi_ReadRomCallback` [S: `src/matched/FSi_InitRom.c`; source account: `FSi_InitRom`, `autoload_2`, `src/matched/FSi_InitRom.c`]. The FAT,
 FNT and overlay-table regions come from fixed offsets in the header image the firmware leaves at
 `0x027FFE00`: FNT at +0x40, FAT at +0x48, ARM9 overlay table at +0x50, ARM7 overlay table at
-+0x58 [S: `src/matched/FSi_InitRom.c`, `src/matched/FS_LoadOverlayInfo.c`, the inline region
++0x58 [S: `src/matched/FSi_InitRom.c`, `src/matched/FS_LoadOverlayInfo.c`; source account: `src/matched/FSi_InitRom.c`, `src/matched/FS_LoadOverlayInfo.c`, the inline region
 accessors].
 
 Opening a file by name is two steps. `FS_OpenFile` calls `FS_ConvertPathToFileID` and then
-`FS_OpenFileFast` [S: `FS_OpenFile`, `autoload_2`, `src/matched/FS_OpenFile.c`].
+`FS_OpenFileFast` [S: `src/matched/FS_OpenFile.c`; source account: `FS_OpenFile`, `autoload_2`, `src/matched/FS_OpenFile.c`].
 `FS_ConvertPathToFileID` sets up a stack-local `FSFile` and hands the path to `FSi_FindPath`
-[S: `FS_ConvertPathToFileID`, `autoload_2`, `src/matched/FS_ConvertPathToFileID.c`], which
+[S: `src/matched/FS_ConvertPathToFileID.c`; source account: `FS_ConvertPathToFileID`, `autoload_2`, `src/matched/FS_ConvertPathToFileID.c`], which
 parses a leading `/` or a `name:` archive prefix of at most three characters and then issues a
-`FINDPATH` command [S: `FSi_FindPath`, `autoload_2`, `src/matched/FSi_FindPath.c`]. The command
+`FINDPATH` command [S: `src/matched/FSi_FindPath.c`; source account: `FSi_FindPath`, `autoload_2`, `src/matched/FSi_FindPath.c`]. The command
 handler walks the file name table one component at a time, handling `.` and `..`, rejecting
 names longer than 127 characters, and comparing case-insensitively with `FSi_StrNICmp`
-[S: `FSi_FindPathCommand`, `autoload_2`, `src/matched/FSi_FindPathCommand.c`;
+[S: `src/matched/FSi_FindPathCommand.c`, `src/matched/FSi_StrNICmp.c`; source account: `FSi_FindPathCommand`, `autoload_2`, `src/matched/FSi_FindPathCommand.c`;
 `src/matched/FSi_StrNICmp.c`]. Directory entries in the FNT are a length byte whose top bit
 marks a directory, followed by the name and, for directories, a 16-bit id masked with `0xFFF`;
-a file's id is the running index, post-incremented [S: `FSi_ReadDirCommand`, `autoload_2`,
+a file's id is the running index, post-incremented [S: `src/matched/FSi_ReadDirCommand.c`; source account: `FSi_ReadDirCommand`, `autoload_2`,
 `src/matched/FSi_ReadDirCommand.c`].
 
 `FS_OpenFileFast` then turns the id into a span: it bounds-checks the index against the FAT
 size, reads the 8-byte FAT entry, copies its `top` and `bottom` into the direct-open argument
 block, and re-enters the command translator as an `OPENFILEDIRECT`
-[S: `FSi_OpenFileFastCommand`, `autoload_2`, `src/matched/FSi_OpenFileFastCommand.c`], which
+[S: `src/matched/FSi_OpenFileFastCommand.c`; source account: `FSi_OpenFileFastCommand`, `autoload_2`, `src/matched/FSi_OpenFileFastCommand.c`], which
 simply stores `top`, `bottom`, the initial position (= `top`) and the file id into the `FSFile`
-[S: `FSi_OpenFileDirectCommand`, `autoload_2`, `src/matched/FSi_OpenFileDirectCommand.c`].
+[S: `src/matched/FSi_OpenFileDirectCommand.c`; source account: `FSi_OpenFileDirectCommand`, `autoload_2`, `src/matched/FSi_OpenFileDirectCommand.c`].
 
 Reading clamps the requested length against the remaining span, records the request, marks the
 file synchronous when it is not an async read, and issues `READFILE`
-[S: `FSi_ReadFileCore`, `autoload_2`, `src/matched/FSi_ReadFileCore.c`]. `FS_ReadFile` is a
-one-line tail call into that [S: `FS_ReadFile`, `autoload_2`, `src/matched/FS_ReadFile.c`].
+[S: `src/matched/FSi_ReadFileCore.c`; source account: `FSi_ReadFileCore`, `autoload_2`, `src/matched/FSi_ReadFileCore.c`]. `FS_ReadFile` is a
+one-line tail call into that [S: `src/matched/FS_ReadFile.c`; source account: `FS_ReadFile`, `autoload_2`, `src/matched/FS_ReadFile.c`].
 `FS_SeekFile` issues no command at all — it adjusts `pos` inside the `FSFile` and clamps it into
-the span [S: `FS_SeekFile`, `autoload_2`, `src/matched/FS_SeekFile.c`].
+the span [S: `src/matched/FS_SeekFile.c`; source account: `FS_SeekFile`, `autoload_2`, `src/matched/FS_SeekFile.c`].
 
 Every command goes through one queue per archive. `FSi_SendCommand` marks the file busy, appends
 it to the archive's list, and — if the archive was idle — raises the running flag and issues
 `ACTIVATE` through the archive's proc before executing
-[S: `FSi_SendCommand`, `autoload_2`, `src/matched/FSi_SendCommand.c`]. `FSi_TranslateCommand`
+[S: `src/matched/FSi_SendCommand.c`; source account: `FSi_SendCommand`, `autoload_2`, `src/matched/FSi_SendCommand.c`]. `FSi_TranslateCommand`
 offers the command to the archive's own proc first and falls back to the default handler table
-[S: `FSi_TranslateCommand`, `autoload_2`, `src/matched/FSi_TranslateCommand.c`].
+[S: `src/matched/FSi_TranslateCommand.c`; source account: `FSi_TranslateCommand`, `autoload_2`, `src/matched/FSi_TranslateCommand.c`].
 `FSi_NextCommand` drains cancelled files, wakes synchronous waiters, and when the queue empties
-issues `IDLE` through a temporary `FSFile` [S: `FSi_NextCommand`, `autoload_2`,
+issues `IDLE` through a temporary `FSFile` [S: `src/matched/FSi_NextCommand.c`; source account: `FSi_NextCommand`, `autoload_2`,
 `src/matched/FSi_NextCommand.c`]. For the ROM archive `ACTIVATE` and `IDLE` are the cartridge
-lock and unlock [S: `FSi_RomArchiveProc`, `autoload_2`, `src/matched/FSi_RomArchiveProc.c`], and
+lock and unlock [S: `src/matched/FSi_RomArchiveProc.c`; source account: `FSi_RomArchiveProc`, `autoload_2`, `src/matched/FSi_RomArchiveProc.c`], and
 the actual transfer is `CARD_ReadRomAsync` with `FSi_OnRomReadDone` as the completion
-[S: `FSi_ReadRomCallback`, `autoload_2`, `src/matched/FSi_ReadRomCallback.c`].
+[S: `src/matched/FSi_ReadRomCallback.c`; source account: `FSi_ReadRomCallback`, `autoload_2`, `src/matched/FSi_ReadRomCallback.c`].
 
 Writing to the ROM archive is refused: `FSi_RomArchiveProc` answers `WRITEFILE` with
-`FS_RESULT_UNSUPPORTED` [S: `src/matched/FSi_RomArchiveProc.c`]. The game's save data does not
+`FS_RESULT_UNSUPPORTED` [S: `src/matched/FSi_RomArchiveProc.c`; source account: `src/matched/FSi_RomArchiveProc.c`]. The game's save data does not
 go through the file system at all — it goes to backup flash through the CARD backup requests
 (see the Hypotheses).
 
 ### Overlays
 
 `FS_LoadOverlay` is three calls: read the overlay's info header, read its image, start it
-[S: `FS_LoadOverlay`, `autoload_2`, `src/matched/FS_LoadOverlay.c`]. The info header is 32
+[S: `src/matched/FS_LoadOverlay.c`; source account: `FS_LoadOverlay`, `autoload_2`, `src/matched/FS_LoadOverlay.c`]. The info header is 32
 bytes: id, RAM address, RAM size, BSS size, static-initialiser start and end, file id, and a
-packed 24-bit compressed size plus 8-bit flag [S: `src/matched/FS_LoadOverlayInfo.c`,
+packed 24-bit compressed size plus 8-bit flag [S: `src/matched/FS_LoadOverlayInfo.c`; source account: `src/matched/FS_LoadOverlayInfo.c`,
 `FSOverlayInfoHeader` as the matched sources declare it]. `FS_ClearOverlayImage` invalidates the
 instruction and data caches over the whole region and zeroes the BSS tail
-[S: `FS_ClearOverlayImage`, `autoload_2`, `src/matched/FS_ClearOverlayImage.c`].
+[S: `src/matched/FS_ClearOverlayImage.c`; source account: `FS_ClearOverlayImage`, `autoload_2`, `src/matched/FS_ClearOverlayImage.c`].
 `FS_StartOverlay` optionally authenticates the image with an HMAC-SHA1 digest, decompresses it
 backwards when the compressed flag is set, flushes the data cache, and then walks the
 `sinit_init`..`sinit_init_end` table calling every non-null constructor
-[S: `FS_StartOverlay`, `autoload_2`, `src/matched/FS_StartOverlay.c`; `FSi_CompareDigest`,
+[S: `src/matched/FS_StartOverlay.c`, `src/matched/FSi_CompareDigest.c`; source account: `FS_StartOverlay`, `autoload_2`, `src/matched/FS_StartOverlay.c`; `FSi_CompareDigest`,
 `src/matched/FSi_CompareDigest.c`]. Tearing an overlay down is the mirror image: `FS_EndOverlay`
 walks `__global_destructor_chain`, unlinks every node whose object or destructor falls inside the
-overlay's address range, and runs the collected destructors [S: `FS_EndOverlay`, `autoload_2`,
+overlay's address range, and runs the collected destructors [S: `src/matched/FS_EndOverlay.c`; source account: `FS_EndOverlay`, `autoload_2`,
 `src/matched/FS_EndOverlay.c`].
 
 All 148 of this ROM's overlays are stored compressed and none is signed, so the decompress arm
-always runs and the digest arm never does [S: `extract/adm-kr/arm9_overlays/overlays.yaml`,
-`compressed: true` / `signed: false` on all 148 entries]. The backward decompressor is
+always runs and the digest arm never does [H: source account: `extract/adm-kr/arm9_overlays/overlays.yaml`,
+`compressed: true` / `signed: false` on all 148 entries; direct ROM-source provenance unresolved]. The backward decompressor is
 `MIi_UncompressBackward`, an assembly body the ROM does not name; it is identified as
-`func_02000934` from two independent matched callers [S: `port/shim/fs/arena_uncompback.c`,
-header, citing `tools/.../recovered_callees.txt`].
+`func_02000934` from two independent matched callers [H: source account: `port/shim/fs/arena_uncompback.c`,
+header, citing `tools/.../recovered_callees.txt`; direct ROM-source provenance unresolved].
 
 ### NARC archives mounted as file systems
 
 The same `FSArchive` object serves in-memory archives. `NNS_FndMountArchive` validates a `NARC`
 image, finds its `FATB`, `FNTB` and `FIMG` blocks, and mounts it as an `FSArchive` whose base is
 the first byte after the `FIMG` header, with FAT and FNT positions expressed relative to that
-base [S: `NNS_FndMountArchive`, `autoload_2` `0x0210288c`, `src/matched/NNS_FndMountArchive.c`].
+base [S: `src/matched/NNS_FndMountArchive.c`; source account: `NNS_FndMountArchive`, `autoload_2` `0x0210288c`, `src/matched/NNS_FndMountArchive.c`].
 It passes null read and write callbacks, so `FS_LoadArchive` substitutes the memory callbacks and
-the archive is served straight out of RAM [S: `FS_LoadArchive`, `autoload_2`,
+the archive is served straight out of RAM [S: `src/matched/FS_LoadArchive.c`, `src/matched/FSi_ReadMemCallback.c`; source account: `FS_LoadArchive`, `autoload_2`,
 `src/matched/FS_LoadArchive.c`; `src/matched/FSi_ReadMemCallback.c`]. Validation is the magic
 `NARC`, byte-order mark `0xFFFE` and version `0x0100`
-[S: `IsValidArchiveBinary`, `autoload_2` `0x021029e8`, `src/matched/IsValidArchiveBinary.c`].
+[S: `src/matched/IsValidArchiveBinary.c`; source account: `IsValidArchiveBinary`, `autoload_2` `0x021029e8`, `src/matched/IsValidArchiveBinary.c`].
 Once mounted, a member is fetched by `archive:path` through the ordinary `FS_OpenFile`
-[S: `NNS_FndGetArchiveFileByName`, `autoload_2` `0x02102808`,
+[S: `src/matched/NNS_FndGetArchiveFileByName.c`; source account: `NNS_FndGetArchiveFileByName`, `autoload_2` `0x02102808`,
 `src/matched/NNS_FndGetArchiveFileByName.c`]. The game does this for town acres: it mounts
 `/bg/aN/NNNN.arc` under the archive name `BG` and pulls six members — `BG:a/bmd/bmd0` and its
-`bcl0`, `bsd0`, `bca0`, `bma0`, `bta0` companions [S: `port/shim/fs/arcmember.c`, header].
+`bcl0`, `bsd0`, `bca0`, `bma0`, `bta0` companions [H: source account: `port/shim/fs/arcmember.c`, header; direct ROM-source provenance unresolved].
 
 ## Where it lives
 
@@ -150,30 +150,30 @@ Once mounted, a member is fetched by `archive:path` through the ordinary `FS_Ope
 
 | address or field | meaning | who writes | who reads |
 |---|---|---|---|
-| `0x027FFE00` +0x40 / +0x48 | FNT and FAT regions | the firmware's header copy | `FSi_InitRom` [S: `src/matched/FSi_InitRom.c`] |
-| `0x027FFE00` +0x50 / +0x58 | ARM9 / ARM7 overlay tables | the firmware's header copy | `FS_LoadOverlayInfo` [S: `src/matched/FS_LoadOverlayInfo.c`] |
-| `0x027FFC40` | multiboot boot buffer; non-zero means "child" | firmware | `FSi_InitRom`'s multiboot branch [S: `src/matched/FSi_InitRom.c`] |
-| `FSArchiveFAT {u32 top; u32 bottom;}` | 8 bytes per file, a byte span | the packer | `FSi_OpenFileFastCommand` [S: `src/matched/FSi_OpenFileFastCommand.c`] |
-| `FSArchiveFNT {u32 start; u16 index; u16 parent;}` | 8 bytes per directory | the packer | `FSi_SeekDirCommand` [S: `src/matched/FSi_SeekDirCommand.c`] |
-| `FSFile.stat` bits `0x01/0x02/0x04/0x08/0x10/0x20/0x40` | busy, cancel, sync, async, is-file, is-dir, operating | `FSi_SendCommand`, `FS_OpenFileFast` | `FSi_ExecuteAsyncCommand`, `FS_CloseFile` [S: `src/matched/FSi_SendCommand.c`] |
-| `FSArchive.flag` bits `0x01`..`0x200` | registered, loaded, table-loaded, suspend, running, cancelling, suspending, unloading, is-async, is-sync | `FS_RegisterArchiveName`, `FS_LoadArchive`, `FSi_TranslateCommand` | the queue pump [S: `src/matched/FSi_TranslateCommand.c`] |
-| `FSOverlayInfoHeader` (32 B) | id, RAM address, RAM size, BSS size, sinit range, file id, compressed:24 + flag:8 | the packer | `FS_LoadOverlayInfo`, `FS_StartOverlay` [S: `src/matched/FS_LoadOverlayInfo.c`] |
+| `0x027FFE00` +0x40 / +0x48 | FNT and FAT regions | the firmware's header copy | `FSi_InitRom` [S: `src/matched/FSi_InitRom.c`; source account: `src/matched/FSi_InitRom.c`] |
+| `0x027FFE00` +0x50 / +0x58 | ARM9 / ARM7 overlay tables | the firmware's header copy | `FS_LoadOverlayInfo` [S: `src/matched/FS_LoadOverlayInfo.c`; source account: `src/matched/FS_LoadOverlayInfo.c`] |
+| `0x027FFC40` | multiboot boot buffer; non-zero means "child" | firmware | `FSi_InitRom`'s multiboot branch [S: `src/matched/FSi_InitRom.c`; source account: `src/matched/FSi_InitRom.c`] |
+| `FSArchiveFAT {u32 top; u32 bottom;}` | 8 bytes per file, a byte span | the packer | `FSi_OpenFileFastCommand` [S: `src/matched/FSi_OpenFileFastCommand.c`; source account: `src/matched/FSi_OpenFileFastCommand.c`] |
+| `FSArchiveFNT {u32 start; u16 index; u16 parent;}` | 8 bytes per directory | the packer | `FSi_SeekDirCommand` [S: `src/matched/FSi_SeekDirCommand.c`; source account: `src/matched/FSi_SeekDirCommand.c`] |
+| `FSFile.stat` bits `0x01/0x02/0x04/0x08/0x10/0x20/0x40` | busy, cancel, sync, async, is-file, is-dir, operating | `FSi_SendCommand`, `FS_OpenFileFast` | `FSi_ExecuteAsyncCommand`, `FS_CloseFile` [S: `src/matched/FSi_SendCommand.c`; source account: `src/matched/FSi_SendCommand.c`] |
+| `FSArchive.flag` bits `0x01`..`0x200` | registered, loaded, table-loaded, suspend, running, cancelling, suspending, unloading, is-async, is-sync | `FS_RegisterArchiveName`, `FS_LoadArchive`, `FSi_TranslateCommand` | the queue pump [S: `src/matched/FSi_TranslateCommand.c`; source account: `src/matched/FSi_TranslateCommand.c`] |
+| `FSOverlayInfoHeader` (32 B) | id, RAM address, RAM size, BSS size, sinit range, file id, compressed:24 + flag:8 | the packer | `FS_LoadOverlayInfo`, `FS_StartOverlay` [S: `src/matched/FS_LoadOverlayInfo.c`; source account: `src/matched/FS_LoadOverlayInfo.c`] |
 
 A detail that matters to anyone reading these structures: this ROM was built with
 `SDK_THREAD_INFINITY`, so `OSThreadQueue` is a real `{head, tail}` pair of 8 bytes rather than a
 packed 4-byte field. Every structure embedding an `FSFile` is therefore 4 bytes larger than the
-default SDK headers suggest [S: `docs/kb/modules/sdk-nns.md`, the `SDK_THREAD_INFINITY`
-section]. The overlay half of the family additionally needs `SDK_TS`, which is what decides
-whether `fs_overlay.c` compiles at all [S: `docs/kb/modules/sdk-nns.md`, the `SDK_TS` section].
+default SDK headers suggest [H: source account: `docs/kb/modules/sdk-nns.md`, the `SDK_THREAD_INFINITY`
+section; direct ROM-source provenance unresolved]. The overlay half of the family additionally needs `SDK_TS`, which is what decides
+whether `fs_overlay.c` compiles at all [H: source account: `docs/kb/modules/sdk-nns.md`, the `SDK_TS` section; direct ROM-source provenance unresolved].
 
 ## How to check it
 
 The port replaces the cartridge, not the API: `port/shim/fs/romfs.c` presents the extracted file
 system as a flat virtual ROM address space and `port/shim/fs/card.c` answers `CARDi_ReadRom` out
 of it, so every `FS_*` function above is the ROM's own code running unmodified
-[S: `port/shim/fs/card.c`, header; `port/shim/fs/romfs.c`, header]. The index blob is written by
+[H: source account: `port/shim/fs/card.c`, header; `port/shim/fs/romfs.c`, header; direct ROM-source provenance unresolved]. The index blob is written by
 `port/tools/fsimage.py` with magic `ACWWFSI1`, and the ROM header, overlay table, FNT and FAT are
-stored verbatim at the front of the virtual ROM [S: `port/shim/fs/romfs.c`, `struct Index`].
+stored verbatim at the front of the virtual ROM [H: source account: `port/shim/fs/romfs.c`, `struct Index`; direct ROM-source provenance unresolved].
 
 To watch the file system work, run the interpreter recipe used for the town and watch the
 overlay set:
@@ -195,17 +195,17 @@ relocated, constructed and drawn.
 - The port's overlay relocation is a host-side workaround, not ROM behaviour: `relocs.py` cannot
   rewrite overlay pointers statically because the overlays overlap, so per-overlay tables are
   applied inside `FS_StartOverlay`, and the interpreter path deliberately runs no relocation
-  pass at all [S: `port/shim/fs/ovlreloc.c`, header]. Whether the interpreter path is now the
+  pass at all [H: source account: `port/shim/fs/ovlreloc.c`, header; direct ROM-source provenance unresolved]. Whether the interpreter path is now the
   only correct one would be settled by running the same recipe on both paths and diffing the
   loaded-overlay traces.
 - `FS_EndOverlay`'s ROM implementation hangs the native port (overlay 65 loads, no frame
-  completes) so the port runs a bounded sweep instead [S: `port/shim/fs/endoverlay.c`, header].
+  completes) so the port runs a bounded sweep instead [H: source account: `port/shim/fs/endoverlay.c`, header; direct ROM-source provenance unresolved].
   It is not known whether that hang is a defect in the port's destructor chain or in the ROM's
   own teardown under the port's heap. Settle it by running the ROM's `FS_EndOverlay` under
   `ACWW_INTERP=1` and recording where the sweep stops.
 - Save data is asserted here to bypass the file system entirely, on the strength of the CARD
   backup request numbers (READ_BACKUP 6, WRITE_BACKUP 7, VERIFY_BACKUP 9) and a 256 KB flash
-  device identified from `0x1202` [S: `port/shim/fs/cardreq.c`, header]. That is written up on
+  device identified from `0x1202` [H: source account: `port/shim/fs/cardreq.c`, header; direct ROM-source provenance unresolved]. That is written up on
   `../systems/save-data.md` and should be confirmed there by watching whether any `FS_*` command
   is ever issued during a save.
 - `BUILDTIME` and the `path_order.txt` ordering suggest the tree was packed in a specific order.

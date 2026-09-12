@@ -37,7 +37,7 @@
 
 정지를 48,000이 아닌 39,000으로 두는 이유는 37,500의 마을 외부가 조명을 살펴볼 만한
 프레임이기 때문이다; 40,500 이후의 마을 회관 내부는 실내이다
-[E: `docs/log/cycle40-keyboard-gate-probe.md` TOWN40].
+[H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` TOWN40; receipt provenance unresolved].
 
 오라클 조건, 시각당 하나씩 -- RTC는 생성된 무비의 `rtcStart` 줄에 고정되므로, 환경
 변수가 아니라 플래그이다 [O: `port/tools/oracle/README.md`, "How the RTC
@@ -62,8 +62,8 @@ and the input recipe are enforced"]:
 채점했을 것이다 [O: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE41]. 이는 결론이 났다:
 24,600의 탭은 KEYS3 A 누름 프레임에 떨어졌고 원본의 스타일러스 샘플은 1~2 프레임 늦게
 도착하므로, `ACWW_TOUCH2_AT=24700`으로 하면 양쪽 모두 확정하고 일치한다
-[S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-O: `scratchpad/oracle/tap-24700`]. **위의 포트 조건과 오라클 조건 모두에서 24,700을 사용할
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; H: historical measurement account: `tap-D62`;
+O: `scratchpad/oracle/tap-24700`; direct ROM-source provenance unresolved]. **위의 포트 조건과 오라클 조건 모두에서 24,700을 사용할
 것**; 위에 적힌 명령은 여전히 24,600이라고 되어 있어 옛 주의 사항을 재현하게 된다.
 
 ## 예상 관측

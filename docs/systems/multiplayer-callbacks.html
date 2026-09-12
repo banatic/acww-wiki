@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상 · ACWW 근거 위키</title>
+<meta name="description" content="게임의 무선 코드는 0x0226bdec, 0x0226bdf0, 0x0226bdf4, 0x0226bdf8의 **16바이트에 모인 전역 변수 네 개**에 상태를 유지한다. 세션 구조체, 스캔/비컨 구조체, **통신 컨텍스트**, 난수 시드이며, 바로 아래에는 항목 네 개의">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li class="active"><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</span></div><header class="page-head"><h1>멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 19</span><span class="gchip g-E"><b>E</b> 4</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/multiplayer-callbacks.md"><code>wiki/systems/multiplayer-callbacks.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/multiplayer-callbacks.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="multiplayer-callbacks-the-five-wireless-structures-and-who-they-call"></span><p><strong>요약.</strong> 게임의 무선 코드는 <code>0x0226bdec</code>, <code>0x0226bdf0</code>, <code>0x0226bdf4</code>, <code>0x0226bdf8</code>의 <strong>16바이트에 모인 전역 변수 네 개</strong>에 상태를 유지한다. 세션 구조체, 스캔/비컨 구조체, <strong>통신 컨텍스트</strong>, 난수 시드이며, 바로 아래에는 항목 네 개의 WM 진입점 표도 있다. 통신 컨텍스트 끝에는 <code>+0x9c</code>부터 <code>+0xbc</code>까지 <strong>연속된 함수 포인터 워드 여덟 개의 콜백 블록</strong>이 있고, <strong>함수 하나가 리터럴 풀 하나에서 여덟 개 모두를 설치한다.</strong> 열두 지점이 그중 하나를 읽고 분기한다. 게임이 직접 할당하는 <strong>비컨/AP 테이블 매니저</strong>와 <strong>요청별 블록</strong>이라는 두 구조체도 콜백을 하나씩 가진다. 이 다섯 구조체를 통해 ov066은 무선 통신을 마을 방문으로 바꾼다. 포팅 작업자가 먼저 만나는 것은 콜백 블록이다. 그 안의 워드는 DS에서만 의미가 있는 ov066 코드 주소이기 때문이다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p><code>data_ov066_0226bdf4</code>는 구조체가 아니라 포인터다. <code>0x0226bdf4</code>의 워드는 모듈이 할당한 통신 컨텍스트의 주소를 담는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_ov066_0226b9b8</code>, ov066, <code>src/matched/func_ov066_0226b9b8.c</code> is unwritten; read from
+the ROM's own bytes at <code>0x0226b9e4</code>-<code>0x0226ba50</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/struct100/item2-census.txt</code></span></span>. 옆의 전역 변수 세 개도 같은 형태다. <code>0x0226bdec</code>는 세션 구조체, <code>0x0226bdf0</code>는 스캔/비컨 구조체이며, <code>0x0226bdf8</code>은 모듈이 프레임을 보낼 때마다 먼저 <code>seed * 0x5eedf715 + 0x1b0cb173</code>로 진행시키는 32비트 시드다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226943c.c:88</code>, <code>src/matched/func_ov066_02269528.c:44</code></span></span>.</p>
+<p><strong>함수 하나가 콜백 블록 전체를 설치한다.</strong> <code>func_ov066_0226b9b8</code>은 컨텍스트 포인터를 한 번 읽고, 리터럴 두 개씩을 끼워 넣으며 <code>+0x9c</code>, <code>+0xa0</code>, <code>+0xa4</code>, <code>+0xac</code>, <code>+0xb0</code>, <code>+0xb4</code>, <code>+0xa8</code>, <code>+0xbc</code> 순서로 ov066 코드 주소 여덟 개를 저장한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov066 <code>0x0226b9e4</code>..<code>0x0226ba4c</code>, disassembled with <code>tools/agent/target.py</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/struct100/item2-census.txt</code></span></span>. 마지막에는 게임 자체 핸들러를 SDK에 등록한다. <code>WM_SetPortCallback(0xc, func_ov066_0226923c, 0)</code>, <code>WM_SetPortCallback(0xd, func_ov066_0226aab8, 0)</code>, <code>WM_SetIndCallback(func_ov066_0226b818)</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov066 <code>0x0226bb0c</code>..<code>0x0226bb30</code>; the two SDK
+entry points are <code>src/matched/WM_SetPortCallback.c</code> at <code>0x021210c0</code> and
+<code>src/matched/WM_SetIndCallback.c</code> at <code>0x0212111c</code></span></span>. 따라서 <strong>포트 12와 13은 게임의 것</strong>이며, indication 핸들러는 함수 하나다.</p>
+<p><code>+0xb8</code>은 <code>func_ov066_0226b9b8</code>이 채우지 않는 유일한 슬롯이다. 공개 설정자의 필드이며 두 함수가 호출자에게 받은 워드를 쓴다. 인터럽트를 끄고 저장한 뒤 복원하는 것만 하는 <code>func_ov066_02267fe8</code>과 <code>func_ov066_02269c28</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02267fe8.c:15</code>; ov066 <code>0x02269d64</code></span></span>. 그래서 <code>+0xb4</code>와 <code>+0xb8</code>은 같은 필드의 두 표기가 아니라, 인자 수가 다른 별개의 함수가 읽는 필드다. <code>+0xb4</code>는 설치 시 고정되며 인자가 없고, <code>+0xb8</code>은 전송마다 설정되며 인자 세 개를 받는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02269934.c</code>; ov066 <code>0x0226b3a0</code>-<code>0x0226b3bc</code></span></span>.</p>
+<p><strong>비컨/AP 테이블</strong>은 별도로 게임이 직접 할당한다. 태그, 활성 개수, 용량, 항목 배열, <code>OSAlarm</code> 배열, <code>+0xc</code>의 콜백 하나를 가진 매니저 구조체다. 각 항목에는 6바이트 MAC, 채널, 6슬롯 신호 강도 링과 평균, 매니저 역포인터, 비컨 본문인 0xc0바이트 페이로드가 있다. 같은 MAC을 다시 보면 링을 갱신하고 항목의 알람을 다시 설정한다. 새 MAC은 첫 빈 슬롯을 차지하며, 매니저 콜백을 호출하는 유일한 삽입 경로다. 항목 알람이 울리면 피어가 조용해진 것이며 핸들러에서 같은 콜백을 다시 호출한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226a494.c:83-160</code>, <code>src/matched/func_ov066_0226a43c.c:22-31</code></span></span>. 알람 간격은 호출자의 밀리초를 <code>(interval * 33514) / 64</code>로 틱으로 바꾼 것이며 태그는 <code>manager tag + 0x80</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226a494.c:104</code></span></span>.</p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>함수 또는 심볼</th>
+<th>모듈</th>
+<th>역할</th>
+<th>등급/출처</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data_ov066_0226bdec</code></td>
+<td>ov066</td>
+<td>세션 구조체 포인터</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02268570.c:33</code></span></span></td>
+</tr>
+<tr>
+<td><code>data_ov066_0226bdf0</code></td>
+<td>ov066</td>
+<td>스캔/비컨 구조체 포인터</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226783c.c:41</code></span></span></td>
+</tr>
+<tr>
+<td><code>data_ov066_0226bdf4</code></td>
+<td>ov066</td>
+<td>통신 컨텍스트 포인터</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02269934.c:14</code></span></span></td>
+</tr>
+<tr>
+<td><code>data_ov066_0226bdf8</code></td>
+<td>ov066</td>
+<td>송신 헤더용 32비트 LCG 시드</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02269528.c:32</code></span></span></td>
+</tr>
+<tr>
+<td><code>data_ov066_0226bdc0</code></td>
+<td>ov066</td>
+<td>WM 진입점 네 개: <code>WM_Enable</code>, <code>WM_Disable</code>, <code>WM_PowerOn</code>, <code>WM_PowerOff</code></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>config/adm-kr/arm9/overlays/ov066/relocs.txt</code>, four <code>kind:load module:autoload(2)</code> rows; <code>config/adm-kr/arm9/autoload_2/symbols.txt</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_ov066_0226b9b8</code></td>
+<td>ov066</td>
+<td>콜백 블록 전체 설치 및 포트 12/13 등록</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov066 <code>0x0226b9b8</code>, 0x1c4 bytes</span></span></td>
+</tr>
+<tr>
+<td><code>func_ov066_02267fe8</code></td>
+<td>ov066</td>
+<td><code>+0xb8</code>의 공개 설정자</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02267fe8.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_ov066_0226a494</code></td>
+<td>ov066</td>
+<td>비컨 테이블 삽입/갱신; 항목마다 알람 하나 설정</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226a494.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>func_ov066_0226a43c</code></td>
+<td>ov066</td>
+<td>항목 만료를 처리하는 알람 핸들러</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226a43c.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>WmReceiveFifo</code></td>
+<td>main</td>
+<td>모든 WM 응답의 ARM9 측; <code>WMArm9Buf</code> 콜백 멤버 네 개 모두 디스패치</td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WmReceiveFifo.c:161-235</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<p>통신 컨텍스트의 콜백 블록이다. "워드"는 <code>func_ov066_0226b9b8</code>이 설치하는 값이다. 예외인 <code>+0xb8</code>은 대신 설정자를 적는다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>주소 또는 필드</th>
+<th>의미</th>
+<th>쓰는 쪽</th>
+<th>읽는 쪽</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ctx <code>+0x9c</code></td>
+<td>상태 변경 통지, <code>void (*)(void)</code> — 가장 많이 읽는 슬롯</td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226a960</code></td>
+<td><code>func_ov066_02268570</code> (상태 코드 0xa), <code>func_ov066_02268e14</code>, <code>func_ov066_02268f98</code>, <code>func_ov066_02269a14</code> (정리)</td>
+</tr>
+<tr>
+<td>ctx <code>+0xa0</code></td>
+<td><code>void (*)(void)</code>, 상태 코드 0xb에서 호출</td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226af3c</code></td>
+<td><code>func_ov066_02268570</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0xa4</code></td>
+<td><code>void (*)(void)</code>, 상태 코드 0xd에서 호출</td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226af04</code></td>
+<td><code>func_ov066_02268570</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0xa8</code></td>
+<td>설치되지만 <strong>ov066 어디에서도 읽지 않음</strong></td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226b90c</code></td>
+<td>없음 (ov066 함수 171개 전수 검사)</td>
+</tr>
+<tr>
+<td>ctx <code>+0xac</code></td>
+<td>송신 훅, <code>void (*)(void *buf, u32 len, u32 mask, void *done)</code></td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226ae1c</code></td>
+<td><code>func_ov066_0226943c</code> (0x68바이트 상태 방송), <code>func_ov066_02269528</code> (8바이트 비컨)</td>
+</tr>
+<tr>
+<td>ctx <code>+0xb0</code></td>
+<td>포트 송신 큐 삽입, int 네 개</td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226b81c</code></td>
+<td><code>func_ov066_022698ec</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0xb4</code></td>
+<td><code>int (*)(void)</code>, 설치 시 고정</td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226b8bc</code></td>
+<td><code>func_ov066_02269934</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0xb8</code></td>
+<td>수신 완료, <code>void (*)(int idx, u32 base, u32 len)</code> — 전송마다 설정</td>
+<td><code>func_ov066_02267fe8</code> (공개 설정자), <code>func_ov066_02269c28</code></td>
+<td><code>func_ov066_0226b27c</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0xbc</code></td>
+<td>인자 하나의 핸들러, <code>void (*)(void *)</code></td>
+<td><code>func_ov066_0226b9b8</code> → <code>func_ov066_0226aeb8</code></td>
+<td><code>func_ov066_02269204</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0x14</code></td>
+<td>두 송신 경로가 헤더를 만드는 전송 버퍼</td>
+<td>여기서 확정하지 않음</td>
+<td><code>func_ov066_0226943c</code>, <code>func_ov066_02269528</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0x28</code>, 0x60바이트</td>
+<td>0x68바이트 방송으로 보내는 상태 블록</td>
+<td>여기서 확정하지 않음</td>
+<td><code>func_ov066_0226943c</code></td>
+</tr>
+<tr>
+<td>ctx <code>+0xc0</code></td>
+<td>상태 워드; 비트 0 "바쁨", 비트 1 "대기", <code>lsl #0x1f / asrs #0x1f</code>로 읽음</td>
+<td>다수</td>
+<td>다수</td>
+</tr>
+<tr>
+<td>session <code>+0x30</code> / <code>+0x34</code></td>
+<td>호출자가 제공하는 완료 콜백과 인자</td>
+<td><code>func_ov066_02267530</code>, <code>func_ov066_022672b8</code>, <code>func_ov066_0226b9b8</code></td>
+<td><code>func_ov066_02266bf4</code></td>
+</tr>
+<tr>
+<td>session <code>+0x38</code></td>
+<td>호출자가 제공하는 <code>int (*)(void)</code></td>
+<td><code>func_ov066_02267530</code></td>
+<td><code>func_ov066_02266824</code></td>
+</tr>
+<tr>
+<td>scan <code>+0x6c</code></td>
+<td>비컨별 수락 훅, <code>int (*)(void *)</code></td>
+<td><code>func_ov066_02267e00</code>, <code>func_ov066_02267e28</code></td>
+<td><code>func_ov066_0226783c</code></td>
+</tr>
+<tr>
+<td>manager <code>+0xc</code></td>
+<td>비컨 테이블 항목 훅, <code>void (*)(Entry *)</code></td>
+<td>게임 자체 할당</td>
+<td><code>func_ov066_0226a494</code> (삽입), <code>func_ov066_0226a43c</code> (만료)</td>
+</tr>
+<tr>
+<td>request block <code>+0x20</code></td>
+<td>완료 콜백, <code>void (*)(void *self)</code>, <code>+2</code>가 0일 때 호출</td>
+<td>게임 자체 할당</td>
+<td><code>func_ov066_0226adcc</code></td>
+</tr>
+<tr>
+<td><code>WMArm9Buf +0x18</code>, 42개 항목</td>
+<td>WM 비동기 API 콜백 표</td>
+<td>각 <code>WM_*Async</code> 호출자</td>
+<td><code>WmReceiveFifo</code></td>
+</tr>
+<tr>
+<td><code>WMArm9Buf +0xc0</code></td>
+<td><code>indCallback</code></td>
+<td><code>WM_SetIndCallback</code> ← <code>func_ov066_0226b818</code></td>
+<td><code>WmReceiveFifo</code></td>
+</tr>
+<tr>
+<td><code>WMArm9Buf +0xc4</code>, 16개 항목</td>
+<td><code>portCallbackTable</code>; 12와 13은 게임의 것</td>
+<td><code>WM_SetPortCallback</code> ← <code>func_ov066_0226923c</code>, <code>func_ov066_0226aab8</code></td>
+<td><code>WmReceiveFifo</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">every row's reader and writer resolved by disassembling all 171 ov066 functions for
+<code>ldr</code>/<code>str</code> at <code>+0x9c</code>..<code>+0xbc</code> and for the literal <code>0x0226bdf4</code>; the literal appears in 60
+ov066 functions and in NO other module</span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/struct100/item2-census.txt</code></span></span></p>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
+<p>블록의 읽는 쪽과 설치자는 정적 사실이며, 이를 발견한 전수 검사는 게임 없이 재현할 수 있다. <code>tools/agent/target.py</code>로 ov066을 디스어셈블하고 아홉 오프셋 중 하나의 모든 <code>ldr</code>/<code>str</code>을 나열한 뒤, 여덟 명령어 안에 해당 레지스터로 분기하는 로드를 남긴다. 위 표의 일곱 슬롯에 걸쳐 로드 열두 개가 남고 저장 함수는 세 개다. 런타임 측면, 즉 슬롯 워드가 호스트 주소가 아닌 실제 ov066 주소라는 것은 포트 자체의 검사 <code>python port/tools/test_callback_struct.py</code>로 확인한다. 각 필드에 실제 ARM 워드를 놓고 모든 읽는 쪽이 표에 적힌 인자로 인터프리터에 진입해야 한다. 음성 대조 조건은 대신 그 워드를 직접 호출하여 <code>0xc0000005</code>로 죽는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/struct100/fixture/receipt.json</code></span></span>.</p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
+<ul>
+<li><strong><code>+0xa8</code>은 설치되지만 읽지 않는다.</strong> 컨텍스트 포인터가 도달하지 않는 모듈에 읽는 쪽이 있거나(전역 참조는 ov066에만 있으므로 인자로 전달돼야 한다), 흔적만 남은 슬롯이다. 실행 중인 호스트와 게스트의 <code>+0xa8</code>에 식별 가능한 워드를 넣고 전체 방문 동안 읽는 곳이 있는지 확인하면 확정할 수 있다. <code>experiments/</code>에는 아직 이 문서가 없다.</li>
+<li><strong><code>+0xbc</code> 핸들러 인자의 정체는 확인되지 않았다.</strong> 유일한 읽는 쪽은 자신의 첫 인자를 그대로 전달한다. 따라서 누가 어떤 값으로 <code>func_ov066_02269204</code>를 호출하는지가 문제다. <code>func_ov066_02268f98</code>이 피어별 구조체의 16비트 필드로 호출한다.</li>
+<li><strong>비컨 페이로드는 0xc0바이트이며 여기서는 레이아웃을 읽지 않았다.</strong> 스캔 필터의 수락 훅이 판단하는 비컨 본문이므로 <code>multiplayer-protocol.md</code>의 비컨 절과 이 문서의 매니저 항목은 같은 바이트를 양쪽에서 설명한다.</li>
+</ul>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="multiplayer-protocol.html"><code>multiplayer-protocol.md</code></a> — 이 콜백들이 운반하는 제어 id</li>
+<li><a href="multiplayer-visit.html"><code>multiplayer-visit.md</code></a> — 호스트와 게스트가 실행하는 열 단계 도착 절차</li>
+<li><a href="network.html"><code>network.md</code></a> — 두 무선 스택과 포트의 응답</li>
+<li><a href="wifi-g2.html"><code>wifi-g2.md</code></a> — 이 콜백들이 처음 실제 워드를 갖는 검증 단계</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/network.html"><small>◀ 이전</small>네트워크</a><a class="pn next" href="../systems/multiplayer-protocol.html"><small>다음 ▶</small>멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

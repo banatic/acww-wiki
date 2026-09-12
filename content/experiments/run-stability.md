@@ -55,7 +55,7 @@
 스크린샷이 바이트 단위로 동일** -- 사운드 드라이버 꺼짐, 켜짐, 스레드 없이 켜짐, 그리고 포트
 두 개를 동시에 실행한 상태로, 그동안 내내 머신에 다른 `acww.exe`가 3-4개 있었다. 어느 실행도
 `acww: FAULT --`, `ACCESS VIOLATION`, `acww: unimplemented:`, `acww interp: STOP`, `acww: HUNG`을
-출력하지 않았다 [E: `scratchpad/stab42/INDEX.md`; 조건별 영수증 `runs/<name>/stab-receipt.json`].
+출력하지 않았다 [E: `scratchpad/stab42/INDEX.md`; per-arm receipts `runs/<name>/stab-receipt.json`].
 
 **그리고 그 증상은 우연히, 직접 재현되었다.** 경합 쌍의 첫 시도는 00:30:00에 오케스트레이터
 세션이 재시작되면서 죽었다. 그것이 남긴 것은 정확히 STAB42의 증상이다: 두 로그가 34,201 및
@@ -70,7 +70,7 @@
 **레시피의 실제 비용.** AUDIO6 시대의 빌드에서 마을 레시피는 `run_town.py`의 1,500초
 타임아웃에 대해 **1,000-1,360초**가 든다 -- 경합이 없을 때 약 10%의 여유인데, 많지 않다
 [E: `scratchpad/stab42/INDEX.md`]. PERF42의 빌드에서는 같은 체인의 마을 구간이 **522초**
-들었으므로 [E: `docs/log/cycle42-save.md` SAVE43] 여유는 이제 크다; 렌더러를 바꿀 때마다
+들었으므로 [H: log/source account: `docs/log/cycle42-save.md` SAVE43; receipt provenance unresolved] 여유는 이제 크다; 렌더러를 바꿀 때마다
 다시 측정해야 할 숫자가 바로 이것이다.
 
 ## 반증 조건
@@ -79,7 +79,7 @@
   `taskkill /IM acww.exe`를 실행했는지 찾아라 -- 그것은 모든 워크트리의 exe를 한꺼번에 죽인다.
   **2026-09-09의 밤에 세 개의 별개 에이전트가 그렇게 했고**, 매번 다른 세션의 실행을 끝냈다;
   PID로만 죽이고, 고유한 이름의 exe 복사본을 선호하라(`run_sf.py`가 그렇게 한다)
-  [E: `docs/log/cycle40-keyboard-gate-probe.md` AUDIO7, SAVEFLOW41, STAB42].
+  [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` AUDIO7, SAVEFLOW41, STAB42; receipt provenance unresolved].
 - 타임아웃 하에서 실행을 프레임 수나 벽시계 시간으로 판단하는 것(B12). 종점, 종료 코드,
   이미지로 판단하라.
 - 짧은 로그를 불완전한 로그로 읽는 것. 로그는 죽는 순간까지 완전하며, 그것이 마지막 줄을

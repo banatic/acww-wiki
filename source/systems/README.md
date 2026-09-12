@@ -8,6 +8,9 @@ for.
 
 - [`town.md`](town.md) -- acres, the 96x96 tile grid, generation from the save rather than a
   seed, the item layer, the cylinder world, the town name
+- [`acre-grid.md`](acre-grid.md) -- the DATA MODEL under that grid: the acre array's stride and
+  bounds, the two 16x16 tile layers per acre, the position-to-acre-and-tile split, the read and
+  write accessor families and who calls them
 - [`villagers.md`](villagers.md) -- the eight house records, the six-class pick, the spawn
   chain and the actor manager, faces and expressions
 - [`player.md`](player.md) -- the four player slots, the 64-bit event bitfield, the name
@@ -20,6 +23,10 @@ for.
   eleven scheduling predicates and the twenty-three visitor rows
 - [`dialogue.md`](dialogue.md) -- the five-entry talk table, the request/latch state bytes,
   the script bind, choice prompts and the two keyboards
+- [`multiplayer-callbacks.md`](multiplayer-callbacks.md) -- the FIVE wireless structures behind
+  a visit: the four globals in sixteen bytes, the communication context's eight-word callback
+  block with the one function that installs it and the twelve places that branch to it, the
+  beacon/AP table manager and its per-entry alarm, and which WM ports are the game's
 
 ---
 
@@ -40,4 +47,4 @@ pass; nothing under `systems/` is unwritten now.
 Every page here has a Hypotheses section and links to a page under `../experiments/`. The
 experiment index is `../experiments/README.md`, which splits them into run and designed-not-yet-
 run; nine are run as of 2026-09-10 and three are still designed
-[S: `../experiments/README.md`, its two tables].
+[H: source account: `../experiments/README.md`, its two tables; direct ROM-source provenance unresolved].

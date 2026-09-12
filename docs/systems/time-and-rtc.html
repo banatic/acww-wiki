@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,25 +136,27 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>시간과 실시간 시계</span></div><header class="page-head"><h1>시간과 실시간 시계</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 48</span><span class="gchip g-E"><b>E</b> 12</span><span class="gchip g-O"><b>O</b> 3</span><span class="gchip g-H"><b>H</b> 10</span></div><div class="source-line">원문: <code>wiki/systems/time-and-rtc.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 동물의 숲은 날짜에 관한 게임이고, 그 날짜는 DS의 ARM7 프로세서만 읽을 수 있는
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>시간과 실시간 시계</span></div><header class="page-head"><h1>시간과 실시간 시계</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 45</span><span class="gchip g-E"><b>E</b> 10</span><span class="gchip g-O"><b>O</b> 3</span><span class="gchip g-H"><b>H</b> 18</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/time-and-rtc.md"><code>wiki/systems/time-and-rtc.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/time-and-rtc.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="time-and-the-real-time-clock"></span><p><strong>요약.</strong> 동물의 숲은 날짜에 관한 게임이고, 그 날짜는 DS의 ARM7 프로세서만 읽을 수 있는
 배터리 백업 시계 칩에서 온다. 게임은 비동기 요청을 통해 날짜를 요청하고, 칩의 BCD 자릿수를
 숫자로 변환하며, 그 답을 두 개의 전역 변수에 저장하고, 세이브가 기록된 날짜와 비교한다 &ndash;
 놓친 날을 하루하루 모두 재생하면서. 두 번째 시계인 하드웨어 틱 카운터는 이와 무관하며,
 날짜가 아니라 프레임 단위로 짧은 간격을 측정한다. PC 포트는 RTC의 ARM7 쪽을 에뮬레이트한다:
 2005-06-15 10:00:00에서 시작해 59.8261프레임마다 1초씩 진행하므로, 플레이하는 동안 게임
 시간이 흐르면서도 여전히 프레임 수의 순수 함수로 남는다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p>시계는 두 개이고 서로 관련이 없다. RTC 칩은 "오늘이 며칠인가"에 답하고, 하드웨어 타이머 0은
 "얼마나 지났는가"에 답한다. 이 둘을 혼동한 대가로 이 프로젝트는 이미 한 번의 정지(stall)와
 한 건의 철회된 스크린샷 발견 사항을 치렀다.</p>
-<h3 id="rtc-칩">RTC 칩</h3>
+<span class="source-anchor" id="the-rtc-chip"></span><h3 id="rtc-칩">RTC 칩</h3>
 <p>ARM9는 칩을 읽을 수 없다. <code>RTC_Init</code>은 RTC 작업 구조체를 0으로 채우고, PXI를 기동하고,
 ARM7의 RTC 채널이 준비될 때까지 스핀한 뒤 <code>RtcCommonCallback</code>을 <code>PXI_FIFO_TAG_RTC</code>의 수신
 콜백으로 등록한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RTC_Init</code>, autoload_2, <code>src/matched/RTC_Init.c</code></span></span>. 이후의 모든 읽기는
 요청이다: <code>RtcSendPxiCommand</code>는 명령 바이트를 FIFO 워드의 비트 8..14에 패킹해 보내며, FIFO가
-가득 차 있으면 재시도한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RtcSendPxiCommand</code>, autoload_2, <code>src/matched/RtcSendPxiCommand__autoload_2_0211ea98.c</code></span></span>. 세 가지 읽기 명령은 날짜와 시각이
+가득 차 있으면 재시도한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RtcSendPxiCommand</code>, autoload_2,
+<code>src/matched/RtcSendPxiCommand__autoload_2_0211ea98.c</code></span></span>. 세 가지 읽기 명령은 날짜와 시각이
 0x10, 날짜가 0x11, 시각이 0x12이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RTCi_ReadRawDateTimeAsync</code> / <code>RTCi_ReadRawDateAsync</code> / <code>RTCi_ReadRawTimeAsync</code>, main, <code>src/matched/RTCi_ReadRawDateTimeAsync.c</code></span></span>.</p>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RTCi_ReadRawDateTimeAsync</code> / <code>RTCi_ReadRawDateAsync</code> / <code>RTCi_ReadRawTimeAsync</code>, main,
+<code>src/matched/RTCi_ReadRawDateTimeAsync.c</code></span></span>.</p>
 <p>답은 FIFO를 통해 돌아오지 않는다. ARM7은 칩의 원시 레지스터를 <code>0x027ffde8</code>의 공유 시스템
 작업 영역에 쓰고 완료를 알리는 워드를 게시한다; <code>RtcCommonCallback</code>은 거기서 비트필드를
 읽어 연, 월, 일, 시, 분, 초 각각을 <code>RtcBCD2HEX</code>에 통과시키고, 디코드된 값을 호출자의
@@ -158,7 +172,8 @@ ARM7의 RTC 채널이 준비될 때까지 스핀한 뒤 <code>RtcCommonCallback<
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0209e5b4</code>, main, quoted in <code>port/shim/os/rtcclock.c</code></span></span>.</p>
 <p>동기 getter들은 래퍼다: 각각은 <code>RtcGetResultCallback</code>을 넘겨 비동기 짝을 호출한 다음, 락
 워드가 해제될 때까지 <code>RtcWaitBusy</code>에서 바쁜 대기(busy-wait)를 하고, <code>rtcWork.commonResult</code>를
-반환한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RTC_GetTime</code>, autoload_2, <code>src/matched/RTC_GetTime.c</code>; <code>RtcWaitBusy</code>, autoload_2, <code>src/matched/RtcWaitBusy.c</code></span></span>. 결정적으로 <strong>getter들은 결코
+반환한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RTC_GetTime</code>, autoload_2, <code>src/matched/RTC_GetTime.c</code>;
+<code>RtcWaitBusy</code>, autoload_2, <code>src/matched/RtcWaitBusy.c</code></span></span>. 결정적으로 <strong>getter들은 결코
 <code>rtcWork</code>에서 결과를 채우지 않는다</strong> &ndash; 호출자 자신의 버퍼를 비동기 계층으로 내려보내 ARM7이
 거기에 쓰게 한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>RTC_GetTimeAsync</code>, autoload_2, <code>src/matched/RTC_GetTimeAsync.c</code></span></span>. 이것이
 PXI 요청을 버리는 호스트가 0을 반환하는 대신 버퍼를 건드리지 않은 채로 두게 되는 이유다.</p>
@@ -174,10 +189,11 @@ PXI 요청을 버리는 호스트가 0을 반환하는 대신 버퍼를 건드�
 심볼은 어떤 매칭된 파일에도 정의되어 있지 않고 링크된 이미지 어디에도 나타나지 않는다; ROM
 자체의 <code>0x0211e7d0</code> 분기 워드는 <code>bl 0x0211e804</code>이며 이는 <code>RTC_GetDateTimeAsync</code>다; 그리고 세
 개의 68바이트 래퍼는 NitroSDK가 내보내는 순서대로 각자의 비동기 짝 바로 앞에 놓여 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">read from <code>extract/adm-kr/arm9/unk_autoload_2.bin</code> and the autoload_2 symbol table, as recorded in <code>port/shim/os/rtcclock.c</code></span></span>. <code>0x0211e7c0</code>은 <code>RTC_GetDateTime</code>이다. 하니스가 호출
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: read from <code>extract/adm-kr/arm9/unk_autoload_2.bin</code> and the autoload_2 symbol table, as
+recorded in <code>port/shim/os/rtcclock.c</code>; direct ROM-source provenance unresolved</span></span>. <code>0x0211e7c0</code>은 <code>RTC_GetDateTime</code>이다. 하니스가 호출
 변위를 마스킹하기 때문에 바이트 매칭으로는 둘을 구별할 수 없다 &ndash; 이것은 결함 클래스 D12,
-잘못 타이핑된 대상을 인코딩한 이름이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/rules/D-defects.md</code> D12</span></span>.</p>
-<h3 id="게임의-시계">게임의 시계</h3>
+잘못 타이핑된 대상을 인코딩한 이름이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/rules/D-defects.md</code> D12; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-games-clock"></span><h3 id="게임의-시계">게임의 시계</h3>
 <p><code>func_0209e49c</code>는 <code>RTCDate</code>와 <code>RTCTime</code>을 지역 변수로 선언하고, 그것들에 대해 <code>func_0209e5b4</code>
 (즉 <code>RTC_GetDateTime</code>)를 호출한 뒤, 결과를 <code>0x021dc744</code>(날짜)와 <code>0x021dc754</code>(시각)의 게임
 시계 전역 변수에 복사한다
@@ -188,27 +204,27 @@ PXI 요청을 버리는 호스트가 0을 반환하는 대신 버퍼를 건드�
 대신 놓친 모든 날을 재생한다. 유효해 보이지 않는 델타는 별도의 분기, 즉 시계 조작 경로를
 탄다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_0207b05c</code>, main, <code>src/matched/func_0207b05c.c</code></span></span>. 이 함수가 "N일 앞으로 시간
 여행했다"의 배후 메커니즘이다; 되돌려진 분기는 시계를 과거로 돌렸을 때의 게임 반응으로
-이어지는 것이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">the branch is identified, its destination <code>func_0209a654</code> / <code>func_0209a77c</code> is not decompiled; settled by following that call chain</span></span>.</p>
+이어지는 것이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">the branch is identified, its destination
+<code>func_0209a654</code> / <code>func_0209a77c</code> is not decompiled; settled by following that call chain</span></span>.</p>
 <p>분(minute)이 조명을 구동한다. <code>func_020bbb6c</code>는 <code>0x021dc758</code>에서 분 바이트를 읽어 0x44445 &gt;&gt; 12,
 즉 4096/60으로 스케일한다 &ndash; 낮/밤 환경광 보간을 위한 고정소수점 블렌드 가중치다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020bbb6c</code> / <code>func_0209def4</code>, main, quoted in <code>port/shim/os/rtcclock.c</code></span></span>.</p>
-<p><strong>이 시계가 게임 자체의 난수 생성기를 시드하는 것이고, 그것이 마을을 결정한다</strong>
-(ORACLE46). <code>func_02061530</code>은 <code>0x021cb5a0</code>의 상태 워드를 <code>func_0209dbbc()</code>로 설정하는데,
-이 함수는 위 전역 변수의 네 바이트 &ndash; <code>minute | day&lt;&lt;8 | hour&lt;&lt;16 | second&lt;&lt;24</code>, 즉
-<code>0x021dc758</code>, <code>0x021dc74c</code>, <code>0x021dc754</code>, <code>0x021dc75c</code> &ndash; 를 접어 넣으며, 연, 월, 요일, 틱은
-쓰지 않는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02061530.c</code>, <code>src/matched/func_0209dbbc.c</code></span></span>. 포트에서 그
-블록에 로드 워치포인트를 걸면 <strong>프레임 3</strong>에서 세 개의 읽기 pc(<code>0x0209dbc0</code>, <code>0x0209dbc4</code>,
-<code>0x0209dbcc</code>)가 <code>0</code>, <code>0x0f</code>, <code>0x0a</code>를 보는 것이 잡힌다 &ndash; 기본 순간에 대한 시드 <code>0x000a0f00</code> &ndash;
-그리고 두 마을 생성 구간에 대해 같은 조사를 하면 이들이 없으므로, 이 경로에서 시딩은
-한 번 일어나고 다시는 일어나지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>, O46-1; <code>docs/log/cycle41-gameplay.md</code> ORACLE46</span></span>. <strong>실질적인
-결과: 첫 1초 이후에 효력을 갖는 시계 조건은 시드를 바꿀 수 없고</strong>, 부팅 순간의 분, 일, 시,
-초를 바꾸는 조건은 마을 전체를 바꾼다.</p>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_020bbb6c</code> / <code>func_0209def4</code>, main, quoted in
+<code>port/shim/os/rtcclock.c</code></span></span>.</p>
+<p><strong>시계는 게임플레이 RNG를 한 번 시드하며, 이후 시계 조건은 추출 횟수를 바꾼다.</strong> <code>func_02061530</code>은 <code>func_0209dbbc()</code>로 <code>0x021cb5a0</code>을 설정한다. 이 함수는 <code>minute | day&lt;&lt;8 | hour&lt;&lt;16 | second&lt;&lt;24</code>를 접어 넣고 연·월·요일·틱은 제외한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02061530.c</code>, <code>src/matched/func_0209dbbc.c</code></span></span>.
+ORACLE46은 포트의 프레임 3과 시계 조건을 적용한 원본 및 적용하지 않은 원본의 프레임 44에서 같은 시드 <code>0x000a0f00</code>을 측정했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>;
+log: <code>docs/log/cycle41-gameplay.md</code> O46-1, O46-4</span></span>.
+ORACLE47에서는 프레임 10,000의 두 원본 모두 추출 인덱스 1,430이었으나 11,000에서는 조건 적용 시 1,532, 미적용 시 1,529였다. 조건 적용으로 늘어난 14개 추출은 모두 10,000 이후 마을 이름 화면에서 확정할 때까지 소비됐다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/ledgers/o-townarm.jsonl</code>,
+<code>scratchpad/oracle46/ledgers/o-townoff.jsonl</code>; log: <code>docs/log/cycle41-gameplay.md</code> O47-3</span></span>.
+마을 id 추출 인덱스는 포트 2,667, 조건 없는 원본 2,684, 조건을 적용한 원본 2,698이므로 시드만 맞춰서는 마을이 같아지지 않았다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle46/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O46-4</span></span>.
+같은 맵에서 게임플레이를 비교하려면 <code>port/tools/oracle/README.md</code>의 레시피 선택 표에 있는 정방향 레시피를 쓴다. 포트의 두 번째 탭은 24,908, 오라클 시계 조건 없는 원본은 24,700이며, 마을 <code>0x8365</code>에서 새로 만든 체인과 문서에 기록된 HUD 시계 차이 13m22s를 사용한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle50/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O50-0, O50-3;
+recipe: <code>port/tools/oracle/README.md</code></span></span>.</p>
 <p>게임 자체의 시계 밖에서 RTC는 엔트로피 소스다. Wi-Fi 신원 생성기는 초로 변환한 RTC 날짜와
 시각으로 16비트 LCG를 시드하며, 틱 카운터가 사용 가능하면 그것으로 솔트한다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02100cbc</code> (<code>DWCi_AUTH_GetNewWiFiInfo</code>), autoload_2, <code>src/matched/func_02100cbc.c</code></span></span>, 그리고 AOSS 설정 RNG는 <code>hour&lt;&lt;10 + minute&lt;&lt;3 + second</code>를
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>func_02100cbc</code> (<code>DWCi_AUTH_GetNewWiFiInfo</code>), autoload_2,
+<code>src/matched/func_02100cbc.c</code></span></span>, 그리고 AOSS 설정 RNG는 <code>hour&lt;&lt;10 + minute&lt;&lt;3 + second</code>를
 시드에 접어 넣는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>AOSS_Rand</code>, ov001, <code>src/matched/AOSS_Rand.c</code></span></span>. <strong>매칭된 <code>func_ov004_*</code>
-파일 중 RTC를 참조하는 것은 하나도 없다</strong> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">absence across 2,886 ov004 files in <code>src/matched</code></span></span>.</p>
-<h3 id="틱">틱</h3>
+파일 중 RTC를 참조하는 것은 하나도 없다</strong> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: absence across 2,886 ov004 files in <code>src/matched</code>; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-tick"></span><h3 id="틱">틱</h3>
 <p><code>OS_InitTick</code>은 하드웨어 타이머 0을 예약하고, <code>OSi_TickCounter</code>를 0으로 만들고, 타이머를
 프리스케일러 64와 오버플로 인터럽트 활성화로 프로그래밍하며, 타이머 0 IRQ에
 <code>OSi_CountUpTick</code>을 설치한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>OS_InitTick</code>, autoload_2, <code>src/matched/OS_InitTick.c</code></span></span>.
@@ -219,11 +235,12 @@ PXI 요청을 버리는 호스트가 0을 반환하는 대신 버퍼를 건드�
 33.514 MHz를 64로 나눈 것이다; 매칭된 <code>OS_TicksToSeconds.c</code>는 없다 &ndash; 모든 호출자가 SDK 매크로
 <code>(tick*64)/OS_SYSTEM_CLOCK</code>을 각자의 자리에서 전개한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec5ac.c</code> and six <code>func_ov065_*</code> siblings</span></span>.</p>
-<h3 id="포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</h3>
+<span class="source-anchor" id="what-the-port-does-instead"></span><h3 id="포트는-대신-무엇을-하는가">포트는 대신 무엇을 하는가</h3>
 <p>포트는 <code>OS_GetTick</code>을 심(shim)으로 대체하는 대신 <em>레지스터</em>를 구동한다. 매 프레임
 <code>TICKS_PER_FRAME</code> = 8,728을 <code>0x04000100</code>과 카운터에 쓰므로, <code>OS_GetTick</code>, <code>OS_GetTickLo</code>, 알람
 경로와 스레드 슬립 경로가 모두 일관된 진실을 읽는다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/tick.c</code>; the one-second wait in <code>func_020b5898</code> compares against 523,656, which is 8,728 x 60</span></span>. 이것은 벽시계 시간이 아니라 프레임을 세는 시계다: 절반 속도로 도는
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/platform/tick.c</code>; the one-second wait in <code>func_020b5898</code> compares against 523,656,
+which is 8,728 x 60; receipt provenance unresolved</span></span>. 이것은 벽시계 시간이 아니라 프레임을 세는 시계다: 절반 속도로 도는
 포트는 시간도 절반 속도로 흐르는 것을 본다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/platform/tick.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. 이것이 존재하기 전에는
 두 읽기 모두 0을 답했고, <code>func_020b5898</code>의 상태 2는 영원히 <code>now - saved == 0</code>을 계산했으며,
 프레임 900의 Nintendo 로고 화면은 프레임 120과 동일했다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/platform/tick.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
@@ -234,20 +251,23 @@ PXI 요청을 버리는 호스트가 0을 반환하는 대신 버퍼를 건드�
 <code>RTCRawDate</code>/<code>RTCRawTime</code> 워드에 패킹해 <code>0x027ffde8</code>의 시스템 작업 영역에 쓰고, ROM이
 등록한 수신 콜백에 <code>command &lt;&lt; 8 | RTC_PXI_RESULT_SUCCESS</code>를 전달하므로, BCD 디코딩은
 <code>RtcCommonCallback</code>이 수행한다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>rtc_request</code>; run <code>off-rtc42-on</code> &ndash; its <code>acww rtc</code> lines are harvested as <code>scratchpad/rtc42/rtcline-off-rtc42-on.txt</code>, and <code>scratchpad/rtc42/README.md</code> indexes the arm; the run directory itself stayed in RTC42's worktree &ndash; log line <code>acww rtc/arm7: command 0x10 raw date 0x03150605 time 0x00000010 -&gt; callback</code></span></span>. 응답은 전송
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/pxisend.c</code>, <code>rtc_request</code>; run <code>off-rtc42-on</code> &ndash; its <code>acww rtc</code> lines are harvested as <code>scratchpad/rtc42/rtcline-off-rtc42-on.txt</code>, and <code>scratchpad/rtc42/README.md</code> indexes the arm; the run directory itself stayed in RTC42's worktree &ndash; log line
+<code>acww rtc/arm7: command 0x10 raw date 0x03150605 time 0x00000010 -&gt; callback</code></span></span>. 응답은 전송
 안에서 동기적으로 전달되며, 그 양쪽 절반 모두가 강제된 것이다: <code>RtcWaitBusy</code>는 양보(yield)
 없이 스핀하므로 큐에 쌓인 응답을 전달하기 위해 진행할 것이 아무것도 없고,
 <code>RTC_GetDateTimeAsync</code>는 전송하기 전에 락, 시퀀스, 두 버퍼, 콜백을 설정하므로 전송 안에서의
 응답이 안전하다 &ndash; SDK가 전송이 반환된 뒤에 <code>command_flg</code>를 설정하는 터치 패널의 태그 6과는
 정반대다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/RtcWaitBusy.c</code>, <code>src/matched/RTC_GetDateTimeAsync.c</code>; E: <code>docs/kb/hybrid/hardware-services.md</code>, "Tag 5"</span></span>. 네이티브 경로에서는 실행할 인터프리트된
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/RtcWaitBusy.c</code>, <code>src/matched/RTC_GetDateTimeAsync.c</code>;
+E: <code>docs/kb/hybrid/hardware-services.md</code>, "Tag 5"</span></span>. 네이티브 경로에서는 실행할 인터프리트된
 ROM이 없으므로, 세 getter는 여전히 같은 모델에서 직접 답한다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source/log account from <code>port/shim/os/rtcclock.c</code>; verify with a retained run using this page's recipe</span></span>.</p>
 <p><strong>어떻게 진행하는가.</strong> 한 프레임은 에뮬레이트된 시간으로 1/59.8261초 &ndash; NDS의 33.513982 MHz
 클록으로 560190사이클이며, 포트의 프레임 페이서가 쓰는 것과 같은 쌍이다 &ndash; 이고, 순간은
 프레임 수의 순수 함수, 즉 <code>boot + floor(frames * 560190 / 33513982)</code>초이며, 자정 넘김, 월
 길이, 윤일, 요일이 거기서 계산된다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code>; <code>port/tools/test_rtc.py</code> calibrates fourteen cases including a leap day, three month ends and midnight</span></span>. 이는 긴장 관계에 있던 두 속성을 모두 지킨다:
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/shim/os/rtcclock.c</code>; <code>port/tools/test_rtc.py</code> calibrates fourteen cases including a
+leap day, three month ends and midnight; receipt provenance unresolved</span></span>. 이는 긴장 관계에 있던 두 속성을 모두 지킨다:
 플레이하는 동안 게임 시간이 흐르고, 같은 레시피를 두 번 실행해도 여전히 같은 실행인데,
 아무것도 벽시계 시간을 읽지 않기 때문이다. 틱이 하는 것과 같은 거래다 &ndash; 절반 속도로 도는
 포트는 게임 시간도 절반 속도로 흐르는 것을 본다.</p>
@@ -261,17 +281,21 @@ ROM이 없으므로, 세 getter는 여전히 같은 모델에서 직접 답한�
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/os/rtcclock.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. 시계는 세이브스테이트에 실린다 &ndash;
 부팅 순간, 고정 플래그, "순간 결정됨" 플래그 &ndash; 그래서 재개된 실행은 로딩 셸의 환경을 다시
 읽는 대신 스냅샷 당시의 시계를 유지한다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/platform/state.c</code>; <code>docs/kb/hybrid/savestate.md</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/platform/state.c</code>; <code>docs/kb/hybrid/savestate.md</code>; receipt provenance unresolved</span></span>.</p>
 <p>오라클도 같은 부팅 순간을 고정한다. 생성된 무비의 <code>rtcStart 2005-06-15T10:00:00Z</code>이며,
 DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 칩을 진행시키므로, 둘은 부팅
-시점에서만이 아니라 특정 프레임에서도 일치한다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/oracle.py</code>, <code>RTC_START</code>; <code>port/tools/oracle/README.md</code></span></span>.</p>
+시점에서만이 아니라 특정 프레임에서도 일치한다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>port/tools/oracle/oracle.py</code>, <code>RTC_START</code>;
+<code>port/tools/oracle/README.md</code></span></span>.</p>
 <p><strong>결정지은 숫자.</strong> 워크아웃 조건의 프레임 53,100에서 원본의 HUD 패널은 <code>6/15 AM10:14</code>를,
 포트의 것은 <code>6/15 AM10:00</code>을 읽는다
-<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/walkout/orig</code>, <code>side-by-side-53100.png</code>; E: <code>docs/log/cycle41-gameplay.md</code> ORACLE44 item 4</span></span>. 53,100프레임은 에뮬레이트된 887초 &ndash;
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/walkout/orig</code>, <code>side-by-side-53100.png</code>;
+E: <code>docs/log/cycle41-gameplay.md</code> ORACLE44 item 4</span></span>. 53,100프레임은 에뮬레이트된 887초 &ndash;
 14분 47초 &ndash; 이므로 10:14:47이고, 포트는 이제 원본이 읽는 것을 읽는다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/tools/test_rtc.py</code>, case <code>oracle-53100</code>; the two zoomed HUD stills are <code>scratchpad/rtc42/port-53100-bot.png</code> and <code>orig-53100-bot.png</code></span></span>. 이는 ORACLE44의 마지막 미결
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/tools/test_rtc.py</code>, case <code>oracle-53100</code>; the two zoomed HUD stills are
+<code>scratchpad/rtc42/port-53100-bot.png</code> and <code>orig-53100-bot.png</code></span></span>. 이는 ORACLE44의 마지막 미결
 항목을 닫는데, 그 항목은 두 HUD가 정확히 이 프레임에서 갈라지는 것을 포트의 의도적인
-비진행으로 기록해 두었다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/walkout/side-by-side-53100.png</code>; <code>docs/log/cycle41-gameplay.md</code> ORACLE44 item 4</span></span>.</p>
+비진행으로 기록해 두었다 <span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/oracle/walkout/side-by-side-53100.png</code>;
+<code>docs/log/cycle41-gameplay.md</code> ORACLE44 item 4</span></span>.</p>
 <p><strong>보존된 모든 레퍼런스에 대한 결과이며, 이 페이지 밖의 페이지에도 적용된다.</strong>
 분이 <code>func_020bbb6c</code>의 낮/밤 블렌드를 구동하므로 이제 프레임은 시계에 의존하며, 따라서
 <strong>RTC42 이전에 찍은 실행과 비교하려면 <code>ACWW_RTC_FREEZE=1</code>을 설정해야 한다</strong> &ndash; 시계가
@@ -279,7 +303,7 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 변함이 없다(둘 다 0.997413, 최악 프레임 -0.000008)
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/rtc42/analyse.txt</code>; <code>docs/log/cycle41-gameplay.md</code> RTC42</span></span>. 고정 조건은 PXI
 재작성 자체가 중립적이라는 영수증이기도 하다: 고정하면 RTC42 이전 빌드와 31/31 동일하다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same</span></span>.</p>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/rtc42/analyse.txt</code></span></span>.</p>
 <p><strong>왜 호스트의 시계가 아니라 프레임 구동 시계인가.</strong> <code>rtcclock.c</code>가 존재하기 전에 포트는 PXI
 요청을 버렸으므로 <code>func_0209e49c</code>의 지역 변수는 결코 기록되지 않았고, 게임의 시계 전역 변수는
 호스트 스택 쓰레기 값을 받았다. <code>ACWW_WATCH=0x021dc754</code>로 측정하면 <code>func_0209e49c</code>는
@@ -289,12 +313,12 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 0x000008cc가 기록되었다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/os/rtcclock.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. 죽은 코드만 다른
 두 실행 파일이 세계를 다르게 비추었고, 이는 모든 고정 프레임 스크린샷 비교 아래에 20-26%의
 픽셀 노이즈 바닥을 깔았으며 이미 발표된 발견 사항 하나를 철회하게 만들었다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code>; M1</span></span>. 조용히 호스트 시간을 따라가는 포트는 정확히 그 부류의
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/shim/os/rtcclock.c</code>; M1; receipt provenance unresolved</span></span>. 조용히 호스트 시간을 따라가는 포트는 정확히 그 부류의
 결함을 한 단계 위에서 다시 불러들일 것이다 &ndash; 하나의 레시피를 두 번 실행해도 하루 중 다른
 시각에 시작했다는 이유로 달라질 것이다. 프레임 수로 시계를 구동하면 결정성을 지키면서
 게임에 달력을 돌려준다; 그 대가는 길이가 다른 두 실행이 더는 같은 순간에 있지 않다는
 것인데, 이는 노이즈 바닥이 아니라 실제 차이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/os/rtcclock.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -369,7 +393,7 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 <td><code>func_0209e49c</code> / <code>func_0209e5b4</code></td>
 <td>main</td>
 <td>시계를 <code>0x021dc744</code> / <code>0x021dc754</code>로 읽어 들이고, 기본 날짜에서 요일을 강제</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209e49c.c</code>, <code>src/matched/func_0209e5b4.c</code>; historical account: quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_0207b05c</code></td>
@@ -381,7 +405,7 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 <td><code>func_020bbb6c</code></td>
 <td>main</td>
 <td>분으로부터의 낮/밤 블렌드 가중치</td>
-<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
+<td><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020bbb6c.c</code>; historical account: quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
 </tr>
 <tr>
 <td><code>func_ov092_02299324</code></td>
@@ -397,7 +421,7 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -430,19 +454,19 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 <td><code>0x021dc744</code></td>
 <td>게임의 <code>RTCDate</code> (year, month, day, week)</td>
 <td><code>func_0209e49c</code></td>
-<td>달력과 이벤트 코드 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
+<td>달력과 이벤트 코드 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209e49c.c</code>; historical account: quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
 </tr>
 <tr>
 <td><code>0x021dc754</code></td>
 <td>게임의 <code>RTCTime.hour</code></td>
 <td><code>func_0209e49c</code></td>
-<td>시계 경로 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>ACWW_WATCH=0x021dc754</code>, <code>port/shim/os/rtcclock.c</code></span></span></td>
+<td>시계 경로 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>ACWW_WATCH=0x021dc754</code>, <code>port/shim/os/rtcclock.c</code>; receipt provenance unresolved</span></span></td>
 </tr>
 <tr>
 <td><code>0x021dc758</code></td>
 <td>게임의 <code>RTCTime.minute</code></td>
 <td><code>func_0209e49c</code></td>
-<td><code>func_0209def4</code> 다음 <code>func_020bbb6c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
+<td><code>func_0209def4</code> 다음 <code>func_020bbb6c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0209def4.c</code>, <code>src/matched/func_020bbb6c.c</code>; historical account: quoted in <code>port/shim/os/rtcclock.c</code></span></span></td>
 </tr>
 <tr>
 <td>세이브 <code>+0x4046</code></td>
@@ -464,7 +488,7 @@ DeSmuME는 거기서부터 에뮬레이트된 시간으로 에뮬레이트된 �
 </tr>
 </tbody>
 </table></div>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p><code>python port/tools/test_rtc.py</code>는 <code>port/shim/os/rtcclock.c</code> 자체 &ndash; 복사본이 아니라 실제
 출하되는 파일 &ndash; 를 컴파일하고, 열네 개의 보정 사례를 통과시킨다: 부팅 순간, 자정, 30일과
 31일짜리 월말, 2004년 윤일로 들어가고 나오는 경우, 2005년의 윤년 아닌 2월, 연말, 만 1년치
@@ -478,10 +502,11 @@ PXI 태그 5가 디스패치되는지, 시계가 세이브스테이트에 등록
 <code>FROZEN</code> 형태), ARM7의 첫 네 응답
 (<code>acww rtc/arm7: command 0x10 raw date ... -&gt; callback</code>, ARM9 콜백 슬롯이 있는지 없는지를
 알려준다), 그리고 게임 내 1분마다 그 분이 바뀐 프레임과 함께 한 줄을 출력하는
-<code>ACWW_RTC_TRACE=1</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code>, <code>port/shim/os/pxisend.c</code>; <code>scratchpad/rtc42/rtcline-off-rtc42-on.txt</code>, the harvested <code>acww rtc</code> lines of run <code>off-rtc42-on</code></span></span>.</p>
+<code>ACWW_RTC_TRACE=1</code> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/shim/os/rtcclock.c</code>, <code>port/shim/os/pxisend.c</code>;
+<code>scratchpad/rtc42/rtcline-off-rtc42-on.txt</code>, the harvested <code>acww rtc</code> lines of run <code>off-rtc42-on</code></span></span>.</p>
 <p><code>../experiments/rtc-hour-sweep.md</code>(설계만 됨, 아직 미실행)도 보라: 같은 레시피를 하루 중 네
 시각에서 실행하여, 같은 순간에 대해 포트와 오라클을 비교한다.</p>
-<h2 id="가설">가설</h2>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li>조명은 시각에 따른 눈에 보이는 함수이며, 포트와 원본은 이에 대해 일치한다. 측정된 모든
   실행이 10:00을 고정하므로 낮/밤 블렌드는 한 지점 이상에서 검증된 적이 없다.
@@ -508,7 +533,7 @@ PXI 태그 5가 디스패치되는지, 시계가 세이브스테이트에 등록
   프레임이므로, 긴 조건보다는 <code>ACWW_RTC_TIME=235900</code>과 짧은 조건이 필요하다. 그 조건에
   <code>ACWW_SAVE</code>를 더하고 <code>0x021dc744</code>를 관찰하여 확정한다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>../experiments/rtc-hour-sweep.md</code> &ndash; 설계된 스윕.</li>
 <li><code>save-data.md</code> &ndash; 게임이 비교 대상으로 삼는 날짜가 저장되는 곳.</li>
@@ -516,7 +541,7 @@ PXI 태그 5가 디스패치되는지, 시계가 세이브스테이트에 등록
 </ul></div><nav class="prevnext"><span class="pn"></span><a class="pn next" href="../systems/save-data.html"><small>다음 ▶</small>세이브 데이터</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

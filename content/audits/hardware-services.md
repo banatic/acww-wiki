@@ -95,6 +95,9 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 | D4 | `DIVCNT`를 읽으면 저장된 값을 `0x3fff`로 마스킹하여 반환한다 — 절대 busy가 아니다 [`interp_boot.c` `io_load`] | GBATEK, 같음: 비트 14는 **0 나눗셈 플래그**, 비트 15는 busy 플래그 | **불일치** | 마스크가 비트 15뿐 아니라 비트 14도 지우므로, DIV0 플래그를 검사하는 호출자는 항상 "0 나눗셈 없음"을 읽는다. 수정안 **P7**. GBATEK는 이 플래그가 *"only if the full 64bit DIV_DENOM value is zero, even in 32bit mode"* 설정된다고 덧붙이는데, 포트의 모드 0 경로(하위 워드만)도 이를 지켜야 한다 |
 | D5 | `SQRTCNT` 비트 0은 64비트 매개변수를 선택한다; `SQRT_PARAM`은 `0x040002B8`에, `SQRT_RESULT`는 `0x040002B4`에 있다 | GBATEK, 같은 페이지, "Square Root" | 일치 | 없음 |
 | D6 | 포트가 동기적이므로 busy 비트가 설정되지 않는 것은 안전하다 | GBATEK: 나눗셈은 18/34 클럭, 제곱근은 *"Execution time is 13 clks, in either Mode"* | 일치 | 없음. *"push all DIV/SQRT values … when using DIV/SQRT registers on interrupt level"*이라는 GBATEK의 경고는 이미 구조적으로 지켜진다: `CPContext`는 `OSContext`의 일부이다 [`wiki/engine/threads-and-interrupts.md`] |
+| D8 | `FX_GetSqrtResult`는 `(SQRT_RESULT + 2^9) >> 10`을 반환한다 | GBATEK, 같은 페이지, "Square Root", NitroSDK의 `FX_SQRT_SHIFT = (32 - FX32_SHIFT) / 2`와 함께; ROM 자체의 바이트 동일한 `src/matched/FX_GetSqrtResult.c`는 `10`이라고 한다 | **`port/shim/math/divider.c` 불일치; 수정됨(FIXED) (IRIS54)** | 심은 1만큼 시프트했으므로 포트의 모든 `FX_Sqrt`가 `2^9 = 512`배 너무 컸다. `FX_Sqrt(x)`는 `SQRT_PARAM = (u64)x << 32`를 설정하므로, 이 유닛은 Q12 `x`에 대해 `sqrt(X) * 2^22`를 반환하고 Q12 답에는 `>> 10`이 필요하다. 수정했으며 `port/tools/test_math_units.py`로 고정했다 |
+| D9 | 제곱근 유닛의 결과는 UNSIGNED이다 | GBATEK, 같은 내용: `SQRT_RESULT`는 32비트 unsigned 값이고 `CP_GetSqrtResult32`는 `u32`를 반환한다 | **`divider.c` 불일치; 수정됨(FIXED) (IRIS54)** | 반올림과 시프트를 부호 있는 캐스트에서 수행했으므로, 비트 31이 설정된 모든 근은 음수가 되어 돌아왔다 -- 자체 64비트 매개변수가 없는 `FX_Sqrt(0x7fffffff)`에서 도달 가능했다 |
+| D10 | 64비트 나머지는 이 링크에 없는 런타임 헬퍼 없이 계산된다 | — (하드웨어 주장이 아니라 호스트 제약이다) | **`divider.c` 불일치; 수정됨(FIXED) (IRIS54)** | 부호 있는 64비트 `%`는 `_allrem`으로 컴파일되는데, `port/platform/lldiv.c`는 이를 제공하지 않는다. 따라서 `absdata.py`는 그 이름을 0으로 채워진 아레나 슬롯에 배치했고 `FX_DivS32`/`FX_ModS32`는 실행 불가능한 메모리로 점프하기 직전인 상태였다(`acww.map`에는 `__allrem 0x30013000 <absolute>`가 실려 있었다). 이제 크기는 unsigned `%`를 거치며, 이는 `_aullrem`이다 |
 | D7 | 결과 레지스터를 읽을 때 계산하는 것은 피연산자를 쓸 때 계산하는 것과 동등하다 | GBATEK: *"Division is started when writing to any of the DIVCNT/NUMER/DENOM registers"* | 실효상 일치 | NUMER를 쓰고 RESULT를 읽은 뒤 DENOM을 쓰는 호출자는 다를 것이다. 그런 호출자는 알려진 바 없다; 수정안이 아니라 가설로 추가하라 |
 
 ### E. DISPSTAT와 VCOUNT
@@ -105,7 +108,7 @@ URL과 해당 페이지의 제목을 명시한다. 어떤 소스에서도 코드
 | E2 | VBlank(DISPSTAT 비트 0)는 **192..262** 라인에서 설정된다 [`interp_boot.c` `dispstat_load`: `v >= 192`; `hardware-services.md` 4절; `threads-and-interrupts.md`] | GBATEK, 같은 절: *"the VBlank flag isn't set in the last line (ie. only in lines 192..261, but not in line 262)"* | **불일치** | 수정안 **P2**. 코드 한 줄, 문서 세 개 |
 | E3 | VCOUNT는 9비트, 0..262이며 DISPSTAT의 비교값은 분할되어 있다 | GBATEK, 같음: *"LY = VCOUNT Bit 0..8, and LYC=DISPSTAT Bit8..15,7"* | 일치 | 없음 — 포트의 `0xfff8` 마스크는 비트 3..15를 올바르게 보존하며, 여기에는 DISPSTAT 비트 7에 있는 LYC 비트 8이 포함된다 |
 | E4 | V-카운터 일치 플래그는 DISPSTAT 비트 2이다 | GBATEK, [LCD I/O Interrupts and Status](http://problemkaputt.de/gbatek-lcd-i-o-interrupts-and-status.htm): *"Bit 2: V-Counter flag (Read only) (1=Match) (set in selected line)"* | **불일치** | 포트는 비트 2를 절대 설정하지 않는다. V-카운트 일치를 폴링하는 루프는 영원히 돌며, 프레임 경계가 랩에서 발화하므로 *프레임이 진행되는 동안* 돌게 된다 — 이 포트가 가진 최악의 진단 형태이다. 수정안 **P2**가 이를 다룬다 |
-| E5 | HBlank(비트 1)는 클리어된 채로 둔다 | GBATEK, 같음: *"Bit 1: H-Blank flag (Read only) (1=HBlank) (toggled in all lines)"* | **불일치**, 의도적 | 같은 수정안; 최소한 DISPSTAT 읽기 뒤에 라인 변화 없이 다시 DISPSTAT 읽기가 이어질 경우, 조용히 멈추지 말고 서비스가 *스스로 이름을 대야* 한다 |
+| E5 | HBlank(비트 1)는 클리어된 채로 둔다 | GBATEK, 같음: *"Bit 1: H-Blank flag (Read only) (1=HBlank) (toggled in all lines)"* | **잘못되었음; 수정됨(FIXED) (IRIS54)** | 비트 1은 이제 렌더러의 스캔라인 훅 — 포트가 하드웨어의 HBlank을 대신하는 동안 — 지속되는 동안 설정되고, 그 밖에서는 클리어되며, VCOUNT도 같은 창 동안 고정되어 핸들러 체인의 모든 리더가 같은 라인을 본다. 이는 이론적 공백이 아니었다: ACWW의 씬 전환 아이리스는 이 비트로 게이트된 HBlank 콜백에서 `WIN0H`를 쓰므로, 포트는 192개 스캔라인 전체에 하나의 `WIN0H`를 칠했다. `docs/kb/hybrid/render-fixes.md` P17을 보라 |
 | E6 | VCOUNT 폴링 루프는 하드웨어의 순서대로 한 합성 프레임 안에 풀린다 | — | 일치 | 없음. 읽기당 한 라인 모델은 `func_0200149c`에 대한 타당한 답이다 |
 | E7 | 모든 I/O 읽기는 합성 훅을 거친다 | `port/interp/interp_cpu.c:59-82` | **불일치** (잠재적) | `ld8`은 `io_word`를 호출하지 않는다. `0x04000006`(VCOUNT 하위)이나 나눗셈 결과 레지스터의 바이트 읽기는 훅을 우회하여 오래된 페이지 메모리를 반환한다. 수정안 **P9** |
 
@@ -184,7 +187,7 @@ INVALID_XY)으로 채운다. 한 프레임의 지연이 측정되었다(접촉 8
 
 **코드.** `return ((v >= 192u ? 1u : 0u) | (page & 0xfff8u)) | (v << 16);` — VBlank는 192..262, 비트 1은 항상 0, 비트 2는 항상 0.
 
-**수정.** 한 식 안에 세 가지 변경: 비트 0에 대해 `v >= 192 && v <= 261`; `v == (((stat >> 8) & 0xFF) | ((stat >> 7) & 1) << 8)`일 때 비트 2 설정; 그리고 HBlank는 의도적으로 결정한다 — 읽기마다 번갈아 비트 1을 설정하고 그렇게 밝히거나, 클리어된 채 두고 진행 없이 263회 넘게 반복된 DISPSTAT 읽기를 이름 대어 알리는 카운터를 추가한다.
+**수정.** 한 식 안에 세 가지 변경: 비트 0에 대해 `v >= 192 && v <= 261`; `v == (((stat >> 8) & 0xFF) | ((stat >> 7) & 1) << 8)`일 때 비트 2 설정; 그리고 HBlank를 의도적으로 결정한다. **HBlank 절은 이제 LANDED (IRIS54)**: 비트 1은 포트가 하드웨어의 HBlank을 대신하는 정확한 창 — ROM 자체의 `OS_IRQTable[1]`을 디스패치하는 렌더러의 스캔라인 훅 — 동안 설정되고 그 밖에서는 클리어된다; VCOUNT는 그 창 안에서 진행하지 않는다. 비트 0 범위와 V-카운터 일치는 앞서 반영되었다.
 
 **검증.** 실행이 아니라 호스트 측 단위 테스트: 알려진 비교값을 페이지에 써 둔 픽스처에서 `dispstat_load`를 263번 호출하고 정확한 비트 0/비트 2 시퀀스를 단언하며, `acww_frame()` 호출 한 번을 더한다. `port/render/selftest.c`가 이 저장소에서 자기 검사 픽스처의 기존 패턴이다.
 
@@ -398,7 +401,7 @@ ACWW 모딩 프로젝트는 존재하지만 코드 심볼은 담고 있지 않�
 
 - **H1. 확정됨(TOUCH42), 단 정정 있음.** "프레임당 네 샘플에서 연속된 세 개의 정상 샘플"을
   모델링하면 한 프레임의 지연이 재현되지만 [E: `scratchpad/cycle40/runs/tap-T41pd`,
-  접촉 8,700 -> `TP_POINT` 8,701] **그것만으로는 충분하지 않았다**: 샘플을 ROM의 VBlank
+  contact 8,700 -> `TP_POINT` 8,701] **그것만으로는 충분하지 않았다**: 샘플을 ROM의 VBlank
   핸들러 앞에 전달하면 포트는 24,600에서 여전히 마을 이름을 확정했다
   [E: `tap-T41h`] [O: `scratchpad/oracle/tap-window`]. 메커니즘의 나머지 절반은
   순서이다: 핸들러가 패드를 샘플링하므로, 같은 프레임의 누름과 탭이 누름 먼저의 순서로 게임에

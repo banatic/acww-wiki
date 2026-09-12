@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멀티플레이어 프로토콜: 소스 맵과 미해결 경계 · ACWW 근거 위키</title>
+<meta name="description" content="게임에는 로컬 WM과 온라인 DWC 위에 공통 통신 계층이 있다. 매칭된 소스는 제어 메시지 엔벨로프, 청크 단위 벌크 전송, 네 개의 참가자 슬롯, 여러 동기화 배리어를 드러낸다. 게이트에서 도착까지의 완전한 순서나 전송되는 모든 레코드의 의미는 아직 확립되지 않았다">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li class="active"><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>멀티플레이어 프로토콜: 소스 맵과 미해결 경계</span></div><header class="page-head"><h1>멀티플레이어 프로토콜: 소스 맵과 미해결 경계</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 60</span><span class="gchip g-E"><b>E</b> 14</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/multiplayer-protocol.md"><code>wiki/systems/multiplayer-protocol.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/multiplayer-protocol.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="multiplayer-protocol-source-map-and-unresolved-boundaries"></span><p><strong>요약.</strong> 게임에는 로컬 WM과 온라인 DWC 위에 공통 통신 계층이 있다. 매칭된 소스는 제어 메시지 엔벨로프, 청크 단위 벌크 전송, 네 개의 참가자 슬롯, 여러 동기화 배리어를 드러낸다. 게이트에서 도착까지의 완전한 순서나 전송되는 모든 레코드의 의미는 아직 확립되지 않았다. 이 페이지는 검증된 메커니즘과 두 플레이어 추적이 필요한 이름을 분리한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:33</code>, <code>src/matched/func_02075ff8.c:42</code>,
+<code>src/matched/func_02074330.c:169</code></span></span>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<span class="source-anchor" id="evidence-and-scope"></span><h3 id="근거와-범위">근거와 범위</h3>
+<p>이는 <code>d9e1409d8b2a21ba5ffc56e467e881168b46cabb</code>에서 수행한 정적 ADMK 감사이다. 멀티플레이어 세션은 실행하지 않았다. 재현 가능한 센서스는 매칭된 C/C++ 파일 29,084개를 대상으로 하며, 그 어휘적 참조에는 선언과 주소 취득이 포함되고 <strong>확정된 호출 그래프가 아니다</strong>. 설정 호출 재배치 센서스는 주소 식별자를 별도로 제공한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></p>
+<p>소스 계층은 <code>main</code>의 <code>0x020730xx..0x02077bxx</code>, <code>autoload_2</code>의 <code>0x020eadxx..0x020edaxx</code>에 있는 통신 퍼사드, 로컬 <code>ov066</code>, 온라인 <code>ov065</code>이다. 로컬 SDK의 <code>WM_*</code> 함수 자체는 <code>autoload_2</code>에 있다. 오버레이 이름과 호출 대상은 주소 접두사에서 추론한 것이 아니라 설정 메타데이터와 대조했다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:26</code>, <code>src/matched/func_020ecce4.c:35</code>,
+<code>src/matched/WM_StartMPEx.c:1</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></p>
+<p>서로 비슷해 보이는 두 항목은 분리해서 다뤄야 한다. <code>ov001</code>의 설정/UI 헬퍼는 스테이션당 68바이트와 3스테이션 비트맵으로 포트 13에서 데이터 공유를 시작하고, <code>ov067</code>의 WXC 드라이버는 포트 4에서 전송한다. 어느 사실도 마을 방문 프로토콜의 WM 포트나 용량을 확립하지 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov001_02229e98.c:841</code>, <code>src/matched/WXCi_CallSendEvent.c:377</code></span></span></p>
+<span class="source-anchor" id="gate-and-connection-state-map"></span><h3 id="게이트-및-연결-상태-맵">게이트 및 연결 상태 맵</h3>
+<p><code>ov048</code>에는 구체적인 스캔 선택 경로가 있다. <code>func_ov048_02260d28</code>은 스캔 목록을 얻고, 0x1a바이트 게임 정보 결과를 요구하며, 피어 식별자 6바이트를 비교하고, <code>func_020eb8d8</code>을 통해 일치하는 항목을 선택한 뒤 씬 상태 5를 요청한다. 이 상태를 특정한 사람 메뉴 선택에 대응시키는 것은 게이트 추적이 필요한 추론으로 남아 있다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov048_02260d28.c:42</code>, <code>src/matched/func_ov048_02260d28.c:55</code>,
+<code>src/matched/func_ov048_02260d28.c:64</code>, <code>src/matched/func_ov048_02260d28.c:75</code></span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>경계</th>
+<th>소스로 뒷받침되는 전이 또는 동작</th>
+<th>미해결 의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>func_02074b44</code>, main, <code>0x02074b44</code></td>
+<td>설정이 로컬 및 온라인 초기화 함수를 호출한다. 이 체크아웃에는 매칭된 본체가 없다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+<td>사용자 선택에서 모드로 가는 선택기이다. 분기를 꾸며내지 않는다.</td>
+</tr>
+<tr>
+<td><code>func_020ecce4</code></td>
+<td>요청된 모드를 <code>0x021fbef8</code>에 저장하고, 16바이트를 지우며, 설정 바이트 8, 60, 2를 준비한다. 동작 1은 로컬 상태 3을, 동작 2는 상태 4를 요청한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ecce4.c:39</code>, <code>src/matched/func_020ecce4.c:55</code></span></span></td>
+<td>소스는 로컬 호스트/게스트 모드를 시사하지만 화면과의 대응은 측정되지 않았다.</td>
+</tr>
+<tr>
+<td><code>func_020eb92c</code></td>
+<td>8개 항목 결과 목록을 지우고 로컬 상태 7에서만 8개 항목을 폴링한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020eb92c.c:12</code></span></span></td>
+<td>스캔 결과 8개가 동시에 방문하는 플레이어 8명을 뜻하지는 않는다.</td>
+</tr>
+<tr>
+<td><code>func_020eb8d8</code></td>
+<td>로컬 상태 7에서 선택한 디스크립터의 0xe0바이트를 복사해 <code>ov066:0x022682ec</code>에 전달한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020eb8d8.c:13</code></span></span></td>
+<td>이 래퍼 너머의 디스크립터 검증이다.</td>
+</tr>
+<tr>
+<td><code>ov066:0x02268c4c</code></td>
+<td>WM 부모 파라미터 설정을 호출한다. 매칭된 피호출자 이름은 복사된 잘못된 별칭이다. 설정과 소유자의 shadow는 <code>WM_SetParentParameter</code>에 일치한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02268c4c.c:13</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+<td>정확한 부모 설정은 실제 초기화 함수를 추적해야 한다.</td>
+</tr>
+<tr>
+<td><code>ov066:0x02268a1c</code></td>
+<td>연결 래퍼는 디스크립터, null 선택적 SSID, 절전 1, 인증 모드 0을 <code>WM_StartConnectEx</code>의 주소로 전달한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02268a1c.c:10</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+<td>성공적인 연결 콜백과 발견된 비콘 값이다.</td>
+</tr>
+<tr>
+<td><code>ov066:0x022686f0</code></td>
+<td>MP 시작은 재시도 횟수 4와 고정 주파수 플래그 1을 전달한다. 버퍼 크기와 주파수는 설정 필드에서 온다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_022686f0.c:20</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+<td>실제 주파수와 부모/자식 크기는 여기의 리터럴 상수가 아니다.</td>
+</tr>
+<tr>
+<td><code>ov066:0x0226b9b8</code></td>
+<td>큐 메타데이터를 할당하고 포트 12와 13 및 인디케이션 콜백에 콜백을 설치한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226b9b8.c:101</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+<td>포트와 게임 메시지의 분류 및 콜백 식별자이다.</td>
+</tr>
+<tr>
+<td><code>func_020ec338</code></td>
+<td>모드 1/2는 로컬 수신 버퍼 경로를 사용하고, 모드 3/4는 온라인 경로를 사용하며 AID를 u8로 좁힌다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec338.c:36</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+<td>이는 버퍼 등록이며, 전송 동작이 입증된 것은 아니다.</td>
+</tr>
+<tr>
+<td><code>func_020ec848</code></td>
+<td>로컬 정지 상태 0을 요청하고, 틱 타임아웃으로 상태 2를 기다리며, 콜백/작업을 해제한 뒤 모드를 6으로 설정한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec848.c:19</code></span></span></td>
+<td>세이브/롤백 결과는 이 래퍼의 범위 밖이다.</td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="wm-service-contract"></span><h3 id="wm-서비스-계약">WM 서비스 계약</h3>
+<p>태그 10의 FIFO 워드는 네트워크 패킷이 아니라 ARM9 메모리의 요청 포인터이다. <code>WMi_SendCommand</code>는 256바이트 요청 슬롯을 빌려 쓰고, 수락 비트 0x8000을 검사하며, API 식별자와 파라미터 워드를 저장하고, 포인터를 전송한 뒤 비동기 상태를 반환한다. 호스트 브리지는 요청 소유권, 상태, 이후 콜백을 재현해야 한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WMi_SendCommand.c:68</code>, <code>src/matched/WMi_SendCommand.c:83</code>,
+<code>src/matched/WMi_SendCommand.c:106</code></span></span></p>
+<p>WM 부모 파라미터에는 사용자 게임 정보 포인터/길이, GGID, TGID, entry/max-entry, 키 공유/반송파 감지 플래그, 비콘 주기, 채널, 부모/자식 최대 크기가 들어간다. 이 ARM 레이아웃에서 구조체 크기는 64바이트이다. 검증은 키 공유가 활성화된 경우의 추가 키 공유 오버헤드를 포함해 각 방향을 512바이트로 제한한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_SetParentParameter.c:127</code>, <code>src/matched/WM_SetParentParameter.c:190</code>,
+<code>src/matched/WM_SetParentParameter.c:202</code></span></span></p>
+<p>연결 요청에는 24바이트 선택적 SSID 필드와 BSS 디스크립터 포인터가 들어간다. 이는 BSS 디스크립터의 32바이트 SSID 저장 공간 및 WM 게임 정보와는 별개이다. 일반 게임 정보 구조체는 사용자 데이터 112바이트를 예약한다. 이는 SDK 용량이며 게이트가 112바이트 전부를 전송한다는 주장은 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartConnectEx.c:361</code>, <code>src/matched/WM_StartConnectEx.c:382</code>,
+<code>src/matched/WM_StartConnectEx.c:534</code>, <code>src/matched/WM_StartConnectEx.c:589</code></span></span></p>
+<p>MP 시작에는 부모/자식 상태 7/8, 64바이트 단위의 수신 정렬, 32바이트 단위의 전송 크기 정렬이 필요하다. 요청은 수신 이중 버퍼를 고려해 수신 버퍼 바이트 크기의 절반을 전송한다. 상태 9/10에서의 MP 전송은 데이터 주소, 바이트 크기, 대상 비트맵, 논리 포트, 우선순위, 콜백/컨텍스트를 전달하며, 부모 헤더 4바이트 또는 자식 헤더 2바이트의 추가 여유 공간을 검사한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartMPEx.c:67</code>, <code>src/matched/WM_StartMPEx.c:86</code>,
+<code>src/matched/WM_StartMPEx.c:104</code>, <code>src/matched/WM_SetMPDataToPortEx.c:117</code>,
+<code>src/matched/WM_SetMPDataToPortEx.c:131</code></span></span></p>
+<p>일반 데이터 공유에는 4개의 데이터셋 버퍼, 스테이션 비트맵, 스테이션별 길이가 있으며, 전체 데이터는 4바이트 비트맵 헤더를 더해 508바이트로 제한된다. 일반 키 공유는 길이 2, 비트맵 0xffff, 이중 버퍼를 사용해 해당 서비스를 호출한다. 이 감사로는 게임의 <code>ov066</code> 방문 경로가 어느 편의 API를 사용하는지 <strong>확립되지 않는다</strong>. 포트 13만으로는 이를 확립할 수 없다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_StartDataSharing.c:42</code>, <code>src/matched/WM_StartDataSharing.c:182</code>,
+<code>src/matched/WM_StartKeySharing.c:80</code></span></span></p>
+<span class="source-anchor" id="online-login-and-transport"></span><h3 id="온라인-로그인과-전송">온라인 로그인과 전송</h3>
+<p>게임 수준의 온라인 상태 머신은 <code>func_020ec980</code>이며, <code>0x021fbefc</code>를 키로 한다. 0은 초기화/연결하고, 1은 인터넷 상태 4를 기다리며, 2는 32개 항목 친구 목록으로 DWC 제어를 초기화하고 로그인을 시작하며, 3은 콜백 플래그를 기다리고, 4는 다음 완료를 기다린 뒤 전송 분할 최대값을 0x100으로 설정하며, 5는 모드별 가드 아래에서 준비 완료를 보고한다. 이는 관측된 지속 시간이 아니라 소스에 나타난 상태이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec980.c:41</code>, <code>src/matched/func_020ec980.c:59</code>,
+<code>src/matched/func_020ec980.c:70</code></span></span></p>
+<p>인터넷 펌프는 액세스 연결 완료와 WCM DCF 페이즈 9를 검사한다. 이는 ARM9 연결 매니저의 작업이다. 인증 준비에는 성공적인 RTC 읽기와 액세스 포인트 메타데이터가 필요하며, RTC를 성공적으로 읽었다고 해서 서버가 날짜를 어떻게 해석하는지가 입증되는 것은 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227f32c.c:58</code>, <code>src/matched/func_ov065_02274798.c:579</code></span></span></p>
+<p>친구 키 검사는 +0x24의 사용자 데이터 필드를 전달하고, 다항식 7을 사용해 8바이트에 대한 7비트 CRC8 결과를 검사한다. 이는 일관성 검사이며, 피어 인증이 아니다. 퍼사드의 친구 삭제는 12바이트 계정 레코드와 0x23바이트 레코드의 두 번째 배열에 대해 동작하며, 로그인은 32개 항목을 초기화한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_CheckFriendKey.c:12</code>, <code>src/matched/DWC_Acc_CheckFriendKey.c:36</code>,
+<code>src/matched/func_020eae80.c:30</code>, <code>src/matched/func_020ecba8.c:50</code></span></span></p>
+<p>신뢰성 있는 DWC 전송은 요청된 크기와 바쁨 상태를 기록하고, 8바이트 전송 헤더를 내보낸 뒤, 설정된 분할 크기와 사용 가능한 GT2 공간으로 제한된 청크를 전송한다. 전송이 반드시 끝나기 전에 수락을 반환할 수 있으며, 전송 콜백이 완료를 표시한다. 일반적인 분할 상한은 1465이고, 게임은 256으로 설정한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227eda0.c:100</code>, <code>src/matched/func_ov065_0227eda0.c:122</code>,
+<code>src/matched/func_ov065_0227ee90.c:96</code>, <code>src/matched/func_ov065_0227ecd0.c:129</code>,
+<code>src/matched/func_020ec980.c:75</code></span></span></p>
+<p>정확한 NAS-to-GPCM/GPSP-to-NatNeg-to-GT2 콜백 체인은 일부가 여전히 미해결이다. 보존된 그래프는 직접 연결과 해결되지 않은 별칭을 기록하지만, GameSpy 라이브러리가 존재한다는 사실을 이 게임에서 입증된 순서로 바꾸지는 않는다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></p>
+<span class="source-anchor" id="game-envelope-dispatch-and-bulk-data"></span><h3 id="게임-엔벨로프-디스패치-및-벌크-데이터">게임 엔벨로프, 디스패치 및 벌크 데이터</h3>
+<p>공통 수신 핸들러 <code>func_02075050</code>은 엔벨로프 바이트 하나를 읽는다. 비트 0..1은 2비트 상태 값이고, 비트 7은 제어 디스패치를 선택하며, 비트 2..6은 5비트 메시지 ID를 담는다. 24 미만의 ID는 엔벨로프를 제거하고 길이를 1 줄인 뒤 <code>func_02075240</code>을 거친다. 별도의 벌크 데이터 경로는 큐를 갱신하고 0x1000바이트 수신 버퍼를 등록한다. 두 상태 비트의 의미는 여기서 이름 붙이지 않았다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:33</code>, <code>src/matched/func_02077b14.c:6</code>,
+<code>src/matched/func_02077b20.c:6</code>, <code>src/matched/func_02077b28.c:5</code>,
+<code>src/matched/func_02075240.c:7</code></span></span></p>
+<p>송신자 <code>func_02075ff8</code>은 벌크 데이터를 최대 0xffb 데이터 바이트 단위로 나누고, 엔벨로프 바이트 1개와 4바이트 오프셋을 더해 최대 0x1000바이트를 만든다. 1바이트 청크 카운터는 큐가 청크를 수락할 때만 증가한다. 이는 WM 프레임 및 DWC의 256바이트 분할 설정과 별개인 게임 수준의 청크 분할 규칙이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075ff8.c:42</code>, <code>src/matched/func_02075ff8.c:55</code></span></span></p>
+<p>아래의 디스패치 ID는 설정 포인터 재배치 <strong>메타데이터</strong>에서 도출하고, 각 매칭된 핸들러와 대조했다. 이는 원래 메시지 이름이 아니라 동작을 설명한다. 근거 기록에는 소스 또는 페이로드 데이터 없이 출처와 도출 과정이 보존되어 있다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075240.c:5</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>핸들러</th>
+<th>발명한 프로토콜 이름이 아닌 확립된 동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>0x020756cc</code></td>
+<td>모드 12: 참가자 하위 니블 비트맵과 상위 비트 2개를 소비한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020756cc.c:10</code></span></span></td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>0x02075670</code></td>
+<td>모드 12: 오프셋이 앞에 붙은 데이터를 벌크 대상에 복사한다. 완료 임계값은 기본적으로 0x17400이거나 계산된 압축 길이 +4이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075670.c:22</code></span></span></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>0x0207560c</code></td>
+<td>오프셋이 앞에 붙은 데이터를 참가자별 레코드에 복사한다. 빈 본문은 리셋 경로를 선택한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207560c.c:12</code></span></span></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>0x020755b4</code></td>
+<td>1바이트 리셋 대안이며, 그렇지 않으면 레코드 인덱스 4에 0x950바이트를 복사한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020755b4.c:18</code></span></span></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>0x0207557c</code></td>
+<td>오프셋이 앞에 붙은 데이터를 레코드 인덱스 <code>sender + 3</code>을 거쳐 복사한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207557c.c:15</code></span></span></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>0x0207556c</code></td>
+<td>1바이트와 송신자 인덱스를 <code>0x020a6f74</code>로 전달한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207556c.c:7</code></span></span></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>0x02075548</code></td>
+<td>1바이트를 하위 3비트 값과 상위 니블 값으로 나눈다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075548.c:8</code></span></span></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>0x0207553c</code></td>
+<td><code>0x020a6cd4(1)</code>을 요청한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207553c.c:7</code></span></span></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>0x02075514</code></td>
+<td>현재 값이 3일 때만 통신 하위 상태를 변경한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075514.c:9</code></span></span></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>0x020754e8</code></td>
+<td>모드 13/47에서 <code>0x020a125c</code>를 통해 트랜잭션 플래그를 설정한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020754e8.c:9</code></span></span></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>0x020754b0</code></td>
+<td>모드 12: 8바이트 전송과 완료 플래그이다. 이 재구성에서 복사 방향은 shadow/레지스터 흐름 감사를 필요로 한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020754b0.c:24</code></span></span></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>0x02075484</code></td>
+<td>모드 13/47: <code>0x020a1274</code>를 통한 트랜잭션 플래그이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075484.c:14</code></span></span></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>0x02075450</code></td>
+<td>오프셋이 앞에 붙은 데이터를 통신 객체의 버퍼에 복사한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075450.c:13</code></span></span></td>
+</tr>
+<tr>
+<td>13</td>
+<td><code>0x02075448</code></td>
+<td>테일 콜 대상은 매칭된 파일에서 여전히 이름이 없다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075448.c:8</code></span></span></td>
+</tr>
+<tr>
+<td>14</td>
+<td><code>0x02075404</code></td>
+<td>모드 46/9: 호스트/게스트 슬롯을 재매핑하며 송신자별 바이트를 전달한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075404.c:10</code></span></span></td>
+</tr>
+<tr>
+<td>15</td>
+<td><code>0x020753a8</code></td>
+<td>2바이트 레코드 4개를 디코드하고 <code>0x020a7394</code>를 통해 적용한다. 액터 필드의 의미는 아직 확립되지 않았다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020753a8.c:18</code></span></span></td>
+</tr>
+<tr>
+<td>16</td>
+<td><code>0x02075380</code></td>
+<td>모드 46: <code>0x020a1200</code>을 통한 송신자 플래그이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075380.c:14</code></span></span></td>
+</tr>
+<tr>
+<td>17</td>
+<td><code>0x02075358</code></td>
+<td>모드 46: <code>0x020a11f8</code>을 통한 송신자 플래그이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075358.c:14</code></span></span></td>
+</tr>
+<tr>
+<td>18</td>
+<td><code>0x02075334</code></td>
+<td>모드 46: <code>0x020a126c</code>를 통한 플래그이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075334.c:14</code></span></span></td>
+</tr>
+<tr>
+<td>19</td>
+<td><code>0x0207530c</code></td>
+<td>모드 46: <code>0x020a1208</code>을 통한 송신자 플래그이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0207530c.c:9</code></span></span></td>
+</tr>
+<tr>
+<td>20</td>
+<td><code>0x02075300</code></td>
+<td>송신자와 길이를 <code>0x020a11e0</code>으로 전달한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075300.c:7</code></span></span></td>
+</tr>
+<tr>
+<td>21</td>
+<td><code>0x020752a8</code></td>
+<td>모드 46: <code>0x020984e8</code>을 통한 오프셋이 앞에 붙은 복사이다. 대상 바인딩에는 별칭 감사가 필요하다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020752a8.c:27</code></span></span></td>
+</tr>
+<tr>
+<td>22</td>
+<td><code>0x02075278</code></td>
+<td><code>0x020989e0</code>을 통한 오프셋이 앞에 붙은 복사이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075278.c:13</code></span></span></td>
+</tr>
+<tr>
+<td>23</td>
+<td><code>0x02075254</code></td>
+<td>모드 46: <code>0x020a11b8</code>을 통한 완료 플래그이다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075254.c:9</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="town-state-synchronization-and-rollback-limits"></span><h3 id="마을-상태-동기화-및-롤백-한계">마을 상태, 동기화 및 롤백 한계</h3>
+<p>세이브/트랜잭션 헬퍼는 여러 단계의 작업 전에 <code>0x021dc7a8</code>에서 임시 버퍼로 0x173fc바이트를 복사하고, 이후 분기에서 이를 되돌려 복사한다. 이는 세이브 크기의 스테이징을 확립하지만, 모든 방문자가 압축되지 않은 세이브 뱅크를 받는다는 뜻은 <strong>아니다</strong>. 완전한 마을 전송 형식이라는 이름을 붙이려면 벌크 수신기의 0x17400 완료 크기와 압축 길이 대안을 이 스테이징 경로와 연결해야 한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a03e0.c:63</code>, <code>src/matched/func_020a03e0.c:113</code>,
+<code>src/matched/func_02075670.c:31</code></span></span></p>
+<p>통신 갱신은 참가자 인덱스 0..3을 순회하며 원격 전송 디스크립터 3개를 만든다. 수락된 전송 뒤에 큐 인덱스를 진행시키고, 예상 참가자 비트맵이나 연결 검사가 실패하면 상태 비트를 설정한다. 이는 4슬롯의 승인된 버퍼 설계를 입증하지만, 결정론적 입력 록스텝, 액터 좌표 표현, 정확한 갱신 빈도, 공유 게임플레이 RNG를 입증하지는 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074330.c:169</code>, <code>src/matched/func_02074330.c:213</code>,
+<code>src/matched/func_02074330.c:370</code></span></span></p>
+<p><code>func_020a2dec</code>은 반복되는 실패 가드와 명시적인 배리어 플래그를 사용한다. 상태 14/15는 처리 중인 참가자 작업과 완료를 기다리고, ID 17/19를 전송하며, 연결 해제를 기다리는 상태로 진행한다. <code>0x020a0848</code>의 최종/오류 헬퍼는 매칭되지 않았다. 따라서 피어를 잃은 뒤의 정확한 영속 결과는 여전히 열려 있다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a2dec.c:146</code>, <code>src/matched/func_020a2dec.c:168</code>,
+<code>src/matched/func_02075918.c:24</code>, <code>src/matched/func_02075848.c:22</code></span></span></p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>계층</th>
+<th>우선 확인할 소스 / 질문</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>게이트 스캔 선택</td>
+<td><code>func_ov048_02260d28</code>; 해당 상태 5를 캡처한 메뉴 전이와 연결한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov048_02260d28.c:75</code></span></span></td>
+</tr>
+<tr>
+<td>모드 선택기</td>
+<td>매칭되지 않은 <code>main:0x02074b44</code>; 완전한 게이트 상태 그래프를 주장하기 전에 진입 브리지가 필요하다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+</tr>
+<tr>
+<td>공통 수신 디스패치</td>
+<td><code>func_02075050</code> -&gt; <code>func_02075240</code>. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:36</code></span></span></td>
+</tr>
+<tr>
+<td>로컬 전송</td>
+<td><code>ov066:0x0226ae50</code> -&gt; WM 포트 전송; <code>0x0226b9b8</code>에서 콜백을 연결한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226ae50.c:9</code>, <code>src/matched/func_ov066_0226b9b8.c:101</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></td>
+</tr>
+<tr>
+<td>온라인 전송</td>
+<td>신뢰성 있는 송신자 <code>ov065:0x0227eda0</code>; 연결 준비/공간 조건자 <code>0x0227ee90</code>. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227eda0.c:100</code>, <code>src/matched/func_ov065_0227ee90.c:96</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<p>모드 바이트는 <code>0x021fbef8</code>, 온라인 상태 하프워드는 <code>0x021fbefc</code>, 공통 통신 객체 포인터 슬롯은 <code>0x020ccf94</code>이며, 제어 디스패처는 <code>0x020ccff0</code>에서 인덱싱된다. 이는 DS 주소이며, 소스 별칭 수정은 근거 기록에 보존되어 있다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ecce4.c:39</code>, <code>src/matched/func_020ec980.c:41</code>,
+<code>src/matched/func_02074330.c:110</code>, <code>src/matched/func_02075240.c:5</code></span></span></p>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
+<p><code>python -B scratchpad/wifi-analysis-1/source_index.py</code>와
+<code>python -B scratchpad/wifi-analysis-1/reloc_graph.py</code>를 다시 실행한 다음, 스테이징된 보고서의 근거/게이트 스크립트를 실행한다. 첫 <strong>런타임</strong> 근거 기록은 오버레이 ID, 모드/상태 쓰기, WM API ID, 콜백 순서를 포함한 제한된 게이트 메뉴 추적이어야 하며, 페이로드 덤프는 필요하지 않다. 소스 검토만으로는 그 근거 기록을 만들 수 없다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code></span></span></p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
+<ul>
+<li>로컬 모드 1/2는 호스트/게스트를 뜻한다. 관련 없는 SDK의 숫자 모드를 번역해서 정하지 말고, 선택에서 <code>0x02074b44</code>로 이어지는 브리지를 추적해 확정한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ecce4.c:55</code></span></span></li>
+<li>벌크 ID 1/2/4/21/22는 마을 및 플레이어 하위 레코드를 다룬다. 정확한 필드 의미, 로스터 표현, 편지, 아이템 소유권, 채팅 직렬화는 여전히 미해결이다. 방문자 실행 전에 생산자/소비자 필드 순회와 합성 필드 변경으로 확정한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075670.c:25</code>, <code>src/matched/func_0207557c.c:15</code></span></span></li>
+<li>4슬롯 및 배리어 장치는 더 큰 파티를 지원하는 모드를 제한한다. WM의 max-entry만 높여서는 이 명시적 루프를 바꿀 수 없으며, 필요한 게임 변경 사항은 아직 빠짐없이 열거되지 않았다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074330.c:169</code>,
+<code>src/matched/func_020760bc.c:37</code></span></span></li>
+</ul>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="network.html">네트워크 경계</a>.</li>
+<li><a href="wifi-port-plan.html">구현 선택지와 게이트</a>.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/multiplayer-callbacks.html"><small>◀ 이전</small>멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a><a class="pn next" href="../systems/multiplayer-visit.html"><small>다음 ▶</small>멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a><ul><li><a href="#근거와-범위">근거와 범위</a></li><li><a href="#게이트-및-연결-상태-맵">게이트 및 연결 상태 맵</a></li><li><a href="#wm-서비스-계약">WM 서비스 계약</a></li><li><a href="#온라인-로그인과-전송">온라인 로그인과 전송</a></li><li><a href="#게임-엔벨로프-디스패치-및-벌크-데이터">게임 엔벨로프, 디스패치 및 벌크 데이터</a></li><li><a href="#마을-상태-동기화-및-롤백-한계">마을 상태, 동기화 및 롤백 한계</a></li></ul></li><li><a href="#어디에-있는가">어디에 있는가</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설">가설</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

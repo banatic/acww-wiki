@@ -99,12 +99,12 @@
   [O: their `manifest.json` and `.out` files]. 둘 다 아직 포트 조건과 비교되지 않았다.
 - `scratchpad/cycle40/runs/tap-D60` -- 24,000부터 60 프레임마다 스크린샷을 찍은 221,181의
   포트 실행, 27,000에서 종료 코드 100, 접촉 네 번 기록됨
-  [E: its `receipt.json` and `tap-D60-run.log`].
+  [H: log/source account: its `receipt.json` and `tap-D60-run.log`; receipt provenance unresolved].
 - `scratchpad/cycle40/runs/tap-D61` -- **1픽셀 테스트**: 접촉을 원본의 게임이 실제로 보는
   좌표인 `ACWW_TOUCH_X=222 ACWW_TOUCH_Y=182`로 옮긴 동일 레시피. 27,000에서 종료 코드 100,
   로그에는 네 접촉 모두 `acww touch: DOWN x=222 y=182`가 찍힌다
-  [E: its `receipt.json` and `tap-D61-run.log`]. ORACLE42에서 `tap-220`과 비교했다 --
-  아래의 결과 절을 볼 것 [S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42].
+  [H: log/source account: its `receipt.json` and `tap-D61-run.log`; receipt provenance unresolved]. ORACLE42에서 `tap-220`과 비교했다 --
+  아래의 결과 절을 볼 것 [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; direct ROM-source provenance unresolved].
 
 ## 반증 조건
 
@@ -121,7 +121,7 @@
 0xffff를 쓰는 포트 쪽 전사(transcription)에 비추어 "하위 8비트만 전달한다"로 읽혔다.
 TOUCH41은 대신 ROM을 읽었다 -- `mov r1,#0xff`와 `0x020e941c`의 `strh` -- 따라서 ROM 자체의
 비터치 값은 **0x00ff**이며, 프로브의 255는 잘린 값이 아니라 올바른 답이다
-[S: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`;
+[S: `config/adm-kr/arm9/autoload_2/symbols.txt` (`func_020e9314` at 0x020e9314); source account: `func_020e9314`, autoload_2, disassembly `0x020e9314`..`0x020e9470`;
 `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41]. 이로써 그 행들을 의심할 이유는 사라졌다;
 그 Lua 빌드의 `readword`가 일반적으로 16비트 폭인지는 시험되지 않았으며 여기서는 필요하지도
 않은데, 표의 모든 값이 256 미만이기 때문이다
@@ -139,13 +139,13 @@ TOUCH41은 대신 ROM을 읽었다 -- `mov r1,#0xff`와 `0x020e941c`의 `strh` -
 
 1픽셀 테스트는 음성이다: 222,182에서 접촉한 포트는 여전히 마을 이름을 확정하고(`tap-D61`,
 25,200부터 위 화면 검정 = 주행 구간), 220,180에서 접촉한 원본은 여전히 확정하지 않는다
-(`scratchpad/oracle/tap-220`, 27,000까지 키보드) [E: `tap-D61`]
+(`scratchpad/oracle/tap-220`, 27,000까지 키보드) [E: `tap-D61` ; `scratchpad/cycle40/runs/tap-D61`]
 [O: `scratchpad/oracle/tap-220`]. 원인은 프레임이다: 24,600은 KEYS3 A 누름 프레임(2400 + 37 x 600)인
 반면 8,700은 아니며, 원본의 스타일러스 샘플은 포트보다 1-2 프레임 늦게 게임에 도달하므로,
 누름과 탭의 순서가 두 쪽에서 다르게 잡힌다
-[S: docs/log/cycle40-keyboard-gate-probe.md ORACLE42]. `ACWW_TOUCH2_AT=24700`으로 하면 양쪽
+[H: source account: docs/log/cycle40-keyboard-gate-probe.md ORACLE42; direct ROM-source provenance unresolved]. `ACWW_TOUCH2_AT=24700`으로 하면 양쪽
 모두 확정하고 일치한다: 24000..27000의 11 프레임에서 평균 ncc 0.9955, 위 화면 1.0000
-[E: `tap-D62`] [O: `scratchpad/oracle/tap-24700`]. 공식 레시피는 24,700을 사용한다.
+[E: `tap-D62` ; `scratchpad/cycle40/runs/tap-D62`] [O: `scratchpad/oracle/tap-24700`]. 공식 레시피는 24,700을 사용한다.
 **그 뒤 결론남 (TOUCH41, TOUCH42):** 지연은 회피되지 않고 모델링된다. ROM 자체의
 `func_020e9314`가 인터프리터 경로에서 실행되고 포트는 ROM의 VBlank 핸들러 뒤에 ARM7의
 링을 채운다; 그러면 24,600 레시피는 원본과 정확히 같이 키보드에 머무른다

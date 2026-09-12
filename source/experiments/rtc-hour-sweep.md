@@ -36,7 +36,7 @@ measuring the build rather than the hour (M15).
 
 The stop is 39,000 rather than 48,000 because the town exterior at 37,500 is the frame the
 lighting is worth looking at; the town hall interior after 40,500 is indoors
-[E: `docs/log/cycle40-keyboard-gate-probe.md` TOWN40].
+[H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` TOWN40; receipt provenance unresolved].
 
 Oracle arms, one per hour -- the RTC is pinned in the generated movie's `rtcStart` line, so it
 is a flag rather than an environment variable [O: `port/tools/oracle/README.md`, "How the RTC
@@ -61,8 +61,8 @@ at all -- it sat on the town-name keyboard from 25,500 to 48,000, so every oracl
 scored the *keyboard* screen [O: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE41]. That is
 settled: the tap at 24,600 landed on a KEYS3 A-press frame and the original's stylus sample
 arrives one to two frames later, so with `ACWW_TOUCH2_AT=24700` both sides confirm and agree
-[S: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; E: `tap-D62`;
-O: `scratchpad/oracle/tap-24700`]. **Use 24,700 in both the port and the oracle arms above**;
+[H: source account: `docs/log/cycle40-keyboard-gate-probe.md` ORACLE42; H: historical measurement account: `tap-D62`;
+O: `scratchpad/oracle/tap-24700`; direct ROM-source provenance unresolved]. **Use 24,700 in both the port and the oracle arms above**;
 the commands as written still say 24,600 and would reproduce the old caveat.
 
 ## Expected observations

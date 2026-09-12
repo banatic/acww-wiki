@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</span></div><header class="page-head"><h1>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 3</span><span class="gchip g-O"><b>O</b> 1</span></div><div class="source-line">원문: <code>wiki/audits/night-2026-09-09.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> <code>174ae9e3</code>와 <code>2e579f09</code> 사이의 열네 개 커밋은 이전 어느 사이클보다 포트가
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../audits/index.html">감사</a> <span class="sep">›</span> <span>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</span></div><header class="page-head"><h1>2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 3</span><span class="gchip g-O"><b>O</b> 1</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/audits/night-2026-09-09.md"><code>wiki/audits/night-2026-09-09.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/audits/night-2026-09-09.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="the-night-of-2026-09-09-every-unit-what-it-settled-what-it-left"></span><p><strong>요약.</strong> <code>174ae9e3</code>와 <code>2e579f09</code> 사이의 열네 개 커밋은 이전 어느 사이클보다 포트가
 <em>무엇인지</em>를 더 많이 바꿨다: 포트가 소리를 냈고, 렌더러가 한 프레임 이상을 잡아먹는 일을
 그만뒀고, 게임 내 시계가 돌기 시작했고, 플레이한 마을이 스스로 저장되고 다시 로드됐으며,
 세 건의 별개 "포트 결함"이 알고 보니 게임 자체의 동작이거나 다른 세션의 <code>taskkill</code>이었다.
@@ -134,7 +146,7 @@
 <p><strong>행을 읽는 법.</strong> "확정"이란 어떤 주장이 H에서 S, E 또는 O로 옮겨갔거나, 기존 주장이
 측정으로 철회되었다는 뜻이다. "미결"이란 그 유닛이 다음 실험을 끝내지 않고 이름만 붙였다는
 뜻이다. 두 유닛이 서로 어긋나는 곳에서는 둘 다 나열하고, 그 불일치는 별도의 행으로 둔다.</p>
-<h2 id="유닛들-커밋-순서대로">유닛들, 커밋 순서대로</h2>
+<span class="source-anchor" id="the-units-in-commit-order"></span><h2 id="유닛들-커밋-순서대로">유닛들, 커밋 순서대로</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -237,7 +249,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="그-밤이-남긴-불일치-있는-그대로">그 밤이 남긴 불일치, 있는 그대로</h2>
+<span class="source-anchor" id="the-disagreement-the-night-left-stated-as-such"></span><h2 id="그-밤이-남긴-불일치-있는-그대로">그 밤이 남긴 불일치, 있는 그대로</h2>
 <p><strong>어느 도착 스텝이 주민을 게이트하는가, 그리고 무엇이 튜토리얼 홀드를 푸는가.</strong> VILLAGER42는
 패드 스크립트에 <code>X</code> 행이 없으면 닌텐도 DS 삽화가 11,900프레임 뒤에도 여전히 떠 있고 패드는
 버려지며, <code>X</code> 다음 <code>B</code>가 이를 지운다고 측정했다. SAVE43의 체인에는 <code>X</code> 행이 없었는데도 홀드는
@@ -245,7 +257,7 @@
 스냅샷과 서로 다른 빌드에서 각각 한 번씩의 실행
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle41-gameplay.md</code> VILLAGER42; <code>docs/log/cycle42-save.md</code> SAVE43</span></span>. 이를 확정할
 네 조건 실험은 <code>../systems/villagers.md</code>의 가설 절에 적혀 있다.</p>
-<h2 id="포트-결함이-아니었던-세-가지">포트 결함이 아니었던 세 가지</h2>
+<span class="source-anchor" id="three-port-defects-that-were-not"></span><h2 id="포트-결함이-아니었던-세-가지">포트 결함이 아니었던 세 가지</h2>
 <p>따로 절을 둘 만하다. 그 밤의 방법론적 결과이고, 이를 배우는 데 유닛 세 개가 들었기 때문이다.</p>
 <ol>
 <li><strong>"주민은 결코 그려지지 않는다"</strong>(GAMEPLAY42)는 도달(REACH) 문제였고, 그다음엔 그것조차
@@ -259,7 +271,7 @@
 <p>공통된 모양은 M1이다: 각 경우에 도구, 도달, 또는 환경이 변수였고, 각 경우에 올바른 다음
 단계는 포트를 바꾸는 것이 아니라 측정을 보정하는 것이었다. <strong>그 밤 세 개의 별개 에이전트가
 <code>taskkill /IM acww.exe</code>를 실행했고</strong> 매번 다른 세션의 실행을 죽였다 &ndash; PID로 죽여라(B14).</p>
-<h2 id="이-밤에-바뀐-위키-페이지">이 밤에 바뀐 위키 페이지</h2>
+<span class="source-anchor" id="wiki-pages-this-night-changed"></span><h2 id="이-밤에-바뀐-위키-페이지">이 밤에 바뀐 위키 페이지</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -314,7 +326,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>docs/log/cycle40-keyboard-gate-probe.md</code> &ndash; CASE42, AUDIO6, LIVE41, RENDER42, AUDIO7,
   SAVEFLOW41, PERF42, RTC42, STAB42, SAVE42, VILLAGER42, SAVE43: 위의 모든 행이 추려져 나온
@@ -327,7 +339,7 @@
 </ul></div><nav class="prevnext"><a class="pn prev" href="../audits/sdk-names.html"><small>◀ 이전</small>감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a><span class="pn"></span></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

@@ -17,8 +17,8 @@ difference came from the change under test or from the snapshot. So the standard
 
 ## What a snapshot is
 
-A snapshot file holds three things [S: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`
-sections 1 and 3]:
+A snapshot file holds three things [H: source account: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`
+sections 1 and 3; direct ROM-source provenance unresolved]:
 
 1. **The seven mapped NDS regions** -- main RAM at `0x02000000` (4 MB, listed once because
    `0x02400000` and the `0x027f0000` system-RAM window are views of the same mapping), DTCM at
@@ -34,22 +34,22 @@ sections 1 and 3]:
    service's ownership state machine, the scripted key phases. The count was 111 when the
    subagent's receipts were taken, was 113 on the merged tree at SAVE41 -- and is **118 from
    20 registrars** since RTC42 added the clock's boot instant, freeze flag and decided flag
-   [E: `docs/kb/hybrid/savestate.md` section 3; `docs/log/cycle41-gameplay.md` RTC42, item 6,
-   whose savestate pair is 21/21 identical with the clock coming from the blob]. Every
+   [H: log/source account: `docs/kb/hybrid/savestate.md` section 3; `docs/log/cycle41-gameplay.md` RTC42, item 6,
+   whose savestate pair is 21/21 identical with the clock coming from the blob; receipt provenance unresolved]. Every
    receipt below was taken at 113 and a `.st` file is refused on any other build anyway, so
    the count is a fact about a build, not about the format (the TOUCH41 sampler's
    `tp_auto_on` / `tp_frequence` and `raster3d.c`'s `ever` were registered during the merge)
-   [S: `docs/log/cycle40-keyboard-gate-probe.md` SAVE41].
+   [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` SAVE41; direct ROM-source provenance unresolved].
 3. **One interpreter register file per live thread.** ROM threads are Windows fibers, and the
    only place a fiber ever stops is `SwitchToFiber` inside `OS_LoadContext`, so a suspended
    fiber's host stack is always exactly **one** interpreter frame deep with everything below
-   it in NDS memory [S: `port/shim/os/thread.c`; `docs/kb/hybrid/savestate.md` section 5].
+   it in NDS memory [H: source account: `port/shim/os/thread.c`; `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved].
 
 The header **pins the link**: image base, PE TimeDateStamp, `SizeOfImage`,
 `AddressOfEntryPoint`, the exe's size on disk, and the interpreter registry's entry count. A
 load compares all six and refuses by name on any difference, because the failure it prevents
 would look like a game bug rather than like a stale file. Relink, and every earlier snapshot is
-refused [S: `docs/kb/hybrid/savestate.md` section 5].
+refused [H: source account: `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved].
 
 ## What is rebuilt rather than captured
 
@@ -61,18 +61,18 @@ point is where it is; the `.fun` / `.ovl` / `.dark` side tables; the trampoline 
 re-emitted from the hash table so the `call rel32` displacement belongs to this image; and the
 virtual cartridge, whose `acww_romfs_mount()` has exactly one caller (`CARD_Init`) that a
 resumed run never reaches, so the load path calls it explicitly
-[S: `docs/kb/hybrid/savestate.md` section 4].
+[H: source account: `docs/kb/hybrid/savestate.md` section 4; direct ROM-source provenance unresolved].
 
 Environment-derived caches are re-read, so **a loading run must use the same `ACWW_*`
 environment as the saving run** for anything that changes behaviour -- `ACWW_RTC_DATE` and
 `ACWW_RTC_TIME` are the sharp case. The scripted key phases are the deliberate exception and
 are carried as blobs, so a resumed run reproduces the saving run rather than a
-differently-configured one [S: same].
+differently-configured one [H: source account: `docs/kb/hybrid/savestate.md` section 4; direct ROM-source provenance unresolved].
 
 ## The refusal rules -- what the instrument declines to do
 
 Each of these writes nothing and says why, rather than producing a snapshot that would fail
-subtly later [S: `docs/kb/hybrid/savestate.md` sections 5, 6, 8]:
+subtly later [H: source account: `docs/kb/hybrid/savestate.md` sections 5, 6, 8; direct ROM-source provenance unresolved]:
 
 | refusal | why |
 |---|---|
@@ -86,13 +86,13 @@ Two known gaps, stated so nobody trips over them: `ACWW_SAVE`'s flash image is a
 it is now (the scripted recipes unset `ACWW_SAVE`); and a handful of env-gated one-shots
 (`ACWW_GENTOWN`, `ACWW_REQ_SCENE`, `ACWW_DEMO_OV4`, `ACWW_LOAD_OVL`, `ACWW_FORCE_CHAN`,
 `ACWW_FORCE_FIELD`, the new-game probe) are not carried and would re-fire on a load with the
-same variable set [S: `docs/kb/hybrid/savestate.md` sections 5 and 3].
+same variable set [H: source account: `docs/kb/hybrid/savestate.md` sections 5 and 3; direct ROM-source provenance unresolved].
 
 ## Recipe
 
 Both variables take an **absolute** path: `run_direct.py` launches the exe with cwd
 `port/build`, so a repo-relative path resolves against the wrong directory and the save fails
-late, after the whole run [S: `docs/kb/hybrid/savestate.md` section 7]. These are DIAGNOSTIC
+late, after the whole run [H: source account: `docs/kb/hybrid/savestate.md` section 7; direct ROM-source provenance unresolved]. These are DIAGNOSTIC
 runs, not frontier claims (B38).
 
 OFF control, saved at 6,000 (`off-recipe.md`'s environment):
@@ -119,17 +119,17 @@ Compare each pair with
 
 Every frame from the one after the save to the endpoint must read `exact-rgb yes`. A frame
 that does not means a piece of host state is missing from the blob registry, and the fix is to
-find it -- **not** to read the `ncc` column instead [S: `docs/kb/hybrid/savestate.md` section 7].
+find it -- **not** to read the `ncc` column instead [H: source account: `docs/kb/hybrid/savestate.md` section 7; direct ROM-source provenance unresolved].
 
 | pair | frames | result | cost |
 |---|---|---|---|
-| `st-off-save` / `st-off-load` | 6,000..9,000 every 300 | **11/11 exact-rgb** | 309 s -> 110 s [E: their `receipt.json`] |
-| `st-town-save` / `st-town-load` | 24,000..27,000 every 300 | **11/11 exact-rgb**, across the 24,700 contact and the ride it starts | 756 s -> 65 s [E: their `receipt.json`] |
+| `st-off-save` / `st-off-load` | 6,000..9,000 every 300 | **11/11 exact-rgb** | 309 s -> 110 s [H: log/source account: their `receipt.json`; receipt provenance unresolved] |
+| `st-town-save` / `st-town-load` | 24,000..27,000 every 300 | **11/11 exact-rgb**, across the 24,700 contact and the ride it starts | 756 s -> 65 s [H: log/source account: their `receipt.json`; receipt provenance unresolved] |
 
 The save line names the frame it actually landed on:
 `acww state: saved frame 6000 -- 113 blobs, 5 threads`, and the load line says where it
-resumed: `resuming pc 0x01ffa4fc` [E: the two `*-run.log` files;
-`docs/log/cycle40-keyboard-gate-probe.md` SAVE41].
+resumed: `resuming pc 0x01ffa4fc` [H: log/source account: the two `*-run.log` files;
+`docs/log/cycle40-keyboard-gate-probe.md` SAVE41; receipt provenance unresolved].
 
 Earlier receipts from the worktree the feature was built in, copied out before that worktree
 was removed: the frontier intact **31/31 exact** with neither variable set, OFF 11/11, and the
@@ -139,7 +139,7 @@ town save at 24,000 -> 27,000 11/11 exact
 ## What would falsify it -- and what it already caught
 
 The exactness standard found two real defects that `ncc` would have passed
-[S: `docs/kb/hybrid/savestate.md` section 6]:
+[H: source account: `docs/kb/hybrid/savestate.md` section 6; direct ROM-source provenance unresolved]:
 
 - the first pair was `exact-rgb no` on every frame at `diff% 49.9` with `ncc-top 1.0000` --
   engine B's whole screen black, because palette RAM and OAM are 2 KB, half of a 4 KB page,
@@ -156,14 +156,14 @@ to diff two snapshots taken at the same frame and read off the addresses.
 
 - [H] A snapshot has never been taken from a **paced live** run with a person at the keyboard.
   The host input state is registered, but no live run has been saved and reloaded. Settled by
-  doing one [S: `docs/kb/hybrid/savestate.md` section 8].
+  doing one [H: source account: `docs/kb/hybrid/savestate.md` section 8; direct ROM-source provenance unresolved].
 - [H] What makes a frame refusable. The refusals name one slot, which suggests a thread that
   spends most of its life two interpreter frames deep rather than a property of the frame;
   nothing has measured which thread or why. Settled by printing the refused slot's chain
-  [S: same].
+  [H: source account: `docs/kb/hybrid/savestate.md` section 8; direct ROM-source provenance unresolved].
 - [H] A load combined with the oracle recorders. Both `oracle.c` and `oracle_events.c` enforce
   strict frame monotonicity and would abort their traces across a load; `run_on2.py` already
-  unsets them, and nothing has tried it [S: `docs/kb/hybrid/savestate.md` section 5].
+  unsets them, and nothing has tried it [H: source account: `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved].
 
 ## How a wiki reader uses this
 
@@ -171,14 +171,14 @@ To ask a question about frame 26,000 -- a scene, a menu, a colour, a register:
 
 1. Run the town recipe once with `ACWW_STATE_SAVE=24000:<absolute>.st`. If the frame is
    refused, pick another; nearby frames are cheap to try from an existing snapshot rather than
-   by replaying [S: `scratchpad/state-agent/state/probe_frames.py`].
+   by replaying [H: source account: `scratchpad/state-agent/state/probe_frames.py`; direct ROM-source provenance unresolved].
 2. Run every variant of the question with `ACWW_STATE_LOAD=<that file>` and the **same**
    `ACWW_*` environment, changing only the instrument you are adding.
 3. Keep the artifact. A relink invalidates the snapshot by design, so a session that is also
    changing the port must re-save after each link.
 
 `python port/tools/test_savestate.py` checks the header, the two refusals and the blob registry
-without running the game, in under a second [S: `docs/kb/hybrid/savestate.md` section 7].
+without running the game, in under a second [H: source account: `docs/kb/hybrid/savestate.md` section 7; direct ROM-source provenance unresolved].
 
 ## Related
 

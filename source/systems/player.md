@@ -22,7 +22,7 @@ tests one and `func_02098ff8(player, bit)` sets one
 [S: func_02099020 / func_02098ff8, main, port/shim/game/spnpc.c]. Flag 1 is the opening's own
 state bit: it is set for the whole arrival sequence and cleared when it ends, and the only two
 places in the matched tree that clear it are `func_ov050_02262628` (Nook's side) and
-`func_ov068_0226e948` [S: ov050/ov068, port/shim/game/spnpc.c]. While it is set, every one of
+`func_ov068_0226e948` [H: source account: ov050/ov068, port/shim/game/spnpc.c; direct ROM-source provenance unresolved]. While it is set, every one of
 the eleven predicates in the special-NPC decider table at `0x020e1d08` bails, so the whole
 special-NPC schedule is silent BY DESIGN during the opening
 [S: func_02084af0, main, port/shim/game/spnpc.c].
@@ -41,9 +41,9 @@ yet [S: func_0209ebec, main, port/shim/game/newgameprobe.c].
 The player's name is asked for first, before the ride. The prompt on screen is
 `당신 이름은?`, and on the reference run the name is confirmed at about frame 7,500, after
 which the game unloads an overlay
-[E: docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, `tap-D55`]. The keyboard consumes
+[E: docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, `tap-D55`; `scratchpad/cycle40/runs/tap-D55`]. The keyboard consumes
 the FIRST stylus tap as a PAD-to-stylus mode switch, so a single tap never confirms; two taps
-inside the window do [E: docs/log/cycle40-keyboard-gate-probe.md TAP40, `tap-D55`]
+inside the window do [E: docs/log/cycle40-keyboard-gate-probe.md TAP40, `tap-D55`; `scratchpad/cycle40/runs/tap-D55`]
 [H: host/prose inference from port/shim/input/touch.c; verify against the ROM function or symbol table and this page's recipe]. The same behaviour was reproduced on the DeSmuME reference for
 the first keyboard, which is what settled that the port was not wrong about it
 [O: docs/log/cycle40-keyboard-gate-probe.md ORACLE41, `scratchpad/oracle/tap-fullpad`
@@ -64,6 +64,17 @@ value preserved when neither claims the frame
 switch decoded from the halfword offset table at `0x0200ddd8`
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c].
 
+**The stylus walk speed is a curve with a dead zone, and its three constants are in the
+function's own pool.** On the touch branch the drag length comes from `func_020ea9c8` (the
+horizontal x/z distance helper), is scaled by `FX_MulFunc(d, 0x4f4)` -- `1268/4096`, about
+`0.31` -- and then splits three ways: at or above `0x1000` the scaled length IS the speed; at
+or below `0x19a` the speed is **zero**, which is the dead zone a small drag falls into; and
+between them the speed is `FX_Sqrt((d + 0x39a) * 4096 / 0x139a)` raised to the fourth by three
+`FX_MulFunc`s, clamped back into `[0, 0x1000]` and stored at `+0x134`. The `0xc32` running
+threshold above is tested on that same result, so a drag can walk without running
+[S: func_0200dc98 at `0x0200e1bc`..`0x0200e21a`, main, disassembly with the pool words resolved;
+O: docs/log/cycle41-gameplay.md SQRT56 S56-1].
+
 **Leaving a building does not read a door table: it replays the position the player was
 standing on when they walked IN.** The outside position is kept in a pending-destination record
 at `0x021f69b8` (a `VecFx32` at `+0x00`, then a kind word); `func_020b5ea0` publishes into it
@@ -78,7 +89,7 @@ the camera target through `func_0203f684` every third frame
 [S: `src/matched/func_0203c76c.c`, `func_0203f684.c`]. MEASURED on a scripted arrival: the
 record takes the door's value at frame 38,838, eighty-one frames after the player reached the
 doormat tile, and the exit at frame 49,593 posts that same word -- 10,755 frames and a savestate
-later [E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, runs `x48-p-originz`, `x48-p-seqwatch`].
+later [E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, runs `x48-p-originz`, `x48-p-seqwatch`; `scratchpad/exit48/runs/x48-p-originz`, `scratchpad/exit48/runs/x48-p-seqwatch`].
 So a building exit is a REPLAY, and the tile it lands on is a property of the town the player
 walked through, not of the building.
 
@@ -88,7 +99,7 @@ faults shortly afterwards inside `func_0200d900`
 
 Player houses are a separate asset family from villager houses:
 `/str/plHsTex/home%c%c.nsbtx` is ov003's own spelling
-[S: ov003 pool words, docs/kb/modules/ov003-068.md].
+[H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved].
 
 The DS firmware's user settings supply a nickname and a birthday that the game reads. The
 firmware record's `birthMonth` is at `+0x03` and `birthDay` at `+0x04`
@@ -137,11 +148,32 @@ the nickname IS shown in game [H: host/prose inference from port/shim/boot/users
 | **`0x021f69b8`**, `VecFx32` at `+0x00` | **the pending OUTSIDE position** -- where a building exit will put the player. Written when the player walks IN, defaulted to `{0x30000, 0, 0x30000}` before that | `func_020b64f0`, from `func_020b5ea0` and `func_020b6518` | `func_020b6214` case `0x3c` |
 | **`0x021f69d4`/`+8`/`+0xc`** | the scene-request record's destination position | `func_020b63f4` | the scene load |
 | `0x021c749c`, 3x `fx32` | the world point the field camera tracks -- the live player position; tile = word / 8192 | `func_0203f684`, from `func_0203c76c` | `ACWW_PLAYER_TRACE`, `port/tools/navlib.py` |
+| **`*(u32 *)0x021d5684` + `0x5c`, 3x `fx32`** | **the player ACTOR's own world position** -- the live one, and the one to use indoors, where `0x021c749c` is the camera's clamped target and can be a whole tile out. Tile = word / 8192 | the movement update, at `pc 0x01ffcab8` (lr `0x02003315`), `pc 0x02003326` and `pc 0x02031444` (lr `0x02031427`) | `ACWW_PLAYER_TRACE`, `port/tools/navlib.py` |
+| actor `+0x94` u16 | **the heading**, 16-bit turn units: `0` = south (+z), `0x4000` = east, `0x8000` = north (-z), `0xc000` = west. `+0x8c` is the same angle in 16.16 | the movement update | the movement update, the model |
+| actor `+0x98` `fx32` | **the commanded walk speed, per LOGIC TICK.** Ramps at `+147` a tick and caps at **`1343`**. It is a command, not a displacement: against a wall or an item it reads `775` while the position does not move | the movement update | the movement update |
 | firmware `+0x03` / `+0x04` | birth month / birth day | firmware (port: `usersettings.c`) | game greeting paths |
 
 All rows are S, cited from the files in the previous table; the pockets, wallet and wear rows
 are S+E -- the ROM function plus a live store watchpoint that caught it firing
-(GAMEPLAY47, `docs/log/cycle41-gameplay.md` GP47-1 and GP47-2).
+(GAMEPLAY47, `docs/log/cycle41-gameplay.md` GP47-1 and GP47-2). The three actor rows are E:
+per-frame region-ledger samples of the actor over held-direction pads, and a store watchpoint
+with caller attribution naming the writers (WALK56, `docs/log/cycle41-gameplay.md` WALK56;
+receipts `scratchpad/walk56/`).
+
+**HOW FAST THE PLAYER WALKS, and it is one number.** MEASURED (WALK56). The ROM's logic tick is
+one per **three** presented frames, so the position only ever changes on every third frame. A
+held direction ramps the speed word by `+147` a tick to a cap of **`1343` fx32 a tick**, which is
+`447.7` a frame and **18.3 frames a tile** (a tile is `8192` fx32). That cap is the same in all
+four directions and the same indoors and out: a clean interior lane holds `1343` straight for
+four consecutive tile crossings northbound, southbound, east and west, in **two different rooms**
+(Nook's shop, floor kind `0x1e`, and the town hall, `0x06`). **The ORIGINAL agrees term for
+term**: an oracle run walking south out of the town hall steps `261, 613, 844, 1017, 1172, 1321,
+1343 x8` a tick, which is the port's clean southbound lane exactly. What varies is the
+GETTING there -- a held direction that reverses the heading pays a ~30-frame 180-degree turn
+first (the heading slews at `6000` units a tick), and a lane that hugs a wall or an item runs at
+a reduced step until the player clears it. GAMEPLAY55's "south and west are 84 frames a tile"
+was those transients read as a rate, and it is retracted; see `docs/kb/hybrid/scripted-play-2.md`
+4n.
 
 ## How to check it
 
@@ -155,43 +187,43 @@ from the other [H: host/prose inference from port/shim/game/newgameprobe.c; veri
 For the exit position, arm `ACWW_INTERP_WATCH=0x021f69c0:0x021f69c3` from frame 1 over a run
 that walks into a building: there are only three distinct values in a whole arrival, and the
 `ACWW_PLAYER_TRACE` line before the second one names the tile it was taken from
-[E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, run `x48-p-originz`].
+[E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, run `x48-p-originz`; `scratchpad/exit48/runs/x48-p-originz`].
 
 For the name prompt, run the town recipe and look at frames 4,500 to 7,500: the taxi interior
 with the keyboard, then the confirmation
-[E: docs/log/cycle40-keyboard-gate-probe.md TOWN40, `tap-D56`].
+[E: docs/log/cycle40-keyboard-gate-probe.md TOWN40, `tap-D56`; `scratchpad/cycle40/runs/tap-D56`].
 
 ## Hypotheses
 
 - **H: the `0x249c` player slot contains the pockets (inventory), the letters and the
   catalogue, and they are contiguous blocks inside it.** The slot is large and the event
-  bitfield sits near its end at `+0x23f8` [S: port/shim/game/newgameprobe.c]. Experiment:
+  bitfield sits near its end at `+0x23f8` [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. Experiment:
   diff two save images taken before and after picking up one item on a live run, and record
   which offsets inside the slot change.
 - **H: event flag `0x23`, set by all four commits alongside flag 1, is "this player has been
   created".** All four do `set(1); set(0x23); clear(9)`
-  [S: port/shim/game/newgameprobe.c]. Experiment: grep the matched tree for
+  [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. Experiment: grep the matched tree for
   `func_02099020(..., 0x23)` call sites and read what each gates.
 - **H: flag 9, which all four commits CLEAR, is a "returning player" or tutorial-done bit.**
-  Same evidence [S: port/shim/game/newgameprobe.c]. Experiment: same grep for bit 9, plus set
+  Same evidence [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. Experiment: same grep for bit 9, plus set
   it by hand through `func_02098ff8` before the taxi and see what dialogue changes.
 - **H: the player's own name is stored as UTF-16 at a fixed offset inside the `0x249c` slot,
   near its start.** The town name is stamped by a different routine into the town area
-  [S: port/shim/game/newgameprobe.c] [E: docs/log/cycle40-keyboard-gate-probe.md TOWN40].
+  [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved] [H: log/source account: docs/log/cycle40-keyboard-gate-probe.md TOWN40; receipt provenance unresolved].
   Experiment: run the recipe twice with different typed player names and diff the slot.
 - **H: the walk-speed clamp `[0, 0x1000]` and the run threshold `0xc32` mean running is
   roughly 76% of maximum stylus-drag speed and is also reachable by holding B.** Both
-  constants are pool words [S: port/shim/c6a_0200dc98_intent.c]. Experiment: log `+0x134` and
+  constants are pool words [H: source account: port/shim/c6a_0200dc98_intent.c; direct ROM-source provenance unresolved]. Experiment: log `+0x134` and
   `+0x13a` over a live run with the mouse held at different distances from the player.
 - **H: tools are held in the intent block's tap-target fields rather than in a separate tool
   slot -- i.e. the tool is a property of the action, not of a persistent hand.** `+0x13c` is a
-  tap target and `+0x144` a tap class [S: port/shim/c6a_0200dc98_intent.c]. Experiment: reach
+  tap target and `+0x144` a tap class [H: source account: port/shim/c6a_0200dc98_intent.c; direct ROM-source provenance unresolved]. Experiment: reach
   a state where the player holds a tool and inspect `self + 0x134`..`0x170` against a
   tool-free frame.
 - **H: the four player slots are the four residents a town may have, and the boot-mode word
   1/2/3 corresponds to first player / additional player / imported player.**
   `func_ov051_022610d4` maps 1, 2 and 3 to three different commits
-  [S: port/shim/game/newgameprobe.c]. Experiment: force the word to 2 and 3 in turn and record
+  [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. Experiment: force the word to 2 and 3 in turn and record
   which slot the resulting commit writes.
 
 ## Related

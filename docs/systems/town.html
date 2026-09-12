@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,32 +136,34 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>마을</span></div><header class="page-head"><h1>마을</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 35</span><span class="gchip g-E"><b>E</b> 34</span></div><div class="source-line">원문: <code>wiki/systems/town.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마커 모두 에이커 바이트 옆의 레이어에 16비트 id로 들어 있다. 플레이어가 걷는 3D 세계는 그 격자를 원기둥에 감은 것으로, 에이커 하나가 32유닛마다 놓이며, 이것이 지평선이 통나무처럼 굴러가는 이유이다. 마을 자체의 이름은 두 번째 키보드 화면에서 플레이어가 입력한다; 생성 시점에 기본 이름이 찍히고 플레이어가 답하면 덮어써진다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>마을</span></div><header class="page-head"><h1>마을</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 26</span><span class="gchip g-E"><b>E</b> 17</span><span class="gchip g-O"><b>O</b> 3</span><span class="gchip g-H"><b>H</b> 31</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/town.md"><code>wiki/systems/town.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/town.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="town"></span><p><strong>요약.</strong> 마을은 96x96 타일 격자의 에이커들로, 새 세이브를 만들 때 한 번 생성된 뒤 시드에서 다시 유도되는 것이 아니라 세이브 이미지에 저장된다. 격자는 아이템을 담는다: 건물, 집터, 나무, 빈 마커 모두 에이커 바이트 옆의 레이어에 16비트 id로 들어 있다. 플레이어가 걷는 3D 세계는 그 격자를 원기둥에 감은 것으로, 에이커 하나가 32유닛마다 놓이며, 이것이 지평선이 통나무처럼 굴러가는 이유이다. 마을 자체의 이름은 두 번째 키보드 화면에서 플레이어가 입력한다; 생성 시점에 기본 이름이 찍히고 플레이어가 답하면 덮어써진다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p>세이브 이미지는 <code>0x021dc7a8</code>에 있고 길이는 <code>0x173fc</code>바이트이며, <code>func_020b5724</code>의 <code>MI_CpuCopy8</code>이 그곳으로 복사한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020b5724, main, port/shim/game/newgameprobe.c</span></span>.
 그 안에서 에이커 맵 객체는 <code>+0xd304</code>(<code>0x021e9aac</code>)에, 주민 집 레코드 여덟 개는 <code>+0x9284</code>(<code>0x021e5a2c</code>)에 스트라이드 <code>0x7ec</code>로 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02085a30, main, port/shim/game/villspawn.c</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02085a30, main, port/shim/game/villspawn.c; source locator: <code>src/matched/func_02085a30.c</code>, <code>config/adm-kr/arm9/symbols.txt (</code>main<code>at 0x02000c38)</code></span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved</span></span>.
 이미지의 유효성 레코드는 <code>+0x173f8</code>(<code>0x021f3ba0</code>)에 있다; <code>func_0209f180</code>은 그 <code>+2</code> 바이트가 2이고 이미지의 바이트 0이 <code>0x32</code>일 것을 요구한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209f180, main, port/shim/game/newgameprobe.c</span></span>.</p>
 <p>쓸 수 있는 세이브가 없는 부팅은 아무 메뉴 없이 마을을 생성한다. <code>func_020b5898</code>은 <code>func_020a1a40</code>을 통해 플래시 뱅크 둘을 폴링하고, <code>func_020b5724</code>는 판정을 자기 객체의 <code>+0x5e</code>에 쓰며, <code>func_020b56a8</code>이 그것을 읽는다; 판정 1 또는 4는 "쓸 수 있는 세이브 없음"을 뜻한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020b5898/func_020b56a8, main, port/shim/game/newgameprobe.c</span></span>. 그 분기는 <code>func_0209ef7c</code> &ndash; 이미지 전체의 <code>MI_CpuFill8</code>, 플레이어 슬롯 init 넷, 하위 초기화기 28개 &ndash; 를 호출한 뒤 <code>func_0209e6ec(save, 3)</code> = <code>func_0209ebec</code>를 호출하며, 이것이 지형(TERRAIN)을 만들고 기본 마을 이름을 찍는다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209ef7c/func_0209ebec, main, port/shim/game/newgameprobe.c</span></span>. <code>func_0209ebec</code>는 아직 플레이어가 존재하지 않으므로 의도적으로 플레이어 상태를 전혀 쓰지 않으며, 유효성 바이트를 다시 0으로 설정하는 것으로 끝난다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209ebec, main, port/shim/game/newgameprobe.c</span></span>.</p>
 <p><strong>마을은 새 게임 경로에서 두 번(TWICE) 생성되며, 두 번째는 마을 id가 추첨된 뒤 11,346프레임 후이다.</strong> 두 생산자 모두에서 측정됨(MEASURED): 부팅 생성은 포트 프레임 758 / 에뮬레이터 프레임 175(280회 추첨 초기화기 버스트 안)에 놓이고, 그 다음 맵 전체가 <code>0x86</code> / <code>0xfff1</code>로 리셋(RESET)되며, 마을 <strong>id</strong>는 이름 확인 시점(포트 프레임 24,789, 추첨 #2,667)에 추첨되고, 실제(REAL) 에이커 맵, 아이템 레이어, 주민 명부는 모두 그보다 나중의 한(ONE) 프레임 &ndash; 포트 <strong>36,135</strong>, 그 단일 프레임 안에서 추첨 인덱스 3,782 -&gt; 4,014 &ndash; 에 쓰인다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE49 O49-1/O49-2</span></span>. 에이커 바이트는 pc <code>0x0204ea54</code>에서 쓰이며, 실제 생성에서는 <code>lr 0x0204e735</code> = <code>func_0204e728</code>, 부팅 생성에서는 <code>lr 0x0209efc5</code> = <code>func_0209ef7c</code>이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE49 O49-1, <code>ACWW_INTERP_WATCH</code> + <code>WATCH_LR=1</code></span></span>.</p>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE49 O49-1/O49-2; current receipt locator: <code>scratchpad/oracle49/RECEIPTS.md</code></span></span>. 에이커 바이트는 pc <code>0x0204ea54</code>에서 쓰이며, 실제 생성에서는 <code>lr 0x0204e735</code> = <code>func_0204e728</code>, 부팅 생성에서는 <code>lr 0x0209efc5</code> = <code>func_0209ef7c</code>이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">ORACLE49 O49-1, <code>ACWW_INTERP_WATCH</code> + <code>WATCH_LR=1</code>; current receipt locator: <code>scratchpad/oracle49/RECEIPTS.md</code></span></span>.</p>
 <p><strong>생성기는 포트에서 충실하다(FAITHFUL)</strong>: 배치 추첨 시점의 스트림 위치가 같으면 포트는 원본의 맵을 쓴다. 독립적인 두 검사 &ndash; 두 생산자 모두 레시피 없이 인덱스 0..280에서 추첨하는 부팅 마을 <code>0xd391</code>(<strong>비교 워드 4,617개, 차이 0개</strong>)과 ORACLE47의 순방향 공유 레시피 아래의 확인된 마을 <code>0x8365</code>(<strong>맵 워드 2,057개, 차이 1개</strong>, 그 하나는 실제 플레이 만 이천 프레임 뒤의 느슨한 아이템 <code>0x1555</code>)
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE49 O49-3/O49-4</span></span>. <strong>ORACLE50은 이후 빌드에서 순방향 탭 창을 다시 잡았고(같은 세 프레임 <code>24,907..24,909</code>에 놓인다) 슬롯 0만이 아니라 두 생산자 모두(BOTH)에서 명부를 읽었다: 여덟 슬롯 전부가 <code>6b 5e 84 ff ff ff ff ff</code>로 일치하고, <code>0x8365</code>의 건물 셀 열일곱(SEVENTEEN) 개도 타일 단위로 모두 일치한다 &ndash; 마을 회관 (72,36), 주민 집 (61,67) (28,35) (68,20), 문 (39,16), 에이블 시스터즈 (26,24), 너굴 상점 (21,25), 박물관 (23,58), 플레이어의 집 (73,53), 표지판 (67,38), 그리고 <code>0x500a</code> 집터 일곱 개</strong> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE50 O50-1</span></span>.</p>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE49 O49-3/O49-4; current receipt locator: <code>scratchpad/oracle49/RECEIPTS.md</code></span></span>. <strong>ORACLE50은 이후 빌드에서 순방향 탭 창을 다시 잡았고(같은 세 프레임 <code>24,907..24,909</code>에 놓인다) 슬롯 0만이 아니라 두 생산자 모두(BOTH)에서 명부를 읽었다: 여덟 슬롯 전부가 <code>6b 5e 84 ff ff ff ff ff</code>로 일치하고, <code>0x8365</code>의 건물 셀 열일곱(SEVENTEEN) 개도 타일 단위로 모두 일치한다 &ndash; 마을 회관 (72,36), 주민 집 (61,67) (28,35) (68,20), 문 (39,16), 에이블 시스터즈 (26,24), 너굴 상점 (21,25), 박물관 (23,58), 플레이어의 집 (73,53), 표지판 (67,38), 그리고 <code>0x500a</code> 집터 일곱 개</strong> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE50 O50-1; current receipt locator: <code>scratchpad/oracle50/RECEIPTS.md</code></span></span>.</p>
 <p><strong>배치 추첨이 같은 스트림 위치에서 시작하면 생성기는 일치한다:</strong>
 부팅 마을 <code>0xd391</code>은 비교 워드 4,617개에 차이 0개이다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-3</span></span>.
-순방향 레시피 아래의 확인된 마을 <code>0x8365</code>에서는 프레임 48,000에 맵 워드 2,057개 중 차이가 1개이다; 에이커 바이트 36개와 건물 셀 열일곱 개 모두 일치하며, 마을 회관은 두 생산자 모두에서 (72, 36)에 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-4</span></span>.
+순방향 레시피 아래의 확인된 마을 <code>0x8365</code>에서는 프레임 48,000에 맵 워드 2,057개 중 차이가 1개이다; 에이커 바이트 36개와 건물 셀 열일곱 개 모두 일치하며, 마을 회관은 두 생산자 모두에서 (72, 36)에 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log:
+<code>docs/log/cycle41-gameplay.md</code> O49-4</span></span>.
 다른 워드는 생성된 건물이나 에이커의 차이가 아니라, 생성 뒤 실제 플레이 만 이천 프레임 후에 기록된 느슨한 아이템 <code>0x1555</code>이다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> O49-4</span></span>.</p>
 <p><strong>역방향 레시피 아래에서 id를 공유한다고 배치를 공유하는 것은 아니다:</strong> EXIT48은 마을 회관 도어매트를 포트에서는 (40,38)에, 무장된 역방향 원본에서는 (40,22)에서 발견했고, 각 생산자는 프레임 38,838에 자기 진입 위치를 기록해 퇴장 시 재생했다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/exit48/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> X48-2, X48-3, X48-4</span></span>.
-따라서 그 열여섯 타일은 한 배치 안에서 잘못 놓인 플레이어가 아니라 두 개의 마을 배치를 기술한다; ORACLE49는 역방향 레시피의 불일치를 배치 버스트에서 찾아냈는데, 무장된 원본은 인덱스 3,780에서, 포트는 3,782에서 진입한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/exit48/RECEIPTS.md</code>, <code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> X48-4, O49-2</span></span>.</p>
+따라서 그 열여섯 타일은 한 배치 안에서 잘못 놓인 플레이어가 아니라 두 개의 마을 배치를 기술한다; ORACLE49는 역방향 레시피의 불일치를 배치 버스트에서 찾아냈는데, 무장된 원본은 인덱스 3,780에서, 포트는 3,782에서 진입한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/exit48/RECEIPTS.md</code>,
+<code>scratchpad/oracle49/RECEIPTS.md</code>; log: <code>docs/log/cycle41-gameplay.md</code> X48-4, O49-2</span></span>.</p>
 <p>생성기 본체는 마을 디스패처 <code>func_0209e6ec</code>의 핸들러 2이다: <code>func_0204e728</code>을 통한 지형, 기본 마을 이름, 그 다음 주민을 이사시키는 RTC 전진과 <code>func_020a1038</code>의 세이브 삭제 경로를 그대로 따르는 생성 후 동기화
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209e6ec, main, port/shim/gfx/pmflist.c</span></span>. <code>func_020a1320</code> / <code>func_020a13e8</code> 쌍은 생성기가 아니며(NOT), 이를 확립하는 데 세션 하나가 들었다: <code>func_020a1320</code>은 <code>0x021f3c30</code>의 새 게임 대기 워드를 1로 설정할 뿐이고, <code>func_020a13e8</code>의 상태 1 분기는 맵을 리셋(RESETS)한다 &ndash; 모든 에이커 바이트를 <code>0x86</code>으로, 모든 아이템을 <code>0xfff1</code>로
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020a1320/func_020a13e8, main, port/shim/gfx/pmflist.c</span></span>. <code>0xfff1</code>은 ROM 전반에서 빈 아이템/타일 id이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>.</p>
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020a1320/func_020a13e8, main, port/shim/gfx/pmflist.c</span></span>. <code>0xfff1</code>은 ROM 전반에서 빈 아이템/타일 id이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: docs/kb/modules/overlays-ov0xx.md; direct ROM-source provenance unresolved</span></span>.</p>
 <p>생성 중 셀 쓰기는 네 함수로 된 관용구를 거친다: <code>func_0209c618</code>은 중첩된 <code>setv(cell(self, x, y), k)</code> 문 스무 개를 수행한 뒤 루프 셋을 돌리는데, 여기서 <code>cell</code>은 <code>func_0209cc30</code>, <code>setv</code>는 <code>func_0209d01c</code>, <code>getv</code>는 <code>func_0209d030</code>, 거부 검사는 <code>func_02037b14</code>이다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0209c618, main, port/tools/known_callees.txt</span></span>.</p>
 <p><strong>맵이 세이브 이미지 어디에 있는지, 그리고 타일이 주소로 어떻게 대응되는지.</strong> 세이브 <code>+0xd304</code>(<code>0x021e9aac</code>)의 에이커 맵 객체는 <strong>원시 에이커 바이트 36개</strong>, 6x6이고, 아이템 레이어(ITEM LAYER)가 그 뒤 세이브 <code>+0xd328</code>(<code>0x021e9ad0</code>)에 이어진다. <strong>아이템 레이어는 안쪽(INNER) 4x4 에이커만 덮는다</strong> &ndash; 16x16 하프워드로 된 4x4 에이커는 정확히 4,096하프워드 / 8,192바이트이므로, 두 축 모두 타일 16..79를 담고 테두리 에이커는 아이템 블록을 전혀 갖지 않는다:</p>
 <pre><code>idx  = (addr - 0x021e9ad0) / 2
@@ -159,9 +173,9 @@ tile = (16 + 16*((idx//256) % 4) + (idx%256) % 16,
 <p>측정됨(MEASURED): 그 산술을 포트의 대조 마을 <code>0xc66e</code>에 적용하면, 실내(INDOORS)에서 찍은 스냅샷으로부터 실제 필드 없이 아래 문 표의 건물 행 아홉 개 &ndash; 마을 회관 (40, 36), 박물관 (71, 26), 너굴 상점 (22, 52) 등 &ndash; 를 하나도 빠짐없이 재현한다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md ORACLE49 O49-0, <code>scratchpad/oracle49/savemap.py</code></span></span>. 생성기(GENERATOR)가 무엇을 만들었는지가 질문일 때 써야 할 리더가 이것이다: <code>navigate.py --list</code>는 <code>0x021c80bc</code>의 실제 필드가 필요하며 플레이어가 서 있는 방에 대해 답한다.</p>
 <p>아이템은 맵 레이어의 16비트 id이다. 생성된 마을의 뱅크 0에서 측정: 상점 <code>0x500d</code>, 집 자리 <code>0x500a</code> 열한 개, 그리고 <code>0x5014</code>를 포함한 아이템 열다섯 개
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass 2026-08-27</span></span>. 집 배치기 <code>func_0207bbb8</code>은 96x96 스캔을 돌리며 패스마다 <code>0x500a</code> 자리 하나를 주민 집 <code>0x5001</code>..<code>0x5008</code>로 바꾼다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, fifth pass 2026-08-27; receipt provenance unresolved</span></span>. 집 배치기 <code>func_0207bbb8</code>은 96x96 스캔을 돌리며 패스마다 <code>0x500a</code> 자리 하나를 주민 집 <code>0x5001</code>..<code>0x5008</code>로 바꾼다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0207bbb8, main, port/shim/game/houseplace.c</span></span>
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass 2026-08-27</span></span>. 쓰기는 <code>func_0207bbb8 -&gt; func_0204e404 -&gt; func_0204ef24(grid, item, x, y)</code>로 진행되며, <code>func_0204ef74</code>는 셀 하나 이상을 차지하는 집을 놓는 다중 타일 배치기이다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, fifth pass 2026-08-27; receipt provenance unresolved</span></span>. 쓰기는 <code>func_0207bbb8 -&gt; func_0204e404 -&gt; func_0204ef24(grid, item, x, y)</code>로 진행되며, <code>func_0204ef74</code>는 셀 하나 이상을 차지하는 집을 놓는 다중 타일 배치기이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204e404/func_0204ef24, main, port/shim/game/genfix.c</span></span>
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204ef74, main, port/BOOT-STATE.md sixth pass</span></span>.</p>
 <p>타일을 다시 읽는 것은 2단계 조회이다. <code>func_ov003_02227394</code>는 월드 위치를 받아 타일의 x와 z를 <code>fx32</code>(저장된 바이트를 <code>&lt;&lt; 12 &gt;&gt; 4</code>한 것)로 종류 바이트와 함께 돌려주며, 레코드가 발견되고 그 종류가 0이 아닐 때만 1을 돌려준다
@@ -170,28 +184,87 @@ tile = (16 + 16*((idx//256) % 4) + (idx%256) % 16,
 <p>타일 종류는 같은 순서의 같은 상수 집합으로 여러 모듈에 반복되는 9항 술어로 분류된다: <code>0x26-0x2a</code>, <code>0x5d-0x61</code>, <code>0x2f-0x56</code>, <code>0x57-0x5b</code>, <code>0x66-0x68</code>, <code>== 0x69</code>, <code>0x6a-0x6c</code>, <code>== 0x6d</code>, <code>0xc8-0xcf</code>
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_0220cd84 / func_ov072_022792e4, ov003/ov072, docs/kb/modules/overlays-ov0xx.md</span></span>.
 ROM 전체에서 열네 개 함수가 그 집합을 갖고 있으므로, 이는 한 함수의 사적 테이블이 아니라 마을의 타일 분류 체계이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md, membership sweep over every ov003 target &gt;= 0x40</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: docs/kb/modules/overlays-ov0xx.md, membership sweep over every ov003 target &gt;= 0x40; direct ROM-source provenance unresolved</span></span>.</p>
 <p>세계는 원기둥(CYLINDER)으로 그려지며, 이것이 게임의 굴러가는 통나무 지평선의 원천이다: 타일은 2.0유닛, 에이커는 32.0이고, 각 에이커 객체는 <code>Translate(col * 32, 0, 0)</code>에 <code>RotX(row * 0x2999)</code>를 합성한 위치에 놓이며, 카메라는 모드별 <code>ov006</code> 플래그 아래에서 <code>func_0203f844</code>에 의해 같은 프레임으로 회전된다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0203f844, main, port/BOOT-STATE.md sixth pass</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, ~6,269 opaque pixels on the 3D layer</span></span>. 에이커별 렌더 객체는 <code>func_ov003_0221f270</code>이 만들며, 그 열 이동량은 <code>a2 * data_020ca0ec</code>이다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0203f844, main, port/BOOT-STATE.md sixth pass</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, ~6,269 opaque pixels on the 3D layer; receipt provenance unresolved</span></span>.</p>
+<p><strong>이 회전에는 역변환 <code>func_0203f7d0</code>이 있으며, 게임에서 가장 바쁜 제곱근이다.</strong>
+<code>func_0203f844</code>가 평면의 <code>(a, b, c)</code>를 원기둥 안으로 보내는 반면, <code>func_0203f7d0</code>은 점을
+다시 꺼낸다: 같은 <code>0x1f576</code> 반지름 상수, 같은 <code>g_021f6948-&gt;flag</code> 게이트, 그리고
+<code>out-&gt;b = FX_Sqrt(b*b + c*c) - 0x1f576</code>, <code>out-&gt;c</code>는 <code>ext_atan(c, b)</code>에서 얻은 각도이다.
+36개 함수가 이를 호출하며 &ndash; 대부분 <code>ov003</code>이고 <code>main</code>, <code>ov004</code>, <code>ov009</code>도 포함한다 &ndash;
+평범한 야외 걷기 100프레임에서 포트의 <code>FX_Sqrt</code> 호출 <strong>297회</strong>를 차지한다. 이는 다른
+모든 소비자를 합친 것보다 많다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_0203f7d0.c; port/shim/game/campos.c</span></span>
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">docs/log/cycle41-gameplay.md SQRT56 S56-1/S56-2, run <code>s56-door-new</code>, frames 56,800-56,900</span></span>.
+에이커별 렌더 객체는 다음에 의해 만들어진다 (원문은 여기서 잘림)</p>
+<p><span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0203f844, main, port/BOOT-STATE.md sixth pass; source locator: <code>src/matched/func_0203f844.c</code>, <code>config/adm-kr/arm9/symbols.txt (</code>main<code>at 0x02000c38)</code></span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, ~6,269 opaque pixels on the 3D layer; receipt provenance unresolved</span></span>. 에이커별 렌더 객체는 다음에 의해 만들어진다 (원문은 여기서 잘림)</p>
+<p><span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">docs/log/cycle41-gameplay.md SQRT56 S56-1/S56-2, run <code>s56-door-new</code>, frames 56,800-56,900</span></span>.</p>
+<p><strong>측정됨(MATH57): 두 생산자 모두에서 게이트가 설정되어 있고, 플레이어가 야외에 있는 동안
+아무것도 건드리지 않는다 &ndash; 따라서 마을은 <code>flag == 0</code>인 분기가 줄 평면이 아니라 실제로
+원기둥 위에 그려진다.</strong> 게이트는 <code>0x021f6948</code>이 가리키는 구조체의 <code>+4</code>에 있는 한 바이트다
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_0203f7d0.c; port/shim/game/campos.c</span></span>. MATH57 전까지는 평범한 플레이
+중에 아무도 이 값을 읽지 않았다. ORACLE50의 93행 <code>V50-chain.pad</code> 체인에서 마을 회관과
+주민 1의 문 사이, 공유 마을의 야외 구간 프레임 54,900..56,800에서는 다음과 같았다:</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th></th>
+<th>포트</th>
+<th>원본</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021f6948</code>의 포인터</td>
+<td>여섯 reader pc 모두 <code>0x02262df4</code></td>
+<td>191개 샘플 모두 <code>0x02262df4</code> &ndash; 같은 주소</td>
+</tr>
+<tr>
+<td><code>+4</code>의 플래그 바이트</td>
+<td>여섯 reader pc 모두 <strong><code>1</code></strong></td>
+<td>191개 샘플 모두 <strong><code>1</code></strong></td>
+</tr>
+<tr>
+<td>프레임 48,000..56,800의 저장</td>
+<td>8,800프레임 동안 <strong>한 번도 없음</strong></td>
+<td>&ndash; (<code>--peek</code>는 읽기 전용)</td>
+</tr>
+</tbody>
+</table></div>
+<p>포트의 여섯 reader는 <code>func_0203f684</code>, <code>func_0203f768</code>(곡률 <strong>각도</strong>),
+<code>func_0203f7d0</code>(이 역변환), <code>func_0203f844</code>(카메라의 전방 회전), 그리고
+<code>0x0203baa0</code> / <code>0x0203f8dc</code>의 두 함수다. 워치포인트는 서로 다른 (pc, 주소, 값) 삼중항마다
+한 줄을 출력하므로, 1,900프레임 동안 reader마다 값 하나였다는 것은 플래그가 움직이지
+않았다는 뜻이다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md MATH57 M57-5, runs <code>m57-curve-ptr</code> / <code>m57-curve-flag</code>,
+<code>ACWW_INTERP_RWATCH</code> and <code>ACWW_INTERP_WATCH</code> with <code>WATCH_LR=2</code></span></span>
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body">docs/log/cycle41-gameplay.md MATH57 M57-5, run <code>e57-curve</code>,
+<code>--peek 0x021f6948:1,0x02262df4:4</code> every 10 frames, ledger <code>status COMPLETE</code></span></span>.
+이는 요약의 "원기둥에 감겼다"를 <strong>야외 모드에 한해서만</strong> S+E+O로 격상한다: 실내, 상점,
+WiFi 게이트에서는 이를 해제할 수 있으며, 그 경우를 말하려면 다른 창에서 같은 워치포인트를
+보아야 한다.</p>
+<p>에이커별 렌더 객체는 <code>func_ov003_0221f270</code>이 만들며, 그 열 이동량은 <code>a2 * data_020ca0ec</code>이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_0221f270, ov003, port/shim/game/acresetup.c</span></span>.</p>
 <p>에이커 지면 텍스처는 파일 시스템에서 <code>/bg/t%d/%04x.nsbtx</code>로 오며, <code>func_021077e8</code>이 이를 텍스처 핸들로 바꾼다 &ndash; <code>func_02037608</code>이 <code>0x020376f4</code>에서 수행하는 것과 같은 변환이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_ov003_0221fe34, ov003, port/shim/game/townsetup.c</span></span>. 마을 씬의 등록자는 <code>func_ov003_0221fe34</code>(핸들러 196의 init 슬롯인 <code>func_ov003_022207e0</code>의 세 번째 호출), <code>func_ov003_0221ffec</code>, <code>func_ov003_0221d76c</code>이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003, port/shim/game/townsetup.c, townhouses.c, townhouse3.c</span></span>. 두 번째 등록자의 <code>0x022200f0</code> 리터럴 풀은 건물의 에셋을 직접 명명한다:
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: ov003, port/shim/game/townsetup.c, townhouses.c, townhouse3.c; direct ROM-source provenance unresolved</span></span>. 두 번째 등록자의 <code>0x022200f0</code> 리터럴 풀은 건물의 에셋을 직접 명명한다:
 <code>/str/npcHsTex/%c/house_%c%d%c.nsbtx</code>, <code>/str/npcHsTex/%c/light_%c%d.nsbtx</code>,
 <code>/str/obj_house_i.nsbca</code>, <code>/str/obj_house_o.nsbca</code> &ndash; 주민 집 텍스처와 조명 넷에 집 열기/닫기 애니메이션 둘
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 image at 0x02239bf8/0x02239c1c/0x02239c40/0x02239c58, port/shim/game/townhouses.c</span></span>.</p>
-<p><code>ov003</code>은 야외 씬 모듈이며 리터럴 풀을 통해 자기 주제를 스스로 밝힌다: <code>/fg/</code> 트리 전체(<code>/fg/tree/cedar_mdl/</code>, <code>/fg/grass/{grassA-D,clover,redTurnip}</code>, <code>/fg/flower/{tulip,pansy,cosmos,rose,suzuran,rafflesia}</code>, <code>/fg/hole/</code>, <code>/fg/stone/</code>), 플레이어 집(<code>/str/plHsTex/home%c%c.nsbtx</code>), 지면(<code>m_grd_riv</code>, <code>m_grd_sea085</code>), 간판, 물고기와 곤충 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>.</p>
-<p>런타임에 마을은 채널이다. 채널 핸들러 테이블 포인터는 <code>0x021fd044</code>이고, 마을의 채널은 <code>0x22</code>이며, ROM의 디스패처 <code>func_020edc58</code>은 table -&gt; entry -&gt; <code>[entry]</code> -&gt; <code>blx</code>를 읽는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020edc58, main, docs/log/cycle40-keyboard-gate-probe.md CHAN40</span></span>. 지면은 채널 <code>0x0d</code>이고 마을 씬은 <code>0xc4 -&gt; 0x0f -&gt; 건물당 0xbd 하나</code>를 연다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, sixth pass</span></span>. 채널 189는 마을 렌더러가 아니라 눈사람(SNOWMAN)이며, 오랜 작업이 이 오인 위에 놓여 있었다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, bind log <code>/snowman/snowball1.nsbmd</code> id 0x022383ac</span></span>.</p>
-<p>인터프리터 경로에서 스크립트 실행은 프레임 37,500에 마을에 도달한다: 운전사가 마지막 대사를 하는 동안 플레이어는 마을 회관 앞에 서 있고, 오버레이 5, 36, 54, 120, 117이 로드되어 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40, <code>tap-D56</code> frame 37500</span></span>.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 image at 0x02239bf8/0x02239c1c/0x02239c40/0x02239c58,
+port/shim/game/townhouses.c</span></span>.</p>
+<p><code>ov003</code>은 야외 씬 모듈이며 리터럴 풀을 통해 자기 주제를 스스로 밝힌다: <code>/fg/</code> 트리 전체(<code>/fg/tree/cedar_mdl/</code>, <code>/fg/grass/{grassA-D,clover,redTurnip}</code>, <code>/fg/flower/{tulip,pansy,cosmos,rose,suzuran,rafflesia}</code>, <code>/fg/hole/</code>, <code>/fg/stone/</code>), 플레이어 집(<code>/str/plHsTex/home%c%c.nsbtx</code>), 지면(<code>m_grd_riv</code>, <code>m_grd_sea085</code>), 간판, 물고기와 곤충 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved</span></span>.</p>
+<p>런타임에 마을은 채널이다. 채널 핸들러 테이블 포인터는 <code>0x021fd044</code>이고, 마을의 채널은 <code>0x22</code>이며, ROM의 디스패처 <code>func_020edc58</code>은 table -&gt; entry -&gt; <code>[entry]</code> -&gt; <code>blx</code>를 읽는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020edc58, main,
+docs/log/cycle40-keyboard-gate-probe.md CHAN40</span></span>. 지면은 채널 <code>0x0d</code>이고 마을 씬은 <code>0xc4 -&gt; 0x0f -&gt; one 0xbd per building</code>를 연다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, sixth pass; receipt provenance unresolved</span></span>. 채널 189는 마을 렌더러가 아니라 눈사람(SNOWMAN)이며, 오랜 작업이 이 오인 위에 놓여 있었다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, bind log <code>/snowman/snowball1.nsbmd</code> id 0x022383ac; receipt provenance unresolved</span></span>.</p>
+<p>인터프리터 경로에서 스크립트 실행은 프레임 37,500에 마을에 도달한다: 운전사가 마지막 대사를 하는 동안 플레이어는 마을 회관 앞에 서 있고, 오버레이 5, 36, 54, 120, 117이 로드되어 있다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40, <code>tap-D56</code> frame 37500; <code>scratchpad/cycle40/runs/tap-D56</code></span></span>.
 화면에 표시되는 마을 회관의 한국어 이름은 <code>마을사무소</code>이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md LONG40, the five-option destination menu</span></span>.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle40-keyboard-gate-probe.md LONG40, the five-option destination menu; receipt provenance unresolved</span></span>.
 마을의 위 화면은 엔진 B 모드 1에 BG3 아핀(<code>BG3CNT = 0x6f02</code>) &ndash; 하늘 &ndash; 이며, 아핀 배경이 그려지자 마을 회관 위로 구름이 나타났다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code> frame 37800</span></span>.</p>
-<h2 id="보행-가능성-에이커-템플릿의-충돌-맵">보행 가능성: 에이커 템플릿의 충돌 맵</h2>
-<p>각 에이커 항목의 <code>+0x20</code>은 같은 id의 모든 에이커가 공유하는 로드된 에이커 템플릿(LOADED ACRE TEMPLATE)을 가리키고, 템플릿의 <code>+0x0c</code>는 그 에이커의 <code>bcl</code> 파일이다: <strong>16x16 타일 종류(TILE KIND) 맵 256바이트, 그 다음 16x16 니블 128바이트</strong>. 에이커의 리소스는 NARC이며, 그 <code>BTNF</code>는 두 멤버를 <code>bmd0</code>과 <code>bcl0</code>으로 명명하고 <code>BTAF</code>는 두 번째를 <code>[0x384, 0x504)</code> &ndash; 384바이트, 즉 256 + 128 &ndash; 에 둔다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/navlib.py</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42</span></span>. 따라서 마을의 충돌은 에이커 id로 인덱싱되는 에이커별 16x16 바이트 맵이며, 96x96 격자는 그 맵 36개를 나란히 놓은 것이다. 타일은 <strong>2.0 월드 유닛</strong>이다: <code>acre+0x0c</code>의 에이커 원점은 <code>gx * 0x20000</code> = 32.0유닛으로, 16타일에 걸친다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/navlib.py</span></span>.</p>
-<p>종류는 레퍼런스 마을에서 플러드 필로 측정(MEASURED)한 뒤 맵 화면과 대조해 확인했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42</span></span>:</p>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code> frame 37800; <code>scratchpad/cycle40/runs/tap-D57</code></span></span>.</p>
+<span class="source-anchor" id="walkability-the-acre-templates-collision-map"></span><h2 id="보행-가능성-에이커-템플릿의-충돌-맵">보행 가능성: 에이커 템플릿의 충돌 맵</h2>
+<p>각 에이커 항목의 <code>+0x20</code>은 같은 id의 모든 에이커가 공유하는 로드된 에이커 템플릿(LOADED ACRE TEMPLATE)을 가리키고, 템플릿의 <code>+0x0c</code>는 그 에이커의 <code>bcl</code> 파일이다: <strong>16x16 타일 종류(TILE KIND) 맵 256바이트, 그 다음 16x16 니블 128바이트</strong>. 에이커의 리소스는 NARC이며, 그 <code>BTNF</code>는 두 멤버를 <code>bmd0</code>과 <code>bcl0</code>으로 명명하고 <code>BTAF</code>는 두 번째를 <code>[0x384, 0x504)</code> &ndash; 384바이트, 즉 256 + 128 &ndash; 에 둔다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/tools/navlib.py; direct ROM-source provenance unresolved</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle41-gameplay.md NAV42; receipt provenance unresolved</span></span>. 따라서 마을의 충돌은 에이커 id로 인덱싱되는 에이커별 16x16 바이트 맵이며, 96x96 격자는 그 맵 36개를 나란히 놓은 것이다. 타일은 <strong>2.0 월드 유닛</strong>이다: <code>acre+0x0c</code>의 에이커 원점은 <code>gx * 0x20000</code> = 32.0유닛으로, 16타일에 걸친다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/tools/navlib.py; direct ROM-source provenance unresolved</span></span>.</p>
+<p>종류는 레퍼런스 마을에서 플러드 필로 측정(MEASURED)한 뒤 맵 화면과 대조해 확인했다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle41-gameplay.md NAV42; receipt provenance unresolved</span></span>:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -235,7 +308,8 @@ ROM 전체에서 열네 개 함수가 그 집합을 갖고 있으므로, 이는 
 </table></div>
 <p>레퍼런스 마을에서 이는 <strong>보행 가능 타일 3,256개 중 3,214개가 한 컴포넌트</strong>를 이루며, 그 안에 플레이어와 모든 문이 들어 있다; 나머지 두 컴포넌트는 41타일과 1타일이다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42, <code>scratchpad/nav42/RECEIPTS.md</code></span></span>. 아이템(ITEM) 레이어는 종류 위에 추가로 막는다: 건물 id <code>0x5000..0x5021</code>, 그리고 ROM 자체의 9항 술어가 골라내는 나무/바위 계열 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_ov003_0220cd84.c</span></span>. <strong>그 술어는 종류 바이트가 아니라 아이템(ITEM) 워드를 검사한다</strong> &ndash; 마을의 아이템 레이어는 <code>0x002a</code>를 85번, <code>0x0053</code>을 32번, <code>0x0068</code>을 15번, <code>0x0061</code>을 10번 갖고 있으며 모두 그 대역 안에 있다 &ndash; 이로써 그것이 물/절벽/길/풀을 분할한다는 이 페이지의 가설은 폐기된다.</p>
-<p><strong>아이템 레이어는 흔든 나무와 떨어진 과일이 기록되는 곳이기도 하므로</strong>, 지형만이 아니라 실제 게임플레이 필드이다. 한 마을의 오렌지 나무를 한 번 흔드는 동안 측정한, 움직인 워드 넷 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle42-save.md <code>## PICKUP43</code>, <code>scratchpad/pickup43/RECEIPTS.md</code></span></span>:</p>
+<p><strong>아이템 레이어는 흔든 나무와 떨어진 과일이 기록되는 곳이기도 하므로</strong>, 지형만이 아니라 실제 게임플레이 필드이다. 한 마을의 오렌지 나무를 한 번 흔드는 동안 측정한, 움직인 워드 넷 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle42-save.md <code>## PICKUP43</code>,
+<code>scratchpad/pickup43/RECEIPTS.md</code></span></span>:</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -267,18 +341,18 @@ ROM 전체에서 열네 개 함수가 그 집합을 갖고 있으므로, 이는 
 </tr>
 </tbody>
 </table></div>
-<p><strong>B 버튼으로 아이템을 주울 때 게임이 작용하는 타일은 플레이어 위치를 각 축에서 가장 가까운 타일로 반올림(ROUNDED)한 것</strong> &ndash; fx32 <code>(p + 0x1000) &gt;&gt; 13</code> &ndash; <strong>에서 바라보는 방향으로 한 타일 나아간 것</strong>이며, 플레이어가 타일의 절반선을 넘어 있을 때마다 <code>navlib.Town.player_tile()</code>의 내림(FLOOR)과 한 타일 차이가 난다. 열다섯 번의 실행이 일치하고 둘은 반올림과 내림을 판별한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle42-save.md <code>## PICKUP43</code>, runs <code>S14</code> and <code>S24</code></span></span>.
+<p><strong>B 버튼으로 아이템을 주울 때 게임이 작용하는 타일은 플레이어 위치를 각 축에서 가장 가까운 타일로 반올림(ROUNDED)한 것</strong> &ndash; fx32 <code>(p + 0x1000) &gt;&gt; 13</code> &ndash; <strong>에서 바라보는 방향으로 한 타일 나아간 것</strong>이며, 플레이어가 타일의 절반선을 넘어 있을 때마다 <code>navlib.Town.player_tile()</code>의 내림(FLOOR)과 한 타일 차이가 난다. 열다섯 번의 실행이 일치하고 둘은 반올림과 내림을 판별한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle42-save.md <code>## PICKUP43</code>, runs <code>S14</code> and <code>S24</code>; receipt provenance unresolved</span></span>.
 ROM이 다른 곳에서도 반올림하는지는 확립되지 않았다.</p>
-<h2 id="문-그리고-서야-할-타일">문, 그리고 서야 할 타일</h2>
+<span class="source-anchor" id="the-doors-and-the-tile-to-stand-on"></span><h2 id="문-그리고-서야-할-타일">문, 그리고 서야 할 타일</h2>
 <p>건물은 <code>0xf030</code> 발자국 채움과 그 하나의 <code>0x5000..0x5021</code> id 셀로 이루어진 연결 컴포넌트이며, id가 어느 건물인지를 말해 준다. 모양은 두 가지이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42</span></span>:</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle41-gameplay.md NAV42; receipt provenance unresolved</span></span>:</p>
 <ul>
 <li><strong>노치(NOTCH)</strong> &ndash; 건물 자체의 <code>0x0a</code> 블록 안에 있는 보행 가능 타일. 출입구는 그런 타일 중 가장 얕은 것이고 도어매트는 그 바로 남쪽 타일이다. 플레이어의 집, 마을 회관, 주민들의 집이 이 모양이다. 노치는 발자국 아이템을 항상 갖는 것은 아니므로 컴포넌트가 아니라 바운딩 박스(BOUNDING BOX)로 찾는다: 너굴 상점의 노치는 블록의 왼쪽 아래 모서리에 있고 발자국 아이템이 없다.</li>
 <li><strong>노치 없음(NO notch)</strong> &ndash; 앞벽 아래 타일에서 들어가는 속이 찬 블록으로, 도어매트는 컴포넌트 자체의 최남단 비-<code>0x0a</code> 셀이다. 박물관과 표지판이 이 모양이다.</li>
 </ul>
 <p>어느 쪽이든 향하는 방향은 북쪽(NORTH)이다: 마을의 모든 건물은 남향이다. 문은 걸어 들어간다고 열리지 않는다; 그 자리에 서서 A를 누르면 열린다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle42-save.md, <code>gp-D8</code> vs <code>gp-D9</code></span></span>, 그리고 출입구가 서브타일이므로 마지막 타일의 일부는 옆으로 더듬어 찾아야 한다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42, <code>W1</code> vs <code>E1</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle42-save.md, <code>gp-D8</code> vs <code>gp-D9</code>; receipt provenance unresolved</span></span>, 그리고 출입구가 서브타일이므로 마지막 타일의 일부는 옆으로 더듬어 찾아야 한다
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle41-gameplay.md NAV42, <code>W1</code> vs <code>E1</code>; receipt provenance unresolved</span></span>.</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -367,10 +441,10 @@ ROM이 다른 곳에서도 반올림하는지는 확립되지 않았다.</p>
 </table></div>
 <p>타일은 이 마을의 것이다; 옮겨 가는 것은 규칙(RULE)이며, <code>port/tools/navigate.py --list</code>는 어떤 스냅샷에서든 표를 다시 유도한다 &ndash; cycle41의 NAV42가 생성한 두 마을은 서로 다른 두 표를 만들었다. 측정됨(MEASURED), 스크립트 보행이 그것으로 어디까지 가는가: <code>port/tools/goto.py</code>는 스냅샷 하나에서 여섯 목표 중 다섯에 도달했다 &ndash; 플레이어의 집, 마을 회관, 박물관은 들어갔고, 임의 타일 둘은 한 타일 이내로 &ndash; 각각 46초에서 141초에. ~~<strong>너굴 상점이 남아 있는 예외이다</strong>: 보행은 도어매트에 도착하지만 누름이 문을 열지 못한다.~~
 <strong>더는 아니다</strong>: GAMEPLAY43은 다섯 번의 반복과 90초 만에 안에 들어갔고, GAMEPLAY44는 22타일 떨어진 플레이어 자신의 집 문 앞에서 두(TWO) 번의 반복과 12.4초 만에 들어갔다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42 arms <code>U1</code>..<code>U6</code>; GAMEPLAY43 <code>NK-1</code>..<code>NK-5</code>; GAMEPLAY44 <code>NOOK-1</code>, <code>NOOK-2</code></span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle41-gameplay.md NAV42 arms <code>U1</code>..<code>U6</code>; GAMEPLAY43 <code>NK-1</code>..<code>NK-5</code>; GAMEPLAY44 <code>NOOK-1</code>, <code>NOOK-2</code>; receipt provenance unresolved</span></span>.</p>
 <p><strong>이 표는 완전하며, 그것이 우체국 문제에 답한다(GAMEPLAY44).</strong> <code>navigate.py --list</code>는 이제 문 규칙이 문을 전혀(NO) 만들지 못한 모든 건물 컴포넌트도 아이템 id와 함께 출력한다. 이 마을에서는 아홉 개를 출력하며, 아홉 개 전부가 <code>0x500a</code> &ndash; 건물이 없는 빈 집터 &ndash; 이다. 따라서 위의 열 행이 아이템 레이어가 갖는 <code>0x50xx</code> id 전부(ALL)이다: <strong>열한 번째 건물은 없고 <code>navlib.BUILDING_NAMES</code>에서 빠진 것도 없다.</strong> GAMEPLAY43은 맵 페이지에서 봉투(ENVELOPE) 아이콘을 기록하고 빠진 우체국을 추론하여 "그 아이템 id가 표에 없거나, 그 문이 규칙이 인식하는 보행 가능 노치 모양이 아니거나"라는 선택지를 제시했다; 답은 둘 다 아니다(NEITHER)이며, 어떤 야외 스냅샷에서든 <code>--list</code> 한 번이면 1초 만에 다시 확인된다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md GP44-4, <code>scratchpad/gameplay44/png/M1-map.png</code></span></span>.</p>
 <p>측정됨(GAMEPLAY44), 건물이 아닌 열한 번째 행: 주민 액터(ACTORS). <code>0x021d1d4c</code>의 매니저가 실제 NPC들을 담고 있고 <code>--list</code>는 이들을 월드 위치와 각각에게 말을 걸 타일과 함께 출력한다; <code>goto.py --to actor:&lt;n&gt;</code>은 하나에게 걸어가 A를 누른다. <code>wiki/systems/villagers.md</code>를 보라.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -459,9 +533,15 @@ ROM이 다른 곳에서도 반올림하는지는 확립되지 않았다.</p>
 <td>카메라를 원기둥 프레임으로 회전</td>
 <td>S: port/BOOT-STATE.md</td>
 </tr>
+<tr>
+<td><code>func_0203f7d0</code> / <code>func_0203f768</code></td>
+<td>main</td>
+<td>역변환 &ndash; 원기둥 프레임을 평면으로 되돌리고, 게임에서 가장 뜨거운 <code>FX_Sqrt</code>를 호출</td>
+<td>S: src/matched/func_0203f7d0.c</td>
+</tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -527,6 +607,12 @@ ROM이 다른 곳에서도 반올림하는지는 확립되지 않았다.</p>
 <td><code>func_02035dcc</code></td>
 </tr>
 <tr>
+<td><code>0x021f6948</code> -&gt; <code>+4</code></td>
+<td>원기둥 플래그: 1 = 세계를 회전, 0 = 평면</td>
+<td>8,800번의 야외 프레임 동안 아무것도 쓰지 않음</td>
+<td><code>func_0203f684</code>, <code>func_0203f768</code>, <code>func_0203f7d0</code>, <code>func_0203f844</code> 및 두 함수</td>
+</tr>
+<tr>
 <td><code>0x021fd044</code></td>
 <td>채널 핸들러 테이블 포인터</td>
 <td>씬 설정</td>
@@ -543,25 +629,25 @@ ROM이 다른 곳에서도 반올림하는지는 확립되지 않았다.</p>
 <p>등급: 세이브 오프셋은 S [port/shim/game/newgameprobe.c]; <code>0x02236b0c</code>는 S
 [src/matched/func_ov003_022273f8.c]; <code>0x021c526c</code>는 S [port/shim/game/fieldptr.c];
 <code>0x021fd044</code>는 S+E [docs/log/cycle40-keyboard-gate-probe.md CHAN40].</p>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p>영수증이 남은 마을 레시피가 레퍼런스 실행이다. 사용자 정의 START9000 키, <code>ACWW_INTERP=1</code>, <code>ACWW_TOUCH</code> (221,181) <code>AT</code> 6900 <code>EVERY</code> 60 <code>REPEAT</code> 2, <code>ACWW_TOUCH2</code> (221,181) <code>AT</code> 24600 <code>EVERY</code> 60 <code>REPEAT</code> 2, 정지 48,000; 1,500프레임마다 스크린샷. 프레임 37,500은 마을 회관 앞의 플레이어를, 프레임 37,800은 구름 낀 하늘을 보여 준다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40/SKY40/RECEIPT41, runs <code>tap-D56</code>, <code>tap-D57</code>, <code>town-R1</code></span></span>.</p>
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40/SKY40/RECEIPT41, runs <code>tap-D56</code>, <code>tap-D57</code>, <code>town-R1</code>; <code>scratchpad/cycle40/runs/tap-D56</code>, <code>scratchpad/cycle40/runs/tap-D57</code>, <code>scratchpad/cycle40/runs/town-R1</code></span></span>.</p>
 <p>그림이 아니라 격자를 확인하려면, 생성 후 <code>0x021e9aac</code>의 세이브 이미지에서 에이커 바이트를 읽고 아이템 레이어에서 <code>0x500a</code>(집 자리), <code>0x500d</code>(상점), <code>0x5001</code>..<code>0x5008</code>(주민 집)을 스캔한다; <code>0xfff1</code>은 비어 있음이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass</span></span>.</p>
-<h2 id="가설">가설</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, fifth pass; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
-<li><strong>H: 마을 배치는 셀 단위로 생성되는 것이 아니라 소수의 미리 만들어진 에이커 배열 집합에서 선택된다.</strong> <code>func_0209c618</code>의 형태 &ndash; 리터럴 <code>setv(cell(x, y), k)</code> 문 스무 개 뒤에 루프 셋 &ndash; 는 절차적 생성기가 아니라 루프 기반 변형 패스가 딸린 템플릿 스탬프처럼 읽힌다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/tools/known_callees.txt</span></span>. 실험: <code>func_0204e728</code>과 <code>func_0209c618</code>을 읽고 스무 개 상수 중 어느 것이 리터럴이고 어느 것이 추첨에서 오는지 기록한다; 그런 다음 서로 다른 RNG 시드로 마을 셋을 생성하고 <code>0x021e9aac</code>의 에이커 바이트를 diff한다.</li>
-<li><strong>H: 리셋이 쓰는 에이커 바이트 <code>0x86</code>은 실제 에이커가 아니라 "미설정"이다.</strong> 리셋은 모든 에이커를 <code>0x86</code>으로, 모든 아이템을 <code>0xfff1</code>로 채우며, <code>0xfff1</code>은 빈 id로 알려져 있다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/gfx/pmflist.c</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/overlays-ov0xx.md</span></span>. 실험: 실제 생성 뒤 여전히 <code>0x86</code>인 에이커 바이트 수를 센다; 0이면 <code>0x86</code>은 센티널이다.</li>
+<li><strong>H: 마을 배치는 셀 단위로 생성되는 것이 아니라 소수의 미리 만들어진 에이커 배열 집합에서 선택된다.</strong> <code>func_0209c618</code>의 형태 &ndash; 리터럴 <code>setv(cell(x, y), k)</code> 문 스무 개 뒤에 루프 셋 &ndash; 는 절차적 생성기가 아니라 루프 기반 변형 패스가 딸린 템플릿 스탬프처럼 읽힌다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/tools/known_callees.txt; direct ROM-source provenance unresolved</span></span>. 실험: <code>func_0204e728</code>과 <code>func_0209c618</code>을 읽고 스무 개 상수 중 어느 것이 리터럴이고 어느 것이 추첨에서 오는지 기록한다; 그런 다음 서로 다른 RNG 시드로 마을 셋을 생성하고 <code>0x021e9aac</code>의 에이커 바이트를 diff한다.</li>
+<li><strong>H: 리셋이 쓰는 에이커 바이트 <code>0x86</code>은 실제 에이커가 아니라 "미설정"이다.</strong> 리셋은 모든 에이커를 <code>0x86</code>으로, 모든 아이템을 <code>0xfff1</code>로 채우며, <code>0xfff1</code>은 빈 id로 알려져 있다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/gfx/pmflist.c; direct ROM-source provenance unresolved</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: docs/kb/modules/overlays-ov0xx.md; direct ROM-source provenance unresolved</span></span>. 실험: 실제 생성 뒤 여전히 <code>0x86</code>인 에이커 바이트 수를 센다; 0이면 <code>0x86</code>은 센티널이다.</li>
 <li><strong>폐기됨(RETIRED), NAV42: 9항 타일 술어는 타일을 물 / 절벽 / 길 / 풀 클래스로 분할하지 않는다 &ndash; 아이템(ITEM) 워드를 검사하여 나무와 바위 계열을 골라낸다.</strong> <code>func_ov003_0220cd84</code>는 피연산자를 <code>func_0204f5e0(..., layer 0)</code>을 통해 읽는데 이것이 아이템 레이어이며, 마을의 아이템 레이어는 <code>0x002a</code>를 85번, <code>0x0053</code>을 32번, <code>0x0068</code>을 15번, <code>0x0061</code>을 10번 갖고 있다 &ndash; 모두 그 대역 안에 있고, 모두 맵 화면의 나무이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_ov003_0220cd84.c</span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle41-gameplay.md NAV42</span></span>. 지형 분류기는 전혀 다른 것으로, 위의 에이커 템플릿 <code>bcl</code> 맵이다.</li>
-<li><strong>H: 마을 이름은 세이브 이미지 안에서 유효성 레코드 근처의 고정 길이 UTF-16 필드로 저장된다.</strong> <code>func_0209ebec</code>가 생성 시점에 기본 이름을 찍고 두 번째 키보드가 이를 덮어쓴다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/newgameprobe.c</span></span>
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md TOWN40</span></span>. 실험: 서로 다른 이름을 입력해 마을 레시피를 두 번 실행하고 두 세이브 이미지를 바이트 단위로 diff하면, 달라진 구간이 그 필드이다.</li>
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">src/matched/func_ov003_0220cd84.c</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle41-gameplay.md NAV42; receipt provenance unresolved</span></span>. 지형 분류기는 전혀 다른 것으로, 위의 에이커 템플릿 <code>bcl</code> 맵이다.</li>
+<li><strong>H: 마을 이름은 세이브 이미지 안에서 유효성 레코드 근처의 고정 길이 UTF-16 필드로 저장된다.</strong> <code>func_0209ebec</code>가 생성 시점에 기본 이름을 찍고 두 번째 키보드가 이를 덮어쓴다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved</span></span>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: docs/log/cycle40-keyboard-gate-probe.md TOWN40; receipt provenance unresolved</span></span>. 실험: 서로 다른 이름을 입력해 마을 레시피를 두 번 실행하고 두 세이브 이미지를 바이트 단위로 diff하면, 달라진 구간이 그 필드이다.</li>
 <li><strong>H: <code>0x500a</code> 집 자리 열한 개는 마을의 합법적 집터 전체 집합이고 배치기는 그중 여덟을 고른다.</strong> 집 레코드 여덟 개에 대해 자리 열한 개가 측정되었다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/villspawn.c</span></span>. 실험: 생성 시 모든 <code>0x500a</code> 좌표와 배치기가 끝난 뒤 모든 <code>0x5001</code>..<code>0x5008</code> 좌표를 기록한다; 두 번째 집합은 첫 번째의 부분집합이어야 한다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, fifth pass; receipt provenance unresolved</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/villspawn.c; direct ROM-source provenance unresolved</span></span>. 실험: 생성 시 모든 <code>0x500a</code> 좌표와 배치기가 끝난 뒤 모든 <code>0x5001</code>..<code>0x5008</code> 좌표를 기록한다; 두 번째 집합은 첫 번째의 부분집합이어야 한다.</li>
 <li><strong>H: 에이커는 한꺼번에가 아니라 카메라가 구르는 데 따라 행 단위로 파일 시스템에서 스트리밍된다.</strong> kb는 생성 중 "acre archives streaming"을 기록하고 있다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, fifth pass</span></span>. 실험: <code>tap-D56</code>의 37,500과 48,000 사이에서 1,000프레임당 <code>/bg/t%d/%04x.nsbtx</code> 열기 횟수를 센다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, fifth pass; receipt provenance unresolved</span></span>. 실험: <code>tap-D56</code>의 37,500과 48,000 사이에서 1,000프레임당 <code>/bg/t%d/%04x.nsbtx</code> 열기 횟수를 센다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>villagers.md</code> &ndash; 집 레코드 여덟 개와 그곳에 누가 사는지</li>
 <li><code>weather-and-seasons.md</code> &ndash; 하늘 행과 계절별 텍스처 변종</li>
@@ -570,7 +656,7 @@ ROM이 다른 곳에서도 반올림하는지는 확립되지 않았다.</p>
 </ul></div><nav class="prevnext"><a class="pn prev" href="../systems/save-data.html"><small>◀ 이전</small>세이브 데이터</a><a class="pn next" href="../systems/villagers.html"><small>다음 ▶</small>주민</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

@@ -7,7 +7,7 @@
 
 스타일러스를 비활성화한 채 게임을 프레임 9,000까지 실행하고, 스크린샷 31장 전부를
 보관된 레퍼런스와 SHA-256으로 비교하여, 포트에 가한 변경이 아무것도 움직이지 **않았음**을
-확립한다. 31장 중 31장이 같으면 통과이다 [E: `docs/kb/hybrid/recipes.md` section 2].
+확립한다. 31장 중 31장이 같으면 통과이다 [H: log/source account: `docs/kb/hybrid/recipes.md` section 2; receipt provenance unresolved].
 
 **이름은 함정이며 B1이 그 이유다.** "OFF"는 `ACWW_TOUCH`가 꺼져 있음을 가리킨다. 그 외에는
 **키 입력 START** 레시피로, `ACWW_KEYS=9`(A와 START)가 프레임 300부터 펄스를 낸다
@@ -43,7 +43,7 @@ grep한다
     python port/tools/oracle/oracle.py --frames 4500,4650,...,9000 --out scratchpad/oracle/off
     python port/tools/oracle/compare.py scratchpad/oracle/off scratchpad/cycle40/runs/off-<name>
 
-[E: `docs/kb/hybrid/recipes.md` section 6].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 6; receipt provenance unresolved].
 
 ## 예상 관측
 
@@ -52,14 +52,14 @@ grep한다
 | 프레임 | 9,000, 자식 종료 코드 100, 런처 0 |
 | 스크린샷 | 프레임 4,500부터 BMP 31장 |
 | 통과 | `equal 31 differ 0` |
-| 로그 | `acww touch: up` 줄이 하나, 그 이상은 없음 -- 변경 시에만 출력하는 도구가 `last = -1`에서 시작하므로 모든 실행은 정확히 한 번의 초기 "up"을 출력한다; ON 실행은 세 개다 [E: `docs/kb/port/input-save-audio.md`, TOUCH39] |
-| 소요 시간 | 링크가 워밍업된 뒤에는 한 턴에 약 90초 [E: `docs/kb/hybrid/recipes.md` section 2] |
+| 로그 | `acww touch: up` 줄이 하나, 그 이상은 없음 -- 변경 시에만 출력하는 도구가 `last = -1`에서 시작하므로 모든 실행은 정확히 한 번의 초기 "up"을 출력한다; ON 실행은 세 개다 [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39; receipt provenance unresolved] |
+| 소요 시간 | 링크가 워밍업된 뒤에는 한 턴에 약 90초 [H: log/source account: `docs/kb/hybrid/recipes.md` section 2; receipt provenance unresolved] |
 
 ## 이 관측을 만들어 낸 실행
 
 레퍼런스는 `scratchpad/cycle39/execution39-touch39-005/off`이다
-[E: `docs/kb/hybrid/recipes.md` section 2]. REG40b와 REG40c의 거부 목록(deny list) 이분 탐색
-전체가 이 루프 위에서 구축되었다 [E: `docs/log/cycle40-keyboard-gate-probe.md` REG40b, REG40c]. 오라클
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 2; receipt provenance unresolved]. REG40b와 REG40c의 거부 목록(deny list) 이분 탐색
+전체가 이 루프 위에서 구축되었다 [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` REG40b, REG40c; receipt provenance unresolved]. 오라클
 쪽은 `scratchpad/oracle/off`이며, 그 옆에 `compare-off.json`과 `diff-off/`가 있다
 [O: `scratchpad/oracle/off`].
 

@@ -6,7 +6,7 @@
 
 Establish that a change to the port did **not** move anything, by running the game to frame
 9,000 with the stylus disabled and comparing all 31 screenshots against a retained reference by
-SHA-256. 31 of 31 equal is the pass [E: `docs/kb/hybrid/recipes.md` section 2].
+SHA-256. 31 of 31 equal is the pass [H: log/source account: `docs/kb/hybrid/recipes.md` section 2; receipt provenance unresolved].
 
 **The name is a trap and B1 is why.** "OFF" names `ACWW_TOUCH` being off. It is otherwise the
 **keyed START** recipe, with `ACWW_KEYS=9` (A and START) pulsing from frame 300
@@ -42,7 +42,7 @@ The oracle arm of the same recipe:
     python port/tools/oracle/oracle.py --frames 4500,4650,...,9000 --out scratchpad/oracle/off
     python port/tools/oracle/compare.py scratchpad/oracle/off scratchpad/cycle40/runs/off-<name>
 
-[E: `docs/kb/hybrid/recipes.md` section 6].
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 6; receipt provenance unresolved].
 
 ## Expected observations
 
@@ -51,14 +51,14 @@ The oracle arm of the same recipe:
 | frames | 9,000, child exit 100, launcher 0 |
 | screenshots | 31 BMPs from frame 4,500 |
 | pass | `equal 31 differ 0` |
-| log | one `acww touch: up` line and no more -- the on-change instrument starts at `last = -1`, so every run prints exactly one initial "up"; an ON run has three [E: `docs/kb/port/input-save-audio.md`, TOUCH39] |
-| turnaround | about 90 seconds a turn once the link is warm [E: `docs/kb/hybrid/recipes.md` section 2] |
+| log | one `acww touch: up` line and no more -- the on-change instrument starts at `last = -1`, so every run prints exactly one initial "up"; an ON run has three [H: log/source account: `docs/kb/port/input-save-audio.md`, TOUCH39; receipt provenance unresolved] |
+| turnaround | about 90 seconds a turn once the link is warm [H: log/source account: `docs/kb/hybrid/recipes.md` section 2; receipt provenance unresolved] |
 
 ## The runs that produced them
 
 The reference is `scratchpad/cycle39/execution39-touch39-005/off`
-[E: `docs/kb/hybrid/recipes.md` section 2]. The whole deny-list bisection of REG40b and REG40c
-was built on this loop [E: `docs/log/cycle40-keyboard-gate-probe.md` REG40b, REG40c]. The oracle
+[H: log/source account: `docs/kb/hybrid/recipes.md` section 2; receipt provenance unresolved]. The whole deny-list bisection of REG40b and REG40c
+was built on this loop [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` REG40b, REG40c; receipt provenance unresolved]. The oracle
 side is `scratchpad/oracle/off`, with `compare-off.json` and `diff-off/` beside it
 [O: `scratchpad/oracle/off`].
 

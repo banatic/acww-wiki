@@ -13,21 +13,21 @@ recorded calls, and this page says what a pass from it is worth.
 
 `ACWW_INTERP=1` is read once and cached, and does two things: the port skips its native
 bring-up, its native static initialisers and its native sound boot, and the interpreter runs
-the ROM's own `Entry` order instead [S: `port/interp/interp_boot.c`; `port/platform/win32.c`;
-see `boot-and-entry.md`]. Everything else -- the loader, the renderer, the shims, the
+the ROM's own `Entry` order instead [H: source account: `port/interp/interp_boot.c`; `port/platform/win32.c`;
+see `boot-and-entry.md`; direct ROM-source provenance unresolved]. Everything else -- the loader, the renderer, the shims, the
 instruments -- is the same binary.
 
 Which functions are host bodies and which are ROM bytes is decided at build time by
 `port/tools/interp_registry.py`, which generates a registry of host bodies and refuses to
 register the basenames in its `DENY_FILES` list -- 50 shim files as of TOUCH41, plus `DENY_FUNCS =
-{func_020b1b84}` [S: `port/tools/interp_registry.py`; `wiki/glossary.md`, "deny list"]. Each
+{func_020b1b84}` [H: source account: `port/tools/interp_registry.py`; `wiki/glossary.md`, "deny list"; direct ROM-source provenance unresolved]. Each
 deny entry carries the run that forced it in a comment beside it, so the list is the record of
 which subsystems diverge when half of one is promoted
-[S: `docs/kb/hybrid/stall-playbook.md`, "The deny list is the record of this table"]. The touch
+[H: source account: `docs/kb/hybrid/stall-playbook.md`, "The deny list is the record of this table"; direct ROM-source provenance unresolved]. The touch
 input file is the clearest case: denying `port/shim/input/touch.c` (registry 89 -> 88) is what
 made the ROM's own per-frame stylus publish run, which is what reproduced the original's
-latency [S: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; see
-`../experiments/touch-latency.md`].
+latency [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` TOUCH41; see
+`../experiments/touch-latency.md`; direct ROM-source provenance unresolved].
 
 ### The promotion check (hybrid plan H5)
 
@@ -35,19 +35,19 @@ A native body earns the hot path by a differential check on **real** calls, not 
 ones. The run records the calls the game actually makes, and each is then replayed twice from
 the same pre-call memory -- once through the interpreter (the ROM's bytes) and once through
 the native body -- and the return value and the write set are compared
-[S: `docs/kb/hybrid/promotion.md`]. Three pieces do it: `port/interp/interp_record.c` (the
+[H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved]. Three pieces do it: `port/interp/interp_record.c` (the
 recorder, armed by `ACWW_INTERP_RECORD`, inert otherwise -- one global load and a not-taken
 branch), `port/tools/promote.py` with its no-CRT fixture, and `port/tools/promote_record.py`,
-the tracked runner that performs the recording run [S: same].
+the tracked runner that performs the recording run [H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved].
 
 Each record carries r0-r3 plus the four AAPCS stack words, the **pre-call page images**
 snapshotted on first touch and before any store (this is what makes the replay exact rather
 than approximate), every load and store in a bounded ring, and on return r0, r1 and the
 interpreted step count. A nested `acww_interp_call` -- an interrupt handler, a thread procedure
 -- runs at a deeper depth and its memory is excluded, because it is not this call's write set
-[S: same]. Three things the recorder refuses to hide, each a flag: a registered host body ran
+[H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved]. Three things the recorder refuses to hide, each a flag: a registered host body ran
 inside the call, an I/O-page address was touched, a bound overflowed. `promote.py` will not
-compare such a call [S: same].
+compare such a call [H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved].
 
 The comparison is a **final-state diff, not a store log** -- two correct bodies may store in a
 different order or overwrite a scratch value, and only what the caller can observe afterwards
@@ -56,13 +56,13 @@ interpreted replay pushes onto the recorded NDS stack, the native body onto the 
 four stack argument words are compared. And before the native body is judged at all, the
 interpreted replay must reproduce the recording's own return -- if it does not, the result is
 `REPLAY-MISMATCH`, a statement about the harness's inputs and never about the body
-[S: same]. Exit codes: 0 all agreed, 1 a disagreement (a finding), 2 the harness declined to
+[H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved]. Exit codes: 0 all agreed, 1 a disagreement (a finding), 2 the harness declined to
 judge, 3 agreed but some calls were refused.
 
 ### What "AGREE" does not prove
 
-This is the part to read before promoting anything [S: `docs/kb/hybrid/promotion.md`
-section 3]:
+This is the part to read before promoting anything [H: source account: `docs/kb/hybrid/promotion.md`
+section 3; direct ROM-source provenance unresolved]:
 
 - **Coverage is the recorded calls and nothing else.** Eight calls of a function the run makes
   three million times is eight calls. That is why the summary prints `calls-that-wrote=` and
@@ -86,7 +86,7 @@ section 3]:
 ### The three results, and the calibration that matters more
 
 Recorded on the custom START recipe, `ACWW_INTERP=1`, `ACWW_STOP_FRAME=3000`, 8 calls each,
-about 80 seconds a run [S: `docs/kb/hybrid/promotion.md` section 4]:
+about 80 seconds a run [H: source account: `docs/kb/hybrid/promotion.md` section 4; direct ROM-source provenance unresolved]:
 
 | function | where | result |
 |---|---|---|
@@ -97,8 +97,8 @@ about 80 seconds a run [S: `docs/kb/hybrid/promotion.md` section 4]:
 | `func_02050c58` | main | **never called** in 3,000 frames of the recipe -- nothing to record |
 
 The calibration is the result that changes how the table should be read. Two deliberately
-wrong bodies were run against the `func_0204f800` trace [S: `docs/kb/hybrid/promotion.md`
-section 5]:
+wrong bodies were run against the `func_0204f800` trace [H: source account: `docs/kb/hybrid/promotion.md`
+section 5; direct ROM-source provenance unresolved]:
 
 1. the two out-parameters **swapped** -- **REPORTED AGREE**, because every one of the eight
    recorded calls happened to have `x == y` and `offset_x == offset_y`. The coverage caveat
@@ -113,24 +113,24 @@ recorded arguments cannot hide -- change a stored **value**, not just which poin
 
 | function or symbol | module | role | grade/citation |
 |---|---|---|---|
-| `acww_interp_boot` | port | installs the hooks, then runs the ROM's `Entry` order | [S: `port/interp/interp_boot.c`; `boot-and-entry.md`] |
-| `run_loop` | port | the instruction loop; also where a savestate is taken, at an outermost interpreted frame | [S: `port/interp/interp_cpu.c`; `docs/kb/hybrid/savestate.md` section 2] |
-| `acww_interp_call`, `acww_interp_irq_run` | port | the call boundary and the IRQ-context entry | [S: `port/interp/interp_cpu.c`] |
-| `interp_registry.py` `DENY_FILES` | build | the 50 shim basenames that stay ROM bytes | [S: `port/tools/interp_registry.py`] |
-| `interp_record.c` | port | the call recorder; inert unless `ACWW_INTERP_RECORD` is set | [S: `docs/kb/hybrid/promotion.md`] |
-| `promote.py`, `promote_main.c` | tools | the replay and the verdict; no CRT, ROM images mapped at their NDS addresses | [S: same] |
-| `promote_record.py` | tools | the tracked recording runner, output under `scratchpad/promote/<name>/` | [S: same] |
+| `acww_interp_boot` | port | installs the hooks, then runs the ROM's `Entry` order | [S: `src/matched/Entry.c`; source account: `port/interp/interp_boot.c`; `boot-and-entry.md`] |
+| `run_loop` | port | the instruction loop; also where a savestate is taken, at an outermost interpreted frame | [H: source account: `port/interp/interp_cpu.c`; `docs/kb/hybrid/savestate.md` section 2; direct ROM-source provenance unresolved] |
+| `acww_interp_call`, `acww_interp_irq_run` | port | the call boundary and the IRQ-context entry | [H: source account: `port/interp/interp_cpu.c`; direct ROM-source provenance unresolved] |
+| `interp_registry.py` `DENY_FILES` | build | the 50 shim basenames that stay ROM bytes | [H: source account: `port/tools/interp_registry.py`; direct ROM-source provenance unresolved] |
+| `interp_record.c` | port | the call recorder; inert unless `ACWW_INTERP_RECORD` is set | [H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved] |
+| `promote.py`, `promote_main.c` | tools | the replay and the verdict; no CRT, ROM images mapped at their NDS addresses | [H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved] |
+| `promote_record.py` | tools | the tracked recording runner, output under `scratchpad/promote/<name>/` | [H: source account: `docs/kb/hybrid/promotion.md`; direct ROM-source provenance unresolved] |
 
 ## Data it reads and writes
 
 | variable or file | meaning | who writes | who reads |
 |---|---|---|---|
-| `ACWW_INTERP` | 1 selects the interpreter path; read once and cached at boot | the operator | `acww_interp_boot` [S: `port/interp/interp_boot.c`] |
-| `ACWW_INTERP_RECORD=<hex addr>[,<count>]` | arm the call recorder on one function; count defaults to 8 | the operator (or `promote_record.py`) | `acww_interp_boot` [S: `docs/kb/hybrid/promotion.md` section 1] |
-| `ACWW_INTERP_RECORD_OUT=<path>` | the binary trace; required when the recorder is armed | the same | the recorder [S: same] |
-| `scratchpad/promote/<name>/<name>.rec` | one trace: per call, the eight boundary words, the pre-call 4 KB page images, the bounded load/store ring, and the return | `interp_record.c` | `promote.py` [S: same] |
+| `ACWW_INTERP` | 1 selects the interpreter path; read once and cached at boot | the operator | `acww_interp_boot` [H: source account: `port/interp/interp_boot.c`; direct ROM-source provenance unresolved] |
+| `ACWW_INTERP_RECORD=<hex addr>[,<count>]` | arm the call recorder on one function; count defaults to 8 | the operator (or `promote_record.py`) | `acww_interp_boot` [H: source account: `docs/kb/hybrid/promotion.md` section 1; direct ROM-source provenance unresolved] |
+| `ACWW_INTERP_RECORD_OUT=<path>` | the binary trace; required when the recorder is armed | the same | the recorder [H: source account: `docs/kb/hybrid/promotion.md` section 1; direct ROM-source provenance unresolved] |
+| `scratchpad/promote/<name>/<name>.rec` | one trace: per call, the eight boundary words, the pre-call 4 KB page images, the bounded load/store ring, and the return | `interp_record.c` | `promote.py` [H: source account: `docs/kb/hybrid/promotion.md` section 1; direct ROM-source provenance unresolved] |
 | `scratchpad/promote/<fn>/receipt.json` | the verdict: trace, source, interpreter and fixture hashes, the return mask, and every call's arguments, steps and returns | `promote.py` | the reader [E: `scratchpad/promote/FX_MulFunc/receipt.json`] |
-| `port/tools/interp_registry.py` -> `interp_registry.c` | the generated host-body registry; its entry count is part of a savestate's link identity | the build | the interpreter, and `state.c`'s header check [S: `docs/kb/hybrid/savestate.md` section 5] |
+| `port/tools/interp_registry.py` -> `interp_registry.c` | the generated host-body registry; its entry count is part of a savestate's link identity | the build | the interpreter, and `state.c`'s header check [H: source account: `docs/kb/hybrid/savestate.md` section 5; direct ROM-source provenance unresolved] |
 
 ## How to check it
 
@@ -146,7 +146,7 @@ call's arguments, steps and returns).
 Then, every time, copy the body, break it in a way the recorded arguments cannot hide, and
 rerun with `--source <the broken copy>`; it must report DISAGREE and name the store. Read
 `calls-that-wrote=` and `distinct-returns=` before reading the verdict
-[S: `docs/kb/hybrid/promotion.md` section 6].
+[H: source account: `docs/kb/hybrid/promotion.md` section 6; direct ROM-source provenance unresolved].
 
 A caveat on the receipts. The worktree the original three checks ran in was removed after the
 merge and took its ignored `scratchpad/promote/` with it -- the runner the brief named and the
@@ -173,7 +173,7 @@ rather than grade E against a run directory. Re-running them is one command each
   put `acww_frame_count` and `acww_out` references into `interp_cpu.c`, which `promote.py`
   compiles into a fixture with no platform, and the fixture failed to link
   (`undefined symbol _acww_frame_count`); the watch now reports through a hook installed by
-  `interp_boot.c` [S: `docs/log/cycle40-keyboard-gate-probe.md`, "H5 follow-up"]. Settled by a
+  `interp_boot.c` [H: source account: `docs/log/cycle40-keyboard-gate-probe.md`, "H5 follow-up"; direct ROM-source provenance unresolved]. Settled by a
   fixture-link check in a gate rather than by remembering.
 
 ## Related

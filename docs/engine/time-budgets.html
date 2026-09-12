@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>시간 예산과 밀리초 시계를 사용하는 다른 곳들 · ACWW 근거 위키</title>
+<meta name="description" content="정렬된 시계 변환 리터럴 32개가 작업 예산 32개를 뜻하지는 않는다. 네 지점이 채널 리스트 순회를 포함한 로더의 공통 40 ms 작업 분할 체인을 이룬다. 나머지는 시계 조회, 설정, 알람, 이벤트 조건, 지연, 네트워크 타임아웃을 구현한다. 더 세밀한 시계는 각각">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" >
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" open>
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li class="active"><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../engine/index.html">엔진</a> <span class="sep">›</span> <span>시간 예산과 밀리초 시계를 사용하는 다른 곳들</span></div><header class="page-head"><h1>시간 예산과 밀리초 시계를 사용하는 다른 곳들</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 39</span><span class="gchip g-E"><b>E</b> 2</span><span class="gchip g-O"><b>O</b> 2</span><span class="gchip g-H"><b>H</b> 12</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/engine/time-budgets.md"><code>wiki/engine/time-budgets.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/engine/time-budgets.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="time-budgets-and-other-millisecond-clock-users"></span><p><strong>읽을 때:</strong> 프레임보다 세밀한 시계 모델을 평가하거나, 실제로 작업을 나누는 ROM 루프가 무엇인지 궁금할 때 읽는다.</p>
+<p><strong>요약.</strong> 정렬된 시계 변환 리터럴 32개가 작업 예산 32개를 뜻하지는 않는다. 네 지점이 채널 리스트 순회를 포함한 로더의 공통 40 ms 작업 분할 체인을 이룬다. 나머지는 시계 조회, 설정, 알람, 이벤트 조건, 지연, 네트워크 타임아웃을 구현한다. 더 세밀한 시계는 각각에 다르게 영향을 줄 수 있지만, 나열된 모든 함수를 다음 프레임으로 양보하게 하지는 않는다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+<p>독립적인 정렬 워드 스캔은 31개 함수에서 32개 지점을 발견했다. main 6, autoload_2 9, ov001 1, ov065 13, ov066 3으로 LOAD52와 일치한다. 32개 모두 소유 심볼 구간 안에 PC 상대 리터럴 로드가 있다. 목록은 입력/소스 SHA-256 해시, 주소, 로드 주소를 보존하며 추출 바이트나 디스어셈블리는 담지 않는다.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/inventory.json</code>; <code>scratchpad/handoff/budget-family-1/scan.py</code> ; provenance unresolved</span></span></p>
+<p>이는 리터럴 33514(0x82ea)의 목록이지 모든 가능한 예산이 이 표기를 쓴다는 증거는 아니다. 별도 함수의 변환, 다른 단위, 합성 상수, 정렬되지 않은 데이터는 탐지 범위 밖이다. 리터럴 하나를 여러 비교가 사용할 수 있고 HTTP 본체에는 별도의 리터럴 풀이 두 개 있다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/scan.py</code>;
+<code>src/matched/func_ov065_02275b94.c</code></span></span></p>
+<p>네 작업 예산은 항목/단계가 끝난 사이에 경과 밀리초가 엄격히 40보다 큰지 비교한다. 비용이 큰 말단 함수를 중간에 끊지는 못한다. 중첩 순회기는 전달받은 시작 타임스탬프를 공유하며, 재개 카운터 포인터가 없으면 예산 검사가 꺼진다. 완료되지 않은 핸들러 역시 디스패처 자체의 경과 시간 검사와 별개로 디스패처를 멈출 수 있다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b0b00.c</code>; <code>src/matched/func_020b0bbc.c</code>;
+<code>src/matched/func_020b0ea8.c</code>; <code>src/matched/func_020b6c0c.cpp</code></span></span></p>
+<span class="source-anchor" id="where-it-lives-every-aligned-site"></span><h2 id="어디에-있는가-정렬된-모든-지점">어디에 있는가: 정렬된 모든 지점</h2>
+<p>각 행의 주소는 함수 진입점이 아니라 리터럴 풀 주소다. 소스 출처는 진입 주소와 의미를 제공하며, <code>inventory.json</code>은 모듈·심볼 구간·리터럴 로드 주소를 연결한다. 별도 표시가 없으면 임계값의 단위는 밀리초다. "없음"은 경과 작업 예산이 아니라는 뜻이다. 오프라인 설명은 측정된 로더와 정적으로 가능한 경로, 아직 입증되지 않은 호출자 도달 가능성을 구별한다. Wi-Fi 코드는 인터넷이 연결되지 않아도 실패한 연결 시도 중 진입할 수 있다. "일반 오프라인 플레이"는 그 기능을 시작하는 경우를 제외한다. <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/inventory.json</code>;
+<code>scratchpad/handoff/budget-family-1/classification.json</code> ; provenance unresolved</span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>모듈 / 리터럴 지점</th>
+<th>함수 / 정적 소스</th>
+<th>분류</th>
+<th>임계값 (ms)</th>
+<th>반복 또는 호출당 작업</th>
+<th>다른 종료·완료 조건</th>
+<th>오프라인 도달</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>main <code>0x200131c</code></td>
+<td><code>func_020012ec</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020012ec.c</code></span></span></td>
+<td>기타: 타임스탬프</td>
+<td>없음</td>
+<td>크래시 화면 루프 진입 전에 밀리초 저장</td>
+<td>로컬 무한 루프에는 종료 없음</td>
+<td>오프라인 오류 경로; 정상 플레이는 미확정</td>
+</tr>
+<tr>
+<td>main <code>0x208cb20</code></td>
+<td><code>func_0208c978</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0208c978.c</code></span></span></td>
+<td>기타: 이벤트 조건</td>
+<td>&lt;=1100</td>
+<td>카운트다운을 줄이고 이전 틱 시각으로 이벤트 0x64 허용 판정</td>
+<td>단일 갱신; 활성화, RTC 플래그, 카운트, 씬 검사가 분기 선택</td>
+<td>오프라인 주민 갱신; 정적 경로, 새 실행 없음</td>
+</tr>
+<tr>
+<td>main <code>0x20b0bb8</code></td>
+<td><code>func_020b0b00</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b0b00.c</code></span></span></td>
+<td>로더</td>
+<td>&gt;40</td>
+<td>data_020e41ec을 통해 타입이 있는 항목 하나 디스패치</td>
+<td>항목 소진 또는 핸들러의 0 반환; 예산은 재개 포인터가 있을 때만</td>
+<td>LOAD52에서 오프라인 측정</td>
+</tr>
+<tr>
+<td>main <code>0x20b0c48</code></td>
+<td><code>func_020b0bbc</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b0bbc.c</code></span></span></td>
+<td>채널 리스트 / 로더</td>
+<td>&gt;40</td>
+<td>func_0202f134로 하프워드 두 개짜리 채널 항목 하나 열기</td>
+<td>항목 소진; 예산은 재개 포인터가 있을 때만</td>
+<td>오프라인 로더 경로; 개별 본체 시간 미측정</td>
+</tr>
+<tr>
+<td>main <code>0x20b0f50</code></td>
+<td><code>func_020b0ea8</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b0ea8.c</code></span></span></td>
+<td>로더</td>
+<td>&gt;40</td>
+<td>func_02003348로 위치가 있는 항목 하나 구성</td>
+<td>항목 소진; 예산은 재개 포인터가 있을 때만</td>
+<td>오프라인 로더 경로; 개별 본체 시간 미측정</td>
+</tr>
+<tr>
+<td>main <code>0x20b6d1c</code></td>
+<td><code>func_020b6c0c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b6c0c.cpp</code></span></span></td>
+<td>로더</td>
+<td>&gt;40</td>
+<td>공통 시작 시각으로 현재 단계 핸들러 호출</td>
+<td>상태가 1..6 밖, 마지막 단계 완료, 또는 핸들러 미완료</td>
+<td>LOAD52에서 오프라인 측정</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ec140</code></td>
+<td><code>func_020ec040</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec040.c</code></span></span></td>
+<td>네트워크: 큐 감시</td>
+<td>&gt; 설정 가능한 gLimit_0213e6b8</td>
+<td>메시지 큐 확인과 시각 갱신/초기화; 만료 시 func_020ed9f4 호출</td>
+<td>메시지가 없으면 1 반환; 비활성 매개변수는 시각 삭제</td>
+<td>autoload_2 네트워크 하위 시스템; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ec824</code></td>
+<td><code>func_020ec5ac</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec5ac.c</code></span></span></td>
+<td>네트워크: 핸드셰이크 루프</td>
+<td>&gt; 설정 가능한 g_bootTimeoutMs</td>
+<td>부팅/정리 상태 하나 진행, 네트워크 완료 확인</td>
+<td>상태 7에서 완료; 훅·모드·상태·완료가 타임아웃 우회</td>
+<td>ov065로 네트워크 호출; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ec914</code></td>
+<td><code>func_020ec848</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec848.c</code></span></span></td>
+<td>네트워크: 바쁜 대기</td>
+<td>&gt; 설정 가능한 g_0213e6b8</td>
+<td>func_0226760c의 상태 2 폴링</td>
+<td>상태 2에서 대기 종료; 타임아웃은 실패 반환, 후속 상태도 실패 가능</td>
+<td>ov065로 네트워크 호출; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ecefc</code></td>
+<td><code>func_020ece54</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ece54.c</code></span></span></td>
+<td>네트워크: 설정</td>
+<td>없음; 입력 틱을 ms로 변환</td>
+<td>설정된 타임아웃 저장, 큐/상태 초기화</td>
+<td>단일 설정 호출; 시간 제한 루프 없음</td>
+<td>네트워크 하위 시스템; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ecfe4</code></td>
+<td><code>func_020ecf24</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ecf24.c</code></span></span></td>
+<td>네트워크: 만료 조건</td>
+<td>&gt;120000</td>
+<td>네트워크 상태 확인 후 저장 시각 만료 처리</td>
+<td>단일 갱신; 상태·상태값·시각 없음에 따라 조기 반환</td>
+<td>네트워크 하위 시스템; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ed12c</code></td>
+<td><code>func_020ed03c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ed03c.c</code></span></span></td>
+<td>네트워크: 주기</td>
+<td>250 * g_divisor 주기, 예산 아님</td>
+<td>시간 구간 선택, 피어 탐색, 항목 플래그/값 갱신</td>
+<td>단일 갱신; threshold&lt;5 또는 구간 불변이면 조기 반환</td>
+<td>ov065로 네트워크 호출; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x20ed650</code></td>
+<td><code>func_020ed5f8</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ed5f8.c</code></span></span></td>
+<td>네트워크: 타임스탬프</td>
+<td>없음</td>
+<td>두 인자가 모두 0일 때 현재 밀리초 저장</td>
+<td>단일 콜백; 0이 아닌 인자는 조기 반환</td>
+<td>네트워크 하위 시스템; 일반 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x210030c</code></td>
+<td><code>func_020fff80</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020fff80.c</code></span></span></td>
+<td>기타: NVRAM 타임아웃</td>
+<td>&gt;4000</td>
+<td>SPI NVRAM 명령/상태 진행, 바쁜 쓰기 재시도</td>
+<td>읽기/쓰기 성공, 콜백 오류, 쓰기 허용 실패, 리셋 완료; 상태 비트 0x20도 리셋 선택</td>
+<td>하드웨어/설정 경로는 오프라인 실행 가능; 정확한 게임플레이 호출자 미입증</td>
+</tr>
+<tr>
+<td>autoload_2 <code>0x21148c0</code></td>
+<td><code>func_0211482c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0211482c.c</code></span></span></td>
+<td>기타: 알람 변환</td>
+<td>입력 msec; 경과 비교 없음</td>
+<td>수면 알람 설치 후 콜백이 포인터를 지울 때까지 스레드 수면</td>
+<td>알람 콜백이 로컬 스레드 포인터 삭제</td>
+<td>범용 OS 수면은 오프라인 사용 가능; 특정 호출 발생 미측정</td>
+</tr>
+<tr>
+<td>ov001 <code>0x220b494</code></td>
+<td><code>GetTickCount</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/GetTickCount.c</code></span></span></td>
+<td>기타: 시계 조회</td>
+<td>없음</td>
+<td>틱 카운트를 밀리초로 변환해 반환</td>
+<td>즉시 반환</td>
+<td>ov001 유틸리티; 호출자/오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2273b68</code></td>
+<td><code>func_ov065_02273a8c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02273a8c.c</code></span></span></td>
+<td>네트워크: 스캔 주기</td>
+<td>&gt;=150</td>
+<td>숨김 AP 목록/채널 진행, 스캔 재시작</td>
+<td>발견 플래그로도 진행; 채널 소진 시 다음 단계</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2273c48</code></td>
+<td><code>func_ov065_02273b8c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02273b8c.c</code></span></span></td>
+<td>네트워크: 스캔 주기</td>
+<td>&gt;=150</td>
+<td>다른 채널 AP 목록 진행, 스캔 재시작</td>
+<td>발견 플래그로도 진행; 목록 소진 시 다음 단계</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2273d28</code></td>
+<td><code>func_ov065_02273cb4</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02273cb4.c</code></span></span></td>
+<td>네트워크: 스캔 주기</td>
+<td>&gt;=300</td>
+<td>스캔 채널을 2씩 증가</td>
+<td>채널 &gt;=13이면 다음 단계</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2275098</code></td>
+<td><code>func_ov065_02274ea0</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02274ea0.c</code></span></span></td>
+<td>네트워크: 재시도 지연</td>
+<td>&lt;5000 동안 대기</td>
+<td>뮤텍스 아래 취소 확인, 인증 재시도 전 5000 수면</td>
+<td>취소 시 반환; 지연 후 재시도; 외부 루프는 성공/오류/재시도 한도에서 종료</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2275f58</code></td>
+<td><code>func_ov065_02275b94</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02275b94.c</code></span></span></td>
+<td>네트워크: HTTP 송신 타임아웃</td>
+<td>&gt;timeout (기본 60000); &gt;1000 시드 재설정</td>
+<td>최대 700바이트 전송, 플러시, 요청 커서 진행</td>
+<td>요청 소진, IP 없음, 쓰기 실패, 타임아웃, 취소</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2276078</code></td>
+<td><code>func_ov065_02275b94</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02275b94.c</code></span></span></td>
+<td>네트워크: HTTP 수신 타임아웃</td>
+<td>&gt;timeout (기본 60000); &gt;1000 시드 재설정</td>
+<td>수신 바이트 읽기/소비, 완료 경계 파싱</td>
+<td>버퍼/내용 완료, 읽기 종료/오류, IP 없음, 타임아웃, 취소</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2278758</code></td>
+<td><code>func_ov065_02278614</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02278614.c</code></span></span></td>
+<td>네트워크: 인증 타임아웃</td>
+<td>&gt;10000</td>
+<td>인증 결과 확인, 대기 요청 재시도 또는 타임아웃 보고</td>
+<td>성공/상태 0이면 반환; 타임아웃은 로그인 중지</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x2278b68</code></td>
+<td><code>func_ov065_02278ac8</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02278ac8.c</code></span></span></td>
+<td>네트워크: 로그인 타임아웃</td>
+<td>&gt;60000</td>
+<td>GP 로그인 진행, 연결 시각 확인</td>
+<td>비활성/오류/상태 검사; 만료 시 로그인 중지와 플래그 해제</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x22793d8</code></td>
+<td><code>func_ov065_02279384</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02279384.c</code></span></span></td>
+<td>네트워크: 주기</td>
+<td>&gt;=300</td>
+<td>카운트 증가, func_02283cc0 호출, 시각 재기록</td>
+<td>단일 갱신 후 반환; 임계값 미만은 작업 생략</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x227e104</code></td>
+<td><code>func_ov065_0227dd8c</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227dd8c.c</code></span></span></td>
+<td>네트워크: 매칭 타이머</td>
+<td>&gt;cmdTimeoutTime; &gt;=3000+3000<em>n; &gt;1000/3000/3000+3000</em>n</td>
+<td>매칭 진행, 예약 재전송, 서버 브라우저 갱신</td>
+<td>상태/플래그/오류와 재시도 결과; 시간 제한 작업 리스트 중단이 아님</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x227ebd4</code></td>
+<td><code>func_ov065_0227eabc</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227eabc.c</code></span></span></td>
+<td>네트워크: 피어 감시</td>
+<td>&gt;피어별 recvTimeoutTime</td>
+<td>호스트 목록 순회; 가능한 분할 데이터 전송, 수신 타임아웃 통지와 시각 재기록</td>
+<td>호스트 수만큼 순회 후 종료; 바쁨/버퍼/유효성 검사는 작업 생략; 타임아웃은 순회를 끊지 않음</td>
+<td>ov065 Wi-Fi; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x227efe4</code></td>
+<td><code>func_ov065_0227efc4</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227efc4.c</code></span></span></td>
+<td>네트워크: 시계 조회</td>
+<td>없음</td>
+<td>현재 밀리초 반환</td>
+<td>즉시 반환</td>
+<td>ov065 Wi-Fi 유틸리티; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov065 <code>0x22807b4</code></td>
+<td><code>func_ov065_02280794</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_02280794.c</code></span></span></td>
+<td>네트워크: 시계 조회</td>
+<td>없음</td>
+<td>현재 밀리초 반환</td>
+<td>즉시 반환</td>
+<td>ov065 Wi-Fi 유틸리티; 일반 오프라인 플레이 아님</td>
+</tr>
+<tr>
+<td>ov066 <code>0x2267dac</code></td>
+<td><code>func_ov066_02267cb0</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_02267cb0.c</code></span></span></td>
+<td>기타: 알람 변환</td>
+<td>입력 arg0 ms; 헬퍼는 500 ms 사용</td>
+<td>슬롯 매니저 설정, 선택적으로 콜백 알람 설치</td>
+<td>단일 설정; arg0이 0이면 자체 알람 생략</td>
+<td>ov066 통신/슬롯 하위 시스템; 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>ov066 <code>0x226a3a8</code></td>
+<td><code>func_ov066_0226a2e8</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226a2e8.c</code></span></span></td>
+<td>기타: 알람 변환</td>
+<td>입력 msec</td>
+<td>각 활성 슬롯의 타임아웃 알람 취소/재설정</td>
+<td>슬롯 수 소진; 비활성 슬롯 생략</td>
+<td>ov066 통신/슬롯 하위 시스템; 오프라인 도달 미입증</td>
+</tr>
+<tr>
+<td>ov066 <code>0x226a7d0</code></td>
+<td><code>func_ov066_0226a494</code> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226a494.c</code></span></span></td>
+<td>기타: 알람 변환</td>
+<td>입력 interval ms</td>
+<td>일치 MAC 항목 갱신 또는 빈 항목 할당 후 알람 설정</td>
+<td>일치/빈 항목이면 성공 반환; 용량 소진 시 실패</td>
+<td>ov066 통신/슬롯 하위 시스템; 오프라인 도달 미입증</td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="groups-and-expected-clock-sensitivity"></span><h2 id="그룹과-예상되는-시계-민감도">그룹과 예상되는 시계 민감도</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>그룹</th>
+<th>구성원</th>
+<th>프레임보다 세밀한 시계가 바꿀 수 있는 것</th>
+<th>본체당 DS 프레임</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>로더</td>
+<td>main 로더 세 지점과 중첩 채널 리스트 지점</td>
+<td>항목/단계 사이 시간 검사 만료 가능; 재개 카운터를 통해 여러 메인 루프 본체에 걸친 부분 작업 노출; 말단 중간 선점 없음</td>
+<td>LOAD52 문 단계 5 구간: 6.17; 로더 이전: 3.14. 퇴장 로더 본체: 23.60. 함수별 분리 측정 아님. <span class="cite" data-grade="E/O"><span class="cite-badge"><b class="g g-E" title="실험">E</b><span class="cite-separator">/</span><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/load52-summary.json</code></span></span></td>
+</tr>
+<tr>
+<td>채널 리스트</td>
+<td>로더 네 개에 이미 포함된 <code>func_020b0bbc</code></td>
+<td>같은 공통 40 ms 규칙; 호출 반환 시 리스트가 끝났다고 볼 수 없음</td>
+<td>별도 측정 없음. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020b0bbc.c</code></span></span></td>
+</tr>
+<tr>
+<td>네트워크</td>
+<td>ov065 13개와 autoload_2 네트워크 7개 지점 전부</td>
+<td>만료/재시도/주기 결정이 프레임 내에서 이동 가능; HTTP와 바쁜 대기는 경과 시간을 더 빨리 관측할 수 있음; 로더식 협력적 분할은 아님</td>
+<td>미측정. <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">sources in table; <code>scratchpad/handoff/budget-family-1/classification.json</code> ; provenance unresolved</span></span></td>
+</tr>
+<tr>
+<td>기타</td>
+<td>main 크래시/이벤트, ov001 조회, autoload_2 NVRAM/수면, ov066 알람</td>
+<td>이벤트/기한 해상도 변경 가능; 조회기는 더 세밀한 값 반환; 역변환만으로 새 양보 지점은 생기지 않음. 알람 전달은 스케줄러/인터럽트 구현에도 의존</td>
+<td>미측정. <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">sources in table; <code>scratchpad/handoff/budget-family-1/classification.json</code> ; provenance unresolved</span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>이는 TICK53 측정이 아니라 제어 흐름에서 나온 예측이다. LOAD52의 과거 포트 관측은 고정된 산출물을 설명한다. 해당 본체 안에서 틱 시간이 흐르지 않으므로 단계 5는 표본 프레임 하나 안에서 완료된다. 이후 시계 구현의 동작을 입증하지는 않는다. <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">table source control flow; E:
+<code>scratchpad/handoff/budget-family-1/load52-summary.json</code></span></span></p>
+<p>원본 문의 단계 5는 오라클 프레임 57,268..57,305에 걸치며, 하위 항목 하나가 15프레임을 차지한다. 퇴장에는 33프레임과 62프레임(551, 1,036 ms)이 드는 말단 작업이 있다. 이는 40 ms 경계를 초과함을 보여 주며, 40 ms의 선점 상한을 뜻하지 않는다. LOAD52는 문의 단계 5에서 본체당 6.17프레임(103.1 ms), 그 이전에는 3.14프레임(52.5 ms)을 측정했으며 차이는 50.6 ms다.
+<span class="cite" data-grade="O"><span class="cite-badge"><b class="g g-O" title="오라클">O</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/load52-summary.json</code>;
+<code>scratchpad/handoff/budget-family-1/orig-door-walk.txt</code>; <code>scratchpad/handoff/budget-family-1/orig-exit-walk.txt</code></span></span></p>
+<span class="source-anchor" id="load52-cross-check-and-the-formerly-unread-function"></span><h2 id="load52-교차-확인과-이전에-읽지-않았던-함수">LOAD52 교차 확인과 이전에 읽지 않았던 함수</h2>
+<p>LOAD52의 네 함수는 정확히 <code>func_020b6c0c</code>, <code>func_020b0b00</code>, <code>func_020b0ea8</code>, <code>func_020b0bbc</code>이며 리터럴 지점은 0x020b6d1c, 0x020b0bb8, 0x020b0f50, 0x020b0c48이다. 세 항목짜리 디스패처 표에는 <code>func_020b0c4c</code>도 있지만 이는 피호출자이지 다섯 번째 리터럴 적중이 아니다. <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/inventory.json</code>;
+<code>scratchpad/handoff/budget-family-1/load52-summary.json</code> ; provenance unresolved</span></span></p>
+<p><code>func_0208c978</code>은 로더가 아니라 매칭된 주민 주기 타이머다. 객체 +0xc8의 카운트다운을 줄이고 +0xb4가 활성화된 동안 RTC 시각을 검사하며, 한 카운트 분기에서는 +0xdc의 이전 틱 시각이 최대 0x44c(1100) ms 전일 때만 이벤트 0x64를 허용한다. 이어 시각을 다시 기록한다. 다른 분기에서는 0x258프레임 동안 비활성화하고 이벤트 0x65를 요청하거나 시각만 다시 기록한다. 씬 0x2e는 이벤트 요청을 억제한다. 이는 단일 갱신의 조건이며 경과 시간에 따른 루프 종료가 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0208c978.c</code>, entry 0x0208c978, literal 0x0208cb20</span></span></p>
+<p>ov065 시계 조회기 두 개는 함수 경계가 복원돼 있다. 기존 소스 헤더는 피호출자 이름이 검증되지 않았다고 경고한다. 여기의 독립적인 직접 호출 디코딩은 둘 다 OS_GetTick(0x01ffa6b4)과 나눗셈(0x02136550)으로 해석하며 ov001 조회기와 일치한다. 이는 두 대상을 확정하는 것이지 표의 모든 복원된 포인터를 확정하는 것은 아니다.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/inventory.json</code>, direct_calls for 0x0227efc4 and 0x02280794 ; provenance unresolved</span></span></p>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>필드 / 주소</th>
+<th>의미</th>
+<th>쓰는 쪽 / 읽는 쪽과 근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x021f42dc</code>, <code>0x021f42e4</code></td>
+<td>로더 재개 인덱스 / 하위 항목 카운터</td>
+<td>단계 5가 항목 순회기에 전달; 작업 후 카운터 증가 <span class="cite" data-grade="H/E"><span class="cite-badge"><b class="g g-H" title="가설">H</b><span class="cite-separator">/</span><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/load52-summary.json</code> ; provenance unresolved</span></span></td>
+</tr>
+<tr>
+<td>객체 <code>+0xdc</code> (64비트)</td>
+<td>이전 이벤트 타이머 틱</td>
+<td><code>func_0208c978</code>이 읽고 다시 기록 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0208c978.c</code></span></span></td>
+</tr>
+<tr>
+<td><code>0x0213e6b8</code></td>
+<td>설정된 네트워크 타임아웃(ms)</td>
+<td>설정 시 인자 틱을 변환; 감시기와 핸드셰이크가 읽음 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ece54.c</code>; <code>src/matched/func_020ec040.c</code>; <code>src/matched/func_020ec5ac.c</code>; <code>src/matched/func_020ec848.c</code></span></span></td>
+</tr>
+<tr>
+<td>알람 간격 매개변수</td>
+<td>밀리초를 틱으로 변환</td>
+<td>OS 수면과 ov066 알람 설정; 작업 예산 상태 아님 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0211482c.c</code>; <code>src/matched/func_ov066_0226a2e8.c</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
+<p>보존된 유닛 워크트리에서 <code>python -B scratchpad/budget-family-1/scan.py &lt;checkout-with-extract&gt;</code>를 실행한다. 레포의 기존 타깃 로더를 사용해 추출된 모듈 파일을 제자리에서 읽으므로 프로비저닝, 컴파일러, 링크, 게임 실행은 필요하지 않다. 예상 결과는 32개 지점, 31개 함수이며 리터럴 로드 참조가 없는 지점은 없어야 한다. 다섯 모듈별 개수를 <code>scratchpad/budget-family-1/budget-sweep.txt</code>와 비교하고, 각 출현에 의미를 부여하기 전에 표에 나온 모든 매칭 본체를 검사한다.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/scan.py</code>; <code>scratchpad/handoff/budget-family-1/inventory.json</code> ; provenance unresolved</span></span></p>
+<span class="source-anchor" id="hypotheses-and-limits"></span><h2 id="가설과-한계">가설과 한계</h2>
+<ul>
+<li>네트워크 래퍼, ov001, ov066 지점의 일반 오프라인 도달 가능성은 미입증이다. 오버레이 상주 여부를 포함해 명명된 오프라인 레시피의 호출자 추적을 얻으면 확정할 수 있다. 항상 로드된 모듈에 속한다는 사실은 실행의 증거가 아니다.
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/classification.json</code></span></span></li>
+<li>여기서는 함수별 DS 시간을 측정하지 않았다. 모든 재개 경계를 계측해 LOAD52를 반복하면 채널 순회기의 시간과 다른 로더 말단의 시간을 구별할 수 있다.
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>scratchpad/handoff/budget-family-1/load52-summary.json</code></span></span></li>
+<li>매칭 소스의 이름/타입은 복원된 것일 수 있다. 해시는 검토한 파일을 고정할 뿐 모든 포인터 재배치나 의미상 이름의 증거가 아니다. 그래서 이 문서는 불확실한 작업을 호출/필드 주소로 설명한다. <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body"><code>docs/rules/D-defects.md</code>, D9/D10/D12 ; provenance unresolved</span></span></li>
+</ul>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="bus-timings.html">버스 타이밍</a> — 예산 안 작업의 비용: 영역별 버스 표, 카트리지 명령당 비용, 지오메트리 FIFO 깊이</li>
+<li><a href="scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="interpreter-path.html">인터프리터 경로</a></li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../engine/display-callbacks.html"><small>◀ 이전</small>디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a><span class="pn"></span></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#무슨-일이-일어나는가">무슨 일이 일어나는가</a></li><li><a href="#어디에-있는가-정렬된-모든-지점">어디에 있는가: 정렬된 모든 지점</a></li><li><a href="#그룹과-예상되는-시계-민감도">그룹과 예상되는 시계 민감도</a></li><li><a href="#load52-교차-확인과-이전에-읽지-않았던-함수">LOAD52 교차 확인과 이전에 읽지 않았던 함수</a></li><li><a href="#읽고-쓰는-데이터">읽고 쓰는 데이터</a></li><li><a href="#확인-방법">확인 방법</a></li><li><a href="#가설과-한계">가설과 한계</a></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

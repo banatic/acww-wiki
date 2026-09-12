@@ -13,14 +13,14 @@
 
 | 영역 | 주소 범위 | 크기 | 등급 / 출처 |
 |---|---|---|---|
-| ITCM | `0x01ff8000`-`0x02000000` | 32 KB | [S: `docs/kb/hybrid/runtime.md` section 2, from `port/interp/interp.h`] |
-| 메인 RAM | `0x02000000`-`0x02400000` | 4 MB | [S: `port/platform/win32.c:75-76`] |
-| DTCM | `0x027e0000`-`0x027e4000` | 16 KB | [S: `port/interp/interp_boot.c:11-14`] |
-| 시스템 RAM 미러 윈도우 | `0x027f0000`-`0x02800000` | 64 KB | [S: `port/platform/win32.c:108-111`] |
-| I/O 레지스터, 두 2D 엔진 모두 | `0x04000000`-`0x04002000` | 8 KB | [S: `port/platform/win32.c:99`] |
-| 팔레트 RAM | `0x05000000`-`0x05000800` | 2 KB | [S: `port/platform/win32.c:100`] |
-| VRAM, 모든 윈도우와 LCDC 별칭 | `0x06000000`-`0x068a4000` | — | [S: `port/platform/win32.c:106`] |
-| OAM | `0x07000000`-`0x07000800` | 2 KB | [S: `port/platform/win32.c:107`] |
+| ITCM | `0x01ff8000`-`0x02000000` | 32 KB | [H: source account: `docs/kb/hybrid/runtime.md` section 2, from `port/interp/interp.h`; direct ROM-source provenance unresolved] |
+| 메인 RAM | `0x02000000`-`0x02400000` | 4 MB | [H: source account: `port/platform/win32.c:75-76`; direct ROM-source provenance unresolved] |
+| DTCM | `0x027e0000`-`0x027e4000` | 16 KB | [H: source account: `port/interp/interp_boot.c:11-14`; direct ROM-source provenance unresolved] |
+| 시스템 RAM 미러 윈도우 | `0x027f0000`-`0x02800000` | 64 KB | [H: source account: `port/platform/win32.c:108-111`; direct ROM-source provenance unresolved] |
+| I/O 레지스터, 두 2D 엔진 모두 | `0x04000000`-`0x04002000` | 8 KB | [H: source account: `port/platform/win32.c:99`; direct ROM-source provenance unresolved] |
+| 팔레트 RAM | `0x05000000`-`0x05000800` | 2 KB | [H: source account: `port/platform/win32.c:100`; direct ROM-source provenance unresolved] |
+| VRAM, 모든 윈도우와 LCDC 별칭 | `0x06000000`-`0x068a4000` | — | [H: source account: `port/platform/win32.c:106`; direct ROM-source provenance unresolved] |
+| OAM | `0x07000000`-`0x07000800` | 2 KB | [H: source account: `port/platform/win32.c:107`; direct ROM-source provenance unresolved] |
 
 메인 RAM은 하드웨어에서 `0x02000000`-`0x02ffffff`에 걸쳐 미러링되며, 게임은 이에 의존한다:
 crt0는 `0x027fff9c`의 인터럽트 벡터 슬롯에 쓰고 부팅 플래그는 `0x027ffc20`에 있는데,
@@ -34,20 +34,20 @@ LCDC 뱅크 별칭은 `0x06800000`에 있다; ROM 자체의 초기화(bring-up)�
 
 | 모듈 | 함수 주소 범위 | 함수 심볼 수 | 등급 / 출처 |
 |---|---|---|---|
-| `itcm` | `0x01ff8000`-`0x01ffda6c` | 158 | [S: `config/adm-kr/arm9/itcm/symbols.txt`] |
-| `main` | `0x0200007a`-`0x020c74c4` | 11,923 | [S: `config/adm-kr/arm9/symbols.txt`] |
-| `autoload_2` | `0x020e8840`-`0x02138f00` | 2,199 | [S: `config/adm-kr/arm9/autoload_2/symbols.txt`] |
-| 오버레이 (코드가 있는 것 138개) | `0x02207cc0`-`0x022a31d8` | 11,236 | [S: `config/adm-kr/arm9/overlays/*/symbols.txt`] |
-| `dtcm`, `autoload_3` | — | 0 | [S: their `symbols.txt` files contain no `kind:function` lines] |
+| `itcm` | `0x01ff8000`-`0x01ffda6c` | 158 | [H: source account: `config/adm-kr/arm9/itcm/symbols.txt`; direct ROM-source provenance unresolved] |
+| `main` | `0x0200007a`-`0x020c74c4` | 11,923 | [S: `config/adm-kr/arm9/symbols.txt` (`main` at 0x02000c38); source account: `config/adm-kr/arm9/symbols.txt`] |
+| `autoload_2` | `0x020e8840`-`0x02138f00` | 2,199 | [H: source account: `config/adm-kr/arm9/autoload_2/symbols.txt`; direct ROM-source provenance unresolved] |
+| 오버레이 (코드가 있는 것 138개) | `0x02207cc0`-`0x022a31d8` | 11,236 | [H: source account: `config/adm-kr/arm9/overlays/*/symbols.txt`; direct ROM-source provenance unresolved] |
+| `dtcm`, `autoload_3` | — | 0 | [H: source account: their `symbols.txt` files contain no `kind:function` lines; direct ROM-source provenance unresolved] |
 
 `itcm`은 작고 자주 실행된다(hot): 객체별 디스플레이 스텝 `func_01ffd1b4`, 스테퍼
 `func_01ffd44c`, 스텝 게이트 `func_01ffd41c`, 그리고 리스트 센티널/후속자 쌍이 모두 여기에
-있다 [S: `port/shim/gfx/dispstep.c` header; `port/shim/gfx/dispsteppers.c:24-28`;
-`port/shim/gfx/dispgate.c` header]. `autoload_2`는 라이브러리 계층이다 — MSL C,
+있다 [H: source account: `port/shim/gfx/dispstep.c` header; `port/shim/gfx/dispsteppers.c:24-28`;
+`port/shim/gfx/dispgate.c` header; direct ROM-source provenance unresolved]. `autoload_2`는 라이브러리 계층이다 — MSL C,
 CodeWarrior float/64비트 런타임, SPL, 한국어 IME, C++ 언와인더
-[S: `docs/kb/modules/autoload2.md`]. 그 안에서 `0x021341f0`-`0x02137124`는 CodeWarrior의
+[H: source account: `docs/kb/modules/autoload2.md`; direct ROM-source provenance unresolved]. 그 안에서 `0x021341f0`-`0x02137124`는 CodeWarrior의
 `FP_fastI_v5t_LE.a`에서 온 미리 빌드된 어셈블리이며 컴파일된 C가 전혀 아니다
-[S: `docs/kb/modules/autoload2.md`].
+[H: source account: `docs/kb/modules/autoload2.md`; direct ROM-source provenance unresolved].
 
 오버레이는 심하게 겹친다 — 인접한 137쌍 중 129쌍이 주소 범위를 공유한다 — 그래서 오버레이 띠 안의
 주소는 상주(residency) 여부에 대한 답과 함께일 때만 하나의 바이트를 식별한다
@@ -57,40 +57,57 @@ CodeWarrior float/64비트 런타임, SPL, 한국어 IME, C++ 언와인더
 
 crt0는 SVC와 IRQ 스택을 DTCM 맨 위에 두고 시스템 스택을 그 아래에 둔다; 분할은
 NitroSDK의 기본값으로, `0x027e3fc0` 위에 IRQ 0x100과 SVC 0x40이다
-[S: `port/interp/interp_boot.c:11-14`]. 둘 아래인 `0x027e3e00`에서 PC 포트의 인터프리터는
-자체 시스템 스택을 시작하고 아래로 자란다 [S: `port/interp/interp_boot.c:31`]. DTCM의 맨 아래는
+[H: source account: `port/interp/interp_boot.c:11-14`; direct ROM-source provenance unresolved]. 둘 아래인 `0x027e3e00`에서 PC 포트의 인터프리터는
+자체 시스템 스택을 시작하고 아래로 자란다 [H: source account: `port/interp/interp_boot.c:31`; direct ROM-source provenance unresolved]. DTCM의 맨 아래는
 OS 인터럽트 테이블이다: `OS_IRQTable[0]`, 즉 VBlank 슬롯은 `0x027e0000`의 워드이다
-[S: `port/shim/os/vblank.c:80`]. PXI 수신 콜백 테이블은 `0x027e0394`에 있으며, FIFO 태그로
-인덱싱된다 [S: `port/shim/os/pxisend.c:99-135` via `docs/kb/hybrid/hardware-services.md` section 1].
+[H: source account: `port/shim/os/vblank.c:80`; direct ROM-source provenance unresolved]. PXI 수신 콜백 테이블은 `0x027e0394`에 있으며, FIFO 태그로
+인덱싱된다 [H: source account: `port/shim/os/pxisend.c:99-135` via `docs/kb/hybrid/hardware-services.md` section 1; direct ROM-source provenance unresolved].
+
+### 캐시와 TCM, 그리고 캐시되는 영역
+
+ARM9은 명령어 캐시 8 KB, 데이터 캐시 4 KB, 명령어 TCM 32 KB, 데이터 TCM 16 KB를 가진 ARM946E-S다 [P: GBATEK "DS Technical Data", NDS9 line: "60KB TCM/Cache (TCM: 16K
+Data, 32K Code) (Cache: 4K Data, 8K Code)"]. 두 캐시는 모두 4웨이 집합 연관 구조이며 라인은 32바이트(8워드)로, 명령어 세트 64개와 데이터 세트 32개가 된다 [P: ARM946E-S TRM, ARM DDI 0201D section 3.1: "The instruction cache and data cache are
+four-way set associative, with a cache line length of 8 words (32 bytes)"]. 적중에는 프로세서 1사이클이 들고 [P: the same section: "Each cache supports single-cycle read access"], 미스에는 16비트 버스를 통해 메인 RAM에서 라인 전체를 가져온다. GBATEK는 이를 33 MHz 버스 클록 23단위로 계산한다 [P: GBATEK "DS Memory Timings", NDS9/DATA row "Cache_Miss (Main RAM)
+23 23 23 - 16", with "All timings are counted in 33MHz units" and "NDS9 clock = 66MHz
+(internally twice bus clock; for cache/tcm)"]. 즉 적중의 1사이클에 비해 ARM9 46사이클이다.
+
+게임은 CP15 루틴 하나에서 이를 모두 직접 설정하며, 이 루틴은 이 문서가 아니면 추측해야 할 모든 정책 문제의 근거다. 마지막에는 CP15 제어 레지스터에 `0x0005707d`를 OR한다. 비트 2는 데이터 캐시, 비트 12는 명령어 캐시, 비트 16은 데이터 TCM, 비트 18은 명령어 TCM, **비트 14는 라운드 로빈 캐시 교체**를 활성화한다 [S: `func_02000a5c`, `main`, `src/matched/func_02000a5c.c`] [P: ARM DDI 0201D Table 2-9, bit 14 "Round-robin replacement"]. DTCM을 `0x027e0000`에 놓고 크기 필드를 `0xa`로 설정한다. TCM 크기 규칙은 비트 5:1의 N에 대해 512 SHL N이므로 N = 5는 16 KB다. 위 영역 표의 DTCM 행을 포트가 아닌 ROM에서 확인한 것이다 [S: `func_02000a5c`, `main`, `src/matched/func_02000a5c.c`].
+
+**메인 RAM만 캐시된다.** 같은 루틴은 CP15 c2,c0,0(데이터 캐시 가능)과 c2,c0,1(명령어 캐시 가능)에 모두 `0x42`를 써서 보호 영역 1과 6만 선택한다 [S: `func_02000a5c`, `main`, `src/matched/func_02000a5c.c`]. 영역 1은 이후 아레나 코드가 `0x02000000`을 베이스로 하는 4 MB 영역으로 재구성하는 메인 RAM 영역이며 [S: `OS_InitArenaEx`, `autoload_2`, `src/matched/OS_InitArenaEx.c`], 영역 6은 `0xffff0000`의 벡터 페이지다. 따라서 I/O, 팔레트, VRAM, OAM, `0x027fxxxx` 미러 창은 캐시되지 않는다. 두 TCM도 해당 범위 접근에서 캐시보다 TCM이 우선하므로 전혀 캐시되지 않는다 [P: ARM DDI 0201D section 2.9, Control Register bit 16].
+
+데이터 캐시는 읽기 미스에만 할당한다. 쓰기 미스가 나도 그 미스 때문에 데이터를 캐시에 올리지는 않는다 [P: ARM DDI 0201D sections 3.3 and 3.3.3]. 더티 희생 라인은 라인 채우기가 교체하기 전에 쓰기 버퍼로 가며, 메모리에 동기적으로 기록되지는 않는다 [P: ARM DDI 0201D section 3.3]. 포트는 `ACWW_TICK_MODEL=1`일 때 정확히 이 구조를 모델링하고, 비율을 가정하는 대신 채우기 횟수를 센다 [H: source account: `port/interp/interp_cpu.c` MEM54 block and `port/platform/tick.c` rule 5;
+direct ROM-source provenance unresolved].
+
+**각 영역 접근의 비용은 `bus-timings.md`에 있다.** GBATEK의 전체 NDS9/DATA 표(캐시되지 않은 메인 RAM 워드 ARM9 20사이클, I/O/OAM 워드 8, VRAM/팔레트 워드 10, TCM 워드 1, 라인 채우기 46)와 카트리지 명령당 비용, 지오메트리 FIFO 깊이를 다룬다. 이 문서의 항목에 비용을 매기기 전에 읽는다.
 
 ### 아레나와 게임 힙
 
 초기화의 마지막 호출인 `func_020ea48c`가 OS 아레나에서 게임의 메인 힙을 잘라낸다
-[S: `port/shim/boot/heapinit.c` header]. 이 함수는 `OS_GetArenaLo(0)`과 `OS_GetArenaHi(0)`을 읽고, 빼기 전에 낮은 쪽 끝을 32바이트로
+[H: source account: `port/shim/boot/heapinit.c` header; direct ROM-source provenance unresolved]. 이 함수는 `OS_GetArenaLo(0)`과 `OS_GetArenaHi(0)`을 읽고, 빼기 전에 낮은 쪽 끝을 32바이트로
 올림하여 크기가 이미 정렬 패딩을 감당하도록 한 다음, 나머지를
-`OS_AllocFromArenaLo`로 할당한다 [S: `func_020ea48c`, autoload_2,
+`OS_AllocFromArenaLo`로 할당한다 [S: `src/matched/OS_AllocFromArenaLo.c`; source account: `func_020ea48c`, autoload_2,
 `port/shim/boot/heapinit.c` header]. 두 리터럴이 이 함수의 전체 상태다: `0x021fbe90`의 설정된 힙
 크기(0이면 "아레나의 나머지를 모두 가져간다"는 뜻)와 `0x021fbe98`의 아레나 id(이 함수는
 항상 메인 아레나인 0으로 설정한다)
-[S: `port/shim/boot/heapinit.c` header].
+[H: source account: `port/shim/boot/heapinit.c` header; direct ROM-source provenance unresolved].
 
-그다음 `func_020ea50c`가 힙 자체를 만든다 [S: `port/shim/boot/gameheap.c` header]. 블록 앞에 0x30바이트 헤더를
+그다음 `func_020ea50c`가 힙 자체를 만든다 [H: source account: `port/shim/boot/gameheap.c` header; direct ROM-source provenance unresolved]. 블록 앞에 0x30바이트 헤더를
 유지한다: NNS 확장 힙은 블록 + 0x30에 0x30바이트 적은 크기로 생성되고, 옵션
 플래그는 `data_0213e5a4`에서 읽으며, `func_020ea41c`가 그 배치를 해당 헤더에 기록한다
-[S: `func_020ea50c` / `func_020ea298`, autoload_2, `port/shim/boot/gameheap.c` header]. 이
+[S: `src/matched/func_020ea50c.c`, `src/matched/func_020ea298.c`, `src/matched/func_020ea41c.c`; source account: `func_020ea50c` / `func_020ea298`, autoload_2, `port/shim/boot/gameheap.c` header]. 이
 패밀리 자체의 풀 워드는 `0x021fbe78`, `0x021fbe8c`, `0x021fbe94`이다
-[S: `port/shim/boot/gameheap.c:40-43`].
+[H: source account: `port/shim/boot/gameheap.c:40-43`; direct ROM-source provenance unresolved].
 
-하드웨어에서 아레나 상한은 `0x023e0000`이다 [S: `OS_GetInitArenaHi`,
+하드웨어에서 아레나 상한은 `0x023e0000`이다 [S: `src/matched/OS_GetInitArenaHi.c`; source account: `OS_GetInitArenaHi`,
 `port/shim/os/arenahi.c` header]. PC 포트는 메인 아레나에 한해 이를 `0x023f0000`으로 올리는데,
 이는 하드웨어가 OS를 위해 예약하는 64 KB를 게임 힙에 주는 명시적으로 표시된 양보(concession)로,
 타이틀 화면에서 포트가 하드웨어보다 약 48 KB 더 많은 살아 있는 메인 힙 무게를 들고 있어
 0x4b000 크기의 씬 버퍼가 그렇지 않으면 할당에 실패하기 때문이다
-[S: `port/shim/os/arenahi.c` header]. 그 심은 인터프리터 경로에 등록된 호스트 서비스이며
+[H: source account: `port/shim/os/arenahi.c` header; direct ROM-source provenance unresolved]. 그 심은 인터프리터 경로에 등록된 호스트 서비스이며
 — 거부 목록에 없다 — 따라서 그 차이는 거기서도 살아 있다
-[S: `port/tools/interp_registry.py`, whose `DENY_FILES` set has 49 basenames and does not name
-`arenahi.c`; `docs/kb/hybrid/runtime.md` section 4 says "40 shim files" and is stale by nine]. 하드웨어에서는
-같은 씬이 `0x022a3330`-`0x023e0000`에 들어간다 [S: `port/shim/os/arenahi.c` header].
+[H: source account: `port/tools/interp_registry.py`, whose `DENY_FILES` set has 49 basenames and does not name
+`arenahi.c`; `docs/kb/hybrid/runtime.md` section 4 says "40 shim files" and is stale by nine; direct ROM-source provenance unresolved]. 하드웨어에서는
+같은 씬이 `0x022a3330`-`0x023e0000`에 들어간다 [H: source account: `port/shim/os/arenahi.c` header; direct ROM-source provenance unresolved].
 
 디스플레이 오브젝트는 그 힙에서 할당되며, 그래서 상수로는 어느 것도 이름 지을 수 없다:
 관측된 마을 시기의 객체들은 `0x022b6xxx`-`0x022b7xxx` 부근에 있으며 실행마다 이동한다
@@ -104,27 +121,27 @@ allocations move; verify with a retained scripted run and frame using this page'
 
 `0x020exxxx`는 `main` 맨 위의 정적 데이터다: `0x020e3134`의 채널 핸들러 테이블,
 리소스 종류 디스패치 테이블 `data_020e41ec`, 씬 id `data_020e3c80`, 그리고
-게임 모드 바이트 `data_020e54ac` [S: `port/shim/gfx/gxdirect_a.c:241`;
+게임 모드 바이트 `data_020e54ac` [H: source account: `port/shim/gfx/gxdirect_a.c:241`;
 `port/shim/game/stageloop.c:23`; `port/shim/game/scenestate.c:31-34`;
-`docs/kb/port/sequencer-and-modes.md`].
+`docs/kb/port/sequencer-and-modes.md`; direct ROM-source provenance unresolved].
 
 `0x0213xxxx`는 `autoload_2`의 데이터다: 힙 옵션 플래그 `data_0213e5a4`, `0x0213e7fc`의 디스플레이 워크
 모드, 그리고 치명적 오류 경로가 `0x0213fde0`에 쓰는 예외 레지스터 테이블
-[S: `port/shim/boot/gameheap.c:40`; `port/shim/gfx/commit.c:21`; E: cycle40 log, CARD40..SND40].
+[H: source account: `port/shim/boot/gameheap.c:40`; `port/shim/gfx/commit.c:21`; H: historical measurement account: cycle40 log, CARD40..SND40; direct ROM-source provenance unresolved].
 
 `0x021cxxxx`는 씬 시기의 게임 상태다: `0x021c526c`의 필드 데이터 포인터, `0x021c67d0`-`0x021c67d8`의 카메라
 타깃 기본값, 그리고 `0x021c75b0`과 `0x021c75b8`의 씬 6의 두 업데이트 게이트 바이트
-[S: `port/shim/gfx/pmflist.c:296-300, 173-176, 124-131`].
+[H: source account: `port/shim/gfx/pmflist.c:296-300, 173-176, 124-131`; direct ROM-source provenance unresolved].
 
 `0x021fxxxx`는 엔진 자체의 제어 블록이다: `0x021f42f0`의 씬 6 스테이지 카운터,
 `0x021f69d0`의 시퀀서 메일박스, `0x021f6ca0`의 VBlank 태스크 리스트, `0x021fbe78`-`0x021fbe98`의 게임 힙
 워드, `0x021fcfd4`/`0x021fcfdc`의 채널 열림 상태,
 `0x021fcff4`의 현재 노드 공개(publication), `0x021fd004`,
 `0x021fd014`, `0x021fd024`, `0x021fd034`의 네 디스플레이 리스트 헤드, 그리고
-`0x021fd044`의 채널 핸들러 테이블 포인터 [S: `port/shim/game/scene6init.c` header; `docs/kb/port/sequencer-and-modes.md`;
+`0x021fd044`의 채널 핸들러 테이블 포인터 [H: source account: `port/shim/game/scene6init.c` header; `docs/kb/port/sequencer-and-modes.md`;
 `port/shim/gfx/vbtask.c:22-25`; `port/shim/boot/gameheap.c:40-43`;
 `port/shim/game/chanstage.c:78-80`; `port/shim/gfx/pmflist.c:104`;
-`port/shim/gfx/dispstep.c:55-58`].
+`port/shim/gfx/dispstep.c:55-58`; direct ROM-source provenance unresolved].
 
 ### PC 포트가 추가하는 것과 매핑하는 것
 
@@ -133,51 +150,51 @@ allocations move; verify with a retained scripted run and frame using this page'
 
 - 포트의 실행 이미지는 `0x00400000`-`0x00c00000`을 차지하며, 그 안의 모든 함수는
   같은 3바이트 프롤로그로 시작하는데, 이것이 포트가 호스트 코드 진입점과
-  NDS 워드를 구분하는 방법이다 [S: `port/shim/gfx/pmflist.c:76-100`];
+  NDS 워드를 구분하는 방법이다 [H: source account: `port/shim/gfx/pmflist.c:76-100`; direct ROM-source provenance unresolved];
 - `0x30000000`에 있는 0x02780000바이트 크기의 생성된 아레나는 ROM 테이블이
-  배치할 수 없는 데이터 심볼을 담는다 [S: `port/platform/win32.c:114-117`];
+  배치할 수 없는 데이터 심볼을 담는다 [H: source account: `port/platform/win32.c:114-117`; direct ROM-source provenance unresolved];
 - 인터프리터의 인터럽트 스택은 16 KB 호스트 버퍼로, 중첩 진입은 2 KB씩
-  내려가고 깊이 7을 넘으면 거부한다 [S: `docs/kb/hybrid/runtime.md` section 4, from
-  `port/interp/interp_boot.c:613-641`].
+  내려가고 깊이 7을 넘으면 거부한다 [H: source account: `docs/kb/hybrid/runtime.md` section 4, from
+  `port/interp/interp_boot.c:613-641`; direct ROM-source provenance unresolved].
 
 포트는 NDS 메모리를 실제 주소에 매핑하므로, NDS 주소가 곧 호스트 포인터이며
 인터프리터는 변환도 MMU도 없이 ROM 바이트를 제자리에서 실행한다
-[S: `docs/kb/hybrid/runtime.md` section 2]. 메인 RAM은 두 번의 할당이 아니라 하나의 4 MB 파일 매핑을
+[H: source account: `docs/kb/hybrid/runtime.md` section 2; direct ROM-source provenance unresolved]. 메인 RAM은 두 번의 할당이 아니라 하나의 4 MB 파일 매핑을
 두 번 바라보는 것이므로, `0x023fxxxx` / `0x027fxxxx` 별칭이 계속 동작한다
 [H: host/prose inference from `port/platform/win32.c:78-86`; verify against the ROM function or symbol table and this page's recipe]. I/O 페이지는 훅이 개입하는 곳을 제외하면 평범한 호스트
 메모리이며, 그래서 ROM이 폴링하는 레지스터는 스스로 바뀌지 않는다 — 이것이 세 가지
-부류의 멈춤(stall)의 근원이다 [S: `docs/kb/hybrid/runtime.md` section 2].
+부류의 멈춤(stall)의 근원이다 [H: source account: `docs/kb/hybrid/runtime.md` section 2; direct ROM-source provenance unresolved].
 
 ## 어디에 있는가
 
 | 함수 또는 심볼 | 모듈 | 역할 | 등급 / 출처 |
 |---|---|---|---|
-| `OS_GetArenaLo` (`0x02115ef4`) / `OS_GetArenaHi` (`0x02115f08`) | autoload_2 | 아레나의 현재 경계 | [S: `port/shim/boot/heapinit.c` header] |
-| `OS_AllocFromArenaLo` (`0x02115c28`) | autoload_2 | 낮은 쪽 끝에서 블록을 가져간다 | [S: `port/shim/boot/heapinit.c` header] |
-| `OS_GetInitArenaHi` | autoload_2 | 아레나 상한, 메인 아레나는 `0x023e0000` | [S: `port/shim/os/arenahi.c` header] |
-| `func_020ea48c` | autoload_2 | 게임 힙을 잘라낸다; 초기화의 마지막 호출 | [S: `port/shim/boot/heapinit.c` header] |
-| `func_020ea50c` / `func_020ea298` | autoload_2 | 블록 + 0x30에 확장 힙을 만든다 | [S: `port/shim/boot/gameheap.c` header] |
-| `func_020ea41c` | autoload_2 | 블록/힙 배치를 0x30 헤더에 기록한다 | [S: `port/shim/boot/gameheap.c` header] |
-| `NNS_FndCreateExpHeapEx` | main | NNS 확장 힙 생성자 | [S: `port/shim/boot/gameheap.c:34`] |
-| `MIi_UncompressBackward` | autoload_2 | 역방향 압축된 이미지를 제자리에서 푼다 | [S: `port/shim/fs/ovlreloc.c:56`] |
+| `OS_GetArenaLo` (`0x02115ef4`) / `OS_GetArenaHi` (`0x02115f08`) | autoload_2 | 아레나의 현재 경계 | [S: `src/matched/OS_GetArenaLo.c`, `src/matched/OS_GetArenaHi.c`; source account: `port/shim/boot/heapinit.c` header] |
+| `OS_AllocFromArenaLo` (`0x02115c28`) | autoload_2 | 낮은 쪽 끝에서 블록을 가져간다 | [S: `src/matched/OS_AllocFromArenaLo.c`; source account: `port/shim/boot/heapinit.c` header] |
+| `OS_GetInitArenaHi` | autoload_2 | 아레나 상한, 메인 아레나는 `0x023e0000` | [S: `src/matched/OS_GetInitArenaHi.c`; source account: `port/shim/os/arenahi.c` header] |
+| `func_020ea48c` | autoload_2 | 게임 힙을 잘라낸다; 초기화의 마지막 호출 | [S: `config/adm-kr/arm9/autoload_2/symbols.txt` (`func_020ea48c` at 0x020ea48c); source account: `port/shim/boot/heapinit.c` header] |
+| `func_020ea50c` / `func_020ea298` | autoload_2 | 블록 + 0x30에 확장 힙을 만든다 | [S: `src/matched/func_020ea50c.c`, `src/matched/func_020ea298.c`; source account: `port/shim/boot/gameheap.c` header] |
+| `func_020ea41c` | autoload_2 | 블록/힙 배치를 0x30 헤더에 기록한다 | [S: `src/matched/func_020ea41c.c`; source account: `port/shim/boot/gameheap.c` header] |
+| `NNS_FndCreateExpHeapEx` | main | NNS 확장 힙 생성자 | [S: `src/matched/NNS_FndCreateExpHeapEx.c`; source account: `port/shim/boot/gameheap.c:34`] |
+| `MIi_UncompressBackward` | autoload_2 | 역방향 압축된 이미지를 제자리에서 푼다 | [H: source account: `port/shim/fs/ovlreloc.c:56`; direct ROM-source provenance unresolved] |
 
 ## 읽고 쓰는 데이터
 
 | 주소 | 의미 | 쓰는 쪽 | 읽는 쪽 |
 |---|---|---|---|
-| `0x021fbe90` | 설정된 게임 힙 크기; 0 = 아레나의 나머지 | ROM 데이터 | `func_020ea48c` [S: `port/shim/boot/heapinit.c` header] |
-| `0x021fbe98` | 할당할 아레나 id; 항상 0으로 설정 | `func_020ea48c` | `func_020ea48c` [S: same] |
-| `0x021fbe78` / `0x021fbe8c` / `0x021fbe94` | 게임 힙 패밀리의 풀 워드 | `func_020ea50c` / `func_020ea298` | 할당자 [S: `port/shim/boot/gameheap.c:40-43`] |
-| `data_0213e5a4` | 확장 힙 생성 시 사용되는 옵션 플래그 | ROM 데이터 | `func_020ea50c` [S: `port/shim/boot/gameheap.c:33-34`] |
-| `0x027e0000` | `OS_IRQTable[0]`, VBlank 핸들러 슬롯 | `OS_SetIrqFunction` | 인터럽트 벡터 [S: `port/shim/os/vblank.c:80`] |
-| `0x027e0394 + tag*4` | PXI 수신 콜백 테이블 | `PXI_SetFifoRecvCallback` | PXI 전달 [S: `docs/kb/hybrid/hardware-services.md` section 1] |
-| `0x027ffc20` | 부팅 플래그; 1이면 두 번째 부팅 경로를 선택 | `NitroMain` 이전 | `NitroMain` [S: `port/platform/nitromain.c:50, 77`] |
-| `0x027fff9c` | crt0가 쓰는 인터럽트 벡터 슬롯 | `Entry` | 벡터 [S: `port/platform/win32.c:79-80`] |
-| `0x04000208` (`REG_IME`) | 인터럽트 마스터 활성화 | `NitroMain` | 인터럽트 컨트롤러 [S: `port/platform/nitromain.c:49`] |
-| `0x04000004` | 하위 절반 `DISPSTAT`, 상위 절반 `VCOUNT` | 디스플레이 컨트롤러 | ROM 대기 루프; 포트가 합성한다 [S: `docs/kb/hybrid/hardware-services.md` section 4] |
-| `0x04000280`-`0x040002bf` | 나눗셈 및 제곱근 유닛 | `FX_Div` / `FX_Sqrt` | 같은 함수, 읽을 때 [S: `docs/kb/hybrid/hardware-services.md` section 3] |
-| `0x04000400`-`0x040005ff` | GX FIFO와 명령 포트 | 지오메트리 제출 경로 | 지오메트리 엔진 [S: `docs/kb/hybrid/hardware-services.md` section 5] |
-| `0x04000640` / `0x04000680` | `CLIPMTX_RESULT` (16워드) / `VECMTX_RESULT` (9워드) | 지오메트리 엔진 | `G3X_GetClipMtx` / `G3X_GetVectorMtx` [S: `docs/kb/hybrid/hardware-services.md` section 5] |
+| `0x021fbe90` | 설정된 게임 힙 크기; 0 = 아레나의 나머지 | ROM 데이터 | `func_020ea48c` [S: `config/adm-kr/arm9/autoload_2/symbols.txt` (`func_020ea48c` at 0x020ea48c); source account: `port/shim/boot/heapinit.c` header] |
+| `0x021fbe98` | 할당할 아레나 id; 항상 0으로 설정 | `func_020ea48c` | `func_020ea48c` [S: `config/adm-kr/arm9/autoload_2/symbols.txt` (`func_020ea48c` at 0x020ea48c); source account: `port/shim/boot/heapinit.c` header] |
+| `0x021fbe78` / `0x021fbe8c` / `0x021fbe94` | 게임 힙 패밀리의 풀 워드 | `func_020ea50c` / `func_020ea298` | 할당자 [S: `src/matched/func_020ea50c.c`, `src/matched/func_020ea298.c`; source account: `port/shim/boot/gameheap.c:40-43`] |
+| `data_0213e5a4` | 확장 힙 생성 시 사용되는 옵션 플래그 | ROM 데이터 | `func_020ea50c` [S: `src/matched/func_020ea50c.c`; source account: `port/shim/boot/gameheap.c:33-34`] |
+| `0x027e0000` | `OS_IRQTable[0]`, VBlank 핸들러 슬롯 | `OS_SetIrqFunction` | 인터럽트 벡터 [S: `src/matched/OS_SetIrqFunction.c`; source account: `port/shim/os/vblank.c:80`] |
+| `0x027e0394 + tag*4` | PXI 수신 콜백 테이블 | `PXI_SetFifoRecvCallback` | PXI 전달 [S: `src/matched/PXI_SetFifoRecvCallback.c`; source account: `docs/kb/hybrid/hardware-services.md` section 1] |
+| `0x027ffc20` | 부팅 플래그; 1이면 두 번째 부팅 경로를 선택 | `NitroMain` 이전 | `NitroMain` [H: source account: `port/platform/nitromain.c:50, 77`; direct ROM-source provenance unresolved] |
+| `0x027fff9c` | crt0가 쓰는 인터럽트 벡터 슬롯 | `Entry` | 벡터 [S: `src/matched/Entry.c`; source account: `port/platform/win32.c:79-80`] |
+| `0x04000208` (`REG_IME`) | 인터럽트 마스터 활성화 | `NitroMain` | 인터럽트 컨트롤러 [H: source account: `port/platform/nitromain.c:49`; direct ROM-source provenance unresolved] |
+| `0x04000004` | 하위 절반 `DISPSTAT`, 상위 절반 `VCOUNT` | 디스플레이 컨트롤러 | ROM 대기 루프; 포트가 합성한다 [H: source account: `docs/kb/hybrid/hardware-services.md` section 4; direct ROM-source provenance unresolved] |
+| `0x04000280`-`0x040002bf` | 나눗셈 및 제곱근 유닛 | `FX_Div` / `FX_Sqrt` | 같은 함수, 읽을 때 [S: `src/matched/FX_Div.c`, `src/matched/FX_Sqrt.c`; source account: `docs/kb/hybrid/hardware-services.md` section 3] |
+| `0x04000400`-`0x040005ff` | GX FIFO와 명령 포트 | 지오메트리 제출 경로 | 지오메트리 엔진 [H: source account: `docs/kb/hybrid/hardware-services.md` section 5; direct ROM-source provenance unresolved] |
+| `0x04000640` / `0x04000680` | `CLIPMTX_RESULT` (16워드) / `VECMTX_RESULT` (9워드) | 지오메트리 엔진 | `G3X_GetClipMtx` / `G3X_GetVectorMtx` [S: `src/matched/G3X_GetClipMtx.c`, `src/matched/G3X_GetVectorMtx.c`; source account: `docs/kb/hybrid/hardware-services.md` section 5] |
 
 ## 확인 방법
 
@@ -186,12 +203,12 @@ allocations move; verify with a retained scripted run and frame using this page'
 [H: host/prose inference from `port/platform/win32.c:1-25, 97-112`; verify against the ROM function or symbol table and this page's recipe]. 매핑이 실제 주소에 있으므로, 오류 보고의
 주소는 심볼 테이블 행과 직접 비교할 수 있다: 모듈은 그 `config/adm-kr/arm9/**/symbols.txt`가
 가장 가까운 아래쪽 `addr:0x...`를 담고 있는 것이다
-[S: `config/adm-kr/arm9/**/symbols.txt`].
+[H: source account: `config/adm-kr/arm9/**/symbols.txt`; direct ROM-source provenance unresolved].
 
 살아 있는 메모리에 관한 질문에는 인터프리터가 두 가지 계측 도구를 제공한다: `ACWW_INTERP_WATCH=<hex>`는
 한 주소에 대한 저장 워치포인트이고, `ACWW_INTERP_PEEK=<hex,...>`는 매 덤프마다 해당 워드들을
-출력한다 [S: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40, "Instruments added
-this stretch"].
+출력한다 [H: source account: `docs/log/cycle40-keyboard-gate-probe.md` CARD40..SND40, "Instruments added
+this stretch"; direct ROM-source provenance unresolved].
 
 ## 가설
 

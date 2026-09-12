@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" open>
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li class="active"><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>라이브 플레이: 키보드로 포트를 조작하기</span></div><header class="page-head"><h1>라이브 플레이: 키보드로 포트를 조작하기</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 27</span><span class="gchip g-H"><b>H</b> 3</span></div><div class="source-line">원문: <code>wiki/experiments/live-play.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 실행됨, 2026-09-09 (LIVE41, <code>fd8da4d8</code>), PERF42 (<code>fbfc987d</code>) 이후 재측정, 그리고
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>라이브 플레이: 키보드로 포트를 조작하기</span></div><header class="page-head"><h1>라이브 플레이: 키보드로 포트를 조작하기</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-E"><b>E</b> 11</span><span class="gchip g-H"><b>H</b> 20</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/experiments/live-play.md"><code>wiki/experiments/live-play.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/experiments/live-play.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="live-play-driving-the-port-from-a-keyboard"></span><p><strong>상태: 실행됨, 2026-09-09 (LIVE41, <code>fd8da4d8</code>), PERF42 (<code>fbfc987d</code>) 이후 재측정, 그리고
 2026-09-10에 세션 전체를 끝까지 통과함 (LIVE42, <code>0687d989</code> 및 LIVE42 편집분).</strong>
 포트는 키보드로 플레이할 수 있다: 명령 하나로 DS 자체의 59.8261 Hz에 맞춰 페이싱되고,
 2배 창에서, 사운드와 함께, 유지되는 세이브 파일과 실제 날짜·시각으로 실행된다.
@@ -149,15 +161,42 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 않는다(NAME42의 규칙, 끝에서 끝까지 확인됨); 자기 집 현관문은 방향키를 누르고 있는 것이
 아니라 <strong>A 버튼</strong>을 원한다; 그리고 <code>play.py</code>의 실제 시계 때문에 저녁에는 마을이 잠들어
 있다 &ndash; 같은 세이브에서 <code>--time 113000</code>을 주자 80 s 안에 주민이 걸어와 말을 걸었다.</p>
-<h2 id="목적">목적</h2>
+<p><strong>회귀 검사로 다시 실행, 2026-09-11 (LIVE44, <code>24b1a636</code> IRIS54, C 변경 없음).</strong> 픽셀별
+창과 마스터 밝기를 갖춘 빌드(FADE52), 스캔라인별 아이리스(IRIS54), 스위치로 보호된
+서브프레임 시계(TICK53/MEM54, 둘 다 기본값은 OFF이며 여기서도 꺼져 있음을 확인함), 로더
+계측기와 스레드 쿼터를 갖춘 빌드에서 같은 결과물을 다시 확인했다: <strong>다섯 번의 실행,
+246,510프레임, 모두 exit 0, <code>unimplemented</code>, <code>STOP status</code>, <code>fault_pc</code>, queue-full 줄은
+0건</strong>이다. 타이틀 화면은 이제 <strong>24 s</strong>에 도착하고, 저장된 마을은 이어하기 경로로 로드되며,
+해변에서는 <code>X</code>를 한 번 눌러 조개를 얻고 세이브 파일에도 남는다. 벚나무는 흔들려 빈 나무가
+되었고, <strong>너굴 상점은 360벨짜리 조개에 190벨, 2,000벨짜리 체리에 100벨을 지급했다 &ndash;
+90 = base/4이고 과일에는 고정 100이다</strong>. 지갑은 385 -&gt; 575가 되었고, START -&gt;
+저장하고 마치기는 양쪽 뱅크에서 검증되는 세이브를 쓴다.</p>
+<p><strong>핵심은 전환이다.</strong> 건물에서 걸어 나오면 이제 둥근 IRIS가 닫힌다. 프레임에 고정한 캡처가
+아니라 픽셀에서 라이브로 측정했으며, 빛이 드는 열 범위는 DS 자체의 14단계를 따라
+<code>119..136</code>으로 줄어들고 빛이 드는 행도 함께 닫힌다. 아래 화면의 평균 휘도는
+<code>30.51, 24.98, 20.45, 15.73, 10.49, 6.32, 2.84, 0.62</code>로 읽혔다 &ndash; 외부 캡처에서
+사람이 직접 누른 키로 얻은 IRIS54의 프레임 고정 수치와 소수점 둘째 자리까지 같다.
+프레임 레이트는 300 s 동안 호스트 시계 대비 <strong>59.8366 fps</strong>이다(더 짧은 창은 캡션의
+양자화 때문에 0.1 높게 읽힌다). 포트 자체 카운터의 창 198개 평균은 59.71이고 모든 하락은
+씬 로드에서 발생했으며, <code>ACWW_FRAMETIME</code>은 마을 렌더링이 <strong>4.2 ms</strong>라고 말한다. PERF42의
+6.5-7.0과 비교하면 창 마스크에는 측정 가능한 비용이 없다. 사운드는 <code>FIRST SOUND at
+frame 38</code>, 피크 32,006, 싱크 <code>dropped 0 frames</code>였고 다섯 실행 중 네 실행에서는 모든
+노트가 울렸다. 다섯 번째는 <strong><code>no instrument</code>로 22,224개 중 19개가 누락</strong>되어 LIVE43보다
+한 수치 나쁘며 원인은 아직 특정되지 않았다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/live44/RECEIPTS.md</code>, <code>runs/*/receipt.json</code>;
+<code>docs/log/cycle42-save.md</code> LIVE44</span></span>. 여기서 얻은 라이브 관측 세 가지: 너굴 표지판 아래의
+어두운 틈은 WINDOW이고 문은 그 옆 패널이며, Redd의 비밀번호 키보드는 빈 칸에 노란
+PLACEHOLDER 표시를 그리고 무엇인가 입력할 때까지 결정 입력을 조용히 거부한다. 그리고
+걸어 다니는 주민은 아홉 번 시도해도 대화하려고 세울 수 없었지만, 두 상점 주인은 첫 <code>Z</code>에
+대답했다.</p>
+<span class="source-anchor" id="purpose"></span><h2 id="목적">목적</h2>
 <p>다른 페이지의 모든 레시피는 스크립트다: 시계를 고정하고, 스토어를 끄고, 진행 줄을
 출력하고, 호스트가 낼 수 있는 최대 속도로 돈다. 사람에게는 이 넷 모두의 반대가 필요하다.
 이 페이지는 스크립트된 실행이 측정하는 것을 아무것도 바꾸지 않으면서 사람에게 그것을
 주는 방법이며, 실제로 바꾸지 않았다는 영수증이다.</p>
-<h2 id="레시피">레시피</h2>
+<span class="source-anchor" id="recipe"></span><h2 id="레시피">레시피</h2>
 <pre><code>python port/tools/play.py
 </code></pre>
-<p>그게 전부다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>port/tools/play.py</code>; <code>docs/kb/hybrid/live-play.md</code></span></span>. 이 명령은
+<p>그게 전부다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>port/tools/play.py</code>; <code>docs/kb/hybrid/live-play.md</code>; receipt provenance unresolved</span></span>. 이 명령은
 <code>port/build/acww.exe</code>를 인터프리터 경로에서 실제 시계로, <code>%LOCALAPPDATA%/acww/town.sav</code>의
 세이브와 함께, 페이서를 켜고, 인터프리터의 진행 줄을 끄고, 콘솔 창 없이 실행한다; 로그는
 세이브 옆에 남는다. 옵션: <code>--save PATH</code>, <code>--log PATH</code>, <code>--date YYYYMMDD --time HHMMSS</code>,
@@ -168,8 +207,8 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 틀리다 &ndash; RTC는 모든 레시피에서 고정되고, <code>ACWW_SAVE</code>는 의도적으로 설정되지 않으며,
 인터프리터의 진행 줄은 9,000프레임 OFF 레시피에서 1,738,500번의 쓰기와 101 MB의 로그(프레임
 시간의 약 20%)를 소모하고, 콘솔 서브시스템 exe는 터미널에서 실행되지 않으면 콘솔 창을
-띄운다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/live-play.md</code></span></span>.</p>
-<h3 id="키-맵">키 맵</h3>
+띄운다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/live-play.md</code>; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-key-map"></span><h3 id="키-맵">키 맵</h3>
 <p>스크립트된 키가 없는 모든 실행의 첫 프레임에 영어와 한국어로 전부 출력된다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>port/platform/hostinput.c</code>; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
 <div class="table-wrap"><table>
@@ -214,7 +253,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 </tr>
 </tbody>
 </table></div>
-<h3 id="페이서">페이서</h3>
+<span class="source-anchor" id="the-pacer"></span><h3 id="페이서">페이서</h3>
 <p>포트는 NDS 자체의 속도 &ndash; 33.513982 MHz / 560190 사이클 = <strong>59.8261 Hz</strong> &ndash; 에 맞춰
 <code>timeBeginPeriod(1)</code>, 마지막 1밀리초를 제외한 전부를 sleep, 나머지는 yield로 페이싱한다.
 데드라인은 프레임마다 정확히 한 주기씩 전진하므로 드리프트가 없고, 두 프레임 이상 뒤처진
@@ -224,8 +263,8 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 <code>ACWW_SHOT*</code> 변수 중 하나라도, 또는 <code>ACWW_STOP_FRAME</code>, 또는 <code>ACWW_NOPACE=1</code>이 있으면
 꺼진다; 환경은 접두사로 한 번 스캔되므로 새로운 <code>ACWW_KEYS4</code>도 아무것도 고치지 않고
 포함된다. <code>ACWW_PACE=1</code> 또는 <code>ACWW_NOPACE=0</code>은 페이서 자체를 측정하기 위해 강제로 켠다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/live-play.md</code></span></span>.</p>
-<h2 id="플레이어가-하는-일-단계별로">플레이어가 하는 일, 단계별로</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/live-play.md</code>; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="what-a-player-does-step-by-step"></span><h2 id="플레이어가-하는-일-단계별로">플레이어가 하는 일, 단계별로</h2>
 <p>측정됨 (LIVE42). 모든 입력은 포트 자신의 창 큐로 들어가는 <code>PostMessageA</code> &ndash;
 <code>WM_KEYDOWN</code>/<code>WM_KEYUP</code>과 <code>WM_LBUTTONDOWN</code>/<code>WM_LBUTTONUP</code> &ndash; 이므로, 실제 키보드와 마우스가
 지나는 경로를 그대로 탄다: 포트의 wndproc, <code>host_vk[]</code> / 펜 에지 큐, <code>hostinput.c</code>의
@@ -254,7 +293,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 <tr>
 <td>2</td>
 <td>아래 화면을 한 번 클릭</td>
-<td>여울: 안녕하세요！놀러 오셨군요</td>
+<td>Rover: 안녕하세요！놀러 오셨군요</td>
 <td>4,290</td>
 <td><code>02-after-title-tap.png</code></td>
 </tr>
@@ -268,7 +307,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 <tr>
 <td>4</td>
 <td><code>Z</code></td>
-<td>여울의 질문들, 일부는 두 선택지 상자 포함</td>
+<td>Rover의 질문들, 일부는 두 선택지 상자 포함</td>
 <td>7,050</td>
 <td><code>04-taxi.png</code></td>
 </tr>
@@ -303,7 +342,7 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 <tr>
 <td>9</td>
 <td>이름을 입력하고 DS(220,179)의 결정을 클릭</td>
-<td>한 번의 탭으로 확정; 여울이 이름을 읽어 준다</td>
+<td>한 번의 탭으로 확정; Rover가 이름을 읽어 준다</td>
 <td>20,190</td>
 <td><code>09-typed-mimi.png</code>, <code>10-nameline.png</code></td>
 </tr>
@@ -478,20 +517,21 @@ Windows 메시지만으로 구동된 129,001 프레임(약 36분)짜리 세션 �
 <p><strong>세이브는 진짜다.</strong> 게임은 256바이트 페이지를 <code>0x00000..0x2e7f8</code>에 걸쳐 썼고, 각 페이지는
 한 프레임 뒤에 검증되었으며, 불일치는 0이었다. 그 이미지에 대한 <code>savetool.py check</code>는
 <code>checksum stored 0xaf74 computed 0xaf74 VERIFIES</code>와 <code>the game would LOAD this bank</code>를 읽고,
-주민 8명 중 3명이 차 있다 &ndash; 새 마을이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/live42/sessionA.log</code>; SAVE43은 패드 스크립트 아래에서 같은 체인에 도달했다</span></span>.</p>
-<h3 id="워크스루가-배워야-했던-세-가지">워크스루가 배워야 했던 세 가지</h3>
+주민 8명 중 3명이 차 있다 &ndash; 새 마을이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/live42/sessionA.log</code>; SAVE43 reached the same chain under a pad script</span></span>.</p>
+<span class="source-anchor" id="three-things-the-walkthrough-had-to-learn"></span><h3 id="워크스루가-배워야-했던-세-가지">워크스루가 배워야 했던 세 가지</h3>
 <p><strong>도착 대화는 저절로 다시 시작된다</strong> &ndash; 플레이어가 펠리의 카운터에 서 있는 동안: 상자는
 <code>A</code>로 닫히고 아무것도 누르지 않아도 2.5 s 안에 어머 무슨 일 있으신가요?가 돌아온다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>shots/32-free.png</code>, 프레임 56,310, 닫는 입력 150프레임 뒤</span></span>. 마지막 상자가 닫히기
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>shots/32-free.png</code>, frame 56,310, 150 frames after the closing press; receipt provenance unresolved</span></span>. 마지막 상자가 닫히기
 전에 떠나고 싶은 방향을 미리 누르고 있으면 조작이 돌아오는 순간 걸어 나간다. 안내는
 혹시 지도를 어떻게 꺼내는지 잊으셨나요?에서 반복되기도 하는데, <code>A</code>가 첫 번째 선택지,
-즉 "네, 다시 알려 주세요"를 고르기 때문이다 &ndash; 먼저 아래를 누른다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>shots/21-pelly4.png</code> 대 <code>24-declined.png</code></span></span>.</p>
+즉 "네, 다시 알려 주세요"를 고르기 때문이다 &ndash; 먼저 아래를 누른다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>shots/21-pelly4.png</code> against
+<code>24-declined.png</code>; receipt provenance unresolved</span></span>.</p>
 <p><strong>키 격자는 캡처 하나로 측정할 수 있다.</strong> 창 캡처에서 아래 화면을 잘라내고(클라이언트
 512x768이므로 아래 화면은 아래쪽 절반이고, 기본 2배에서 DS = 클라이언트/2), 다시 2배로
 확대하면 DS 좌표는 그 이미지의 픽셀을 4로 나눈 것이다. 행은 DS y = 96, 112, 128, 144에
 있고, 열은 x = 14부터 DS 20픽셀 간격이다; 백스페이스는 DS(231,112)이고 결정은
 DS(220,179)다 &ndash; <code>run_town.py</code>가 오래전부터 쓰던 <code>ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181</code>이
-줄곧 가리키던 바로 그곳이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>shots/06-lower-4x.png</code></span></span>.</p>
+줄곧 가리키던 바로 그곳이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>shots/06-lower-4x.png</code>; receipt provenance unresolved</span></span>.</p>
 <p><strong>지도 페이지로 길 찾기가 된다.</strong> <code>scratchpad/live42/nav.py</code>는 화살표로 걷고, 지도를 열고,
 플레이어 마커(B173 G90 R247)와 플레이어 자신의 집 아이콘(B0 G165 R0)을 색으로 찾는다;
 대각선으로 600프레임 걸으면 마커가 지도 픽셀 82만큼 움직이고, 세 번의 반복으로 집에
@@ -499,7 +539,7 @@ DS(220,179)다 &ndash; <code>run_town.py</code>가 오래전부터 쓰던 <code>
 지도 프레임 안에서 가장 크게 변하는 것은 마커가 아니라 물이다 &ndash; 그리고 "초록 집 아이콘이
 보이는가"는 "지도가 열려 있는가"의 검사가 되지 못하는데, 마을의 나무 잎이 같은 순수한
 진초록이기 때문이다.</p>
-<h2 id="입력-지연-플레이어가-느끼는-대로">입력 지연, 플레이어가 느끼는 대로</h2>
+<span class="source-anchor" id="input-latency-as-a-player-feels-it"></span><h2 id="입력-지연-플레이어가-느끼는-대로">입력 지연, 플레이어가 느끼는 대로</h2>
 <p>측정됨 (LIVE42; 전체 표와 방법은 <code>scratchpad/live42/LATENCY.md</code>).</p>
 <div class="table-wrap"><table>
 <thead>
@@ -548,20 +588,20 @@ DS(220,179)다 &ndash; <code>run_town.py</code>가 오래전부터 쓰던 <code>
 이상이 들고, 캡션의 프레임 번호는 초당 두 번만 갱신되므로 둘 다 입력의 시간을 잴 수 없다.
 창 자신의 DC에서 <code>BitBlt</code>(<code>GetDC(hwnd)</code>; 클래스가 <code>CS_OWNDC</code>이고 <code>acww_present</code>가 거기로
 곧장 StretchBlt한다)는 200x160 패치에 <strong>0.21 ms</strong>가 들고, 화면 DC에서의 BitBlt가 검게
-나오는 세션에서도 실제 픽셀을 돌려준다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>drive.py</code>, <code>FastProbe</code></span></span>.</p>
-<h2 id="사운드-이제-플레이어가-듣는다-그리고-이-기계에서-장치까지-도달했다">사운드: 이제 플레이어가 듣는다, 그리고 이 기계에서 장치까지 도달했다</h2>
+나오는 세션에서도 실제 픽셀을 돌려준다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>drive.py</code>, <code>FastProbe</code>; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="sound-a-player-gets-it-now-and-on-this-machine-it-reached-a-device"></span><h2 id="사운드-이제-플레이어가-듣는다-그리고-이-기계에서-장치까지-도달했다">사운드: 이제 플레이어가 듣는다, 그리고 이 기계에서 장치까지 도달했다</h2>
 <p><code>play.py</code>는 <code>ACWW_SND</code>를 설정한 적이 없었고, 이 변수는 모든 레시피에서 설정되지 않아
-꺼져 있으므로, 런처는 소리 없는 게임을 내보내고 있었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/live42/session1.log</code>, 포기된 첫 실행</span></span>. 이제 기본적으로 켜지고, <code>--mute</code>, <code>--wav PATH</code>, <code>--no-sink</code>가 있다.</p>
+꺼져 있으므로, 런처는 소리 없는 게임을 내보내고 있었다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/live42/session1.log</code>, the abandoned first launch</span></span>. 이제 기본적으로 켜지고, <code>--mute</code>, <code>--wav PATH</code>, <code>--no-sink</code>가 있다.</p>
 <p>측정됨: <code>acww snd: driver ON (ACWW_SND=1)</code>, <code>FIRST SOUND at frame 38</code>, 센서스에 21개의
 서로 다른 tag-7 명령 id(<code>PREPARE_SEQ</code> 38, <code>START_PREPARED_SEQ</code> 38, <code>TRACK_PARAM</code> 111,
 <code>PLAYER_PARAM</code> 75; <code>SETUP_ALARM</code>만이 아직 디스패치되지 않고 로그만 된다), 노트 43개
 시도에 <strong>43개 울림, 어떤 이유로도 누락 0</strong>, 최대 동시 채널 7, 그리고 32,768 Hz 스테레오의
-33.73 s WAV 티(tee), 피크 20,357, 샘플의 57.7%가 64 초과 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>sessionC.log</code>, <code>sessionC.wav</code></span></span>.</p>
+33.73 s WAV 티(tee), 피크 20,357, 샘플의 57.7%가 64 초과 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>sessionC.log</code>, <code>sessionC.wav</code>; receipt provenance unresolved</span></span>.</p>
 <p><strong>그리고 <code>docs/kb/hybrid/audio.md</code>의 "이 기계의 세션에는 오디오 엔드포인트가 없다"는
 항상 참은 아니다.</strong> 세션 A는 <code>GetDefaultAudioEndpoint failed, code 0x80070490</code>과
 <code>waveOutGetNumDevs = 0</code>을 받았다; 40분 뒤 같은 기계의 같은 사용자 세션에서 세션 B와 C는
 <code>acww snd: sink WASAPI shared mode, 32768 Hz stereo, device buffer 6554 frames</code>를 받았다 &ndash;
-싱크가 열렸고 게임이 소리를 내어 재생했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>sessionA.log</code> 대 <code>sessionB.log</code></span></span>.</p>
+싱크가 열렸고 게임이 소리를 내어 재생했다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>sessionA.log</code> against <code>sessionB.log</code>; receipt provenance unresolved</span></span>.</p>
 <p><strong>스타일러스 발견 사항, 그리고 이것이 라이브 플레이가 동작하기 위해 바뀌어야 했던 유일한
 것이다.</strong> 창의 에지 큐는 이미 한 프레임보다 짧은 클릭이 유실되지 않음을 보장했다. 그러나
 ROM은 최신 샘플로 끝나는 <strong>연속 세 개의 양호한 샘플</strong>이 있을 때만 접촉을 공개하고, ARM7
@@ -571,18 +611,20 @@ ROM은 최신 샘플로 끝나는 <strong>연속 세 개의 양호한 샘플</st
 메시지 펌프 한 번 안의 DOWN+UP은 <code>acww touch: DOWN x=128 y=96</code>을 냈고 <code>TP_POINT</code> 변화는
 전혀 없었다; 같은 클릭을 400 ms 유지하자 <code>trig 1</code>인 <code>TP_POINT</code>가 나오고 화면이 넘어갔으며,
 ROM의 공개는 프레임 7569, 7572, 7581, 7584에 있었다 &ndash; 세 프레임 주기가 눈에 보인다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/live-play.md</code>; <code>../systems/input-and-touch.md</code>; <code>touch-latency.md</code></span></span>.
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/live-play.md</code>; <code>../systems/input-and-touch.md</code>; <code>touch-latency.md</code>; receipt provenance unresolved</span></span>.
 이제 소비된 접촉은 <code>ACWW_TOUCH_MIN_FRAMES</code> 프레임(4, 약 67 ms) 동안 유지되는데, 이는
 어떤 사람의 클릭보다도 훨씬 짧고, 그러면 같은 서브프레임 클릭이 ROM에 도달한다.</p>
-<h3 id="비용-perf42-전과-후">비용, PERF42 전과 후</h3>
+<span class="source-anchor" id="what-it-costs-before-and-after-perf42"></span><h3 id="비용-perf42-전과-후">비용, PERF42 전과 후</h3>
 <p>LIVE41 자체의 측정은 포트가 실제 게임 내용을 <strong>두 경로 모두에서 30-40 fps</strong>로, 인터프리트
 경로와 네이티브 경로 똑같이 렌더링한다는 것이었으므로, 인터프리터는 원인이 아니었다:
 <code>acww_nds2d_frame</code>이 16.71 ms 프레임 중 14-22 ms를, 게임 자체의 프레임이 4-6 ms를 썼다
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>ACWW_FRAMETIME=1</code>, <code>scratchpad/liveplay/frametime/</code></span></span>. <strong>PERF42가 같은 날 밤 그 간격을
 닫았다</strong>: 그리기는 택시에서 7.3 ms, 마을에서 6.2 ms, 페이싱 없이 77과 92 fps이고, 페이싱된
-라이브 실행은 창을 연 채 59.82 Hz를 유지한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/render-perf.md</code> section 5; <code>../engine/graphics-pipeline.md</code></span></span>. LIVE41은 또한 잘못된 렌더러를 지목했다 &ndash; 단계 보고서는
-26.5 ms 중 21.1이 2D 컴포지터가 아니라 3D 래스터라이저였음을 보여 준다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">same, section 3</span></span>.</p>
-<h2 id="스크립트된-실행이-영향받지-않는다는-영수증">스크립트된 실행이 영향받지 않는다는 영수증</h2>
+라이브 실행은 창을 연 채 59.82 Hz를 유지한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/render-perf.md</code> section 5;
+<code>../engine/graphics-pipeline.md</code>; receipt provenance unresolved</span></span>. LIVE41은 또한 잘못된 렌더러를 지목했다 &ndash; 단계 보고서는
+26.5 ms 중 21.1이 2D 컴포지터가 아니라 3D 래스터라이저였음을 보여 준다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/render-perf.md</code> section 5;
+<code>../engine/graphics-pipeline.md</code>, section 3; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="the-receipt-that-scripted-runs-are-unaffected"></span><h2 id="스크립트된-실행이-영향받지-않는다는-영수증">스크립트된 실행이 영향받지 않는다는 영수증</h2>
 <p>이것이 이 페이지가 레시피들 옆에 존재할 수 있는 이유 전부다.</p>
 <ul>
 <li>OFF 레시피, 프레임 4,500..9,000을 150마다: 손대지 않은 <code>174ae9e3</code> 빌드와 LIVE41 빌드
@@ -594,7 +636,7 @@ ROM의 공개는 프레임 7569, 7572, 7581, 7584에 있었다 &ndash; 세 프�
 <li>렌더러를 치우고(<code>ACWW_HEADLESS=1</code>) 강제로 켜면, 달성 속도는 <strong>연속 여덟 개의 600프레임
   창에서 59.82 fps</strong>, 4,800프레임이 목표의 0.01 이내 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/liveplay/paced-hl2/</code></span></span>.</li>
 </ul>
-<h2 id="반증-조건">반증 조건</h2>
+<span class="source-anchor" id="what-would-falsify-it"></span><h2 id="반증-조건">반증 조건</h2>
 <ul>
 <li>"사람이 플레이했다"를 "사람이 앉아서 플레이했다"로 읽는 것. LIVE42 표의 모든 입력은
   스크립트가 포스트한 것이다 &ndash; 포트 자신의 창 큐로 들어가는 <code>PostMessageA</code>. 그것은
@@ -612,12 +654,12 @@ ROM의 공개는 프레임 7569, 7572, 7581, 7584에 있었다 &ndash; 세 프�
 <li>페이싱된 실행의 58.4-59.7 fps 창을 렌더러 비용으로 읽는 것. 이 기계에서 그 창들은
   경합(B14)이다: 헤드리스 조건은 모든 창에서 59.82를 유지하고 같은 레시피를 페이싱 없이
   돌리면 91.7 fps다 &ndash; 10 ms의 여유가 있는 프레임은 다른 무언가가 코어를 가져가지 않는 한
-  데드라인을 놓치지 않는다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/render-perf.md</code> section 5</span></span>.</li>
+  데드라인을 놓치지 않는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/render-perf.md</code> section 5; receipt provenance unresolved</span></span>.</li>
 <li>라이브 세션을 스크립트된 레퍼런스와 비교하는 것. <code>play.py</code>는 실제 시계를 쓰고, RTC42
   이후로 시계는 낮/밤 블렌드를 통해 그림의 매 프레임을 움직인다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>../systems/time-and-rtc.md</code></span></span>.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>../systems/time-and-rtc.md</code>; receipt provenance unresolved</span></span>.</li>
 </ul>
-<h2 id="거친-모서리-고친-것과-남긴-것">거친 모서리, 고친 것과 남긴 것</h2>
+<span class="source-anchor" id="the-rough-edges-fixed-and-left"></span><h2 id="거친-모서리-고친-것과-남긴-것">거친 모서리, 고친 것과 남긴 것</h2>
 <p>측정됨 (LIVE42). 아래의 모든 수정은 게이트를 거쳤다: <code>offgate.py --check --ref
 scratchpad/offgate/33376a19/offgate.json</code>은 손대지 않은 빌드에서, <code>window.c</code> + <code>play.py</code>
 편집 뒤에, 그리고 <code>frame.c</code> 편집 뒤에 다시 <strong>31/31 EXACT</strong>를 읽었다.</p>
@@ -653,7 +695,7 @@ scratchpad/offgate/33376a19/offgate.json</code>은 손대지 않은 빌드에서
 <tr>
 <td>라이브 세션이 사운드 영수증을 남기지 않음</td>
 <td><code>acww_snd_report()</code> &ndash; tag-7 센서스, 드라이버 카운터, <code>ACWW_SND_WAV</code> 플러시 &ndash; 는 <code>ACWW_STOP_FRAME</code> 경로에서만 돌았고, 라이브 실행은 정의상 Escape로 끝나므로 <code>ACWW_SND_WAV</code>는 파일을 쓰지 않았고 이유도 말하지 않았다</td>
-<td><code>frame.c</code>가 창 닫힘 경로에서도 호출한다; 모든 레시피에는 무해한데, 전부 프레임에서 멈추기 때문 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>sessionC.wav</code>, 4.4 MB, Escape로 쓰임</span></span></td>
+<td><code>frame.c</code>가 창 닫힘 경로에서도 호출한다; 모든 레시피에는 무해한데, 전부 프레임에서 멈추기 때문 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>sessionC.wav</code>, 4.4 MB, written by an Escape; receipt provenance unresolved</span></span></td>
 </tr>
 </tbody>
 </table></div>
@@ -663,7 +705,7 @@ scratchpad/offgate/33376a19/offgate.json</code>은 손대지 않은 빌드에서
   칸, 마을 이름은 여덟 칸 &ndash; 그리고 입력한 것은 그 뒤에 덧붙는다. 그림 아티팩트가 아니다:
   이 세션에서 입력한 마을 이름은 세이브 파일에서 원시 바이트 <code>43 31 43 31 43 31 60 be 34 bb</code>,
   즉 <code>ㅃ ㅃ ㅃ 빠 무</code>로 돌아왔고, 이름을 출력하는 모든 대화 줄이 ㅃ들을 출력한다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>shots/10-nameline.png</code>, <code>shots/17-townhall.png</code>, 플레이한 세이브에 대한 <code>savetool.py check</code></span></span>.
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>shots/10-nameline.png</code>, <code>shots/17-townhall.png</code>, <code>savetool.py check</code> on the played save; receipt provenance unresolved</span></span>.
   우회책은 입력 전에 필드 폭만큼 백스페이스를 누르는 것이다. <strong>원본이 이렇게 하는지는
   확립되지 않았다</strong> &ndash; 여기에는 오라클 조건이 없으므로, 이는 열린 질문이지 아직 결함
   주장이 아니다. 새 플레이어가 마주치는 가장 눈에 띄는 것이다.
@@ -681,14 +723,14 @@ scratchpad/offgate/33376a19/offgate.json</code>은 손대지 않은 빌드에서
   페이지의 탭들에 대한 첫 두 탭은 눈에 보이는 일이 없었고 다음 넷은 모두 12.2-13.3프레임에
   응답했다. TOUCH41의 스타일러스 모드 전환이 라이브로 보인 것이다. 마을을 탭하는 후속
   시행에서는 재현되지 않았으므로, 규칙이 아니라 메뉴 대상에서 관측된 것으로 보고한다
-  <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>shots/54-saving.png</code> 대 <code>55-saved.png</code>; <code>lat-taps.txt</code> 대 <code>lat-firsttap.txt</code></span></span>.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>shots/54-saving.png</code> against <code>55-saved.png</code>; <code>lat-taps.txt</code> against <code>lat-firsttap.txt</code>; receipt provenance unresolved</span></span>.</li>
 <li><strong>창 아이콘 없음</strong> (<code>wc.hIcon = 0</code>): 이 링크에는 리소스가 없고 만들 SDK도 없다.</li>
 <li><strong>Escape는 확인 없이 종료한다.</strong> 스토어는 플러시하므로 게임이 쓴 것은 아무것도 잃지
   않는다 &ndash; 그러나 마지막 게임 내 저장 이후의 모든 것은 잃는다. 확인에는 <code>-nostdlib</code>
   링크 안의 대화 상자가 필요하다.</li>
 <li><strong>창은 <code>CW_USEDEFAULT</code>에 열리고</strong> 작은 디스플레이에서는 일부가 화면 밖에 걸릴 수 있다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>../systems/input-and-touch.md</code> &ndash; 패드 레지스터, 터치 링, 포트의 주입</li>
 <li><code>touch-latency.md</code> &ndash; 연속 세 샘플 규칙이 측정된 곳</li>
@@ -696,10 +738,10 @@ scratchpad/offgate/33376a19/offgate.json</code>은 손대지 않은 빌드에서
 <li><code>../engine/graphics-pipeline.md</code> &ndash; 렌더러가 무엇을 소모하는지, PERF42가 무엇을 했는지</li>
 <li><code>run-stability.md</code> &ndash; 세션이 얼마나 오래 살아남는지, 종료 코드가 무엇을 뜻하는지</li>
 <li><code>docs/kb/hybrid/live-play.md</code> &ndash; 이 페이지의 운영용 버전</li>
-</ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/gameplay-walkthrough.html"><small>◀ 이전</small>게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a><a class="pn next" href="../experiments/save-and-reload.html"><small>다음 ▶</small>저장과 재로드</a></nav>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/gameplay-walkthrough.html"><small>◀ 이전</small>게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a><a class="pn next" href="../experiments/save-and-reload.html"><small>다음 ▶</small>저장과 재로드</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

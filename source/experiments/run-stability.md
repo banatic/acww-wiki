@@ -70,7 +70,7 @@ is 1.
 **What the recipe actually costs.** On the AUDIO6-era build the town recipe takes **1,000-1,360
 seconds**, against `run_town.py`'s 1,500 s timeout -- about 10% headroom uncontended, which is
 not much [E: `scratchpad/stab42/INDEX.md`]. On PERF42's build the same chain's town leg cost
-**522 s** [E: `docs/log/cycle42-save.md` SAVE43], so the headroom is now large; the number to
+**522 s** [H: log/source account: `docs/log/cycle42-save.md` SAVE43; receipt provenance unresolved], so the headroom is now large; the number to
 re-measure after any renderer change is this one.
 
 ## What would falsify it
@@ -79,7 +79,7 @@ re-measure after any renderer change is this one.
   `taskkill /IM acww.exe` -- which kills every worktree's exe at once. **Three separate agents
   did that on the night of 2026-09-09**, and each time it ended other sessions' runs; kill by
   PID only, and prefer a uniquely named copy of the exe (`run_sf.py` does this)
-  [E: `docs/log/cycle40-keyboard-gate-probe.md` AUDIO7, SAVEFLOW41, STAB42].
+  [H: log/source account: `docs/log/cycle40-keyboard-gate-probe.md` AUDIO7, SAVEFLOW41, STAB42; receipt provenance unresolved].
 - Judging a run by its frame count or its wall clock under a timeout (B12). Judge the endpoint,
   the exit code and the images.
 - Reading a short log as an incomplete one. It is complete to the instant of death, which is what

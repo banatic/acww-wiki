@@ -11,7 +11,7 @@
 [S: func_020984e8, main, port/shim/game/spnpc.c].
 
 `player + 0x23f8`의 64비트는 게임의 이벤트 플래그이다. `func_02099020(player, bit)`는 하나를 검사하고 `func_02098ff8(player, bit)`는 하나를 설정한다
-[S: func_02099020 / func_02098ff8, main, port/shim/game/spnpc.c]. 플래그 1은 오프닝 자체의 상태 비트이다: 도착 시퀀스 내내 설정되어 있다가 시퀀스가 끝나면 지워지며, 매칭된 트리에서 이를 지우는 단 두 곳은 `func_ov050_02262628`(너굴 쪽)과 `func_ov068_0226e948`이다 [S: ov050/ov068, port/shim/game/spnpc.c]. 이것이 설정되어 있는 동안에는 `0x020e1d08`의 특수 NPC 결정자 테이블에 있는 열한 개 술어 모두가 중단하므로, 오프닝 동안 특수 NPC 스케줄 전체가 설계상(BY DESIGN) 침묵한다
+[S: func_02099020 / func_02098ff8, main, port/shim/game/spnpc.c]. 플래그 1은 오프닝 자체의 상태 비트이다: 도착 시퀀스 내내 설정되어 있다가 시퀀스가 끝나면 지워지며, 매칭된 트리에서 이를 지우는 단 두 곳은 `func_ov050_02262628`(너굴 쪽)과 `func_ov068_0226e948`이다 [H: source account: ov050/ov068, port/shim/game/spnpc.c; direct ROM-source provenance unresolved]. 이것이 설정되어 있는 동안에는 `0x020e1d08`의 특수 NPC 결정자 테이블에 있는 열한 개 술어 모두가 중단하므로, 오프닝 동안 특수 NPC 스케줄 전체가 설계상(BY DESIGN) 침묵한다
 [S: func_02084af0, main, port/shim/game/spnpc.c].
 
 그 비트필드를 쓰는 함수는 단 넷이며, 각각 같은 세 연산 -- `set(1); set(0x23); clear(9)` -- 을 수행한다: `func_0209ee54`(인덱스 0), `func_0209ed90`(1), `func_0209eac8`(5), `func_0209ea24`(6)
@@ -19,7 +19,7 @@
 이것이 플레이어 비트필드가 여전히 0인 채로 세이브가 -- 지형까지 전부 -- 생성될 수 있는 이유이다: 생성(`func_0209ebec`)은 아직 플레이어가 존재하지 않으므로 의도적으로 플레이어 상태를 전혀 쓰지 않는다 [S: func_0209ebec, main, port/shim/game/newgameprobe.c].
 
 플레이어 이름은 택시를 타기 전에 먼저 묻는다. 화면의 프롬프트는 `당신 이름은?`이며, 레퍼런스 실행에서는 약 프레임 7,500에 이름이 확정되고 그 뒤 게임이 오버레이 하나를 언로드한다
-[E: docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, `tap-D55`]. 키보드는 첫 번째(FIRST) 스타일러스 탭을 패드(PAD)에서 스타일러스로의 모드 전환으로 소비하므로 탭 한 번으로는 절대 확정되지 않는다; 창 안에서의 탭 두 번이면 확정된다 [E: docs/log/cycle40-keyboard-gate-probe.md TAP40, `tap-D55`]
+[E: docs/log/cycle40-keyboard-gate-probe.md OVL40/TOUCH40, `tap-D55`; `scratchpad/cycle40/runs/tap-D55`]. 키보드는 첫 번째(FIRST) 스타일러스 탭을 패드(PAD)에서 스타일러스로의 모드 전환으로 소비하므로 탭 한 번으로는 절대 확정되지 않는다; 창 안에서의 탭 두 번이면 확정된다 [E: docs/log/cycle40-keyboard-gate-probe.md TAP40, `tap-D55`; `scratchpad/cycle40/runs/tap-D55`]
 [H: host/prose inference from port/shim/input/touch.c; verify against the ROM function or symbol table and this page's recipe]. 같은 동작이 첫 번째 키보드에 대해 DeSmuME 레퍼런스에서도 재현되었고, 이것이 포트가 이 점에서 틀리지 않았음을 확정지었다
 [O: docs/log/cycle40-keyboard-gate-probe.md ORACLE41, `scratchpad/oracle/tap-fullpad`
 frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
@@ -28,6 +28,16 @@ frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c]. 함수 자체의 풀과 데이터 흐름에서 읽어 낸 필드는 다음과 같다: `+0x134`는 `[0, 0x1000]`으로 클램프된 `fx12` 걷기 속도; `+0x138`은 `func_020e8ed8(dx, dz)` 또는 `0x021fbe44`의 패드 자체 방향 하프워드에서 온 `s16` 각도의 걷기 방향; `+0x13a`는 속도가 `0xc32`를 넘거나 B/X/Y가 눌려 있을 때 설정되는 달리기 플래그; `+0x13c`는 `func_020b7524`에서 온 탭 목표; `+0x144`는 1 또는 2의 탭 클래스; `+0x16d`는 터치 코드; `+0x14c`와 `+0x158`은 세 워드짜리 위치 둘(기억된 목표와 해석된 목표); 그리고 `+0x170`은 입력 모드로, 패드는 1, 터치는 2이며 어느 쪽도 그 프레임을 차지하지 않으면 진입 시 값이 보존된다
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c]. 터치 분류는 `0x0200ddd8`의 하프워드 오프셋 테이블에서 해독되는 18갈래 switch이다
 [S: func_0200dc98, main, port/shim/c6a_0200dc98_intent.c].
+
+**스타일러스 걷기 속도는 데드 존이 있는 곡선이며, 그 세 상수는 함수 자체의 풀에 있다.** 터치
+분기에서 드래그 길이는 `func_020ea9c8`(수평 x/z 거리 헬퍼)에서 오고, `FX_MulFunc(d, 0x4f4)`로
+스케일된다 -- `1268/4096`, 약 `0.31` --. 그 다음 세 갈래로 나뉜다: `0x1000` 이상에서는
+스케일된 길이가 그대로 속도이고, `0x19a` 이하에서는 작은 드래그가 빠지는 데드 존인 **0**이며,
+그 사이는 `FX_Sqrt((d + 0x39a) * 4096 / 0x139a)`를 세 번의 `FX_MulFunc`로 네 제곱한 뒤
+`[0, 0x1000]`으로 되돌려 클램프하고 `+0x134`에 저장한다. 위의 달리기 임계값 `0xc32`는
+같은 결과에 대해 검사되므로, 드래그로 걸으면서 달리지는 않을 수 있다
+[S: func_0200dc98 at `0x0200e1bc`..`0x0200e21a`, main, disassembly with the pool words resolved;
+O: docs/log/cycle41-gameplay.md SQRT56 S56-1].
 
 **건물에서 나올 때 문 테이블을 읽지 않는다: 플레이어가 들어갈(IN) 때 서 있던 위치를 재생한다.**
 바깥 위치는 `0x021f69b8`의 보류 목적지 레코드(`+0x00`에 `VecFx32`, 그 다음 종류 워드)에 보관된다;
@@ -40,7 +50,7 @@ frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
 `func_0203f684`를 통해 이를 카메라 목표로 복사한다
 [S: `src/matched/func_0203c76c.c`, `func_0203f684.c`]. 스크립트된 도착에서 측정됨(MEASURED): 레코드는
 플레이어가 현관 매트 타일에 도달하고 81프레임 뒤인 프레임 38,838에 문의 값을 취하고, 프레임 49,593의
-퇴장은 -- 10,755프레임과 세이브스테이트 하나 뒤에 -- 바로 그 워드를 게시한다 [E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, runs `x48-p-originz`, `x48-p-seqwatch`].
+퇴장은 -- 10,755프레임과 세이브스테이트 하나 뒤에 -- 바로 그 워드를 게시한다 [E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, runs `x48-p-originz`, `x48-p-seqwatch`; `scratchpad/exit48/runs/x48-p-originz`, `scratchpad/exit48/runs/x48-p-seqwatch`].
 따라서 건물 퇴장은 재생(REPLAY)이며, 착지하는 타일은 건물이 아니라 플레이어가 지나온 마을의
 속성이다.
 
@@ -49,7 +59,7 @@ frames 6000-24000, bottom-screen ncc 0.9997-1.0000].
 
 플레이어 집은 주민 집과 별개의 에셋 계열이다:
 `/str/plHsTex/home%c%c.nsbtx`가 ov003 자체의 표기이다
-[S: ov003 pool words, docs/kb/modules/ov003-068.md].
+[H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved].
 
 DS 펌웨어의 사용자 설정은 게임이 읽는 닉네임과 생일을 제공한다. 펌웨어 레코드의 `birthMonth`는 `+0x03`에, `birthDay`는 `+0x04`에 있다
 [H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe]. 포트는 자체 값 -- 닉네임 `PLAYER`, 생일 1월 1일 -- 을 제공하고 그렇다고 명시하는데, 이는 복원이 아니라 포트의 선택이기 때문이며, 닉네임은 게임 안에 실제로(IS) 표시된다 [H: host/prose inference from port/shim/boot/usersettings.c; verify against the ROM function or symbol table and this page's recipe].
@@ -95,11 +105,29 @@ DS 펌웨어의 사용자 설정은 게임이 읽는 닉네임과 생일을 제�
 | **`0x021f69b8`**, `+0x00`의 `VecFx32` | **보류 중인 바깥(OUTSIDE) 위치** -- 건물 퇴장이 플레이어를 놓을 곳. 플레이어가 들어갈(IN) 때 쓰이고, 그 전에는 `{0x30000, 0, 0x30000}`으로 기본 설정됨 | `func_020b64f0`, `func_020b5ea0`과 `func_020b6518`에서 | `func_020b6214` case `0x3c` |
 | **`0x021f69d4`/`+8`/`+0xc`** | 씬 요청 레코드의 목적지 위치 | `func_020b63f4` | 씬 로드 |
 | `0x021c749c`, `fx32` 3개 | 필드 카메라가 추적하는 월드 점 -- 라이브 플레이어 위치; 타일 = 워드 / 8192 | `func_0203f684`, `func_0203c76c`에서 | `ACWW_PLAYER_TRACE`, `port/tools/navlib.py` |
+| **`*(u32 *)0x021d5684` + `0x5c`, `fx32` 3개** | **플레이어 ACTOR 자체의 월드 위치** -- 라이브 위치이며, 실내에서 사용해야 하는 위치이다. 실내에서는 `0x021c749c`가 카메라의 클램프된 목표라서 한 타일 전체만큼 어긋날 수 있다. 타일 = 워드 / 8192 | `pc 0x01ffcab8` (lr `0x02003315`), `pc 0x02003326`, `pc 0x02031444` (lr `0x02031427`)의 이동 갱신 | `ACWW_PLAYER_TRACE`, `port/tools/navlib.py` |
+| actor `+0x94` u16 | **방향**, 16비트 회전 단위: `0` = 남쪽(+z), `0x4000` = 동쪽, `0x8000` = 북쪽(-z), `0xc000` = 서쪽. `+0x8c`는 16.16의 같은 각도이다 | 이동 갱신 | 이동 갱신, 모델 |
+| actor `+0x98` `fx32` | **로직 틱당 명령된 걷기 속도.** 틱마다 `+147`만큼 올라가며 **`1343`**에서 상한에 이른다. 변위가 아니라 명령이므로, 벽이나 아이템에 맞으면 위치가 움직이지 않아도 `775`로 읽힌다 | 이동 갱신 | 이동 갱신 |
 | 펌웨어 `+0x03` / `+0x04` | 생일 월 / 생일 일 | 펌웨어(포트: `usersettings.c`) | 게임 인사 경로 |
 
 모든 행은 S 등급이며, 앞 표의 파일들에서 인용했다; 주머니, 지갑, 착용 행은 S+E이다 -- ROM 함수에
 더해, 그것이 실행되는 순간을 포착한 라이브 스토어 워치포인트이다
-(GAMEPLAY47, `docs/log/cycle41-gameplay.md` GP47-1과 GP47-2).
+(GAMEPLAY47, `docs/log/cycle41-gameplay.md` GP47-1과 GP47-2). 세 액터 행은 E이다: 방향을 누른
+상태에서 액터를 프레임마다 영역 장부로 샘플링한 결과와, 작성자를 호출자 정보로 특정한 스토어
+워치포인트이다(WALK56, `docs/log/cycle41-gameplay.md` WALK56; receipts `scratchpad/walk56/`).
+
+**플레이어는 얼마나 빨리 걷는가, 그리고 그 값은 하나다.** 측정됨(WALK56). ROM의 로직 틱은
+표시되는 **세 프레임마다 하나**이므로 위치는 세 번째 프레임마다만 바뀐다. 방향을 계속 누르면
+속도 워드가 틱마다 `+147`씩 올라 **틱당 `1343` fx32**의 상한에 이르며, 이는 프레임당
+`447.7`, **타일당 18.3프레임**이다(타일은 `8192` fx32). 이 상한은 네 방향 모두 같고 실내와
+실외에서도 같다: 깨끗한 실내 직선로에서 서로 다른 **두 방**(너굴 상점, 바닥 종류 `0x1e`,
+마을 회관, `0x06`)의 북쪽, 남쪽, 동쪽, 서쪽으로 연속 네 타일을 건너는 동안 `1343`을
+그대로 유지한다. **원본도 용어마다 일치한다**: 마을 회관 계단에서 남쪽으로 나오는 오라클
+실행은 틱마다 `261, 613, 844, 1017, 1172, 1321, 1343 x8`로 진행했으며, 이는 포트의
+깨끗한 남쪽 직선로와 정확히 같다. 달라지는 것은 거기까지 **도달하는 과정**이다 -- 방향을
+반대로 바꾸면 약 30프레임의 180도 회전이 먼저 들고(방향은 틱마다 `6000` 단위로 돌아간다),
+벽이나 아이템을 스치는 길에서는 빠져나올 때까지 스텝이 줄어든다. GAMEPLAY55의 "남쪽과
+서쪽은 타일당 84프레임"은 이 과도 상태를 속도로 읽은 것이며 철회되었다. `docs/kb/hybrid/scripted-play-2.md` 4n을 보라.
 
 ## 확인 방법
 
@@ -107,25 +135,25 @@ DS 펌웨어의 사용자 설정은 게임이 읽는 닉네임과 생일을 제�
 [H: host/prose inference from port/shim/game/spnpc.c; verify against the ROM function or symbol table and this page's recipe]. `port/shim/game/newgameprobe.c`는 새 게임의 두 절반 -- 부팅 생성과 플레이어 커밋 -- 중 어느 것이 일어났는지를, 한쪽에서 다른 쪽을 추론하지 않고 직접 보고한다 [H: host/prose inference from port/shim/game/newgameprobe.c; verify against the ROM function or symbol table and this page's recipe].
 
 퇴장 위치에 대해서는 건물로 걸어 들어가는 실행에서 프레임 1부터 `ACWW_INTERP_WATCH=0x021f69c0:0x021f69c3`을 건다: 도착 전체에 걸쳐 서로 다른 값은 셋뿐이며, 두 번째 값 앞의 `ACWW_PLAYER_TRACE` 줄이 그 값을 가져온 타일을 알려 준다
-[E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, run `x48-p-originz`].
+[E: `docs/log/cycle41-gameplay.md` EXIT48 X48-3, run `x48-p-originz`; `scratchpad/exit48/runs/x48-p-originz`].
 
 이름 프롬프트에 대해서는 마을 레시피를 실행하고 프레임 4,500에서 7,500을 본다: 키보드가 있는 택시 실내, 그 다음 확정
-[E: docs/log/cycle40-keyboard-gate-probe.md TOWN40, `tap-D56`].
+[E: docs/log/cycle40-keyboard-gate-probe.md TOWN40, `tap-D56`; `scratchpad/cycle40/runs/tap-D56`].
 
 ## 가설
 
-- **H: `0x249c` 플레이어 슬롯은 주머니(인벤토리), 편지, 카탈로그를 담고 있으며, 이들은 슬롯 안에서 연속된 블록이다.** 슬롯은 크고 이벤트 비트필드는 끝 근처 `+0x23f8`에 있다 [S: port/shim/game/newgameprobe.c]. 실험: 라이브 실행에서 아이템 하나를 줍기 전후에 세이브 이미지 둘을 뜬 뒤 diff하고, 슬롯 안에서 어느 오프셋이 바뀌는지 기록한다.
+- **H: `0x249c` 플레이어 슬롯은 주머니(인벤토리), 편지, 카탈로그를 담고 있으며, 이들은 슬롯 안에서 연속된 블록이다.** 슬롯은 크고 이벤트 비트필드는 끝 근처 `+0x23f8`에 있다 [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. 실험: 라이브 실행에서 아이템 하나를 줍기 전후에 세이브 이미지 둘을 뜬 뒤 diff하고, 슬롯 안에서 어느 오프셋이 바뀌는지 기록한다.
 - **H: 커밋 넷 모두가 플래그 1과 함께 설정하는 이벤트 플래그 `0x23`은 "이 플레이어가 생성되었음"이다.** 넷 모두 `set(1); set(0x23); clear(9)`를 수행한다
-  [S: port/shim/game/newgameprobe.c]. 실험: 매칭된 트리에서 `func_02099020(..., 0x23)` 호출 지점을 grep하고 각각이 무엇을 게이트하는지 읽는다.
-- **H: 커밋 넷 모두가 지우는(CLEAR) 플래그 9는 "돌아온 플레이어" 또는 튜토리얼 완료 비트이다.** 같은 근거이다 [S: port/shim/game/newgameprobe.c]. 실험: 비트 9에 대해 같은 grep을 하고, 택시 전에 `func_02098ff8`로 손수 설정한 뒤 어떤 대화가 바뀌는지 본다.
+  [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. 실험: 매칭된 트리에서 `func_02099020(..., 0x23)` 호출 지점을 grep하고 각각이 무엇을 게이트하는지 읽는다.
+- **H: 커밋 넷 모두가 지우는(CLEAR) 플래그 9는 "돌아온 플레이어" 또는 튜토리얼 완료 비트이다.** 같은 근거이다 [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. 실험: 비트 9에 대해 같은 grep을 하고, 택시 전에 `func_02098ff8`로 손수 설정한 뒤 어떤 대화가 바뀌는지 본다.
 - **H: 플레이어 자신의 이름은 `0x249c` 슬롯 안의 시작 근처 고정 오프셋에 UTF-16으로 저장된다.** 마을 이름은 다른 루틴이 마을 영역에 찍는다
-  [S: port/shim/game/newgameprobe.c] [E: docs/log/cycle40-keyboard-gate-probe.md TOWN40].
+  [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved] [H: log/source account: docs/log/cycle40-keyboard-gate-probe.md TOWN40; receipt provenance unresolved].
   실험: 서로 다른 플레이어 이름을 입력해 레시피를 두 번 실행하고 슬롯을 diff한다.
-- **H: 걷기 속도 클램프 `[0, 0x1000]`과 달리기 임계값 `0xc32`는 달리기가 최대 스타일러스 드래그 속도의 약 76%이고 B를 누르고 있어도 도달할 수 있음을 뜻한다.** 두 상수 모두 풀 워드이다 [S: port/shim/c6a_0200dc98_intent.c]. 실험: 라이브 실행에서 마우스를 플레이어로부터 여러 거리에 두고 `+0x134`와 `+0x13a`를 기록한다.
-- **H: 도구는 별도의 도구 슬롯이 아니라 의도 블록의 탭 목표 필드에 보관된다 -- 즉 도구는 지속적인 손의 속성이 아니라 행동의 속성이다.** `+0x13c`는 탭 목표이고 `+0x144`는 탭 클래스이다 [S: port/shim/c6a_0200dc98_intent.c]. 실험: 플레이어가 도구를 든 상태에 도달한 뒤 `self + 0x134`..`0x170`을 도구 없는 프레임과 비교해 살펴본다.
+- **H: 걷기 속도 클램프 `[0, 0x1000]`과 달리기 임계값 `0xc32`는 달리기가 최대 스타일러스 드래그 속도의 약 76%이고 B를 누르고 있어도 도달할 수 있음을 뜻한다.** 두 상수 모두 풀 워드이다 [H: source account: port/shim/c6a_0200dc98_intent.c; direct ROM-source provenance unresolved]. 실험: 라이브 실행에서 마우스를 플레이어로부터 여러 거리에 두고 `+0x134`와 `+0x13a`를 기록한다.
+- **H: 도구는 별도의 도구 슬롯이 아니라 의도 블록의 탭 목표 필드에 보관된다 -- 즉 도구는 지속적인 손의 속성이 아니라 행동의 속성이다.** `+0x13c`는 탭 목표이고 `+0x144`는 탭 클래스이다 [H: source account: port/shim/c6a_0200dc98_intent.c; direct ROM-source provenance unresolved]. 실험: 플레이어가 도구를 든 상태에 도달한 뒤 `self + 0x134`..`0x170`을 도구 없는 프레임과 비교해 살펴본다.
 - **H: 플레이어 슬롯 넷은 마을이 가질 수 있는 거주자 넷이며, 부팅 모드 워드 1/2/3은 첫 플레이어 / 추가 플레이어 / 가져온 플레이어에 대응한다.**
   `func_ov051_022610d4`는 1, 2, 3을 서로 다른 세 커밋으로 사상한다
-  [S: port/shim/game/newgameprobe.c]. 실험: 워드를 차례로 2와 3으로 강제하고 결과 커밋이 어느 슬롯에 쓰는지 기록한다.
+  [H: source account: port/shim/game/newgameprobe.c; direct ROM-source provenance unresolved]. 실험: 워드를 차례로 2와 3으로 강제하고 결과 커밋이 어느 슬롯에 쓰는지 기록한다.
 
 ## 관련 문서
 

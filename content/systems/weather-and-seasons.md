@@ -19,7 +19,7 @@
 
 하늘과 조명은 하나의 메커니즘이다. `func_020bba14`는 `0x021f6cf0`의 낮/밤 색상 테이블을 채우는 유일한 함수이며, 마을 색상에서 눈에 보이는 모든 것이 이를 거친다: 래스터라이저는 각 텍셀을 조명이 적용된 버텍스 색상으로 변조하고, 그 색상은 NNS glb 광원 색상에서 오며, 그것은 광원 매니저의 원소들(채널 7, vtable `0x020de710`, `func_02065938`가 플러시)에서 오고, 그 원소들은 `func_020bbf00` = 바로 그 테이블을 샘플링한다
 [S: func_020bba14, main, port/shim/game/envlight.c]
-[E: port/BOOT-STATE.md, glb light words all four black before the repair].
+[H: log/source account: port/BOOT-STATE.md, glb light words all four black before the repair; receipt provenance unresolved].
 
 명령어 단위로 해독하면 `func_020bba14`는 다음을 수행한다
 [S: func_020bba14, main, port/shim/game/envlight.c]:
@@ -38,10 +38,10 @@
 
 환경 객체의 init `func_020baa28`(vtable `0x020e69a4`, 슬롯 0)는 `/sky/*_bg_ncl.bin` 팔레트 네 개를 로드한다; 그 다섯 전역 변수가 잘못 바인딩되었을 때는 이 로드가 NULL 이름으로 실행되어 마을 전체가 검게 합성되었다
 [S: func_020baa28, main, port/BOOT-STATE.md]
-[E: port/BOOT-STATE.md, 38-42k pixels blended with full alpha and zero colour].
+[H: log/source account: port/BOOT-STATE.md, 38-42k pixels blended with full alpha and zero colour; receipt provenance unresolved].
 
-시(hour)는 하늘의 외형을 직접적이고 눈에 띄게 좌우한다: 시계가 새벽 4시를 가리키면 타이틀의 하늘은 별밭이다 [E: port/BOOT-STATE.md, `acww envlight: hour 0x00000004`]. 마을에서 하늘은 별도의 아핀(affine) 배경이다: 엔진 B 모드 1에 BG3 아핀(`BG3CNT = 0x6f02`)이며, 아핀 레이어가 렌더링되자 구름이 나타났다
-[E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57` frame 37800].
+시(hour)는 하늘의 외형을 직접적이고 눈에 띄게 좌우한다: 시계가 새벽 4시를 가리키면 타이틀의 하늘은 별밭이다 [H: log/source account: port/BOOT-STATE.md, `acww envlight: hour 0x00000004`; receipt provenance unresolved]. 마을에서 하늘은 별도의 아핀(affine) 배경이다: 엔진 B 모드 1에 BG3 아핀(`BG3CNT = 0x6f02`)이며, 아핀 레이어가 렌더링되자 구름이 나타났다
+[E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57` frame 37800; `scratchpad/cycle40/runs/tap-D57`].
 
 날씨 상태 자체는 `func_02035dcc`가 리셋하며, ROM의 모든 호출자는 이를 `*(0x021c526c) + 0x2d0`로 호출한다 -- 즉 날씨는 필드 객체의 `0x2d0` 오프셋 하위 구조체이다
 [S: func_02035dcc, main, port/shim/game/weather.c]. 그 호출자는 `func_02041c88`과 `func_020b90cc -> func_0208a2d8 -> func_020f44f8`이다
@@ -49,14 +49,14 @@
 [S: func_02034d14, main, port/shim/game/fieldptr.c].
 
 눈은 이펙트가 아니라 채널이다: 채널 189는 눈사람(SNOWMAN)으로, `/snowman/snowball1.nsbmd`(모델 `SNW0`, id `0x022383ac`)와 `/snowman/snow_face.nsbmd`(모델 `SNW1`, id `0x022383c8`)를 바인딩하며, ov003 역시 자체 풀에 `sp_npc_snowman`이라는 이름을 갖고 있다
-[E: port/BOOT-STATE.md, bind log] [S: ov003 pool words, docs/kb/modules/ov003-068.md]. 오랜 작업 동안 지형으로 취급되었던 53폴리곤 곡면은 알고 보니 눈덩이였다 [E: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"].
+[H: log/source account: port/BOOT-STATE.md, bind log; receipt provenance unresolved] [H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. 오랜 작업 동안 지형으로 취급되었던 53폴리곤 곡면은 알고 보니 눈덩이였다 [H: log/source account: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"; receipt provenance unresolved].
 
 비는 파일이 아니다(NOT). `m_rainA`, `m_rainB`, `m_splash`는 이미 로드된 `obj_taxi` 모델 안의 모델 노드 또는 애니메이션 이름이며, 파일 시스템에서 `*rain*`을 검색하면 BMG 메시지 파일 열두 개만 나온다 -- 따라서 빠진 비 에셋은 없으며 아무도 그것을 찾아 헤맬 필요가 없다
 [H: host/prose inference from port/VISIBLE-STATE.md, filesystem search; verify against the ROM function or symbol table and this page's recipe]. ov003의 풀은 택시 객체들 옆에 이들의 이름을 두고 있다
-[S: ov003 pool words, docs/kb/modules/ov003-068.md]. 비는 인터프리터 경로에서 프레임 4,500의 택시 실내에서 실제로 보인다(IS)
-[E: docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51].
+[H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. 비는 인터프리터 경로에서 프레임 4,500의 택시 실내에서 실제로 보인다(IS)
+[E: docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51; `scratchpad/cycle40/runs/off-D51`].
 
-계절별 외형은 에셋에도 들어 있다: ov003의 텍스처 이름은 `w`/`s`/`f` 변종을 갖는다 [S: ov003 pool words, docs/kb/modules/ov003-068.md].
+계절별 외형은 에셋에도 들어 있다: ov003의 텍스처 이름은 `w`/`s`/`f` 변종을 갖는다 [H: source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved].
 
 ## 어디에 있는가
 
@@ -98,23 +98,23 @@
 [S: main, port/shim/game/season.c].
 
 하늘에 대해서는 `ACWW_RTC_*`를 서로 다른 시각으로 설정해 실행하고 `acww envlight: hour <h>`를 지켜본다; 타이틀의 하늘은 4시에 별밭이다
-[E: port/BOOT-STATE.md]. 마을 하늘에 한정하면, 마을 레시피의 프레임 37,800이 파란 하늘 위의 구름을 보여 준다 [E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57`].
+[H: log/source account: port/BOOT-STATE.md; receipt provenance unresolved]. 마을 하늘에 한정하면, 마을 레시피의 프레임 37,800이 파란 하늘 위의 구름을 보여 준다 [E: docs/log/cycle40-keyboard-gate-probe.md SKY40, `tap-D57`; `scratchpad/cycle40/runs/tap-D57`].
 
 ## 가설
 
 - **H: `0x021f8ad4`는 날씨만의 인덱스가 아니라 `(season, weather)` 결합 인덱스이며, `table_020d2364`는 이를 평탄화하는 테이블이다.** 이중 간접 참조 -- `0x021f8ad4`의 워드에서 `table_020d2364`를 거쳐 행으로 -- 는 2차원 조회를 1차원으로 접은 모습 그대로이다
-  [S: port/shim/game/envlight.c]. 실험: 같은 날짜에서 `func_02063bb4`의 결과를 0..3 각각으로 강제하고 `*(u32 *)0x021f8ad4`와 그 결과 행을 기록한다.
+  [H: source account: port/shim/game/envlight.c; direct ROM-source provenance unresolved]. 실험: 같은 날짜에서 `func_02063bb4`의 결과를 0..3 각각으로 강제하고 `*(u32 *)0x021f8ad4`와 그 결과 행을 기록한다.
 - **H: 날씨는 프레임마다가 아니라 하루에 한 번, 계절별 확률 테이블에서 선택된다.** `func_02035dcc`는 선택자가 아니라 리셋(RESET)이며, 그 호출자들은 전환 지점이다
-  [S: port/shim/game/weather.c]. 실험: 사흘짜리 `ACWW_RTC_*` 실행 동안 `0x021f8ad4`에 대한 모든 쓰기를 계측하고 세어 본다; 날짜 롤오버당 한 번의 쓰기라면 가설을 뒷받침한다.
+  [H: source account: port/shim/game/weather.c; direct ROM-source provenance unresolved]. 실험: 사흘짜리 `ACWW_RTC_*` 실행 동안 `0x021f8ad4`에 대한 모든 쓰기를 계측하고 세어 본다; 날짜 롤오버당 한 번의 쓰기라면 가설을 뒷받침한다.
 - **H: `w`/`s`/`f` 텍스처 접미사는 winter / summer / fall이며, 봄은 접미사 없는 기본값이다.** 네 계절에 접미사가 셋이라는 점이 단서이다
-  [S: docs/kb/modules/ov003-068.md]. 실험: 계절을 0..3 각각으로 강제한 채 `/bg/t%d/%04x.nsbtx`와 `/fg/**`의 모든 열기(open)를 기록하고 이름 집합을 비교한다.
+  [H: source account: docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved]. 실험: 계절을 0..3 각각으로 강제한 채 `/bg/t%d/%04x.nsbtx`와 `/fg/**`의 모든 열기(open)를 기록하고 이름 집합을 비교한다.
 - **H: `func_0204fa8c`의 8월과 9월 분할은 두 개의 불꽃놀이/축제 기간이며, `func_0204fafc`는 `func_0209df94`가 돌려주는 바이트에 대해 일(day-of-month) 또는 요일(day-of-week) 조건을 검사한다.** 오직 그 두 달만 갈라진다
-  [S: port/shim/game/seasonidx.c]. 실험: `func_0204fafc`와 `func_0209df94`를 디컴파일하고 365일 전체에 대해 그 쌍을 평가한다.
+  [S: `src/matched/func_0204fa8c.c`; historical account: port/shim/game/seasonidx.c]. 실험: `func_0204fafc`와 `func_0209df94`를 디컴파일하고 365일 전체에 대해 그 쌍을 평가한다.
 - **H: 비는 파티클 시스템이 아니라, 택시/필드 모델 자체의 `m_rainA`/`m_rainB` 노드가 날씨 상태에 의해 활성화되어 그려진다.** 이들은 로드된 모델 안의 노드이다
-  [S: port/VISIBLE-STATE.md]. 실험: 마을에서 날씨 워드를 각 값으로 강제하고 프레임당 큰 반투명 폴리곤 수를 센다.
-- **H: 눈사람 채널(189)은 필드 씬이 무조건 여는 것이 아니라, 계절이 겨울이고 눈이 쌓였을 때 날씨/계절 갱신이 연다.** 채널은 존재하며 눈 모델을 바인딩한다 [E: port/BOOT-STATE.md]. 실험: RTC를 1월과 7월로 설정해 마을 레시피를 실행하고 채널 189가 열리는지 기록한다.
+  [H: source account: port/VISIBLE-STATE.md; direct ROM-source provenance unresolved]. 실험: 마을에서 날씨 워드를 각 값으로 강제하고 프레임당 큰 반투명 폴리곤 수를 센다.
+- **H: 눈사람 채널(189)은 필드 씬이 무조건 여는 것이 아니라, 계절이 겨울이고 눈이 쌓였을 때 날씨/계절 갱신이 연다.** 채널은 존재하며 눈 모델을 바인딩한다 [H: log/source account: port/BOOT-STATE.md; receipt provenance unresolved]. 실험: RTC를 1월과 7월로 설정해 마을 레시피를 실행하고 채널 189가 열리는지 기록한다.
 - **H: `func_020bbb6c`가 돌려주는 두 가중치는 (시간 내 경과 분)과 (행 전환 진행도)이며, 후자가 계절 변화를 하루 이상에 걸쳐 서서히 바뀌게 만드는 요인이다.** 두 번째 가중치는 두 행 블렌드에만 사용된다
-  [S: port/shim/game/envlight.c]. 실험: 시간 경계와 계절 경계를 가로질러 `w1`과 `w2`를 기록한다.
+  [H: source account: port/shim/game/envlight.c; direct ROM-source provenance unresolved]. 실험: 시간 경계와 계절 경계를 가로질러 `w1`과 `w2`를 기록한다.
 
 ## 관련 문서
 

@@ -64,10 +64,10 @@ defines the 68-byte wrapper at `0x0211e7c0` and declares it calling `RTC_SetDate
 symbol is defined in no matched file and appears nowhere in the linked image; the ROM's own
 branch word at `0x0211e7d0` is `bl 0x0211e804`, which is `RTC_GetDateTimeAsync`; and the three
 68-byte wrappers sit immediately before their own async partners in the order NitroSDK emits
-them [S: read from `extract/adm-kr/arm9/unk_autoload_2.bin` and the autoload_2 symbol table, as
-recorded in `port/shim/os/rtcclock.c`]. `0x0211e7c0` is `RTC_GetDateTime`. Byte matching cannot
+them [H: source account: read from `extract/adm-kr/arm9/unk_autoload_2.bin` and the autoload_2 symbol table, as
+recorded in `port/shim/os/rtcclock.c`; direct ROM-source provenance unresolved]. `0x0211e7c0` is `RTC_GetDateTime`. Byte matching cannot
 tell the two apart, because the harness masks call displacements -- this is defect class D12, a
-name encoding a mistyped target [S: `docs/rules/D-defects.md` D12].
+name encoding a mistyped target [H: source account: `docs/rules/D-defects.md` D12; direct ROM-source provenance unresolved].
 
 ### The game's clock
 
@@ -91,24 +91,34 @@ scales it by 0x44445 >> 12, which is 4096/60 -- a fixed-point blend weight for t
 environment-light interpolation [S: `func_020bbb6c` / `func_0209def4`, main, quoted in
 `port/shim/os/rtcclock.c`].
 
-**The clock is what seeds the GAME's own random number generator, and that is what decides the
-town** (ORACLE46). `func_02061530` sets the state word at `0x021cb5a0` to `func_0209dbbc()`,
-which folds FOUR bytes of the globals above -- `minute | day<<8 | hour<<16 | second<<24`, from
-`0x021dc758`, `0x021dc74c`, `0x021dc754` and `0x021dc75c` -- and no year, month, weekday or
-tick [S: `src/matched/func_02061530.c`, `src/matched/func_0209dbbc.c`]. On the port a load
-watchpoint on that block names the three reading pcs (`0x0209dbc0`, `0x0209dbc4`, `0x0209dbcc`)
-at **frame 3**, seeing `0`, `0x0f`, `0x0a` -- seed `0x000a0f00` for the default instant -- and
-the same census over the two town-generation windows finds them absent, so the seeding happens
-once and never again on this path [E: `scratchpad/oracle46/RECEIPTS.md`, O46-1; `docs/log/cycle41-gameplay.md` ORACLE46]. **The practical
-consequence: a clock arm that takes effect after the first second cannot change the seed**, and
-one that changes the boot instant's minute, day, hour or second changes the whole town.
+**The clock seeds the gameplay RNG once; the later clock arm changes draw counts.**
+`func_02061530` sets `0x021cb5a0` from `func_0209dbbc()`, which folds
+`minute | day<<8 | hour<<16 | second<<24`, excluding year, month, weekday and tick
+[S: `src/matched/func_02061530.c`, `src/matched/func_0209dbbc.c`].
+ORACLE46 measured the same seed `0x000a0f00` on the port at frame 3 and on both
+armed and unarmed originals at frame 44 [E: `scratchpad/oracle46/RECEIPTS.md`;
+log: `docs/log/cycle41-gameplay.md` O46-1, O46-4].
+ORACLE47 measured the armed and unarmed originals at the same draw index 1,430 at
+frame 10,000, then 1,532 armed versus 1,529 unarmed at 11,000, with all 14 extra
+armed draws consumed after 10,000 on the town-name page by confirmation
+[E: `scratchpad/oracle46/ledgers/o-townarm.jsonl`,
+`scratchpad/oracle46/ledgers/o-townoff.jsonl`; log: `docs/log/cycle41-gameplay.md` O47-3].
+The town-id draw indices were 2,667 (port), 2,684 (unarmed original) and 2,698
+(armed original), so matching the seed alone did not match the town
+[E: `scratchpad/oracle46/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4].
+For a shared-map gameplay comparison use the forward recipe in
+`port/tools/oracle/README.md` (the recipe-selection table): port second tap
+24,908 versus original 24,700 with no oracle clock arm, a newly built chain in town
+`0x8365`, and the documented 13m22s HUD-clock difference
+[E: `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-0, O50-3;
+recipe: `port/tools/oracle/README.md`].
 
 Outside the game's own clock, the RTC is an entropy source. The Wi-Fi identity generator seeds
 a 16-bit LCG from the RTC date and time converted to seconds, salted with the tick counter if
 one is available [S: `func_02100cbc` (`DWCi_AUTH_GetNewWiFiInfo`), autoload_2,
 `src/matched/func_02100cbc.c`], and the AOSS setup RNG folds `hour<<10 + minute<<3 + second`
 into its seed [S: `AOSS_Rand`, ov001, `src/matched/AOSS_Rand.c`]. **No matched `func_ov004_*`
-file references the RTC at all** [S: absence across 2,886 ov004 files in `src/matched`].
+file references the RTC at all** [H: source account: absence across 2,886 ov004 files in `src/matched`; direct ROM-source provenance unresolved].
 
 ### The tick
 
@@ -128,8 +138,8 @@ expands the SDK macro `(tick*64)/OS_SYSTEM_CLOCK` at its own site
 The port drives the *registers* rather than shimming `OS_GetTick`, writing
 `TICKS_PER_FRAME` = 8,728 into `0x04000100` and the counter each frame, so `OS_GetTick`,
 `OS_GetTickLo`, the alarm path and the thread-sleep path all read a consistent truth
-[E: `port/platform/tick.c`; the one-second wait in `func_020b5898` compares against 523,656,
-which is 8,728 x 60]. This is a clock that counts frames, not wall time: a port running at half
+[H: log/source account: `port/platform/tick.c`; the one-second wait in `func_020b5898` compares against 523,656,
+which is 8,728 x 60; receipt provenance unresolved]. This is a clock that counts frames, not wall time: a port running at half
 speed sees time pass at half speed [H: host-source account from `port/platform/tick.c`; verify with a retained scripted run and frame using this page's recipe]. Before it existed, both reads
 answered zero, `func_020b5898`'s state 2 computed `now - saved == 0` forever, and the Nintendo
 logo screen at frame 900 was identical to frame 120 [H: host-source account from `port/platform/tick.c`; verify with a retained scripted run and frame using this page's recipe].
@@ -157,8 +167,8 @@ ROM to run, so the three getters still answer directly from the same model
 33.513982 MHz clock, the same pair the port's frame pacer uses -- and the instant is a PURE
 FUNCTION of the frame count, `boot + floor(frames * 560190 / 33513982)` seconds, with the
 midnight rollover, the month lengths, the leap day and the weekday computed from there
-[E: `port/shim/os/rtcclock.c`; `port/tools/test_rtc.py` calibrates fourteen cases including a
-leap day, three month ends and midnight]. That keeps the two properties that were in tension:
+[H: log/source account: `port/shim/os/rtcclock.c`; `port/tools/test_rtc.py` calibrates fourteen cases including a
+leap day, three month ends and midnight; receipt provenance unresolved]. That keeps the two properties that were in tension:
 game time passes while playing, and the same recipe run twice is still the same run, because
 nothing reads wall time. It is the same trade the tick makes -- a port running at half speed
 sees game time pass at half speed.
@@ -173,7 +183,7 @@ pre-RTC42 frozen clock exactly, for a diagnostic that needs two runs of differen
 see one instant [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. The clock is carried in the savestate -- the
 boot instant, the freeze flag and the "instant decided" flag -- so a resumed run keeps the
 clock it was snapshotted with instead of re-reading the loading shell's environment
-[E: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`].
+[H: log/source account: `port/platform/state.c`; `docs/kb/hybrid/savestate.md`; receipt provenance unresolved].
 
 The oracle pins the same boot instant, `rtcStart 2005-06-15T10:00:00Z` in the generated movie,
 and DeSmuME advances its emulated chip with emulated time from there, which is why the two
@@ -198,7 +208,7 @@ running, every frame of the OFF recipe differs from the frozen build's, at uncha
 against the oracle (0.997413 both, worst frame -0.000008)
 [E: `scratchpad/rtc42/analyse.txt`; `docs/log/cycle41-gameplay.md` RTC42]. The freeze arm is
 also the receipt that the PXI rewrite itself is neutral: frozen, it is 31/31 identical to the
-pre-RTC42 build [E: same].
+pre-RTC42 build [E: `scratchpad/rtc42/analyse.txt`].
 
 **Why a frame-driven clock and not the host's.** Before `rtcclock.c` existed the port dropped the PXI
 request, so `func_0209e49c`'s locals were never written and the game's clock globals took host
@@ -209,7 +219,7 @@ within one executable and different between executables: 0x00000888, 0x00000955 
 were logged from three builds [H: host-source account from `port/shim/os/rtcclock.c`; verify with a retained scripted run and frame using this page's recipe]. Two executables differing only by
 dead code lit the world differently, which put a 20-26% pixel noise floor under every
 fixed-frame screenshot comparison and forced a published finding to be retracted
-[E: `port/shim/os/rtcclock.c`; M1]. A port that quietly tracked HOST time would reintroduce
+[H: log/source account: `port/shim/os/rtcclock.c`; M1; receipt provenance unresolved]. A port that quietly tracked HOST time would reintroduce
 exactly that class of defect one level up -- two runs of one recipe would differ because they
 were started at different times of day. Driving the clock from the FRAME COUNT keeps the
 determinism and gives the game its calendar back; the price is that two runs of DIFFERENT
@@ -230,9 +240,9 @@ floor [H: host-source account from `port/shim/os/rtcclock.c`; verify with a reta
 | `RTC_GetDateAsync` `0x0211e998`, `RTC_GetTimeAsync` `0x0211e8d8` | autoload_2 | the date-only and time-only async reads | [S: `src/matched/RTC_GetDateAsync.c`] |
 | `RTC_SetDateTime` `0x0211e7c0` | autoload_2 | **misnamed**; the ROM branches to `RTC_GetDateTimeAsync`, so this is `RTC_GetDateTime` | [S: `src/matched/RTC_SetDateTime.c` vs the ROM word at `0x0211e7d0`] |
 | `RTC_ConvertDateToDay`, `RTCi_ConvertTimeToSecond`, `RTC_ConvertDateTimeToSecond` | autoload_2 | date to day number, time to seconds, and the product | [S: `src/matched/RTC_ConvertDateToDay.c`] |
-| `func_0209e49c` / `func_0209e5b4` | main | reads the clock into `0x021dc744` / `0x021dc754`, and forces the weekday on the default date | [S: quoted in `port/shim/os/rtcclock.c`] |
+| `func_0209e49c` / `func_0209e5b4` | main | reads the clock into `0x021dc744` / `0x021dc754`, and forces the weekday on the default date | [S: `src/matched/func_0209e49c.c`, `src/matched/func_0209e5b4.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
 | `func_0207b05c` | main | the day catch-up: delta in days, then that many per-day steps; the tampered-clock branch | [S: `src/matched/func_0207b05c.c`] |
-| `func_020bbb6c` | main | the day/night blend weight from the minute | [S: quoted in `port/shim/os/rtcclock.c`] |
+| `func_020bbb6c` | main | the day/night blend weight from the minute | [S: `src/matched/func_020bbb6c.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
 | `func_ov092_02299324` | ov092 | the clock-setting overlay's dispatcher; codes 0x43 and 0x44 talk to the RTC | [S: `src/matched/func_ov092_02299324.c`] |
 | `OS_GetTick`, `OS_GetTickLo` (itcm), `OS_InitTick`, `OSi_CountUpTick` (autoload_2) | itcm / autoload_2 | timer 0 at prescaler 64, extended to 64 bits in software | [S: `src/matched/OS_GetTick.c`, `src/matched/OS_InitTick.c`] |
 
@@ -243,9 +253,9 @@ floor [H: host-source account from `port/shim/os/rtcclock.c`; verify with a reta
 | `0x027ffde8` (`OSSystemWork.real_time_clock[8]`) | the chip's raw BCD registers, mirrored | the ARM7 | `RtcCommonCallback` [S: `src/matched/RtcCommonCallback.c`] |
 | `rtcWork.lock` | RTC busy flag, cleared by the callback | `RtcCommonCallback` | `RtcWaitBusy` [S: `src/matched/RtcWaitBusy.c`] |
 | `rtcWork.buffer[0..1]` | pointers to the *caller's* date and time structs | the async getters | `RtcCommonCallback` [S: `src/matched/RTC_GetDateTimeAsync.c`] |
-| `0x021dc744` | the game's `RTCDate` (year, month, day, week) | `func_0209e49c` | the calendar and event code [S: quoted in `port/shim/os/rtcclock.c`] |
-| `0x021dc754` | the game's `RTCTime.hour` | `func_0209e49c` | the clock path [E: `ACWW_WATCH=0x021dc754`, `port/shim/os/rtcclock.c`] |
-| `0x021dc758` | the game's `RTCTime.minute` | `func_0209e49c` | `func_0209def4` then `func_020bbb6c` [S: quoted in `port/shim/os/rtcclock.c`] |
+| `0x021dc744` | the game's `RTCDate` (year, month, day, week) | `func_0209e49c` | the calendar and event code [S: `src/matched/func_0209e49c.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
+| `0x021dc754` | the game's `RTCTime.hour` | `func_0209e49c` | the clock path [H: log/source account: `ACWW_WATCH=0x021dc754`, `port/shim/os/rtcclock.c`; receipt provenance unresolved] |
+| `0x021dc758` | the game's `RTCTime.minute` | `func_0209e49c` | `func_0209def4` then `func_020bbb6c` [S: `src/matched/func_0209def4.c`, `src/matched/func_020bbb6c.c`; historical account: quoted in `port/shim/os/rtcclock.c`] |
 | save `+0x4046` | the date the save was last written | the save path | `func_0207b05c` [S: `src/matched/func_0207b05c.c`] |
 | `0x04000100` (`REG_TM0CNT_L`) | hardware timer 0's 16-bit count | the timer (the port: `acww_tick_advance`) | `OS_GetTick`, `OS_GetTickLo` [S: `src/matched/OS_GetTick.c`] |
 | `OSi_TickCounter` | the software-extended high half of the tick | `OSi_CountUpTick` (the port: `acww_tick_advance`) | `OS_GetTick` [S: `src/matched/OSi_CountUpTick.c`] |

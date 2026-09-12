@@ -1,52 +1,104 @@
-# Gameplay walkthrough: out of the town hall, into the house, and a save that reloads
+# Gameplay walkthrough: state of play and the experiments that established it
 
-**Summary.** The two-tap town recipe ends with the player inside the town hall talking to Pelly,
-and until cycle41 nobody had played past that. With a snapshot of frame 48,000 and a
-pad-and-stylus timeline (`ACWW_PADSCRIPT`), an experiment costs 20 to 160 seconds instead of a
-22-minute replay. What a scripted player can do today: answer Pelly, walk out of the town hall,
-walk the town in every direction, open the map, open the pockets, drive a UI page with the stylus,
-see the town at night, open the save menu, **shake a fruit tree, pick the fruit up and find it in
-the pockets, read a field sign, and walk in through the town hall's door and out again**. **SAVE43
-adds the rest of the opening**: find the player's own house off the map's GREEN icon, go in, come
-out to Tom Nook, run his loan speech out -- and then SAVE, which the game writes itself into both
-flash banks, and RELAUNCH into the saved town. Villagers are drawn and talk there too, which
-retracts GAMEPLAY42's "no villager is ever drawn". **GAMEPLAY43 then found a condition every
-frame number on this page was missing, and GAMEPLAY44 corrected it: the arrival tutorial's
-four-thousand-frame hold is a property of the TOWN, not of the clock arm** -- GP43's two arms
-differed in both at once, because a frozen clock also generates a different town, and with
-`ACWW_RTC_FREEZE_UNTIL` holding the town fixed both clock arms hold identically. **GAMEPLAY44
-also talks to a villager on purpose for the first time**, by pointing the navigator at the actor
-manager rather than at a door. **GAMEPLAY45 then measured the thing all of that was waiting on**:
-the pockets page's fifteen item-slot centres and the player's body, and a scripted stylus stroke
-that the port delivers as ONE contact -- a single pen-down edge, fifteen moving publications, a
-single pen-up. It also stopped the door arrival walking the player past buildings, by firing it
-only on the approach axis and by ordering the doorway sweep from the player's own sub-tile
-position. **GAMEPLAY46 then withdrew that cycle's sharpest claim**: those doors were never closed.
-Nook's shop opens before the save and after it, and what was in the way was the navigator's
-doormat, two tiles off the real doorway on the two buildings whose notch is a corner. With it
-corrected the shop is entered closed-loop, the counter dialogue runs, and the scripted stylus
-drag is shown ACTING on the game -- it picks the uniform out of the pockets and carries it.
-**GAMEPLAY47 then withdrew GAMEPLAY46's remaining claim in turn: that drop was never
-refused.** The uniform is worn -- pocket slot 0 and the player's worn-clothing field at
-record `+0x2408` SWAP, which is why an item is still in slot 0 afterwards -- and the ROM's
-handler is ov096's equip dispatcher, `func_ov096_0229e3b0` case 2. Nook says so in words, sets
-the job's first task and hands over seven flowers; the player can plant one; and all four
-remaining doors -- Able Sisters, the gate, the museum, the town hall -- are walked into
-closed-loop, one `goto.py` each. What the port still cannot do: earn a Bell, use or buy a tool,
-write a letter, save from the bed, or enter a villager's house -- and the first three are now
-behind a CHORE rather than a defect (Nook pays for seven flowers planted outside his shop, the
-shop menu is behind the pay). **GAMEPLAY48 finishes that chore**: all seven flowers are planted,
-one per run, each verified in the player record -- what had stopped it was a confirm point read
-off a zoom rather than measured (the `땅에 심기` box is drawn BESIDE the tapped slot and moves
-with it) and a mode-switch rule that had lost its condition. Nook still does not pay: he goes
-for a break near the town hall, where the NPC standing on the plaza turns out to be **고북,
-Tortimer, the MAYOR**, met here for the first time. And **the villager's door answers itself** --
-the box on the doormat reads `이 몸은 밖에 계신다 / 곤잘레스`, "I am OUT", which is a game rule
-and not a defect. Nothing faulted in any of it, across 265 scripted runs in seven
-cycles. **The oracle has
-since run the same pad timeline on the original** (ORACLE44): the long picture hold after the town
-hall and the black top screen in the town hall are both the game's own behaviour, and the port's
-only rendering difference over the stretch is its flatter sky.
+**Summary.** Use the checkpoints and milestone table to find the playable state, then the
+section index to distinguish measured progress from superseded explanations. The chronological
+record below remains intact, including its older limitations.
+
+## State of play
+
+This is a documentation index at `e2305dee`, not a new gameplay measurement. Values below are
+transcribed from the named log sections; `H` marks this unit's document-based account, without
+upgrading the underlying receipt grades. Source locations and section hashes are recorded in
+`scratchpad/walkthrough-index-1/source-sections.json`; commit subjects are in
+`scratchpad/walkthrough-index-1/commits.json`.
+
+The brief requested GAMEPLAY57's `town5.sav`; GAMEPLAY58 is already present at this base, so the
+requested checkpoint and its newer successor are separate rows. A save-location tile describes
+where START was pressed, not the doormat of a later boot. [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway); [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)]
+
+| Checkpoint | Date arm | Wallet / loan / savings (Bells) | Pockets and mail | Player location | Cycle / record commit |
+|---|---|---|---|---|---|
+| Requested `scratchpad/gameplay57/town5.sav` [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway)] | `20050615`, through `S1-SAVE57` [H: [GAMEPLAY57](../../docs/log/cycle41-gameplay.md#gameplay57----the-money-is-on-the-beach-and-nook-buys-at-base4-the-mail-order-goes-through-and-the-delivery-is-the-next-day-a-page-that-is-carrying-something-is-deaf-to-the-stylus-and-the-savings-account-comes-back-down)] | Wallet **285**, savings **100** in its check; loan **18,300** at the cycle boot, not reprinted in that save check [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway); [GP57-0](../../docs/log/cycle41-gameplay.md#gp57-0----the-boot-and-plan57s-accept-test-to-the-word)] | Full pocket row not printed for this save in the log; no delivered letter yet, order outstanding [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway); [GP58-2](../../docs/log/cycle41-gameplay.md#gp58-2----the-letter-record-named-to-the-byte-and-0x337fc-retired)] | START inside own house, tile **(7,10)** [H: [GP57-9](../../docs/log/cycle41-gameplay.md#gp57-9----there-is-no-bed-and-no-staircase-and-the-save-works-from-inside-the-room-anyway)] | [GAMEPLAY57](#gameplay57----the-beach-pays-for-the-parcel-and-the-parcel-arrives-the-next-morning) / `f1d93c07` [H: [GAMEPLAY57](../../docs/log/cycle41-gameplay.md#gameplay57----the-money-is-on-the-beach-and-nook-buys-at-base4-the-mail-order-goes-through-and-the-delivery-is-the-next-day-a-page-that-is-carrying-something-is-deaf-to-the-stylus-and-the-savings-account-comes-back-down)] |
+| Latest published `scratchpad/gameplay58/town6.sav` [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)] | `20050616` on every resumed run [H: [GAMEPLAY58](../../docs/log/cycle41-gameplay.md#gameplay58)] | Wallet **385**, savings **100** in its check; loan **18,300** at the cycle boot, not reprinted in that save check [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav); [GP58-0](../../docs/log/cycle41-gameplay.md#gp58-0----the-boot-and-a-save-that-will-not-open-its-own-mailbox)] | Printed row **`3508 151c ... 11ac`**; one letter, present none; ellipsis retained [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)] | START inside Nook's shop; exact tile not printed in that section [H: [GP58-6](../../docs/log/cycle41-gameplay.md#gp58-6----the-save-and-town6sav)] | [GAMEPLAY58](#gameplay58----the-parcel-is-opened-the-letter-is-found-in-the-save-and-a-cherry-is-worth-a-hundred) / `e2305dee` [H: [GAMEPLAY58](../../docs/log/cycle41-gameplay.md#gameplay58)] |
+
+GAMEPLAY57's **withdrawal** is a later branch: wallet **285 -> 385**, savings **100 -> 0**; it is not the `town5.sav` row above. The next-day delivery boot is outside at **(41,55)**, not the indoor save location. [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past); [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)]
+
+| Milestone | Recorded result | Cycle / record commit and section |
+|---|---|---|
+| Name confirmed [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | Player name at ~7,500; town name at ~24,600 on the interpreter recipe [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | TOWN40 / `c04c685c` [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] |
+| Town entered [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | Town at 37,500; town hall at 40,500..48,000 [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] | TOWN40 / `c04c685c` [H: [TOWN40](../../docs/log/cycle40-keyboard-gate-probe.md#town40-the-town-on-the-interpreter-path-tap-d56)] |
+| Own house entered [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | Inside at 58,020 [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | SAVE43 / `2e579f09` [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] |
+| Nook: uniform [H: [GAMEPLAY47](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore)] | Pocket slot and worn-clothing word swap [H: [GAMEPLAY47](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore)] | GAMEPLAY47 / `0824e95b` [H: [GAMEPLAY47](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore)] |
+| Nook: flowers [H: [GAMEPLAY48](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why)] | All seven planted [H: [GAMEPLAY48](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why)] | GAMEPLAY48 / `657ab28f` [H: [GAMEPLAY48](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why)] |
+| Nook: greetings [H: [GP50-3](../../docs/log/cycle41-gameplay.md#gp50-3----the-third-villager-greeted-inside-his-own-house-and-the-gate-closes)] | Indoor third resident completes the gate after the mayor and outdoor residents [H: [GP50-3](../../docs/log/cycle41-gameplay.md#gp50-3----the-third-villager-greeted-inside-his-own-house-and-the-gate-closes)] | GP50-3 / `c35a0819` [H: [GP50-3](../../docs/log/cycle41-gameplay.md#gp50-3----the-third-villager-greeted-inside-his-own-house-and-the-gate-closes)] |
+| Nook: furniture [H: [GP50-4](../../docs/log/cycle41-gameplay.md#gp50-4----the-delivery-the-rom-names-its-own-recipient-on-the-pockets-page)] | Parcel delivered; pocket slot becomes thank-you item `0x3508` [H: [GP50-4](../../docs/log/cycle41-gameplay.md#gp50-4----the-delivery-the-rom-names-its-own-recipient-on-the-pockets-page)] | GP50-4 / `c35a0819` [H: [GP50-4](../../docs/log/cycle41-gameplay.md#gp50-4----the-delivery-the-rom-names-its-own-recipient-on-the-pockets-page)] |
+| Nook: direct-mail letter [H: [GP51-4](../../docs/log/cycle41-gameplay.md#gp51-4----the-postal-window-and-a-page-whose-taps-and-drags-mean-different-things)] | Blank body accepted after addressee selection and posting [H: [GP51-4](../../docs/log/cycle41-gameplay.md#gp51-4----the-postal-window-and-a-page-whose-taps-and-drags-mean-different-things)] | GP51-4 / `32bafdd0` [H: [GP51-4](../../docs/log/cycle41-gameplay.md#gp51-4----the-postal-window-and-a-page-whose-taps-and-drags-mean-different-things)] |
+| Nook: carpet [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | Indoor item-giving page completes delivery [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | GP51-5 / `32bafdd0` [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] |
+| Nook: watering can [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | Outdoor conversation completes delivery [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] | GP51-5 / `32bafdd0` [H: [GP51-5](../../docs/log/cycle41-gameplay.md#gp51-5----the-accept-test-40-not-39-and-the-rest-of-the-job)] |
+| Nook: bulletin advert [H: [GP51-6](../../docs/log/cycle41-gameplay.md#gp51-6----the-bulletin-board-and-a-with-a-held-direction-does-not-act-on-a-world-object)] | Blank bulletin post accepted [H: [GP51-6](../../docs/log/cycle41-gameplay.md#gp51-6----the-bulletin-board-and-a-with-a-held-direction-does-not-act-on-a-world-object)] | GP51-6 / `32bafdd0` [H: [GP51-6](../../docs/log/cycle41-gameplay.md#gp51-6----the-bulletin-board-and-a-with-a-held-direction-does-not-act-on-a-world-object)] |
+| Nook: settlement / loan word [H: [GP51-8](../../docs/log/cycle41-gameplay.md#gp51-8----the-settlement-0x021ed264-is-the-house-loan-measured)] | At 254,100, `0x021ed264` moves **19,800 -> 18,400** [H: [GP51-8](../../docs/log/cycle41-gameplay.md#gp51-8----the-settlement-0x021ed264-is-the-house-loan-measured)] | GP51-8 / `32bafdd0` [H: [GP51-8](../../docs/log/cycle41-gameplay.md#gp51-8----the-settlement-0x021ed264-is-the-house-loan-measured)] |
+| First sale [H: [GP52-2](../../docs/log/cycle41-gameplay.md#gp52-2----the-first-sale-0x021de3cc-0---475-and-the-counter-menu-has-no-buy-row-in-it)] | Gift sold; wallet **0 -> 475** [H: [GP52-2](../../docs/log/cycle41-gameplay.md#gp52-2----the-first-sale-0x021de3cc-0---475-and-the-counter-menu-has-no-buy-row-in-it)] | GP52-2 / `4bcb4abf` [H: [GP52-2](../../docs/log/cycle41-gameplay.md#gp52-2----the-first-sale-0x021de3cc-0---475-and-the-counter-menu-has-no-buy-row-in-it)] |
+| First purchase [H: [GP52-3](../../docs/log/cycle41-gameplay.md#gp52-3----the-first-purchase-475---395-and-the-shop-has-eight-sellable-cells)] | White cosmos seeds at **80**; wallet **475 -> 395** [H: [GP52-3](../../docs/log/cycle41-gameplay.md#gp52-3----the-first-purchase-475---395-and-the-shop-has-eight-sellable-cells)] | GP52-3 / `4bcb4abf` [H: [GP52-3](../../docs/log/cycle41-gameplay.md#gp52-3----the-first-purchase-475---395-and-the-shop-has-eight-sellable-cells)] |
+| First game save [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | Save accepted; 744 page writes, zero verify mismatches [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | SAVE43 / `2e579f09` [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] |
+| First boot from game save [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | New launch reaches the saved house/town [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] | SAVE43 / `2e579f09` [H: [SAVE43](#save43----the-house-nook-the-save-and-the-reload)] |
+| Played-store save/boot loop [H: [GAMEPLAY53](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes)] | First sale/purchase store boots; repayment and another save boot again [H: [GAMEPLAY53](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes)] | GAMEPLAY53 / `49953455` [H: [GAMEPLAY53](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes)] |
+| Loan repayment [H: [GP53-5](../../docs/log/cycle41-gameplay.md#gp53-5----the-repayment-395---295-and-18400---18300-with-the-games-box-agreeing)] | Loan **18,400 -> 18,300**, repayment confirms the loan word [H: [GP53-5](../../docs/log/cycle41-gameplay.md#gp53-5----the-repayment-395---295-and-18400---18300-with-the-games-box-agreeing)] | GP53-5 / `49953455` [H: [GP53-5](../../docs/log/cycle41-gameplay.md#gp53-5----the-repayment-395---295-and-18400---18300-with-the-games-box-agreeing)] |
+| Savings deposit / savings word [H: [GP56-2](../../docs/log/cycle41-gameplay.md#gp56-2----the-town-halls-other-window-is-gp53s-and-the-savings-account-is-0x021deb9c)] | Wallet **135 -> 35**, passbook **0 -> 100**; live word `0x021deb9c`, persisted in save [H: [GP56-2](../../docs/log/cycle41-gameplay.md#gp56-2----the-town-halls-other-window-is-gp53s-and-the-savings-account-is-0x021deb9c)] | GP56-2 / `7d939e29` [H: [GP56-2](../../docs/log/cycle41-gameplay.md#gp56-2----the-town-halls-other-window-is-gp53s-and-the-savings-account-is-0x021deb9c)] |
+| Savings withdrawal [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past)] | Wallet **285 -> 385**, savings **100 -> 0** [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past)] | GP57-10 / `f1d93c07` [H: [GP57-10](../../docs/log/cycle41-gameplay.md#gp57-10----the-savings-account-comes-back-down-and-the-page-gp56-walked-past)] |
+| Mail order [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | Prepaid **1,900**; wallet **2,185 -> 285** [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | GP57-6 / `f1d93c07` [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] |
+| Next-day delivery [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | Save on 6/15, boot on 6/16: mailbox flag and one envelope [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] | GP57-6 / `f1d93c07` [H: [GP57-6](../../docs/log/cycle41-gameplay.md#gp57-6----the-mail-order-is-accepted-and-the-delivery-is-the-next-day)] |
+| Villager house on shared map [H: [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical)] | Both producers inside at **57,600**, town `0x8365` [H: [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical)] | O50-3 / `8354374f` [H: [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical)] |
+| Delivered present taken [H: [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page)] | Ordinary pockets letter menu hands over the furniture [H: [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page)] | GP58-1 / `e2305dee` [H: [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page)] |
+| Fruit sale [H: [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)] | One cherry sells for **100**, wallet **285 -> 385**; seven-item base/4 result does not cover fruit [H: [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)] | GP58-3 / `e2305dee` [H: [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit)] |
+
+## Section index
+
+One line per original `##` section, in page order. These summaries inherit the cited section's evidence limits; they do not turn historical hypotheses into fresh measurements.
+
+- [Purpose](#purpose): Defines the playable-path investigation beyond LONG41. [H: linked historical section]
+- [Recipe](#recipe): Gives the historical snapshot/pad recipe; use the maintained recipes page for current execution rules. [H: linked historical section]
+- [Expected observations](#expected-observations): Records first field/UI/fruit observations; the later villagers and pickup corrections limit the original readings. [H: linked historical section]
+- [SAVE43 -- the house, Nook, the save, and the reload](#save43----the-house-nook-the-save-and-the-reload): Enters the house, finishes Nook's arrival speech, saves and reloads. [H: linked historical section]
+- [What the port and the game each get right](#what-the-port-and-the-game-each-get-right): Separates historical rendering observations from gameplay progress; later cycles supersede its old capability limits. [H: linked historical section]
+- [The villagers, twice retracted](#the-villagers-twice-retracted): Retracts the first villager sighting and then the claim that villagers are never drawn. [H: linked historical section]
+- [GAMEPLAY43 -- the clock decides whether there is a tutorial at all](#gameplay43----the-clock-decides-whether-there-is-a-tutorial-at-all): Attributes the tutorial hold to the clock; GAMEPLAY44 withdraws the confounded inference. [H: linked historical section]
+- [GAMEPLAY44 -- one town, both clock arms; and a villager talked to on purpose](#gameplay44----one-town-both-clock-arms-and-a-villager-talked-to-on-purpose): Controls the town across clock arms and deliberately talks to a villager. [H: linked historical section]
+- [GAMEPLAY45 -- the pockets page calibrated, a real stylus drag, and two doors that will not open](#gameplay45----the-pockets-page-calibrated-a-real-stylus-drag-and-two-doors-that-will-not-open): Calibrates pockets and a drag; closed-door claims are withdrawn by GAMEPLAY46 and GP48-9. [H: linked historical section]
+- [GAMEPLAY46 -- Nook's shop entered, the drag acted on, and a doormat that was two tiles wrong](#gameplay46----nooks-shop-entered-the-drag-acted-on-and-a-doormat-that-was-two-tiles-wrong): Corrects the doormat and enters the shop; GAMEPLAY47 withdraws the supposed refused uniform drop. [H: linked historical section]
+- [Hypotheses](#hypotheses): Preserves the historical hypothesis list, including later retraction pointers; use the current open list above. [H: linked historical section]
+- [The oracle arm (ORACLE44)](#the-oracle-arm-oracle44): Measures the original's tutorial hold and indoor black top screen. [H: linked historical section]
+- [GAMEPLAY47 -- the uniform is worn, every other door opens, and the blocker is a chore](#gameplay47----the-uniform-is-worn-every-other-door-opens-and-the-blocker-is-a-chore): Wears the uniform and opens other doors; GP48-9 corrects the nameplate reading and O50-3 narrows the door claim. [H: linked historical section]
+- [GAMEPLAY48 -- the seven flowers are planted, the mayor is met, and the villager's door says why](#gameplay48----the-seven-flowers-are-planted-the-mayor-is-met-and-the-villagers-door-says-why): Plants seven flowers and reads the OUT note; GP49-2/4 correct the wage/break story and O50-3 limits the note to its town. [H: linked historical section]
+- [ORACLE45 -- the oracle's clock arm, and the seam becomes a match](#oracle45----the-oracles-clock-arm-and-the-seam-becomes-a-match): Adds an oracle clock arm; ORACLE45-3's port-only hold is retracted by TUT45-2 and the later layout inference by X48-4. [H: linked historical section]
+- [TUTORIAL45 -- the hold is the ORIGINAL's, and the arm picks the wrong town](#tutorial45----the-hold-is-the-originals-and-the-arm-picks-the-wrong-town): Confirms the original's hold; TUT45-3's emulator rows are withdrawn by O46-2/4, and X48-4 retracts the one-acre inference. [H: linked historical section]
+- [GAMEPLAY49 -- there is no wage to unblock, and the shop says so to the player's face](#gameplay49----there-is-no-wage-to-unblock-and-the-shop-says-so-to-the-players-face): Reads the full job script: wages repay the loan and part-timers cannot buy stock. [H: linked historical section]
+- [GAMEPLAY50 -- the greeting gate closes, and two of the six errands are done](#gameplay50----the-greeting-gate-closes-and-two-of-the-six-errands-are-done): Completes the greeting gate and furniture delivery, then receives the letter errand. [H: linked historical section]
+- [GAMEPLAY51 -- the part-time job is finished, and the loan is a word that moves](#gameplay51----the-part-time-job-is-finished-and-the-loan-is-a-word-that-moves): Completes the remaining job errands and moves the loan word. [H: linked historical section]
+- [GAMEPLAY52 -- the first sale, the first purchase, and a save the game itself would load](#gameplay52----the-first-sale-the-first-purchase-and-a-save-the-game-itself-would-load): Makes the first sale and purchase and verifies the resulting save. [H: linked historical section]
+- [ORACLE48 -- a shared town id; the one-acre inference retracted by EXIT48](#oracle48----a-shared-town-id-the-one-acre-inference-retracted-by-exit48): Matches town ids; EXIT48 (X48-3/4) retracts the one-acre defect inference because layouts still differ. [H: linked historical section]
+- [GAMEPLAY53 -- the save BOOTS, the loan is repaid at the counter, and the loop closes](#gameplay53----the-save-boots-the-loan-is-repaid-at-the-counter-and-the-loop-closes): Boots the played save, repays the loan and closes the save/boot loop. [H: linked historical section]
+- [GAMEPLAY54 -- the port can walk indoors, and the shop is priced](#gameplay54----the-port-can-walk-indoors-and-the-shop-is-priced): Navigates indoors and prices the shelf cells. [H: linked historical section]
+- [ORACLE50 -- a chain built in the SHARED town, and the villager's door opens on both producers](#oracle50----a-chain-built-in-the-shared-town-and-the-villagers-door-opens-on-both-producers): Enters the villager house on both producers with a shared map; GP48-9 remains a town-specific OUT note. [H: linked historical section]
+- [GAMEPLAY55 -- the room has a door now, and two of the four directions are 4.6x slower](#gameplay55----the-room-has-a-door-now-and-two-of-the-four-directions-are-46x-slower): Finds room exits; GP55-3's directional 84-frame rate is retracted by WALK56-3/3c/5 as an obstructed-lane artefact. [H: linked historical section]
+- [GAMEPLAY56 -- the savings counter opens, the house is the third room, and a catalogue order wants the money up front](#gameplay56----the-savings-counter-opens-the-house-is-the-third-room-and-a-catalogue-order-wants-the-money-up-front): Reaches savings, deposits money, exits the house and measures the prepaid catalogue refusal. [H: linked historical section]
+- [GAMEPLAY57 -- the beach pays for the parcel, and the parcel arrives the next morning](#gameplay57----the-beach-pays-for-the-parcel-and-the-parcel-arrives-the-next-morning): Funds and receives a next-day order and withdraws savings; GP58-1/2 closes the present/letter questions and GP58-3 limits the price rule. [H: linked historical section]
+- [GAMEPLAY58 -- the parcel is opened, the letter is found in the save, and a cherry is worth a hundred](#gameplay58----the-parcel-is-opened-the-letter-is-found-in-the-save-and-a-cherry-is-worth-a-hundred): Takes the present, identifies the letter record and sells a cherry for 100; foreign-fruit pricing remains open. [H: linked historical section]
+- [Related](#related): Routes to supporting recipes, logs and related experiments. [H: linked historical section]
+
+Retraction sources outside this page: [O46-2](../../docs/log/cycle41-gameplay.md#o46-2----tut45-3s-emulator-rows-are-retracted-lua-51s-d-destroyed-every-word-with-bit-31-set), [O46-4](../../docs/log/cycle41-gameplay.md#o46-4----three-towns-one-seed-and-the-whole-difference-is-17-and-31-draws), [X48-3](../../docs/log/cycle41-gameplay.md#x48-3----why-the-exit-position-is-the-tile-the-player-entered-on-written-10755-frames-earlier), [X48-4](../../docs/log/cycle41-gameplay.md#x48-4----what-this-closes-and-what-it-costs-oracle48s-open-item-1), [WALK56-3](../../docs/log/cycle41-gameplay.md#walk56-3----the-control-gp55-did-not-have-a-clean-lane), [WALK56-3c](../../docs/log/cycle41-gameplay.md#walk56-3c----the-original-and-the-ramp-matches-tick-for-tick), [WALK56-5](../../docs/log/cycle41-gameplay.md#walk56-5----the-fix-and-the-accept-test), [O50-3](../../docs/log/cycle41-gameplay.md#o50-3----the-answer-both-producers-go-inside-and-the-two-door-words-are-identical), [GP49-2](../../docs/log/cycle41-gameplay.md#gp49-2----the-roms-own-script-for-the-rest-of-the-job-and-the-pay-is-not-a-payment), [GP49-4](../../docs/log/cycle41-gameplay.md#gp49-4----nook-never-leaves-his-shop-and-the-errands-come-find-me-is-not-a-walk). [H: named log sections]
+
+## What is still open in play
+
+The question text links below identify rows in the pinned [open-questions table](../../docs/state/open-questions.md#ranked-questions), whose `verified-at: aa5f6bab` predates GAMEPLAY58. Its first two questions (taking the present/letter bytes, and this town's fruit price) have answers in [GP58-1](../../docs/log/cycle41-gameplay.md#gp58-1----the-present-comes-out-of-the-letter-and-the-control-is-on-the-pockets-page), [GP58-2](../../docs/log/cycle41-gameplay.md#gp58-2----the-letter-record-named-to-the-byte-and-0x337fc-retired) and [GP58-3](../../docs/log/cycle41-gameplay.md#gp58-3----the-fruit-tree-a-cherry-sells-for-100-and-base--4-does-not-cover-fruit); they are not carried as open here. [H: cited sections; state table]
+
+- [Does the original also require Z at the player's house door during live play?](../../docs/state/open-questions.md#ranked-questions) (question 3). [H: pinned state entry]
+- [How can live navigation distinguish adjacent hall/house without disabling pacing?](../../docs/state/open-questions.md#ranked-questions) (question 4). [H: pinned state entry]
+- [What ate the pad at (37,38), and how can dlg.py expose it?](../../docs/state/open-questions.md#ranked-questions) (question 5). [H: pinned state entry]
+- [Do the other wearable slots work?](../../docs/state/open-questions.md#ranked-questions) (question 7). [H: pinned state entry]
+- [Does original fruit pickup follow the measured port rule?](../../docs/state/open-questions.md#ranked-questions) (question 8). [H: pinned state entry]
+- [Does the obstructed indoor lane match the original, and why is the realised step half the commanded step?](../../docs/state/open-questions.md#ranked-questions) (question 9). [H: pinned state entry]
+- [Can an indoor chain be anchored on both producers?](../../docs/state/open-questions.md#ranked-questions) (question 16). [H: pinned state entry]
+- [Can the forward recipe share the clock as well as the map?](../../docs/state/open-questions.md#ranked-questions) (question 17). [H: pinned state entry]
 
 ## Purpose
 
@@ -74,7 +126,7 @@ prefixed `0x`:
 
 with `mask` in the game's `0x2fff` space (A=1 B=2 SELECT=4 START=8 Right=16 Left=32 Up=64
 Down=128 R=0x100 L=0x200 X=0x400 Y=0x800). Overlapping pad rows OR together; the first matching
-stylus row wins [E: `port/platform/hostinput.c`; `docs/kb/hybrid/recipes.md` section 4b].
+stylus row wins [H: log/source account: `port/platform/hostinput.c`; `docs/kb/hybrid/recipes.md` section 4b; receipt provenance unresolved].
 
 **Step 3**, the experiment:
 
@@ -87,24 +139,24 @@ root is `scratchpad/gameplay42/gp42.sh`].
 **A snapshot does not survive a relink.** A `.st` file names the link identity and the blob
 count that wrote it and is refused by name on any other build, so step 1 is paid once per
 worktree, not once per project: cycle41's snapshots are `link 0x6aa14a4d/0x013c0000`, 113 blobs,
-and GAMEPLAY42's relink is `0x6aa16242/0x01423000`, 117 blobs [E: `docs/log/cycle41-gameplay.md`
-GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5].
+and GAMEPLAY42's relink is `0x6aa16242/0x01423000`, 117 blobs [H: log/source account: `docs/log/cycle41-gameplay.md`
+GAMEPLAY42; S: `docs/kb/hybrid/savestate.md` section 5; receipt provenance unresolved].
 
 **Aim off the map, not off dead reckoning.** One 44-second run holding X shows the whole town --
 the gate, the town hall, both shop plazas, four house icons and three villager names -- and four
 2,400-frame survey walks then say how many frames of each direction reach each of them. Every
-GAMEPLAY42 interaction script was written from that picture [E: `gp42-S1`, `gp42-Wwest`,
-`gp42-Wnorth`, `gp42-Wsouth`, `gp42-G1`].
+GAMEPLAY42 interaction script was written from that picture [H: log/source account: `gp42-S1`, `gp42-Wwest`,
+`gp42-Wnorth`, `gp42-Wsouth`, `gp42-G1`; receipt provenance unresolved].
 
 Three pad-script rules the runs paid for:
 
 - **Press A INSIDE a direction hold** when the action needs facing -- shaking a tree, talking.
   Overlapping rows OR together, so `57080 32 300` plus `57120 1 10` is "A while still facing
-  west" [E: `gp42-F5`; S: `docs/kb/hybrid/recipes.md` section 4b].
+  west" [H: log/source account: `gp42-F5`; S: `docs/kb/hybrid/recipes.md` section 4b; receipt provenance unresolved].
 - **Press A STANDING STILL** to pick an item up. A script that walks one square first gets
-  nothing [E: `gp42-F3` empty pockets vs `gp42-F4` a cherry in slot 1].
+  nothing [H: log/source account: `gp42-F3` empty pockets vs `gp42-F4` a cherry in slot 1; receipt provenance unresolved].
 - **B closes a message box but not a two-choice prompt.** They are different boxes
-  [E: `gp42-N2` vs `gp-E1b`].
+  [H: log/source account: `gp42-N2` vs `gp-E1b`; receipt provenance unresolved].
 
 ## Expected observations
 
@@ -113,19 +165,19 @@ Frames are the port's counter, continuing from the snapshot.
 | frames | script | what is on screen |
 |---|---|---|
 | 48,000 | -- | inside the town hall, Pelly, a two-choice prompt [H: `scratchpad/cycle40/runs/town-S2`; receipt lost with its worktree; repeat the named recipe and retain the stated frames] |
-| 48,000..49,200 | eight B pulses then Down | **nothing changes**: B does not close a choice and an open box locks movement [E: `gp-E1b`] |
-| 48,010..48,970 | seventeen A pulses | the tutorial: the map, the lower screen's arrow, and `X 버튼` [E: `gp-E4`] |
-| 49,200 | six B pulses | the dialogue closes; the date/time HUD `6/15 AM10:00` appears [E: `gp-E6`] |
-| 49,600 | Down | the doorway transition [E: `gp-E6`] |
+| 48,000..49,200 | eight B pulses then Down | **nothing changes**: B does not close a choice and an open box locks movement [H: log/source account: `gp-E1b`; receipt provenance unresolved] |
+| 48,010..48,970 | seventeen A pulses | the tutorial: the map, the lower screen's arrow, and `X 버튼` [H: log/source account: `gp-E4`; receipt provenance unresolved] |
+| 49,200 | six B pulses | the dialogue closes; the date/time HUD `6/15 AM10:00` appears [H: log/source account: `gp-E6`; receipt provenance unresolved] |
+| 49,600 | Down | the doorway transition [H: log/source account: `gp-E6`; receipt provenance unresolved] |
 | **49,800** | Down | **outside, on the town hall plaza, clouds over the sky** [E: `gp-E6`; **O**: the original is still in the doorway transition here, both screens fully black, and is outside at 50,100 -- the port leads the walk by about 300 frames, a scene-progress offset, and this is the first frame the two differ (`ncc` 0.0000): `scratchpad/oracle/walkout/`] |
-| 50,300 | X | the lower screen becomes the town map: river, buildings, the player's marker, three villager names [E: `gp-E7`] |
-| 50,600..50,830 | three `T 243 10` contacts | the page turns to the POCKETS screen: portrait, name, `00000` bells, the empty item grid [E: `gp-E8`] |
-| 50,260 | Y (from `st/out50200.st`) | the pockets open directly; START/SELECT/R/L each move to another page [E: `gp-E10`] |
+| 50,300 | X | the lower screen becomes the town map: river, buildings, the player's marker, three villager names [H: log/source account: `gp-E7`; receipt provenance unresolved] |
+| 50,600..50,830 | three `T 243 10` contacts | the page turns to the POCKETS screen: portrait, name, `00000` bells, the empty item grid [H: log/source account: `gp-E8`; receipt provenance unresolved] |
+| 50,260 | Y (from `st/out50200.st`) | the pockets open directly; START/SELECT/R/L each move to another page [H: log/source account: `gp-E10`; receipt provenance unresolved] |
 | 50,700..54,700 | walking south | **a large grey Nintendo-DS-shaped model fills the lower screen and the picture holds** [E: `gp-E13`; **O**: `scratchpad/oracle/walkout/orig`, 50,700..54,600 -- the ORIGINAL freezes its lower screen through the same windows (0 changed pixels per 300-frame window at 51,900..53,700 on both) and shows the same model in the same place, bottom-screen `ncc` 0.967..0.973] |
-| 55,000 | still walking | the hold ends by itself; grass, trees, a house, a bug [E: `gp-E14`; **O**: both producers' lower screens come back on the same frame, **54,900**, 46,776 changed pixels on the original against 46,949 on the port] |
-| 55,400..57,300 | Down/Left/Up/Right, 400 each | the town: a plank bridge over the river, fruit trees, a house, a rock, and ~~a villager on screen at 56,600~~ -- at x4 on the identical frame that shape is a bed of white-and-purple pansies, so this cell's villager is **retracted** [E: `gp-E15`; retraction `gp42-V1` 056,600] |
-| 55,500.. | `ACWW_RTC_TIME=235900` | night: a moon, dark sky, darkened ground and water [E: `gp-E17`] |
-| 55,460 | START | the game's own save prompt, refusing: `어라? 지금은 아직 저장하지 못하나 봐요` [E: `gp-E18`] |
+| 55,000 | still walking | the hold ends by itself; grass, trees, a house, a bug [H: log/source account: `gp-E14`; **O**: both producers' lower screens come back on the same frame, **54,900**, 46,776 changed pixels on the original against 46,949 on the port; receipt provenance unresolved] |
+| 55,400..57,300 | Down/Left/Up/Right, 400 each | the town: a plank bridge over the river, fruit trees, a house, a rock, and ~~a villager on screen at 56,600~~ -- at x4 on the identical frame that shape is a bed of white-and-purple pansies, so this cell's villager is **retracted** [H: log/source account: `gp-E15`; retraction `gp42-V1` 056,600; receipt provenance unresolved] |
+| 55,500.. | `ACWW_RTC_TIME=235900` | night: a moon, dark sky, darkened ground and water [H: log/source account: `gp-E17`; receipt provenance unresolved] |
+| 55,460 | START | the game's own save prompt, refusing: `어라? 지금은 아직 저장하지 못하나 봐요` [H: log/source account: `gp-E18`; receipt provenance unresolved] |
 
 Frames below continue from `st/town55400.st` on the GAMEPLAY42 build unless the row says
 otherwise; a `gp42-*` receipt is a run directory under `scratchpad/cycle40/runs/`, indexed by
@@ -133,20 +185,20 @@ otherwise; a `gp42-*` receipt is a run directory under `scratchpad/cycle40/runs/
 
 | frames | script | what is on screen |
 |---|---|---|
-| 55,560..55,740 | X held | the town map in full: a gate arch top-left, the town hall top-right, two shop plazas, four house icons, two bridges, a pond, and the legend -- the player's house plus three villager names [E: `gp42-S1`] |
-| 55,460..57,060 | west 1,600 | the shop plaza: a wooden shop with a brown door under a `너굴 잡화점` sign, and Able Sisters' green-roofed shop beside it [E: `gp42-Wwest`, `gp42-N1`] |
-| 55,460..56,660 | north 1,200 | a stone bridge, then the town hall's front: marble, columns, an emblem in the pediment and a black doorway [E: `gp42-Wnorth`] |
-| 57,280..57,310 | facing a cherry tree, A at 57,280 | three cherry pairs hanging high in the canopy [E: `gp42-F5`] |
-| **57,320..57,350** | the same | **the cherries fall and land on the ground beside the trunk** [E: `gp42-F5`, one still every 10 frames] |
-| 57,360 | -- | a green `체리` name balloon over the player: he is standing on the fallen fruit [E: `gp42-F5`, `gp42-V1`] |
-| **57,400** | A, standing still | the pick-up. At 57,900 the pockets page shows **a cherry in the first item slot** [E: `gp42-F4`] |
-| ~58,000 | A at a roofed tip sign | **the game's own yellow message box**, titled `낚시 지침`, with the blue continue arrow; B closes it [E: `gp42-N2`] |
-| 49,720..50,800 | from `st/town48000.st`: A x17, B x6, Down 350, then **Up** | the town hall plaza and the wooden doors, walked into from below [E: `gp42-H6`] |
-| **50,880..51,160** | the same | **black -- the doorway transition** [E: `gp42-H6`] |
-| **51,200..52,400** | the same | **inside the town hall**: the wooden floor, the counter, the barrel and Pelly at the desk [E: `gp42-H6`, `gp42-H7`] |
-| 52,560..52,720 | B, then Down 700 | black again, then **outside on the plaza**: in and out, both directions, by walking [E: `gp42-H7`] |
-| 58,640..59,200 | west 1,700 then north 2,000 | the town's northern cliff. The gate is further west and was not reached [E: `gp42-G1`] |
-| scattered, 17 of 1,160 stills | any | **the acre ground drops out**: a flat `0x2184FF` lower screen, sometimes with the buildings and the player still drawn over it [E: `gp42-V2` 056,100, `gp42-H2` 058,760..059,080] |
+| 55,560..55,740 | X held | the town map in full: a gate arch top-left, the town hall top-right, two shop plazas, four house icons, two bridges, a pond, and the legend -- the player's house plus three villager names [H: log/source account: `gp42-S1`; receipt provenance unresolved] |
+| 55,460..57,060 | west 1,600 | the shop plaza: a wooden shop with a brown door under a `너굴 잡화점` sign, and Able Sisters' green-roofed shop beside it [H: log/source account: `gp42-Wwest`, `gp42-N1`; receipt provenance unresolved] |
+| 55,460..56,660 | north 1,200 | a stone bridge, then the town hall's front: marble, columns, an emblem in the pediment and a black doorway [H: log/source account: `gp42-Wnorth`; receipt provenance unresolved] |
+| 57,280..57,310 | facing a cherry tree, A at 57,280 | three cherry pairs hanging high in the canopy [H: log/source account: `gp42-F5`; receipt provenance unresolved] |
+| **57,320..57,350** | the same | **the cherries fall and land on the ground beside the trunk** [H: log/source account: `gp42-F5`, one still every 10 frames; receipt provenance unresolved] |
+| 57,360 | -- | a green `체리` name balloon over the player: he is standing on the fallen fruit [H: log/source account: `gp42-F5`, `gp42-V1`; receipt provenance unresolved] |
+| **57,400** | A, standing still | the pick-up. At 57,900 the pockets page shows **a cherry in the first item slot** [H: log/source account: `gp42-F4`; receipt provenance unresolved] |
+| ~58,000 | A at a roofed tip sign | **the game's own yellow message box**, titled `낚시 지침`, with the blue continue arrow; B closes it [H: log/source account: `gp42-N2`; receipt provenance unresolved] |
+| 49,720..50,800 | from `st/town48000.st`: A x17, B x6, Down 350, then **Up** | the town hall plaza and the wooden doors, walked into from below [H: log/source account: `gp42-H6`; receipt provenance unresolved] |
+| **50,880..51,160** | the same | **black -- the doorway transition** [H: log/source account: `gp42-H6`; receipt provenance unresolved] |
+| **51,200..52,400** | the same | **inside the town hall**: the wooden floor, the counter, the barrel and Pelly at the desk [H: log/source account: `gp42-H6`, `gp42-H7`; receipt provenance unresolved] |
+| 52,560..52,720 | B, then Down 700 | black again, then **outside on the plaza**: in and out, both directions, by walking [H: log/source account: `gp42-H7`; receipt provenance unresolved] |
+| 58,640..59,200 | west 1,700 then north 2,000 | the town's northern cliff. The gate is further west and was not reached [H: log/source account: `gp42-G1`; receipt provenance unresolved] |
+| scattered, 17 of 1,160 stills | any | **the acre ground drops out**: a flat `0x2184FF` lower screen, sometimes with the buildings and the player still drawn over it [H: log/source account: `gp42-V2` 056,100, `gp42-H2` 058,760..059,080; receipt provenance unresolved] |
 
 ## SAVE43 -- the house, Nook, the save, and the reload
 
@@ -157,21 +209,21 @@ rather than 1,285-1,360, because PERF42's renderer landed in between.
 
 | frames | script | what is on screen |
 |---|---|---|
-| 55,600 | X, stills every 10 | the map, with the player's **own house as the GREEN icon** at map (75.2, 122.1) and the three villager houses blue. The player's marker **BLINKS** -- a 50-frame sample can miss it entirely [E: `gp-M1`, `gp-W2`] |
-| 55,460..56,360 | west 900 | too far: Nook's shop plaza. Map reading, not dead reckoning, is what corrects it [E: `gp-W1`] |
-| 56,400..56,745 | east 270, south 55 | the front paving of a house with a wooden door and a **red mailbox** [E: `gp-W3`, 056,740] |
-| 56,900..58,000 | Down+Right, then **Up held 700 with Left pulsed 20-in-100**, then A under a second Up hold | the door opens: **inside the player's house at 058,020**, black at 058,080, the room at 058,140 -- a bench, a figurine, a stereo [E: `gp-D9`; eight other approaches all walked past the door, `gp-D1`..`gp-D8`] |
-| 58,420..58,960 | six legs with A pulses | the sweep walks back OUT of the door [E: `gp-I1`] |
-| **59,040** | -- | **Tom Nook is at the door, DRAWN, and talking** [E: `gp-I1`, `sequence4_[13]`] |
-| 59,120..62,100 | A every 60 frames | his speech: the house, his shop, the **19800 bell** loan, the save instruction, the part-time job -- then he walks away [E: `gp-N1`, `gp-N2`] |
-| 62,300 | -- | the player alone with the HUD, and `0x021f3c30` is **0**: the save block is gone [E: `gp-N2`; `gp-W0`'s watchpoint names `func_020a128c` as the writer] |
-| **63,200** | START | **the real save menu**: `오늘은 여기까지 하시겠습니까?` with `저장하고 마치기` / `좀 더 놀기` [E: `gp-S1`] |
-| 63,600..067,100 | A | `저장하고 있습니다 / 전원을 끄지 말고 그대로 기다려 주십시오！`, while the game writes 744 x 256-byte pages over `0x00000..0x2e7f8` with 744 verifies and 0 mismatches [E: `gp-S3`'s census] |
-| **067,200** | -- | **`저장했습니다！`** [E: `gp-S3`] |
-| a NEW launch, 3,000..4,000 | the boot key phases, no snapshot, the same `ACWW_SAVE` | **inside the player's own house** -- the bed, the phone -- under `시작 준비 중입니다` [E: `boot-A`] |
-| the same, 5,000..12,000 | -- | **the player outside their own front door**, red mailbox, stone paving, HUD `6/15 AM10:00`. No taxi and neither keyboard [E: `boot-A`; the erased-store control is the taxi interior with the name keyboard] |
-| the same, +a pad timeline, 6,200..6,900 | four walking legs | the reloaded town is playable: the player walks, and an NPC introduces himself (`도루묵씨`) [E: `boot-B`] |
-| 057,360 and 058,380 | a walk that bumps a villager, then A | **곤잘레스 is drawn -- a green rhino with a fishing rod -- with a name balloon and a dialogue box.** RETRACTS GAMEPLAY42's GP42-1 headline; what changed between the two measurements is not established [E: `gp-D2`, `gp-D4`] |
+| 55,600 | X, stills every 10 | the map, with the player's **own house as the GREEN icon** at map (75.2, 122.1) and the three villager houses blue. The player's marker **BLINKS** -- a 50-frame sample can miss it entirely [H: log/source account: `gp-M1`, `gp-W2`; receipt provenance unresolved] |
+| 55,460..56,360 | west 900 | too far: Nook's shop plaza. Map reading, not dead reckoning, is what corrects it [H: log/source account: `gp-W1`; receipt provenance unresolved] |
+| 56,400..56,745 | east 270, south 55 | the front paving of a house with a wooden door and a **red mailbox** [H: log/source account: `gp-W3`, 056,740; receipt provenance unresolved] |
+| 56,900..58,000 | Down+Right, then **Up held 700 with Left pulsed 20-in-100**, then A under a second Up hold | the door opens: **inside the player's house at 058,020**, black at 058,080, the room at 058,140 -- a bench, a figurine, a stereo [H: log/source account: `gp-D9`; eight other approaches all walked past the door, `gp-D1`..`gp-D8`; receipt provenance unresolved] |
+| 58,420..58,960 | six legs with A pulses | the sweep walks back OUT of the door [E: `gp-I1` ; `scratchpad/save43/runs/gp-I1`] |
+| **59,040** | -- | **Tom Nook is at the door, DRAWN, and talking** [E: `gp-I1`, `sequence4_[13]` ; `scratchpad/save43/runs/gp-I1`] |
+| 59,120..62,100 | A every 60 frames | his speech: the house, his shop, the **19800 bell** loan, the save instruction, the part-time job -- then he walks away [E: `gp-N1`, `gp-N2` ; `scratchpad/save43/runs/gp-N1`, `scratchpad/save43/runs/gp-N2`] |
+| 62,300 | -- | the player alone with the HUD, and `0x021f3c30` is **0**: the save block is gone [E: `gp-N2`; `gp-W0`'s watchpoint names `func_020a128c` as the writer ; `scratchpad/save43/runs/gp-N2`, `scratchpad/save43/runs/gp-W0`] |
+| **63,200** | START | **the real save menu**: `오늘은 여기까지 하시겠습니까?` with `저장하고 마치기` / `좀 더 놀기` [E: `gp-S1` ; `scratchpad/save43/runs/gp-S1`] |
+| 63,600..067,100 | A | `저장하고 있습니다 / 전원을 끄지 말고 그대로 기다려 주십시오！`, while the game writes 744 x 256-byte pages over `0x00000..0x2e7f8` with 744 verifies and 0 mismatches [E: `gp-S3`'s census ; `scratchpad/save43/runs/gp-S3`] |
+| **067,200** | -- | **`저장했습니다！`** [E: `gp-S3` ; `scratchpad/save43/runs/gp-S3`] |
+| a NEW launch, 3,000..4,000 | the boot key phases, no snapshot, the same `ACWW_SAVE` | **inside the player's own house** -- the bed, the phone -- under `시작 준비 중입니다` [H: log/source account: `boot-A`; receipt provenance unresolved] |
+| the same, 5,000..12,000 | -- | **the player outside their own front door**, red mailbox, stone paving, HUD `6/15 AM10:00`. No taxi and neither keyboard [H: log/source account: `boot-A`; the erased-store control is the taxi interior with the name keyboard; receipt provenance unresolved] |
+| the same, +a pad timeline, 6,200..6,900 | four walking legs | the reloaded town is playable: the player walks, and an NPC introduces himself (`도루묵씨`) [H: log/source account: `boot-B`; receipt provenance unresolved] |
+| 057,360 and 058,380 | a walk that bumps a villager, then A | **곤잘레스 is drawn -- a green rhino with a fishing rod -- with a name balloon and a dialogue box.** RETRACTS GAMEPLAY42's GP42-1 headline; what changed between the two measurements is not established [H: log/source account: `gp-D2`, `gp-D4`; receipt provenance unresolved] |
 
 **The three rules this section is worth reading for.** A house door opens on the SLIDE, not on
 aim -- hold the direction that pushes into the front wall and pulse the perpendicular direction
@@ -183,22 +235,22 @@ frames against 0.184 px/frame), which is why every dead-reckoned comb overshot.
 ## What the port and the game each get right
 
 The pad and the stylus both reach the game. A B press deletes a character on the town-name
-keyboard [E: `gp-E1`, 48,000..48,240]; an A press advances a dialogue [E: `gp-E4`]; a scheduled
-contact at 243,10 turns a UI page [E: `gp-E8`, three `acww touch: DOWN x=243 y=10` lines]. The
+keyboard [H: log/source account: `gp-E1`, 48,000..48,240; receipt provenance unresolved]; an A press advances a dialogue [H: log/source account: `gp-E4`; receipt provenance unresolved]; a scheduled
+contact at 243,10 turns a UI page [H: log/source account: `gp-E8`, three `acww touch: DOWN x=243 y=10` lines; receipt provenance unresolved]. The
 lower screen's page set -- map, pockets, keyboard -- renders in full, the world's 3D renders and
 the camera follows the player, the affine sky renders by day and by night, and the HUD carries
-the RTC date and time [E: `gp-E7`, `gp-E10`, `gp-E15`, `gp-E17`].
+the RTC date and time [H: log/source account: `gp-E7`, `gp-E10`, `gp-E15`, `gp-E17`; receipt provenance unresolved].
 
 Two refusals in the walkthrough are the GAME's and not the port's: B does not close a choice
-prompt [E: `gp-E1b`], and START's save prompt says the player cannot save yet -- which is not a
+prompt [H: log/source account: `gp-E1b`; receipt provenance unresolved], and START's save prompt says the player cannot save yet -- which is not a
 DAY rule but the move-in mode word `0x021f3c30`, and it lifts the moment the arrival finishes
-[E: `gp-E18`, then SAVE43 `gp-S1`; S: `func_0209f6e4`].
+[E: `gp-E18`, then SAVE43 `gp-S1`; S: `func_0209f6e4` ; `scratchpad/save43/runs/gp-S1`].
 
 GAMEPLAY42 adds three whole interactions to that list. The world responds to A: a fruit tree
 shakes and drops its fruit, a dropped item goes into the pockets and shows there, and a field
-sign opens the game's own message box [E: `gp42-F5`, `gp42-F4`, `gp42-N2`]. A door works in both
+sign opens the game's own message box [H: log/source account: `gp42-F5`, `gp42-F4`, `gp42-N2`; receipt provenance unresolved]. A door works in both
 directions: the player walks north into the town hall's doorway, the screen goes black, and he
-is inside with Pelly; walking south takes him out again [E: `gp42-H6`, `gp42-H7`]. Across 26
+is inside with Pelly; walking south takes him out again [H: log/source account: `gp42-H6`, `gp42-H7`; receipt provenance unresolved]. Across 26
 runs and 1,160 stills there was no `unimplemented`, no fault, no STOP status and no dropped PXI
 tag [E: `scratchpad/gameplay42/RECEIPTS.md`].
 
@@ -211,20 +263,17 @@ screen in this project" and to explain that by a lost bind of the draw pointer-t
 - **The bind is not lost.** A store watchpoint over the walk out of the town hall produces three
   stores and no more: two binders write `{0x0226d809, 0}` and a state enter
   (`func_ov068_0226bb3c`) deliberately writes `{0, 0}` from autoload_2 `.data`, which is mwcc's
-  static NULL member pointer. The null the draw slot sees is the ROM's own value [E:
-  `docs/log/cycle41-gameplay.md` VILLAGER42, `v42-W2`; S: `wiki/systems/villagers.md`]. -
+  static NULL member pointer. The null the draw slot sees is the ROM's own value [H: log/source account: `docs/log/cycle41-gameplay.md` VILLAGER42, `v42-W2`; S: `wiki/systems/villagers.md`; receipt provenance unresolved]. -
   **Villagers ARE drawn, and one has been talked to.** In the acres around the player's house a
   villager is on screen with a fishing rod and answers a bump with a dialogue box; Tom Nook is
-  drawn through his whole arrival speech; a third NPC introduces himself in the reloaded town [E:
-  `docs/log/cycle42-save.md` SAVE43, `gp-D2`, `gp-D4`, `gp-N1`, `boot-B`]. - **Why the hunts
+  drawn through his whole arrival speech; a third NPC introduces himself in the reloaded town [E: `docs/log/cycle42-save.md` SAVE43, `gp-D2`, `gp-D4`, `gp-N1`, `boot-B` ; `scratchpad/save43/runs/gp-N1`]. - **Why the hunts
   failed is REACH, not drawing.** GAMEPLAY42's 1,160 stills were taken almost entirely inside the
   arrival tutorial's hold, where the pad is discarded, so the sweeps never covered the ground the
-  dead reckoning claimed [E: VILLAGER42 `v42-V1`, `v42-V3`]. And GAMEPLAY43 names the reason an
+  dead reckoning claimed [H: log/source account: VILLAGER42 `v42-V1`, `v42-V3`; receipt provenance unresolved]. And GAMEPLAY43 names the reason an
   AIMED walk fails too: the manager at `0x021d1d4c` holds two live walking actors whose own
   `VecFx32` at `actor + 0x5c` reads world (133, 51) and (105, 97), but `0x021f69d4` -- the only
   published player position -- is a SCENE-ENTRY position, unchanged across 1,400 frames of
-  walking, so nothing can be aimed off it. Three aimed sweeps met nobody [E:
-  `docs/log/cycle41-gameplay.md` GP43-5, `g43-P2`/`P3`, `g43-T2`/`T3`/`T4`].
+  walking, so nothing can be aimed off it. Three aimed sweeps met nobody [E: `docs/log/cycle41-gameplay.md` GP43-5, `g43-P2`/`P3`, `g43-T2`/`T3`/`T4` ; `scratchpad/gameplay43/runs/g43-P2`, `scratchpad/gameplay43/runs/g43-T2`].
 
 So the open question is no longer "are they drawn" but **"where is the player, this frame"**, and
 it is one peek-and-diff away.
@@ -239,19 +288,19 @@ does.
 
 | frames | clock | script | what is on screen |
 |---|---|---|---|
-| 049,800 | ADVANCING | A x17, B x6, Down | outside on the plaza, **walking** -- and it keeps walking to 055,500 with no hold anywhere [E: `g43-H0`, `g43-P1`] |
-| 050,800..056,600 | ADVANCING | X held 200 then B, every 600 | the map opens on the FIRST press and B closes it, ten times over; the A-pulse arm and the no-input CONTROL are pixel-identical to each other [E: `g43-PRXB` vs `g43-PRA` vs `g43-PRNONE`] |
-| **051,200..054,800** | **FROZEN** | the same `P1-out-and-wake.pad` | **the hold is back**: the bottom screen changes 0.3-0.4% per still, twitches at 051,600 and 054,000 -- ORACLE44's own two frames -- and releases at **055,000** [E: `g43-BP1`, `ACWW_RTC_FREEZE=1`] |
-| 055,460..059,220 | ADVANCING | seven legs with a map read after each | the marker walks (128.5,165.5) -> (64.5,109.5) -> (76.5,128.5) and the player's house is on screen with its wooden door and RED MAILBOX. **Rates on this ground: 0.073 map px/frame east-west, 0.107 north-south** -- a third value again, so the rate is a property of the acre [E: `g43-M1`, `g43-V1`, `g43-V3`, `g43-V4`] |
-| 059,650..060,060 | ADVANCING | **Up held 900, LEFT pulsed 40-in-80, A every 60** | **the door opens first try**: open doorway at 059,900, black 059,940..060,040, the room at 060,060. `gp-D9`'s 20-in-100 pulse, transcribed onto the same frames, walks 700 frames PAST the house [E: `g43-E2`; the miss is `g43-E1`] |
-| 062,620 | ADVANCING | Down held 900, RIGHT pulsed 40-in-80, A every 60 | back OUT, the same shape mirrored, also first try [E: `g43-E4`] |
-| **063,100** | ADVANCING | -- | **Tom Nook is at the door, drawn and talking** [E: `g43-E4`] |
-| 068,100 | ADVANCING | A every 60 for 4,550 frames | the speech ends and `0x021f3c30` is **0** [E: `g43-N3`; before, `g43-P4` reads 1] |
-| 068,050..074,200 | ADVANCING | START then A every 100 | **the save**: 744 x 256-byte pages over `0x00000..0x2e7f8`, 744 verifies, 0 mismatches, and `savetool.py check` says *the game would LOAD this bank* for both [E: `g43-S1`, `savecheck-S1.txt`] |
-| 069,290 | ADVANCING | west 550 in two legs with map reads | **Able Sisters' shop on screen**; Nook's is 15 map px further west, and its signboard and brown door are on screen one run later [E: `g43-G2`, `g43-G3`] |
-| 069,300..072,200 | ADVANCING | four approaches to Nook's door BY MAP PIXEL | **not entered.** A TREE stands on the shop's front paving, and the map cannot resolve which side of it the player is on -- the icon is 9 map px and the marker 3. These four are the last data point of the map-pixel method [E: `g43-G3`..`g43-G6`] |
-| 068,000..071,400 | ADVANCING | `port/tools/goto.py --from st/post68000.st --to nook` | **INSIDE NOOK'S SHOP.** A* over the acre collision grid from the LIVE player position at `0x021c749c`, re-planning each iteration: tiles (40,56) -> (19,60) -> (21,59) -> (19,43) -> (20,58), then `the field grid is 1x1 -- the player is INSIDE`. Nook behind his counter, the interior drawn, a dialogue box up. Five iterations, 90 s [E: `NK-1`..`NK-5`; S: NAV42] |
-| 071,550..075,100 | ADVANCING | A every 70 at the counter, then `Y` | **Nook's part-time job** -- and this cell is DISPUTED. It read "he offers the uniform, the player CHANGES INTO IT on screen, and the pockets page shows it equipped"; GAMEPLAY44 ran the same counter and got an instruction to DRAG the uniform onto the player's body that neither A nor Y clears, with the wallet `0` and every pocket slot `fff1` in the save. Both cannot be true, GAMEPLAY44's is the later and better-evidenced reading, and GAMEPLAY45 never reached the counter to break the tie. **Treat the uniform as NOT worn until a still shows it** [E: `g43-NK6` against `g44-NK1`/`NK2`/`NK3`, `savecheck-S1.txt`] |
+| 049,800 | ADVANCING | A x17, B x6, Down | outside on the plaza, **walking** -- and it keeps walking to 055,500 with no hold anywhere [E: `g43-H0`, `g43-P1` ; `scratchpad/gameplay43/runs/g43-H0`, `scratchpad/gameplay43/runs/g43-P1`] |
+| 050,800..056,600 | ADVANCING | X held 200 then B, every 600 | the map opens on the FIRST press and B closes it, ten times over; the A-pulse arm and the no-input CONTROL are pixel-identical to each other [E: `g43-PRXB` vs `g43-PRA` vs `g43-PRNONE` ; `scratchpad/gameplay43/runs/g43-PRXB`, `scratchpad/gameplay43/runs/g43-PRA`, `scratchpad/gameplay43/runs/g43-PRNONE`] |
+| **051,200..054,800** | **FROZEN** | the same `P1-out-and-wake.pad` | **the hold is back**: the bottom screen changes 0.3-0.4% per still, twitches at 051,600 and 054,000 -- ORACLE44's own two frames -- and releases at **055,000** [E: `g43-BP1`, `ACWW_RTC_FREEZE=1` ; `scratchpad/gameplay43/runs/g43-BP1`] |
+| 055,460..059,220 | ADVANCING | seven legs with a map read after each | the marker walks (128.5,165.5) -> (64.5,109.5) -> (76.5,128.5) and the player's house is on screen with its wooden door and RED MAILBOX. **Rates on this ground: 0.073 map px/frame east-west, 0.107 north-south** -- a third value again, so the rate is a property of the acre [E: `g43-M1`, `g43-V1`, `g43-V3`, `g43-V4` ; `scratchpad/gameplay43/runs/g43-M1`, `scratchpad/gameplay43/runs/g43-V1`, `scratchpad/gameplay43/runs/g43-V3`, `scratchpad/gameplay43/runs/g43-V4`] |
+| 059,650..060,060 | ADVANCING | **Up held 900, LEFT pulsed 40-in-80, A every 60** | **the door opens first try**: open doorway at 059,900, black 059,940..060,040, the room at 060,060. `gp-D9`'s 20-in-100 pulse, transcribed onto the same frames, walks 700 frames PAST the house [E: `g43-E2`; the miss is `g43-E1` ; `scratchpad/gameplay43/runs/g43-E2`, `scratchpad/gameplay43/runs/g43-E1`] |
+| 062,620 | ADVANCING | Down held 900, RIGHT pulsed 40-in-80, A every 60 | back OUT, the same shape mirrored, also first try [E: `g43-E4` ; `scratchpad/gameplay43/runs/g43-E4`] |
+| **063,100** | ADVANCING | -- | **Tom Nook is at the door, drawn and talking** [E: `g43-E4` ; `scratchpad/gameplay43/runs/g43-E4`] |
+| 068,100 | ADVANCING | A every 60 for 4,550 frames | the speech ends and `0x021f3c30` is **0** [E: `g43-N3`; before, `g43-P4` reads 1 ; `scratchpad/gameplay43/runs/g43-N3`, `scratchpad/gameplay43/runs/g43-P4`] |
+| 068,050..074,200 | ADVANCING | START then A every 100 | **the save**: 744 x 256-byte pages over `0x00000..0x2e7f8`, 744 verifies, 0 mismatches, and `savetool.py check` says *the game would LOAD this bank* for both [E: `g43-S1`, `savecheck-S1.txt` ; `scratchpad/gameplay43/runs/g43-S1`] |
+| 069,290 | ADVANCING | west 550 in two legs with map reads | **Able Sisters' shop on screen**; Nook's is 15 map px further west, and its signboard and brown door are on screen one run later [E: `g43-G2`, `g43-G3` ; `scratchpad/gameplay43/runs/g43-G2`, `scratchpad/gameplay43/runs/g43-G3`] |
+| 069,300..072,200 | ADVANCING | four approaches to Nook's door BY MAP PIXEL | **not entered.** A TREE stands on the shop's front paving, and the map cannot resolve which side of it the player is on -- the icon is 9 map px and the marker 3. These four are the last data point of the map-pixel method [E: `g43-G3`..`g43-G6` ; `scratchpad/gameplay43/runs/g43-G3`, `scratchpad/gameplay43/runs/g43-G6`] |
+| 068,000..071,400 | ADVANCING | `port/tools/goto.py --from st/post68000.st --to nook` | **INSIDE NOOK'S SHOP.** A* over the acre collision grid from the LIVE player position at `0x021c749c`, re-planning each iteration: tiles (40,56) -> (19,60) -> (21,59) -> (19,43) -> (20,58), then `the field grid is 1x1 -- the player is INSIDE`. Nook behind his counter, the interior drawn, a dialogue box up. Five iterations, 90 s [H: log/source account: `NK-1`..`NK-5`; S: NAV42; receipt provenance unresolved] |
+| 071,550..075,100 | ADVANCING | A every 70 at the counter, then `Y` | **Nook's part-time job** -- and this cell is DISPUTED. It read "he offers the uniform, the player CHANGES INTO IT on screen, and the pockets page shows it equipped"; GAMEPLAY44 ran the same counter and got an instruction to DRAG the uniform onto the player's body that neither A nor Y clears, with the wallet `0` and every pocket slot `fff1` in the save. Both cannot be true, GAMEPLAY44's is the later and better-evidenced reading, and GAMEPLAY45 never reached the counter to break the tie. **Treat the uniform as NOT worn until a still shows it** [E: `g43-NK6` against `g44-NK1`/`NK2`/`NK3`, `savecheck-S1.txt` ; `scratchpad/gameplay43/runs/g43-NK6`] |
 
 ## GAMEPLAY44 -- one town, both clock arms; and a villager talked to on purpose
 
@@ -263,14 +312,14 @@ from GAMEPLAY43 and SAVE43 exactly.
 
 | frames | town | clock | what is on screen |
 |---|---|---|---|
-| 050,400..055,000 | frozen-gen (77/16/127) | FROZEN (`_FREEZE_UNTIL=999000`) | the DS-illustration hold: 0.003-0.004 changed per still, twitch 051,600 and 054,000, released 055,000 [E: `g44-FRZ`] |
-| 050,400..055,000 | **the same snapshot** | ADVANCING (`_FREEZE_UNTIL=48000`; the log's clock reads 10:01 at 51,591 and 10:02 at 55,182) | **the same hold, the same frames**, and 048,000..051,400 are SHA-256 IDENTICAL to the frozen arm. The arms first differ at 051,600 -- the frame the minute turned -- by 7.9% of pixels at a mean luma change of -0.005, i.e. the HUD [E: `g44-ADV`, `armcmp.py`] |
-| 048,000..055,600 | advancing-gen (127/109/67) | ADVANCING | **no hold**, 0.37-0.43 changed per still throughout: walking, exactly as `g43-P1` [E: `g44-BADV`] |
-| **056,580..057,480** | frozen-gen | advancing | **A VILLAGER TALKED TO.** `goto.py --to actor:1` reads the manager at `0x021d1d4c`, takes the actor's own `+0x5c`, walks to the tile beside it and presses A: 마르 drawn with a bucket, the box up on 15 of 18 stills, and the text ADVANCING under the A pulses to `그래서 몇 가지 질문을 / 준비했어요, 아~옹！` [E: `TALK1-1`..`TALK1-5`, `g44-TALK`] |
-| 065,683 / 087,726 | frozen-gen | advancing | inside the player's house: a bench with a figurine and a stereo, 4x4 tiles, **no bed** -- before AND after the arrival [E: `g44-BED1`, `g44-BED3`, `roomgrid.py`] |
-| 074,900..081,400 | frozen-gen | advancing | the mode word `0x021f3c30` goes 1 -> 0, then **the save**: 744 pages, 0 verify mismatches, both banks `-> the game would LOAD this bank` [E: the Nook-speech run, `g44-S1`, `savecheck-S1.txt`] |
-| 081,500..086,800 | frozen-gen | advancing | the game's own continue path -- **the wake-up room with the RED BED and the phone**, then the player outside their own front door, HUD `6/15 AM10:10` [E: `g44-WAKE`; `png/BED2-082500.png`] |
-| 088,560..097,700 | frozen-gen | advancing | **inside Nook's shop in TWO iterations, 12.4 s**, from the doorstep 22 tiles away; the counter speech then stops on `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리` and neither A nor Y clears it [E: `NOOK-1`/`NOOK-2`, `g44-NK1`/`NK2`/`NK3`] |
+| 050,400..055,000 | frozen-gen (77/16/127) | FROZEN (`_FREEZE_UNTIL=999000`) | the DS-illustration hold: 0.003-0.004 changed per still, twitch 051,600 and 054,000, released 055,000 [H: log/source account: `g44-FRZ`; receipt provenance unresolved] |
+| 050,400..055,000 | **the same snapshot** | ADVANCING (`_FREEZE_UNTIL=48000`; the log's clock reads 10:01 at 51,591 and 10:02 at 55,182) | **the same hold, the same frames**, and 048,000..051,400 are SHA-256 IDENTICAL to the frozen arm. The arms first differ at 051,600 -- the frame the minute turned -- by 7.9% of pixels at a mean luma change of -0.005, i.e. the HUD [H: log/source account: `g44-ADV`, `armcmp.py`; receipt provenance unresolved] |
+| 048,000..055,600 | advancing-gen (127/109/67) | ADVANCING | **no hold**, 0.37-0.43 changed per still throughout: walking, exactly as `g43-P1` [H: log/source account: `g44-BADV`; receipt provenance unresolved] |
+| **056,580..057,480** | frozen-gen | advancing | **A VILLAGER TALKED TO.** `goto.py --to actor:1` reads the manager at `0x021d1d4c`, takes the actor's own `+0x5c`, walks to the tile beside it and presses A: 마르 drawn with a bucket, the box up on 15 of 18 stills, and the text ADVANCING under the A pulses to `그래서 몇 가지 질문을 / 준비했어요, 아~옹！` [H: log/source account: `TALK1-1`..`TALK1-5`, `g44-TALK`; receipt provenance unresolved] |
+| 065,683 / 087,726 | frozen-gen | advancing | inside the player's house: a bench with a figurine and a stereo, 4x4 tiles, **no bed** -- before AND after the arrival [H: log/source account: `g44-BED1`, `g44-BED3`, `roomgrid.py`; receipt provenance unresolved] |
+| 074,900..081,400 | frozen-gen | advancing | the mode word `0x021f3c30` goes 1 -> 0, then **the save**: 744 pages, 0 verify mismatches, both banks `-> the game would LOAD this bank` [H: log/source account: the Nook-speech run, `g44-S1`, `savecheck-S1.txt`; receipt provenance unresolved] |
+| 081,500..086,800 | frozen-gen | advancing | the game's own continue path -- **the wake-up room with the RED BED and the phone**, then the player outside their own front door, HUD `6/15 AM10:10` [H: log/source account: `g44-WAKE`; `png/BED2-082500.png`; receipt provenance unresolved] |
+| 088,560..097,700 | frozen-gen | advancing | **inside Nook's shop in TWO iterations, 12.4 s**, from the doorstep 22 tiles away; the counter speech then stops on `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리` and neither A nor Y clears it [H: log/source account: `NOOK-1`/`NOOK-2`, `g44-NK1`/`NK2`/`NK3`; receipt provenance unresolved] |
 
 **Two things to carry away.** The first is the correction above: the hold is the town's. The
 second is that **the last mile of this walkthrough is a STYLUS DRAG.** Nook's job -- the only
@@ -300,8 +349,8 @@ takes any launcher with `gp43g.py`'s argv, so a per-cycle shim is four lines.
 
 **The two rules this section is worth reading for.** First: **say which TOWN a frame number came
 from** -- this line said "which clock arm" until GAMEPLAY44, and that was the wrong half of the
-pair. A frozen clock generates a DIFFERENT TOWN, because the generator reads the clock, and it
-is the town the arrival tutorial follows: see the GAMEPLAY44 section below. Every gameplay frame
+pair. ~~A frozen clock generates a DIFFERENT TOWN, because the generator reads the clock, and it
+is the town the arrival tutorial follows: see the GAMEPLAY44 section below.~~ **Clock-causality explanation retracted by ORACLE46/47.** ORACLE46/47 measured seed `0x000a0f00` on all three producers, with the armed original consuming 14 extra draws after frame 10,000 rather than changing that seed [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3]. Every gameplay frame
 in this project before RTC42 is a frozen-clock frame, and therefore a frozen-clock TOWN, whether
 it says so or not, and a snapshot is not transferable between arms either. Second: **the door
 slide has to be half-and-half.**
@@ -320,25 +369,25 @@ reproduced here from GAMEPLAY43, SAVE43 and GAMEPLAY44 on a fourth build; the cl
 
 | frames | what was done | what happened |
 |---|---|---|
-| 055,400..056,400 | `Y` on the walk-out snapshot, stills every 100 | **the pockets page, measured.** `pockets.py` clusters the page's own artwork and finds exactly the 15 item slots `savetool.py`'s `+0x1bf2, 15x u16` predicts, plus 10 letter slots and the portrait. Item slots: y 123 / 147 / 171, x stride 32, **each row staggered +16** -- 19,51,83,115,147 then 35,67,99,131,163 then 51,83,115,147,179. Letters at x 211/235, y 67..163. The player's body at (151, ~60) [E: `PK1`] |
-| 003,000..003,110 | a 14-row stylus stroke from slot 6 to the body | **a real DRAG, not fifteen taps.** One `acww touch: DOWN` at (51,147), fifteen `TP_POINT` publications marching along the path, one `acww touch: up` at (151,60), and the ROM's own `trig` byte firing exactly TWICE -- at the two ends [E: `DRAGTEST`; `mkdrag.py`] |
-| 060,130..061,060 | the SAME snapshot, twice, with only the arrival sweep's ORDER different | **east-first ends sixteen tiles north of the player's house; west-first is INSIDE in one iteration, 5.6 s.** The doorway is at the doormat tile's centre, and the player stood at fraction 0.86 of it, so the doorway was to their west all along [E: `HOME-6` vs `IN-1`] |
-| 057,000..057,600 | the first version of the `at_door` fix -- tile equality for a notch door | **DEADLOCK, and the finding is worth more than the fix**: the player wedged one tile south of the doormat and three iterations each planned the same one-tile leg and moved ZERO units. The last tile of the approach is sub-tile and only the sideways sweep crosses it [E: `HOUSE-1..6`] |
-| 063,450..068,700 | A every 60 x85 at the player's own front door | the arrival is FINISHED: `0x021f3c30` goes **1 -> 0** [E: `NK0`, `peek.py`] |
-| 072,750..079,000 | START then A every 100, `ACWW_SAVE` live | **the save**: `checksum stored 0xbddf computed 0xbddf residual 0x0000`, and the ROM's own `func_020a1a40` says *the game would LOAD this bank*. Wallet 0, pockets `fff1 x15` [E: `S2`] |
-| 072,750..075,200 | the SAME script with a stop frame in the middle of the write | **a save is not atomic.** 1,985 card requests instead of 4,669, `checksum stored 0xffff computed 0x13aa`, *the game would REJECT this bank*. A timeout or a short `ACWW_STOP_FRAME` during a save writes a file that reads as CORRUPT rather than truncated, and `savetool.py check` is the only thing that tells them apart [E: `S1`] |
-| 071,600..072,800 | twelve approaches to Nook's shop door | **not entered.** The navigator parks the player on the doormat (20,54) every time; the arrival never crosses z; 1,000 frames of held north with east pulses moved the player *exactly zero units* [E: `NOOK-1..6`, `NK-1..8`, `NKD`] |
-| 060,500..066,400 | `goto.py --to villager-1`, then five input shapes at its doormat | **not entered, and the navigation half is DONE**: eight iterations park the player on (51,62) and keep them there. From that tile the full-duty slide, the same with no A, west-alone/north-alone alternating and east-alone/north-alone alternating all move ZERO units -- while a plain "south then east" walks away freely at 18 frames a tile. Not a wall, not a state freeze, no dialogue box [E: `V1-1..V1-8`, `V1D`, `V1N`, `V1A`, `V1E`, `V1S`] |
+| 055,400..056,400 | `Y` on the walk-out snapshot, stills every 100 | **the pockets page, measured.** `pockets.py` clusters the page's own artwork and finds exactly the 15 item slots `savetool.py`'s `+0x1bf2, 15x u16` predicts, plus 10 letter slots and the portrait. Item slots: y 123 / 147 / 171, x stride 32, **each row staggered +16** -- 19,51,83,115,147 then 35,67,99,131,163 then 51,83,115,147,179. Letters at x 211/235, y 67..163. The player's body at (151, ~60) [H: log/source account: `PK1`; receipt provenance unresolved] |
+| 003,000..003,110 | a 14-row stylus stroke from slot 6 to the body | **a real DRAG, not fifteen taps.** One `acww touch: DOWN` at (51,147), fifteen `TP_POINT` publications marching along the path, one `acww touch: up` at (151,60), and the ROM's own `trig` byte firing exactly TWICE -- at the two ends [H: log/source account: `DRAGTEST`; `mkdrag.py`; receipt provenance unresolved] |
+| 060,130..061,060 | the SAME snapshot, twice, with only the arrival sweep's ORDER different | **east-first ends sixteen tiles north of the player's house; west-first is INSIDE in one iteration, 5.6 s.** The doorway is at the doormat tile's centre, and the player stood at fraction 0.86 of it, so the doorway was to their west all along [H: log/source account: `HOME-6` vs `IN-1`; receipt provenance unresolved] |
+| 057,000..057,600 | the first version of the `at_door` fix -- tile equality for a notch door | **DEADLOCK, and the finding is worth more than the fix**: the player wedged one tile south of the doormat and three iterations each planned the same one-tile leg and moved ZERO units. The last tile of the approach is sub-tile and only the sideways sweep crosses it [H: log/source account: `HOUSE-1..6`; receipt provenance unresolved] |
+| 063,450..068,700 | A every 60 x85 at the player's own front door | the arrival is FINISHED: `0x021f3c30` goes **1 -> 0** [H: log/source account: `NK0`, `peek.py`; receipt provenance unresolved] |
+| 072,750..079,000 | START then A every 100, `ACWW_SAVE` live | **the save**: `checksum stored 0xbddf computed 0xbddf residual 0x0000`, and the ROM's own `func_020a1a40` says *the game would LOAD this bank*. Wallet 0, pockets `fff1 x15` [H: log/source account: `S2`; receipt provenance unresolved] |
+| 072,750..075,200 | the SAME script with a stop frame in the middle of the write | **a save is not atomic.** 1,985 card requests instead of 4,669, `checksum stored 0xffff computed 0x13aa`, *the game would REJECT this bank*. A timeout or a short `ACWW_STOP_FRAME` during a save writes a file that reads as CORRUPT rather than truncated, and `savetool.py check` is the only thing that tells them apart [H: log/source account: `S1`; receipt provenance unresolved] |
+| 071,600..072,800 | twelve approaches to Nook's shop door | **not entered.** The navigator parks the player on the doormat (20,54) every time; the arrival never crosses z; 1,000 frames of held north with east pulses moved the player *exactly zero units* [H: log/source account: `NOOK-1..6`, `NK-1..8`, `NKD`; receipt provenance unresolved] |
+| 060,500..066,400 | `goto.py --to villager-1`, then five input shapes at its doormat | **not entered, and the navigation half is DONE**: eight iterations park the player on (51,62) and keep them there. From that tile the full-duty slide, the same with no A, west-alone/north-alone alternating and east-alone/north-alone alternating all move ZERO units -- while a plain "south then east" walks away freely at 18 frames a tile. Not a wall, not a state freeze, no dialogue box [H: log/source account: `V1-1..V1-8`, `V1D`, `V1N`, `V1A`, `V1E`, `V1S`; receipt provenance unresolved] |
 
 **What to carry away.** First, **the drag is no longer the unknown** -- the page's coordinates
 are measured and the port delivers a stroke as one contact, which is what GAMEPLAY44 said stood
 between this port and its first Bell. Second, **the door arrival stopped walking past buildings**,
 by two independent fixes: fire it only on the approach axis (never a diagonal), and order the
 doorway sweep from the player's own sub-tile position instead of always sweeping east first.
-Third, **the blocker moved rather than shrank**: two of the town's doors park the player
+~~Third, **the blocker moved rather than shrank**: two of the town's doors park the player
 perfectly and then admit nothing, and the leading reading -- labelled a HYPOTHESIS -- is that
 they are simply CLOSED at this point in the arrival, because a collision pocket cannot block
-north, east and west at once and leave south open. Nothing faulted: 44 runs, no
+north, east and west at once and leave south open.~~ **Closed-door hypothesis retracted by GAMEPLAY46/48:** GAMEPLAY46 entered Nook's shop with the corrected doormat in four iterations after the save and five before it, and GAMEPLAY48 identified the villager door's OUT note [E: `scratchpad/gameplay46/RECEIPTS.md`, `scratchpad/gameplay48/png/V1-plate.png`; log: `docs/log/cycle41-gameplay.md` GP46-1, GP48-9]. Nothing faulted: 44 runs, no
 `acww: unimplemented`, no FAULT, no REFUSAL, and the two non-100 exits were the snapshot/link
 refusal being provoked on purpose.
 
@@ -353,18 +402,18 @@ port source was changed, and `offgate --check` on the tree the runs were made on
 
 | frames | what was done | what happened |
 |---|---|---|
-| 077,750..078,240 | GAMEPLAY44's own Nook plan, replayed from tile (19,53) | **INSIDE the shop** -- and `ACWW_PLAYER_TRACE=1` names the door: the player crosses the model's doormat (20,54), then (21,54), and enters on **(22,54) -> (22,53)**, two tiles east, where `y` leaves 0x2021 for 0x1afc and 0x1259 [E: `g46-NKDIAG`] |
-| -- | `doorprobe.py`, no game run | **the doormat was wrong, not the door.** `navlib`'s notch scan wants a WALKABLE cell inside the footprint; Nook's only such cell is the block's open bottom-left corner (20,53). The real doorway (22,53) reads kind `0x0a` -- a solid front wall the collision lets the player through -- and is on the building's own ANCHOR column [E: `doorprobe.py` on `st/wake77000.st`] |
-| 064,700..080,300 | `goto.py --to nook` four ways: old doormat / new doormat, before the save / after it | **the retraction.** Old doormat: outside in six iterations both times. New doormat: **inside in four iterations after the save and five before it.** The save, the wake and the in-game hour have nothing to do with it [E: `PRENOOK-1..6`, `NOOK-1..6`, `NKFIX-1..4`, `NKPRE-1..5`] |
-| 078,600..081,400 | A pulses at the counter | the job's dialogue, the wallet oval at **0**, and Nook's instruction `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리` [E: `g46-NKDIAG`, `g46-NK1`; `png/NOOK-counter.png`] |
-| 081,400..082,900 | five ways to get the pockets page up with his box on screen | **B closes the box, THEN Y opens the page.** Y with the box up does nothing, and neither does a tap on the arrow the line names -- the box eats the stylus too. The nag is three cycling pages, the third of which names the Y button [E: `g46-PK1`, `PK2`, `PK3`, `PK4`, `PK5`; `png/PK5-pockets.png`] |
-| 082,060..082,400 | one tap on the uniform, then one on the body | **the first contact is eaten as the pad-to-stylus mode switch** -- the only change is a pen indicator at the top left -- and the second answers `아무 것도 없어`. cycle40's TAP40 finding, on a second page: every drag here must be the SECOND contact [E: `g46-TAP2`] |
-| 082,360..082,620 | the drag, as the job asks: slot 0 (19,123) to the body (151,60) | **the game acts on it.** The uniform leaves slot 0, follows the pen with all fifteen rings empty behind it, and the character HIGHLIGHTS GREEN under it -- then the pen lifts and it snaps back [E: `g46-UNI3`; `png/UNI3-082440.png`, `png/DRAG-in-flight.png`] |
-| 082,360..082,800 | the same stroke to a POCKET SLOT instead | **the drop STICKS.** So the refusal is the ROM's own "dropped on the character" handler: not delivery, not a lost release position, not the hit test, and not a prompt on the other screen [E: `g46-SLOTMOVE`; `png/SLOTMOVE-stuck.png`] |
+| 077,750..078,240 | GAMEPLAY44's own Nook plan, replayed from tile (19,53) | **INSIDE the shop** -- and `ACWW_PLAYER_TRACE=1` names the door: the player crosses the model's doormat (20,54), then (21,54), and enters on **(22,54) -> (22,53)**, two tiles east, where `y` leaves 0x2021 for 0x1afc and 0x1259 [H: log/source account: `g46-NKDIAG`; receipt provenance unresolved] |
+| -- | `doorprobe.py`, no game run | **the doormat was wrong, not the door.** `navlib`'s notch scan wants a WALKABLE cell inside the footprint; Nook's only such cell is the block's open bottom-left corner (20,53). The real doorway (22,53) reads kind `0x0a` -- a solid front wall the collision lets the player through -- and is on the building's own ANCHOR column [H: log/source account: `doorprobe.py` on `st/wake77000.st`; receipt provenance unresolved] |
+| 064,700..080,300 | `goto.py --to nook` four ways: old doormat / new doormat, before the save / after it | **the retraction.** Old doormat: outside in six iterations both times. New doormat: **inside in four iterations after the save and five before it.** The save, the wake and the in-game hour have nothing to do with it [H: log/source account: `PRENOOK-1..6`, `NOOK-1..6`, `NKFIX-1..4`, `NKPRE-1..5`; receipt provenance unresolved] |
+| 078,600..081,400 | A pulses at the counter | the job's dialogue, the wallet oval at **0**, and Nook's instruction `작업복을 터치한 상태로 / 자신의 몸으로 / 가져가서 갈아입어구리` [H: log/source account: `g46-NKDIAG`, `g46-NK1`; `png/NOOK-counter.png`; receipt provenance unresolved] |
+| 081,400..082,900 | five ways to get the pockets page up with his box on screen | **B closes the box, THEN Y opens the page.** Y with the box up does nothing, and neither does a tap on the arrow the line names -- the box eats the stylus too. The nag is three cycling pages, the third of which names the Y button [H: log/source account: `g46-PK1`, `PK2`, `PK3`, `PK4`, `PK5`; `png/PK5-pockets.png`; receipt provenance unresolved] |
+| 082,060..082,400 | one tap on the uniform, then one on the body | **the first contact is eaten as the pad-to-stylus mode switch** -- the only change is a pen indicator at the top left -- and the second answers `아무 것도 없어`. cycle40's TAP40 finding, on a second page: every drag here must be the SECOND contact [H: log/source account: `g46-TAP2`; receipt provenance unresolved] |
+| 082,360..082,620 | the drag, as the job asks: slot 0 (19,123) to the body (151,60) | **the game acts on it.** The uniform leaves slot 0, follows the pen with all fifteen rings empty behind it, and the character HIGHLIGHTS GREEN under it -- then the pen lifts and it snaps back [H: log/source account: `g46-UNI3`; `png/UNI3-082440.png`, `png/DRAG-in-flight.png`; receipt provenance unresolved] |
+| 082,360..082,800 | the same stroke to a POCKET SLOT instead | **the drop STICKS.** So the refusal is the ROM's own "dropped on the character" handler: not delivery, not a lost release position, not the hit test, and not a prompt on the other screen [H: log/source account: `g46-SLOTMOVE`; `png/SLOTMOVE-stuck.png`; receipt provenance unresolved] |
 | -- | `walletaddr.py`, no game run | **the live wallet is the u32 at `0x021de3cc`**, anchored by 1024 of 1024 bytes of the written save matching RAM at `0x021dc7a8`. It reads 0, and so does the save and the HUD |
-| 077,000..078,700 | the player's house after the save and wake, then row 14 | **still the 4x4 room, still no bed**, and rows 14/15 are the DOORWAY APRON -- walking south into them walks the player out of the house [E: `BEDH-1`, `g46-BED1`] |
-| 071,500..072,400 | the bed room, from the post-save snapshot | the bed at (6,9) with the player standing at (7,10) -- **and ZERO tile crossings in 900 frames**: the screen is `시작 준비 중입니다 / 전원을 끄지 말고 그대로 기다려 주십시오`, the save-in-progress screen, and the pad is not the player's there [E: `g46-BED2`; `png/BED-the-bedroom.png`] |
-| 077,000..078,500 | `goto.py` at villager-1, then one offline check | still not entered, and the obvious cause is **ruled out**: the notch (51,61) and the tile east of the doormat (52,62) are both kind `0x1e`, exactly the two directions GP45 measured as blocked -- but blocking `0x1e` in the model costs 529 of the town's 3,256 walkable tiles and moves no doormat at all, so it is terrain, not a wall. Cause unknown; nobody has yet looked at what is DRAWN on those cells [E: `V1A-1..5`, `doorprobe.py`, `kind1e.py`] |
+| 077,000..078,700 | the player's house after the save and wake, then row 14 | **still the 4x4 room, still no bed**, and rows 14/15 are the DOORWAY APRON -- walking south into them walks the player out of the house [H: log/source account: `BEDH-1`, `g46-BED1`; receipt provenance unresolved] |
+| 071,500..072,400 | the bed room, from the post-save snapshot | the bed at (6,9) with the player standing at (7,10) -- **and ZERO tile crossings in 900 frames**: the screen is `시작 준비 중입니다 / 전원을 끄지 말고 그대로 기다려 주십시오`, the save-in-progress screen, and the pad is not the player's there [H: log/source account: `g46-BED2`; `png/BED-the-bedroom.png`; receipt provenance unresolved] |
+| 077,000..078,500 | `goto.py` at villager-1, then one offline check | still not entered, and the obvious cause is **ruled out**: the notch (51,61) and the tile east of the doormat (52,62) are both kind `0x1e`, exactly the two directions GP45 measured as blocked -- but blocking `0x1e` in the model costs 529 of the town's 3,256 walkable tiles and moves no doormat at all, so it is terrain, not a wall. Cause unknown; nobody has yet looked at what is DRAWN on those cells [H: log/source account: `V1A-1..5`, `doorprobe.py`, `kind1e.py`; receipt provenance unresolved] |
 
 **What to carry away.** First, **the doors were never closed** -- GAMEPLAY45's sharpest claim is
 withdrawn, and the thing that produced it was a doormat two tiles off the door on the two
@@ -404,10 +453,10 @@ the next move is the ROM's own handler rather than another attempt at the same s
   E: `scratchpad/rtc42/port-53100-bot.png`; `../systems/time-and-rtc.md`]. **The consequence for
   this page: every frame of an OFF or town comparison now depends on the clock**, because the
   minute drives `func_020bbb6c`'s day/night blend, so a comparison against a pre-RTC42 run must
-  set `ACWW_RTC_FREEZE=1` [E: `docs/log/cycle41-gameplay.md` RTC42].
+  set `ACWW_RTC_FREEZE=1` [H: log/source account: `docs/log/cycle41-gameplay.md` RTC42; receipt provenance unresolved].
 - A villager can be talked to with scripted input alone. Unsettled: `gp-E16` reached a villager
   and pressed A ten times beside it with no dialogue, which a facing requirement would explain
-  [E: `gp-E16`]. Settled by a script that circles the villager with a still every 20 frames.
+  [H: log/source account: `gp-E16`; receipt provenance unresolved]. Settled by a script that circles the villager with a still every 20 frames.
 - ~~Three runs of about twenty ended with exit 1 / 0xFFFFFFFF, no fault line and a log cut
   mid-stream, and none reproduced on a re-run.~~ **SETTLED 2026-09-10 (STAB42, `0bc59cc0`):
   they were external kills.** `acww.exe` cannot exit 1 -- its exit-code table excludes it on
@@ -453,24 +502,24 @@ EXACT.
 
 | frames | what was done | what happened |
 |---|---|---|
-| -- | resume any GAMEPLAY46 snapshot | **none of them load, and the READER was broken too.** BUILD44 grew the savestate header from 19 words to 27 (the exe's SHA-256 joined the link identity) and bumped `STATE_VERSION` to 2, but `port/tools/navsnap.py` still assumed 19 -- so `navigate.py`, `goto.py`, `navlib.py`, `doorprobe.py`, `roomgrid.py` and `townid.py` all died with `IndexError: index out of range` on every snapshot the current build writes. Fixed here; the whole chain was then rebuilt and reproduced GAMEPLAY46's frames [E: GP47-0] |
-| 082,360..082,680 | GAMEPLAY46's own wear-drop script, unchanged, with `ACWW_INTERP_WATCH` on pocket slot 0 | **TWO stores, so the drop was ACCEPTED**: slot 0 is cleared to `0xfff1` and refilled with `0x11ac`, while the player's `+0x2408` takes `0x11a8`. **It is a SWAP** -- the item that "snapped back" is the shirt the player was already wearing, and one shirt icon looks like another on a still. GAMEPLAY46's refusal is RETRACTED [E: `g47-UNIW`; `png/UNIW-drop.png`] |
-| the same | the watch moved to `0x021debc4` (`+0x2408`) | the ROM's handler, named: one store at `pc 0x02099708` with `r14 = 0x0229e3f5` -- `func_02099704` called from **`func_ov096_0229e3b0 + 0x44`**, ov096's equip dispatcher, MATCHED in `src/matched/`. Its `case 2` is the shirt slot; it returns the old garment iff that one is in the band `0x11a8..0x12a7`, which is the same band the eight villagers' `+0x7d2` shirt ids sit in [E: `g47-WEARW`, `dis47.py`] |
-| 088,600..089,300 | the page closed with B/Y, then A pulses **with Up HELD under them** | **Nook confirms it in words**: `그래 그래 / 잘 어울려`, then the job's first task -- `가게 주변 분위기가 / 화사해지면 / 손님들도 기뻐하잖아구리 !` and `끝나면 / 다시 와, 구리`. A pulses ALONE opened nothing (the player faces south); A on the page only names the item under the cursor [E: `g47-TALK2` vs `g47-TALK4`; `png/TALK4.png`] |
-| 089,400 | -- | **seven flowers in the pockets** where fourteen slots were empty: `11ac 1500 1506 150b 1512 151d 151d 151d` [E: `prec.py` on `st/talk89400.st`] |
-| 091,600..092,500 | with the page up, tap a slot TWICE, then tap (58,60) | **an item is placed in the world.** The second tap opens a box offering `땅에 심기` / `그만두기` over the page, naming `노란 튤립`; taking the first line empties the slot and draws the tulip on the grass [E: `g47-PLANT1`, `g47-PLANT2`; `png/PLANTED.png`] |
-| 094,900..095,900 | back to the counter with six flowers still in hand | **the wallet is 0 for a GAME reason, in the game's own words**: `앗 ! / 알고 있겠지만 / 밖에 심는 거야구리 !`. The pay is behind seven placements, the shop menu is behind the pay, and a purchase is behind the menu [E: `g47-JOBBACK`; `png/JOBBACK.png`] |
-| 077,000..080,400 | one `goto.py --to <name>` at each remaining door | **all four INSIDE, nothing hand-aimed**: able-sisters in 4 iterations (고순이 among the racks), the gate in 4 (a stone room with two lit lamps, and a 165-request CARD READ of the letter store on entry), the museum in 6 (부엉 in the tiled hall), the town hall in 3. `able-sisters` is the second building GAMEPLAY46's anchor rule moved, so this confirms that fix independently [E: `doors47.py`, `D-*`] |
-| 081,300..084,500 | villager-1's door, three ways | **the model is RIGHT and the refusal is not aim.** A on the doormat (51,62) opens the house's own NAMEPLATE box, `곤잘레스네 집`, so the ROM agrees that is the door; 750 frames of held Up with A and **1,200 frames with no A at all** both cross zero tiles, with the player resting at world `z = 124.83` hard against the tile-61 boundary; and the same push one column east -- at the kind-`0x0a` cell that was Nook's real doorway -- walks straight through and twelve tiles north. GAMEPLAY46's "cause unknown, `navlib` may be wrong" is answered: not `navlib` [E: `g47-V1DOOR`, `g47-V1NOA`, `g47-V1X52`; `png/V1-acre.png`, `png/V1-door-zoom.png`] |
-| -- | a `goto.py` chain from a snapshot taken with the pockets page up | **six iterations, ZERO tiles.** The page eats the pad exactly as a dialogue box does, and it survives the savestate. One `Y` first, and the next chain was inside Nook's shop in four iterations [E: `g47-NK2` vs `g47-CLOSEP`] |
+| -- | resume any GAMEPLAY46 snapshot | **none of them load, and the READER was broken too.** BUILD44 grew the savestate header from 19 words to 27 (the exe's SHA-256 joined the link identity) and bumped `STATE_VERSION` to 2, but `port/tools/navsnap.py` still assumed 19 -- so `navigate.py`, `goto.py`, `navlib.py`, `doorprobe.py`, `roomgrid.py` and `townid.py` all died with `IndexError: index out of range` on every snapshot the current build writes. Fixed here; the whole chain was then rebuilt and reproduced GAMEPLAY46's frames [H: log/source account: GP47-0; receipt provenance unresolved] |
+| 082,360..082,680 | GAMEPLAY46's own wear-drop script, unchanged, with `ACWW_INTERP_WATCH` on pocket slot 0 | **TWO stores, so the drop was ACCEPTED**: slot 0 is cleared to `0xfff1` and refilled with `0x11ac`, while the player's `+0x2408` takes `0x11a8`. **It is a SWAP** -- the item that "snapped back" is the shirt the player was already wearing, and one shirt icon looks like another on a still. GAMEPLAY46's refusal is RETRACTED [H: log/source account: `g47-UNIW`; `png/UNIW-drop.png`; receipt provenance unresolved] |
+| the same | the watch moved to `0x021debc4` (`+0x2408`) | the ROM's handler, named: one store at `pc 0x02099708` with `r14 = 0x0229e3f5` -- `func_02099704` called from **`func_ov096_0229e3b0 + 0x44`**, ov096's equip dispatcher, MATCHED in `src/matched/`. Its `case 2` is the shirt slot; it returns the old garment iff that one is in the band `0x11a8..0x12a7`, which is the same band the eight villagers' `+0x7d2` shirt ids sit in [H: log/source account: `g47-WEARW`, `dis47.py`; receipt provenance unresolved] |
+| 088,600..089,300 | the page closed with B/Y, then A pulses **with Up HELD under them** | **Nook confirms it in words**: `그래 그래 / 잘 어울려`, then the job's first task -- `가게 주변 분위기가 / 화사해지면 / 손님들도 기뻐하잖아구리 !` and `끝나면 / 다시 와, 구리`. A pulses ALONE opened nothing (the player faces south); A on the page only names the item under the cursor [H: log/source account: `g47-TALK2` vs `g47-TALK4`; `png/TALK4.png`; receipt provenance unresolved] |
+| 089,400 | -- | **seven flowers in the pockets** where fourteen slots were empty: `11ac 1500 1506 150b 1512 151d 151d 151d` [H: log/source account: `prec.py` on `st/talk89400.st`; receipt provenance unresolved] |
+| 091,600..092,500 | with the page up, tap a slot TWICE, then tap (58,60) | **an item is placed in the world.** The second tap opens a box offering `땅에 심기` / `그만두기` over the page, naming `노란 튤립`; taking the first line empties the slot and draws the tulip on the grass [H: log/source account: `g47-PLANT1`, `g47-PLANT2`; `png/PLANTED.png`; receipt provenance unresolved] |
+| 094,900..095,900 | back to the counter with six flowers still in hand | **the wallet is 0 for a GAME reason, in the game's own words**: `앗 ! / 알고 있겠지만 / 밖에 심는 거야구리 !`. The pay is behind seven placements, the shop menu is behind the pay, and a purchase is behind the menu [H: log/source account: `g47-JOBBACK`; `png/JOBBACK.png`; receipt provenance unresolved] |
+| 077,000..080,400 | one `goto.py --to <name>` at each remaining door | **all four INSIDE, nothing hand-aimed**: able-sisters in 4 iterations (고순이 among the racks), the gate in 4 (a stone room with two lit lamps, and a 165-request CARD READ of the letter store on entry), the museum in 6 (부엉 in the tiled hall), the town hall in 3. `able-sisters` is the second building GAMEPLAY46's anchor rule moved, so this confirms that fix independently [H: log/source account: `doors47.py`, `D-*`; receipt provenance unresolved] |
+| 081,300..084,500 | villager-1's door, three ways | **the model is RIGHT and the refusal is not aim.** ~~A on the doormat (51,62) opens the house's own NAMEPLATE box, `곤잘레스네 집`, so the ROM agrees that is the door;~~ **Nameplate reading retracted by GAMEPLAY48 (GP48-9):** the frame-82,200 box is the resident's OUT note [E: `scratchpad/gameplay48/png/V1-plate.png`; log: `docs/log/cycle41-gameplay.md` GP48-9]; 750 frames of held Up with A and **1,200 frames with no A at all** both cross zero tiles, with the player resting at world `z = 124.83` hard against the tile-61 boundary; and the same push one column east -- at the kind-`0x0a` cell that was Nook's real doorway -- walks straight through and twelve tiles north. GAMEPLAY46's "cause unknown, `navlib` may be wrong" is answered: not `navlib` [H: log/source account: `g47-V1DOOR`, `g47-V1NOA`, `g47-V1X52`; `png/V1-acre.png`, `png/V1-door-zoom.png`; receipt provenance unresolved] |
+| -- | a `goto.py` chain from a snapshot taken with the pockets page up | **six iterations, ZERO tiles.** The page eats the pad exactly as a dialogue box does, and it survives the savestate. One `Y` first, and the next chain was inside Nook's shop in four iterations [H: log/source account: `g47-NK2` vs `g47-CLOSEP`; receipt provenance unresolved] |
 
 **What to carry away.** First, **there was no defect**: the wear-drop worked from the first
 attempt in GAMEPLAY46, and what stood between this project and knowing it was that "refused" and
 "accepted" leave the same picture. Five stroke variants and a control on the input could not
 separate them; one store watchpoint on the player record did it in a single run. **When two
 outcomes look alike, measure the word the action is supposed to move, not the action.** Second,
-**every door in the town model is now open** except villager houses, and villager houses are now
-an ORACLE question rather than a navigation one. Third, **the port is no longer what blocks the
+~~**every door in the town model is now open** except villager houses, and villager houses are now
+an ORACLE question rather than a navigation one.~~ **Open question retired by ORACLE50.** ORACLE50 measured both producers inside villager-1's house at frame 57,600 on the shared map in town `0x8365`; GP48-9's OUT note describes town `0xc66e`, not a port-wide door defect [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3]. Third, **the port is no longer what blocks the
 first Bell** -- a seven-flower errand is, and the placement mechanic that finishes it is proved.
 
 ## GAMEPLAY48 -- the seven flowers are planted, the mayor is met, and the villager's door says why
@@ -484,25 +533,25 @@ the runs were made on is **31/31 EXACT**. Every run is `exit 100` except the one
 
 | frames | what was done | what happened |
 |---|---|---|
-| 048,000..091,400 | GAMEPLAY47's twenty-step chain, replayed **OPEN LOOP** from its own `receipt.json` files | **it reproduces, tile for tile, on a new build**: `HOME-4` at 57,812, the walk-out at (40,56), the save verifying with worn shirt `0x11ac`, the uniform SWAP `0x11a8 -> 0x11ac`, the seven flowers `1500 1506 150b 1512 151d 151d 151d`. Every `goto.py` leg had already written its plan as a `.pad`, so the navigator never ran. **A cycle should hand the next one its PLANS, not its snapshots** -- snapshots are bound to one link and were worthless a build later [E: GP48-0, `chain48.py`] |
-| 091,460..097,620 | plant the seven flowers, **one per run**, with the pocket row as the accept test | **seven for seven.** The pockets go `11ac 1500 ...` -> `11ac fff1 x7` and the flowers are drawn in a cluster on the grass. **The player never moved**: the ROM chooses the ground itself [E: `g48-PLANT1..7`; `png/PLANTED-all.png`] |
-| the same | why GAMEPLAY47's six-in-one script planted none | **the `땅에 심기` box is drawn BESIDE the tapped slot and moves with it** -- first line at `slot + (10, -62)`, panel width following the item name. GAMEPLAY47's `(58,60)`, read off a 6x zoom of a slot-1 tap, is ten pixels off for slot 1, a whole panel away by slot 3 and a whole ROW away by slot 5. **An eye on a zoom is not a measurement (M1)** [E: GP48-1, `menubox.py`, by colour] |
-| the same | and the second half of it | **the pad-to-stylus mode switch is CONDITIONAL.** It is spent only when the previous input was the PAD; on a page already in stylus mode the "switch" tap opens the box and the "real" tap CLOSES it again. Two taps, not three [E: GP48-2, `g48-PLANT3`] |
-| 097,800..101,000 | back to Nook with the pockets empty | **he does not pay.** `잠깐 동안 / 휴식 시간을 좀` and `마을사무소 주변에서 / 산책하고 있을 테니 / 찾아봐구리` -- a break, near the town hall. Wallet still 0 [E: `g48-PAY`; `png/PAY.png`] |
-| 102,700..104,850 | follow him there | **the NPC standing on the town hall plaza is 고북 -- Tortimer, the MAYOR**, a character this port had never met. The actor manager holds THREE live actors where every previous cycle saw two; `goto.py --to actor:2` is adjacent in three iterations. `내 이름은 고북이라네 !` [E: `NKW-1..3`, `g48-NKTALK`; `png/NKTALK.png`] |
-| 077,060..082,300 | villager-1's door, the whole GAMEPLAY47 timeline as ONE 153-row script | **the refusal reproduces exactly** -- onto the doormat at frame **81,344**, the frame GAMEPLAY47 named, and no crossing after it -- **and the box on screen is the answer**: `이 몸은 밖에 계신다 / 곤잘레스`, "I am OUT. -- Gonzalez". It is the note a villager leaves when he is not home, not a nameplate, and two live villager actors are walking the town on that same snapshot. A GAME rule, not a defect [E: GP48-9; `png/V1-plate.png`] |
-| 048,000..082,200 | the same timeline on the ORIGINAL, 82,264 emulated frames | **the oracle cannot be asked this.** At the seam (48,000) the two are the same scene on the same line of Pelly's dialogue; after it they are somewhere else entirely, and the HUD does the arithmetic: at 77,000 the port reads AM10:08 and the original AM10:21 -- exactly the 48,000 frozen frames (13m22s) the port did not spend. **The oracle has no counterpart to `ACWW_RTC_FREEZE_UNTIL`**, and GP44 measured two things that follow from a clock difference at generation -- a different town, and no arrival tutorial hold -- which this run does not separate. Either alone breaks the comparison [E: GP48-8; `png/V1-sbs-seam.png`, `png/V1-sbs-door.png`; `compare.py` mean ncc 0.334] |
-| -- | give the oracle any `goto.py` plan | **it refused every one of them, and had since ORACLE44.** The port's parser stops a row at a token beginning with `#`; `oracle.py`'s transcription of it split the whole line and refused the trailing comment every plan carries. Fixed here [E: GP48-6] |
-| 108,400..139,001 | idle at the town hall for 31,600 frames | **the only non-`exit 100` run in three cycles**: `acww: unimplemented: a savestate-resumed OSThread procedure returned instead of calling OS_ExitThread`. Reached only ~91,000 frames past a resume; not diagnosed [E: GP48-10, `g48-WAIT2`] |
+| 048,000..091,400 | GAMEPLAY47's twenty-step chain, replayed **OPEN LOOP** from its own `receipt.json` files | **it reproduces, tile for tile, on a new build**: `HOME-4` at 57,812, the walk-out at (40,56), the save verifying with worn shirt `0x11ac`, the uniform SWAP `0x11a8 -> 0x11ac`, the seven flowers `1500 1506 150b 1512 151d 151d 151d`. Every `goto.py` leg had already written its plan as a `.pad`, so the navigator never ran. **A cycle should hand the next one its PLANS, not its snapshots** -- snapshots are bound to one link and were worthless a build later [H: log/source account: GP48-0, `chain48.py`; receipt provenance unresolved] |
+| 091,460..097,620 | plant the seven flowers, **one per run**, with the pocket row as the accept test | **seven for seven.** The pockets go `11ac 1500 ...` -> `11ac fff1 x7` and the flowers are drawn in a cluster on the grass. **The player never moved**: the ROM chooses the ground itself [H: log/source account: `g48-PLANT1..7`; `png/PLANTED-all.png`; receipt provenance unresolved] |
+| the same | why GAMEPLAY47's six-in-one script planted none | **the `땅에 심기` box is drawn BESIDE the tapped slot and moves with it** -- first line at `slot + (10, -62)`, panel width following the item name. GAMEPLAY47's `(58,60)`, read off a 6x zoom of a slot-1 tap, is ten pixels off for slot 1, a whole panel away by slot 3 and a whole ROW away by slot 5. **An eye on a zoom is not a measurement (M1)** [H: log/source account: GP48-1, `menubox.py`, by colour; receipt provenance unresolved] |
+| the same | and the second half of it | **the pad-to-stylus mode switch is CONDITIONAL.** It is spent only when the previous input was the PAD; on a page already in stylus mode the "switch" tap opens the box and the "real" tap CLOSES it again. Two taps, not three [H: log/source account: GP48-2, `g48-PLANT3`; receipt provenance unresolved] |
+| 097,800..101,000 | back to Nook with the pockets empty | **he does not pay.** `잠깐 동안 / 휴식 시간을 좀` and `마을사무소 주변에서 / 산책하고 있을 테니 / 찾아봐구리` -- a break, near the town hall. Wallet still 0 [H: log/source account: `g48-PAY`; `png/PAY.png`; receipt provenance unresolved] |
+| 102,700..104,850 | follow him there | **the NPC standing on the town hall plaza is 고북 -- Tortimer, the MAYOR**, a character this port had never met. The actor manager holds THREE live actors where every previous cycle saw two; `goto.py --to actor:2` is adjacent in three iterations. `내 이름은 고북이라네 !` [H: log/source account: `NKW-1..3`, `g48-NKTALK`; `png/NKTALK.png`; receipt provenance unresolved] |
+| 077,060..082,300 | villager-1's door, the whole GAMEPLAY47 timeline as ONE 153-row script | **the refusal reproduces exactly** -- onto the doormat at frame **81,344**, the frame GAMEPLAY47 named, and no crossing after it -- **and the box on screen is the answer**: `이 몸은 밖에 계신다 / 곤잘레스`, "I am OUT. -- Gonzalez". It is the note a villager leaves when he is not home, not a nameplate, and two live villager actors are walking the town on that same snapshot. A GAME rule, not a defect [H: log/source account: GP48-9; `png/V1-plate.png`; receipt provenance unresolved] **Later scope check (ORACLE50):** ORACLE50 measured both producers inside villager-1's house at frame 57,600 on the shared map in town `0x8365`; GP48-9's OUT note describes town `0xc66e`, not a port-wide door defect [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3]. |
+| 048,000..082,200 | the same timeline on the ORIGINAL, 82,264 emulated frames | **the oracle cannot be asked this.** At the seam (48,000) the two are the same scene on the same line of Pelly's dialogue; after it they are somewhere else entirely, and the HUD does the arithmetic: at 77,000 the port reads AM10:08 and the original AM10:21 -- exactly the 48,000 frozen frames (13m22s) the port did not spend. ~~**The oracle has no counterpart to `ACWW_RTC_FREEZE_UNTIL`**, and GP44 measured two things that follow from a clock difference at generation -- a different town, and no arrival tutorial hold -- which this run does not separate. Either alone breaks the comparison~~ **Retracted by ORACLE45-1 and TUTORIAL45:** the oracle gained the freeze arm, and TUT45-2 measured the original holding for 4,500 frames and both releasing at 54,900 [E: `scratchpad/oracle45/RECEIPTS.md`, `scratchpad/tutorial45/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` ORACLE45-1, TUT45-2]. ORACLE46/47 measured seed `0x000a0f00` on all three producers, with the armed original consuming 14 extra draws after frame 10,000 rather than changing that seed [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3]. [H: log/source account: GP48-8; `png/V1-sbs-seam.png`, `png/V1-sbs-door.png`; `compare.py` mean ncc 0.334; receipt provenance unresolved] |
+| -- | give the oracle any `goto.py` plan | **it refused every one of them, and had since ORACLE44.** The port's parser stops a row at a token beginning with `#`; `oracle.py`'s transcription of it split the whole line and refused the trailing comment every plan carries. Fixed here [H: log/source account: GP48-6; receipt provenance unresolved] |
+| 108,400..139,001 | idle at the town hall for 31,600 frames | **the only non-`exit 100` run in three cycles**: `acww: unimplemented: a savestate-resumed OSThread procedure returned instead of calling OS_ExitThread`. Reached only ~91,000 frames past a resume; not diagnosed [H: log/source account: GP48-10, `g48-WAIT2`; receipt provenance unresolved] |
 
 **What to carry away.** First, **Nook's first task is finished** and the port was never what
 blocked it -- what blocked it was a confirm point read off a zoom instead of measured, and a
 mode-switch rule that had lost its condition. Second, **read the box the game already opened**:
 villager houses cost three cycles of navigation work, and the answer was printed on the door the
 whole time. Third, **a recipe is not shared until every instrument in it has a counterpart on
-both sides**: the pad phases, the two taps and the pad timeline all do; the clock arm, which is
+both sides**: the pad phases, the two taps and the pad timeline all do; ~~the clock arm, which is
 the one that picks the WORLD, does not, and until it does the oracle cannot follow any chain
-past frame 48,000.
+past frame 48,000.~~ **Retracted by ORACLE45/46/47/50.** ORACLE46/47 measured seed `0x000a0f00` on all three producers, with the armed original consuming 14 extra draws after frame 10,000 rather than changing that seed [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3]. ORACLE50 measured both producers inside villager-1's house at frame 57,600 on the shared map in town `0x8365`; GP48-9's OUT note describes town `0xc66e`, not a port-wide door defect [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3].
 
 ## ORACLE45 -- the oracle's clock arm, and the seam becomes a match
 
@@ -514,12 +563,12 @@ GAMEPLAY48's own 439-row timeline.
 
 | frames | what was done | what happened |
 |---|---|---|
-| -- | give the oracle the port's clock | **`--rtc-freeze`, `--rtc-freeze-until`, `--rtc-freeze-from`**, each falling back to the `ACWW_RTC_*` variable of the same name. A shifted `rtcStart` cannot express a freeze, and DeSmuME's Lua has no RTC, so the clock is INJECTED at **the same point the port injects at** -- the packed BCD block at `0x027ffde8` that the ROM's own `RtcCommonCallback` unpacks -- from a `memory.registerwrite` hook, because the emulated ARM7 refreshes that block ~1.8 times a frame [E: ORACLE45-1] |
-| 000..003,000 | calibrate the arm | with **no** arm the emulated chip and the port's frame-driven clock are the same clock **to within one second**; with `--rtc-freeze-until 1500` the game's own clock words read 10:00:00 through the freeze and the model exactly after it. Costs 52.8 s against 53.6 s [E: `probe-chip`, `probe-until1500`] |
-| 048,000..049,600 | the seam, on both arms | **the same PICTURE, not just the same scene**: mean `ncc` **0.9559**, `ncc-top` exactly **1.0000**, and both HUDs read `6/15 AM10:01` at 53,000 where GAMEPLAY48's read `AM10:08` against `AM10:21`. **GP48-8's "every chain this project owns is un-oracleable" is discharged for the clock** [E: ORACLE45-2, `compare-p45.json`] |
-| 049,000..055,400 | where they part | first disagreement at **49,000** (the port is further into the town hall's exit fade), agreement again at 49,600, and at **49,800** the port is outside while the original is still in a black doorway -- ORACLE44's ~200-300-frame walk-out lead, with the clock confound removed. Then **the port holds the arrival tutorial's illustration at 51,000 and 53,000 and the ORIGINAL does not**: ~4,400 frames the original spends walking. No frame shift recovers it afterwards [E: ORACLE45-3, `png/seam.png`, `png/hold.png`] -- **RETRACTED by TUTORIAL45 (`docs/log/cycle41-gameplay.md`, TUT45-2) below: the original is frozen on one tile over the same frames, and the reference is in a different town** |
-| 081,344 | villager-1's door | **unanswerable on this timeline.** The port is on the doormat with the OUT note; the original is at a cliff face among fruit trees, 31,000 frames of divergence away. The reason is now ordinary rather than "a different town" -- and the way to ask it is a SHORT timeline anchored near 77,000 [E: ORACLE45-4, `png/pinned.png`] |
-| -- | replaying a merged chain script on the PORT | **it is an oracle input, not a port input.** GAMEPLAY48's chain crossed these frames in twenty runs joined by savestates, and one leg is the SAVE: replayed continuously the port saves at ~65,400, returns to the title, and the following A pulses start a NEW GAME [E: ORACLE45-5] |
+| -- | give the oracle the port's clock | **`--rtc-freeze`, `--rtc-freeze-until`, `--rtc-freeze-from`**, each falling back to the `ACWW_RTC_*` variable of the same name. A shifted `rtcStart` cannot express a freeze, and DeSmuME's Lua has no RTC, so the clock is INJECTED at **the same point the port injects at** -- the packed BCD block at `0x027ffde8` that the ROM's own `RtcCommonCallback` unpacks -- from a `memory.registerwrite` hook, because the emulated ARM7 refreshes that block ~1.8 times a frame [H: log/source account: ORACLE45-1; receipt provenance unresolved] |
+| 000..003,000 | calibrate the arm | with **no** arm the emulated chip and the port's frame-driven clock are the same clock **to within one second**; with `--rtc-freeze-until 1500` the game's own clock words read 10:00:00 through the freeze and the model exactly after it. Costs 52.8 s against 53.6 s [H: log/source account: `probe-chip`, `probe-until1500`; receipt provenance unresolved] |
+| 048,000..049,600 | the seam, on both arms | **the same PICTURE, not just the same scene**: mean `ncc` **0.9559**, `ncc-top` exactly **1.0000**, and both HUDs read `6/15 AM10:01` at 53,000 where GAMEPLAY48's read `AM10:08` against `AM10:21`. **GP48-8's "every chain this project owns is un-oracleable" is discharged for the clock** [H: log/source account: ORACLE45-2, `compare-p45.json`; receipt provenance unresolved] |
+| 049,000..055,400 | where they part | first disagreement at **49,000** (the port is further into the town hall's exit fade), agreement again at 49,600, and at **49,800** the port is outside while the original is still in a black doorway -- ORACLE44's ~200-300-frame walk-out lead, with the clock confound removed. ~~Then **the port holds the arrival tutorial's illustration at 51,000 and 53,000 and the ORIGINAL does not**: ~4,400 frames the original spends walking. No frame shift recovers it afterwards~~ [H: log/source account: ORACLE45-3, `png/seam.png`, `png/hold.png`; receipt provenance unresolved] -- **RETRACTED by TUTORIAL45 (`docs/log/cycle41-gameplay.md`, TUT45-2) below.** TUT45-2 measured the original frozen on one tile for 4,500 frames and bottom-screen `ncc` 0.9706 against the unarmed reference over 50,400..54,600, with both releasing at 54,900 [E: `scratchpad/tutorial45/RECEIPTS.md`, `scratchpad/tutorial45/png/unarmed-vs-port.png`; log: `docs/log/cycle41-gameplay.md` TUT45-2] |
+| 081,344 | villager-1's door | **unanswerable on this timeline.** The port is on the doormat with the OUT note; the original is at a cliff face among fruit trees, 31,000 frames of divergence away. ~~The reason is now ordinary rather than "a different town" -- and the way to ask it is a SHORT timeline anchored near 77,000~~ **Explanation retracted by EXIT48/ORACLE50.** EXIT48 measured both producers recording their own doormat at frame 38,838 and returning to it in different layouts, while ORACLE50's forward shared map has both exit at (72,38) and hold at (72,51) [E: `scratchpad/exit48/RECEIPTS.md`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4, O50-5]. ORACLE50 measured both producers inside villager-1's house at frame 57,600 on the shared map in town `0x8365`; GP48-9's OUT note describes town `0xc66e`, not a port-wide door defect [E: `scratchpad/oracle50/png/door50.png`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O50-3]. [H: log/source account: ORACLE45-4, `png/pinned.png`; receipt provenance unresolved] |
+| -- | replaying a merged chain script on the PORT | **it is an oracle input, not a port input.** GAMEPLAY48's chain crossed these frames in twenty runs joined by savestates, and one leg is the SAVE: replayed continuously the port saves at ~65,400, returns to the title, and the following A pulses start a NEW GAME [H: log/source account: ORACLE45-5; receipt provenance unresolved] |
 
 **What to carry away**, as TUTORIAL45 leaves it. The arm exists, its arithmetic is pinned to the
 shipped `rtcclock.c` by 120 cases, and the seam scores 0.9559 -- but that seam is INSIDE the town
@@ -531,7 +580,7 @@ sharper: **anchor a comparison near the question**, and score it somewhere the t
 
 **RETRACTION NOTE:** the title's clock-arm inference and TUT45-3's emulator rows are
 retracted as stated; see `docs/log/cycle41-gameplay.md`, O46-2 and O46-4. The
-observed tile positions remain historical observations.
+observed tile positions remain historical observations. ORACLE46/47 measured seed `0x000a0f00` on all three producers, with the armed original consuming 14 extra draws after frame 10,000 rather than changing that seed [E: `scratchpad/oracle46/RECEIPTS.md`, `scratchpad/oracle47/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O46-4, O47-3].
 
 Receipts: `scratchpad/tutorial45/RECEIPTS.md`; log sections `docs/log/cycle41-gameplay.md`
 TUT45-0..4. **No port source was changed and none is owed**: the port already reproduces this
@@ -539,15 +588,15 @@ behaviour. The tool change is a memory arm on the oracle -- `oracle.py --peek AD
 with `--peek-at` / `--peek-every`, written to the ledger by `observer.lua` -- which is the first
 instrument in this project that can read the ORIGINAL's RAM. Its OFF control: the same recipe
 with five peek specs added reproduces `scratchpad/oracle45/v1-frozen` at mean `ncc` **0.9999**,
-14 of 30 frames exact-RGB [E: TUT45-0].
+14 of 30 frames exact-RGB [H: log/source account: TUT45-0; receipt provenance unresolved].
 
 | question | what was measured |
 |---|---|
-| what ends the hold | **a pad press.** With nothing in the script after the walk-out Down the illustration is still up at frame **62,000**; truncate the chain before its `54800 16 600` Right row and it is still up at 57,000; leave the row in and it is gone by 54,900. Not a timer, not the RTC, not a sound event. SAVE42's move-in word `0x021f3c30` is read ONCE in the whole window, at pc `0x020a12ea` frame 48,003, and never stored [E: TUT45-1, `t45-noinput`, `t45-noright`, `t45-w1`] |
-| does the ORIGINAL hold | **yes, 4,500 frames.** `--peek 0x021c749c` says the emulator's player is frozen at world `(335176, 8203, 299750)`, tile (40,36), from 50,300 to 54,800 with Down held and A pulsing, and moves on the first shot after that same Right press. ORACLE45 read a still of a standing player as "walking the town" [E: TUT45-1, TUT45-2] |
-| does the PORT hold longer | **no.** Against the reference in the port's OWN town -- ORACLE44's unarmed run, whose pad rows over 49,100..54,800 are identical -- the port scores bottom-screen `ncc` **0.9706** over 50,400..54,600 and the two release together at 54,900 with the model half off-screen on both. Against ORACLE45's armed reference the same port arm scores 0.2204. **Only the reference moved** [E: TUT45-2] |
-| why the armed reference disagrees | **PARTLY CORRECTED by ORACLE48 below: the sixteen tiles are NOT the town.** As measured: **it is a different town.** Both leave the town hall at world x `0x51000` exactly; the port's first field tile is (40,**38**) and the armed original's is (40,**22**), and each holds after about fourteen tiles. The rule agrees, the world does not -- a stone plaza with hedges against a river with a fence. **ORACLE48 reproduced the same sixteen tiles with the town id EQUAL, so what this row located is a port/original difference at the building's exit, not the world** [E: O48-4]. `--peek` on the live town record `0x021dc7a8` at frame 48,000 gives villager ids **77,16,127** (port), **66,-,21** (armed emulator) and **107,94,-** (unarmed emulator): the two emulator runs differ in ONE flag, so the arm changes the world it was built to hold still [E: TUT45-3] **RETRACTED as stated: the emulator rows and this inference were withdrawn in `docs/log/cycle41-gameplay.md`, O46-2; the corrected measurements are O46-4.** |
-| the 200-300 frame walk-out lead | **inherited, not created at the door.** The port's screen is black at 49,620..49,700 and outside at 49,720; both originals are black at 49,800. GP48-8 already had the port one dialogue beat ahead AT the seam frame the snapshot was taken on. It costs nothing: a hold does not care who entered it first [E: TUT45-4] |
+| what ends the hold | **a pad press.** With nothing in the script after the walk-out Down the illustration is still up at frame **62,000**; truncate the chain before its `54800 16 600` Right row and it is still up at 57,000; leave the row in and it is gone by 54,900. Not a timer, not the RTC, not a sound event. SAVE42's move-in word `0x021f3c30` is read ONCE in the whole window, at pc `0x020a12ea` frame 48,003, and never stored [H: log/source account: TUT45-1, `t45-noinput`, `t45-noright`, `t45-w1`; receipt provenance unresolved] |
+| does the ORIGINAL hold | **yes, 4,500 frames.** `--peek 0x021c749c` says the emulator's player is frozen at world `(335176, 8203, 299750)`, tile (40,36), from 50,300 to 54,800 with Down held and A pulsing, and moves on the first shot after that same Right press. ORACLE45 read a still of a standing player as "walking the town" [H: log/source account: TUT45-1, TUT45-2; receipt provenance unresolved] |
+| does the PORT hold longer | **no.** Against the reference in the port's OWN town -- ORACLE44's unarmed run, whose pad rows over 49,100..54,800 are identical -- the port scores bottom-screen `ncc` **0.9706** over 50,400..54,600 and the two release together at 54,900 with the model half off-screen on both. Against ORACLE45's armed reference the same port arm scores 0.2204. **Only the reference moved** [H: log/source account: TUT45-2; receipt provenance unresolved] |
+| why the armed reference disagrees | ~~**PARTLY CORRECTED by ORACLE48 below: the sixteen tiles are NOT the town.**~~ **Retracted by EXIT48 (X48-4).** EXIT48 measured both producers recording their own doormat at frame 38,838 and returning to it in different layouts, while ORACLE50's forward shared map has both exit at (72,38) and hold at (72,51) [E: `scratchpad/exit48/RECEIPTS.md`, `scratchpad/oracle50/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4, O50-5]. As measured: **it is a different town.** Both leave the town hall at world x `0x51000` exactly; the port's first field tile is (40,**38**) and the armed original's is (40,**22**), and each holds after about fourteen tiles. The rule agrees, the world does not -- a stone plaza with hedges against a river with a fence. ~~**ORACLE48 reproduced the same sixteen tiles with the town id EQUAL, so what this row located is a port/original difference at the building's exit, not the world** [H: log/source account: O48-4; receipt provenance unresolved].~~ **Inference retracted by EXIT48 (X48-4):** a shared town id did not fix the layout, and each producer returned to its own town hall [E: `scratchpad/exit48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4]. `--peek` on the live town record `0x021dc7a8` at frame 48,000 gives villager ids **77,16,127** (port), **66,-,21** (armed emulator) and **107,94,-** (unarmed emulator): ~~the two emulator runs differ in ONE flag, so the arm changes the world it was built to hold still [H: log/source account: TUT45-3; receipt provenance unresolved]~~ **RETRACTED as stated: the emulator rows and this inference were withdrawn in `docs/log/cycle41-gameplay.md`, O46-2; the corrected measurements are O46-4.** |
+| the 200-300 frame walk-out lead | **inherited, not created at the door.** The port's screen is black at 49,620..49,700 and outside at 49,720; both originals are black at 49,800. GP48-8 already had the port one dialogue beat ahead AT the seam frame the snapshot was taken on. It costs nothing: a hold does not care who entered it first [H: log/source account: TUT45-4; receipt provenance unresolved] |
 
 ## GAMEPLAY49 -- there is no wage to unblock, and the shop says so to the player's face
 
@@ -560,15 +609,15 @@ an **eighth** build; every run is `ACWW_RTC_FREEZE_UNTIL=48000`.
 
 | frames | what was done | what happened |
 |---|---|---|
-| -- | load GAMEPLAY48's snapshots | **all twenty refuse.** `acww state: REFUSING a snapshot from a different build` -- a savestate records the image base, the PE stamp, the entry, the file size, the registry count and the exe's SHA-256, and `port/shim/audio/sseq.c` changed since `0824e95b`. **The deliverable a cycle hands on is the PAD TIMELINE, not the snapshot** [E: GP49-0] |
-| 000,000..104,850 | rebuild the whole state from GAMEPLAY47's and GAMEPLAY48's own recorded plans (`chain49.py`, `chain49b.py`) | **eight checkpoints identical**, down to `HOME-4` at 57,812, the walk-out at (40,56), the uniform swap, the seven flowers and `outshop` at (27,67) -- and **the same RAM ADDRESSES**: the break message at `0x021cd760` at frame 101,000 in both cycles, the mayor's introduction at `0x02396162` at 104,850 in both [E: GP49-3, `msgaddr.py`] |
-| -- | read the ROM's own part-time-job script | **`bmg.py` had been reading at most the first 4,096 bytes of every archive** -- the wrapper is MULTI-CHUNK -- and returning NOTHING at all for one with a long directory. Nook's whole shop dialogue (94 entries) had never been read; the job script's entries [19]..[54] came back blank. **An archive that "has no more messages" and one that was never decompressed look the same from outside (M1)** [E: GP49-1, `bmg49.py`] |
-| -- | so what does the break line actually ask for | **greet every resident, and the MAYOR** -- `주민들에게 인사하고 와구리！` -- with a rider to knock before entering a house. GAMEPLAY48 met the mayor by accident and it is a step of the errand [E: GP49-2, `sp/etc/sequence5_1_` entry 18, in RAM at `0x021cd760`] |
-| -- | and what does the job PAY | **nothing into the wallet.** The settlement line deducts the `알바비` from the house loan. `0x021de3cc` staying 0 for four cycles is not a defect and not a missing step: the game never credits it. **The loan is `town record + 0x10abc` = `0x021ed264`, 19,800** -- confirmed against BOTH banks of the save the game itself wrote (`0x10abc`, `0x27eb8`, `0x173fc` apart) [E: GP49-2, entry 52; `findword.py`, `savetool check`] |
-| 104,850..105,620 | resume the chain and walk | **five `goto.py` iterations move ZERO tiles**: the mayor's box is still up, and a conversation eats the pad exactly as the pockets page does. Eight B pulses close it (`dlg.py` 0.565 -> 0.001) and the next chain walks [E: GP49-5] |
-| 105,620..108,900 | greet a villager | **greeted.** A walking villager outruns a three-leg plan -- five iterations closed 8 tiles to 2 -- and two more at `--legs 2` reached ADJACENT, 0 tiles, with the box up at frame 108,000 and the reply in RAM at `0x02396150` [E: GP49-6; `png/GREET1-box.png`] |
-| 109,050..118,300 | go to the shop and try to buy something | **the game refuses, in words, three runs and three tiles running**: `알바생한테는 팔지 않는다구리` -- Nook does not sell to his own part-timer. The archive copy is at `0x021cd20a` and the rendered one at `0x0236c0b0`. **The first purchase is behind the END of the whole job**, five errands after the greeting [E: GP49-7; `png/NKREP-box.png`, frame 111,300] |
-| the same | where Nook is during his "break" | **behind his own counter, as always.** `npc slot 0 id 0xd019` is in the shop at frame 116,000 and was in the shop at 89,400, 27,000 frames before the break line; the town-hall plaza has three actors and none of them is him. GAMEPLAY48 waited 34,600 frames for someone who never left [E: GP49-4] |
+| -- | load GAMEPLAY48's snapshots | **all twenty refuse.** `acww state: REFUSING a snapshot from a different build` -- a savestate records the image base, the PE stamp, the entry, the file size, the registry count and the exe's SHA-256, and `port/shim/audio/sseq.c` changed since `0824e95b`. **The deliverable a cycle hands on is the PAD TIMELINE, not the snapshot** [H: log/source account: GP49-0; receipt provenance unresolved] |
+| 000,000..104,850 | rebuild the whole state from GAMEPLAY47's and GAMEPLAY48's own recorded plans (`chain49.py`, `chain49b.py`) | **eight checkpoints identical**, down to `HOME-4` at 57,812, the walk-out at (40,56), the uniform swap, the seven flowers and `outshop` at (27,67) -- and **the same RAM ADDRESSES**: the break message at `0x021cd760` at frame 101,000 in both cycles, the mayor's introduction at `0x02396162` at 104,850 in both [H: log/source account: GP49-3, `msgaddr.py`; receipt provenance unresolved] |
+| -- | read the ROM's own part-time-job script | **`bmg.py` had been reading at most the first 4,096 bytes of every archive** -- the wrapper is MULTI-CHUNK -- and returning NOTHING at all for one with a long directory. Nook's whole shop dialogue (94 entries) had never been read; the job script's entries [19]..[54] came back blank. **An archive that "has no more messages" and one that was never decompressed look the same from outside (M1)** [H: log/source account: GP49-1, `bmg49.py`; receipt provenance unresolved] |
+| -- | so what does the break line actually ask for | **greet every resident, and the MAYOR** -- `주민들에게 인사하고 와구리！` -- with a rider to knock before entering a house. GAMEPLAY48 met the mayor by accident and it is a step of the errand [H: log/source account: GP49-2, `sp/etc/sequence5_1_` entry 18, in RAM at `0x021cd760`; receipt provenance unresolved] |
+| -- | and what does the job PAY | **nothing into the wallet.** The settlement line deducts the `알바비` from the house loan. `0x021de3cc` staying 0 for four cycles is not a defect and not a missing step: the game never credits it. **The loan is `town record + 0x10abc` = `0x021ed264`, 19,800** -- confirmed against BOTH banks of the save the game itself wrote (`0x10abc`, `0x27eb8`, `0x173fc` apart) [H: log/source account: GP49-2, entry 52; `findword.py`, `savetool check`; receipt provenance unresolved] |
+| 104,850..105,620 | resume the chain and walk | **five `goto.py` iterations move ZERO tiles**: the mayor's box is still up, and a conversation eats the pad exactly as the pockets page does. Eight B pulses close it (`dlg.py` 0.565 -> 0.001) and the next chain walks [H: log/source account: GP49-5; receipt provenance unresolved] |
+| 105,620..108,900 | greet a villager | **greeted.** A walking villager outruns a three-leg plan -- five iterations closed 8 tiles to 2 -- and two more at `--legs 2` reached ADJACENT, 0 tiles, with the box up at frame 108,000 and the reply in RAM at `0x02396150` [H: log/source account: GP49-6; `png/GREET1-box.png`; receipt provenance unresolved] |
+| 109,050..118,300 | go to the shop and try to buy something | **the game refuses, in words, three runs and three tiles running**: `알바생한테는 팔지 않는다구리` -- Nook does not sell to his own part-timer. The archive copy is at `0x021cd20a` and the rendered one at `0x0236c0b0`. **The first purchase is behind the END of the whole job**, five errands after the greeting [H: log/source account: GP49-7; `png/NKREP-box.png`, frame 111,300; receipt provenance unresolved] |
+| the same | where Nook is during his "break" | **behind his own counter, as always.** `npc slot 0 id 0xd019` is in the shop at frame 116,000 and was in the shop at 89,400, 27,000 frames before the break line; the town-hall plaza has three actors and none of them is him. GAMEPLAY48 waited 34,600 frames for someone who never left [H: log/source account: GP49-4; receipt provenance unresolved] |
 
 **What to carry away.** First, **the question "what unblocks the pay" had no answer because there
 is no payment** -- and the cheapest place to have found that out was the ROM's own script, which
@@ -585,12 +634,12 @@ NINTH build from the plans alone (46 segments, `chain50.py`; eight checkpoints i
 
 | frames | what was done | what happened |
 |---|---|---|
-| 109,050..123,000 | greet both villagers in the actor manager, having already greeted the mayor | **Nook still shows the gate line.** The manager holds only TWO villagers and the town record says THREE: **it only ever holds who is OUTDOORS**, so a greeting errand cannot be finished from it [E: GP50-1] |
-| 123,000..133,531 | go into the third villager's house | **`내 이름은 트로와！`** -- a full introduction with the one id (`0xe002`) that never appears outdoors. The empty third actor slot and the OUT note GAMEPLAY48 read off a door are the same fact from two sides [E: GP50-3] |
-| 133,531..140,753 | back to the counter | **the gate is open**: `이제야 겨우 알바생다워졌어구리` -- the FURNITURE errand, entries [24] and [25]. The accept test in memory is the pocket row: the parcel `0x1563` appears in slot 1 [E: GP50-3] |
-| 140,753..142,100 | do what the errand says: TOUCH the parcel on the pockets page | **the page names its own recipient, `곤잘레스님`** -- so nobody has to guess who a delivery is for [E: GP50-4] |
-| 146,200..156,400 | find 곤잘레스 and talk | **delivered**: slot 1 goes `0x1563` -> `0x3508`, the thank-you. Talking to the WRONG villager is visibly different -- 마르 answers with the two-choice gift prompt and the pocket row does not move [E: GP50-4] |
-| 164,200..166,600 | back to the counter | **errand three: the DIRECT MAIL letter** -- write to 마르, post it at the town hall's postal window, and the letter `0x1020` lands in pocket slot 2 [E: GP50-5, entry 31] |
+| 109,050..123,000 | greet both villagers in the actor manager, having already greeted the mayor | **Nook still shows the gate line.** The manager holds only TWO villagers and the town record says THREE: **it only ever holds who is OUTDOORS**, so a greeting errand cannot be finished from it [H: log/source account: GP50-1; receipt provenance unresolved] |
+| 123,000..133,531 | go into the third villager's house | **`내 이름은 트로와！`** -- a full introduction with the one id (`0xe002`) that never appears outdoors. The empty third actor slot and the OUT note GAMEPLAY48 read off a door are the same fact from two sides [H: log/source account: GP50-3; receipt provenance unresolved] |
+| 133,531..140,753 | back to the counter | **the gate is open**: `이제야 겨우 알바생다워졌어구리` -- the FURNITURE errand, entries [24] and [25]. The accept test in memory is the pocket row: the parcel `0x1563` appears in slot 1 [H: log/source account: GP50-3; receipt provenance unresolved] |
+| 140,753..142,100 | do what the errand says: TOUCH the parcel on the pockets page | **the page names its own recipient, `곤잘레스님`** -- so nobody has to guess who a delivery is for [H: log/source account: GP50-4; receipt provenance unresolved] |
+| 146,200..156,400 | find 곤잘레스 and talk | **delivered**: slot 1 goes `0x1563` -> `0x3508`, the thank-you. Talking to the WRONG villager is visibly different -- 마르 answers with the two-choice gift prompt and the pocket row does not move [H: log/source account: GP50-4; receipt provenance unresolved] |
+| 164,200..166,600 | back to the counter | **errand three: the DIRECT MAIL letter** -- write to 마르, post it at the town hall's postal window, and the letter `0x1020` lands in pocket slot 2 [H: log/source account: GP50-5, entry 31; receipt provenance unresolved] |
 
 **What to carry away.** First, **an errand's population is not the actor manager's population**:
 three cycles chased two walkers because the manager only shows who is outdoors. Second, **the
@@ -610,13 +659,13 @@ reproduced on a TENTH build from the plans alone; **260 runs in 2,703.7 s were e
 
 | frames | what was done | what happened |
 |---|---|---|
-| 166,600..170,900 | do what entry [33] says: touch the letter in the pockets and choose `편지 쓰기` | **the addressee is PICKED, not typed** -- a list of three villagers -- and the body may be left EMPTY. The stylus keyboard, which two cycles expected to need, is not on this path [E: GP51-3] |
-| 170,900..183,100 | the town hall's postal window | 펠리: `여기는 우편과 창구입니다`. The send page needs the letter **DRAGGED** into it: a TAP raises `읽기 / 버리기 / 그만두기` and that box then eats the confirm, and confirming with nothing staged gets `어머, 편지 안 부치시나요？`. With it staged: **`예, 잘 받았습니다`** [E: GP51-4] |
+| 166,600..170,900 | do what entry [33] says: touch the letter in the pockets and choose `편지 쓰기` | **the addressee is PICKED, not typed** -- a list of three villagers -- and the body may be left EMPTY. The stylus keyboard, which two cycles expected to need, is not on this path [H: log/source account: GP51-3; receipt provenance unresolved] |
+| 170,900..183,100 | the town hall's postal window | 펠리: `여기는 우편과 창구입니다`. The send page needs the letter **DRAGGED** into it: a TAP raises `읽기 / 버리기 / 그만두기` and that box then eats the confirm, and confirming with nothing staged gets `어머, 편지 안 부치시나요？`. With it staged: **`예, 잘 받았습니다`** [H: log/source account: GP51-4; receipt provenance unresolved] |
 | 183,100..187,500 | back to Nook | **[40]**, the success line -- not [39], the ROM's own "you posted it to the wrong person". A **blank letter posts** |
-| 187,500..211,700 | the carpet, to 트로와 indoors | both middle errands are DELIVERIES, and the ROM names each recipient on the pockets page. Indoors the game opens an ITEM-GIVING page and `건네기` completes it; he hands a floor back [E: GP51-5] |
+| 187,500..211,700 | the carpet, to 트로와 indoors | both middle errands are DELIVERIES, and the ROM names each recipient on the pockets page. Indoors the game opens an ITEM-GIVING page and `건네기` completes it; he hands a floor back [H: log/source account: GP51-5; receipt provenance unresolved] |
 | 211,700..234,500 | the watering can, to 마르 outdoors | **no page at all** -- an outdoor villager takes the errand item on the TALK itself. The two deliveries differ because the recipients do |
 | 234,500..248,100 | the bulletin board by the town hall | it opens to A **only with no direction pressed**; a blank post is accepted |
-| **254,100** | back to Nook -- entry **[52]** | **`0x021ed264` goes 19,800 -> 18,400**, and the box reads `남은 대출금은 18400벨이야구리`. The RAM word and the on-screen number agree [E: GP51-8] |
+| **254,100** | back to Nook -- entry **[52]** | **`0x021ed264` goes 19,800 -> 18,400**, and the box reads `남은 대출금은 18400벨이야구리`. The RAM word and the on-screen number agree [H: log/source account: GP51-8; receipt provenance unresolved] |
 
 **What to carry away.** First, **the loan word is confirmed**: five cycles watched `0x021ed264`
 sit at 19,800 and this one made it move by exactly the 1,400 the ROM's own line names, so
@@ -639,13 +688,13 @@ runs in 2,953.6 s were every one `exit 100`**. The cycle changed no port source.
 
 | frames | what was done | what happened |
 |---|---|---|
-| 256,600..257,578 | `goto.py --to nook` from outside the shop | **INSIDE on the first iteration**, and the arrival's own A pulses -- fired at the doorway, aimed at nothing -- opened `raccoon_.bmg` **[30]**, the BUY prompt, and were answered **[33]** `돈이 부족하셔구리`, the refusal for want of money. GP49-7's alba refusal `sequence5_1_` [11] is not in that snapshot at all: **the shop's refusal to serve its own part-timer was a STATE, and finishing the job lifted it** [E: GP52-1] |
+| 256,600..257,578 | `goto.py --to nook` from outside the shop | **INSIDE on the first iteration**, and the arrival's own A pulses -- fired at the doorway, aimed at nothing -- opened `raccoon_.bmg` **[30]**, the BUY prompt, and were answered **[33]** `돈이 부족하셔구리`, the refusal for want of money. GP49-7's alba refusal `sequence5_1_` [11] is not in that snapshot at all: **the shop's refusal to serve its own part-timer was a STATE, and finishing the job lifted it** [H: log/source account: GP52-1; receipt provenance unresolved] |
 | 257,578..258,800 | talk to Nook at the counter | the menu is `팔고 싶어！ / 카탈로그 볼래 / 오늘의 무값은？ / 일 없어` -- **there is no BUY row in it**; the catalogue is a mail order that arrives by post. The counter shape's own A pulses take row one, so the SELL PAGE opens for free |
 | 258,800..259,300 | drag 곤잘레스's gift `0x3508` into the sell tray | the page is **the pockets grid with a second copy of itself stacked 94 px above** -- tray rows y 29/53/77, pockets 123/147/171, both on x 19/51/83/115/147 +16 a row. Fifteen `TP_POINT`s and the ROM's `trig` byte firing exactly twice: a drag, not fifteen taps |
-| 259,300..261,000 | `결정`, then take `팔게！` | **[14]** `모두 다 해서 ４７５벨 되겠어구리！`, and **`0x021de3cc` goes 0 -> 475** with the pocket row losing the gift. The on-screen price and the RAM word agree [E: GP52-2] |
+| 259,300..261,000 | `결정`, then take `팔게！` | **[14]** `모두 다 해서 ４７５벨 되겠어구리！`, and **`0x021de3cc` goes 0 -> 475** with the pocket row losing the gift. The on-screen price and the RAM word agree [H: log/source account: GP52-2; receipt provenance unresolved] |
 | 261,000..263,600 | press A at the shelf | the shop has **EIGHT** sellable cells, not the three a previous cycle recorded: the display row y=11 and the west column x=5. `0x1374` is a fishing rod at **500** -- 25 more than the wallet held -- and `0x150a` is white cosmos seeds at **80** |
-| 263,600..264,300 | take `살게！` | **`0x021de3cc` 475 -> 395**, exactly the printed price, and **`0x150a` -- the shelf cell's own item id -- is in the pocket row**. A `SOLD OUT` tag appears where the seeds were [E: GP52-3] |
-| 264,300..285,300 | close the conversation, walk away, press START | `저장하고 있습니다`, **4,669 card requests, 190,456 bytes, 0 verify mismatches**, and the title screen. `savetool check`: bank 1 VERIFIES under the ROM's own test, bank 2 is a byte-identical mirror, wallet **395**, loan **18,400** in both [E: GP52-5] |
+| 263,600..264,300 | take `살게！` | **`0x021de3cc` 475 -> 395**, exactly the printed price, and **`0x150a` -- the shelf cell's own item id -- is in the pocket row**. A `SOLD OUT` tag appears where the seeds were [H: log/source account: GP52-3; receipt provenance unresolved] |
+| 264,300..285,300 | close the conversation, walk away, press START | `저장하고 있습니다`, **4,669 card requests, 190,456 bytes, 0 verify mismatches**, and the title screen. `savetool check`: bank 1 VERIFIES under the ROM's own test, bank 2 is a byte-identical mirror, wallet **395**, loan **18,400** in both [H: log/source account: GP52-5; receipt provenance unresolved] |
 
 **What to carry away.** First, **a purchase is made at the SHELF and a sale at the COUNTER**, and
 the counter menu is not where buying lives -- reading the four rows of `raccoon_.bmg` [12] before
@@ -674,19 +723,19 @@ ORACLE47's, applied the other way: `town draw index = 1 + (UNTAPPED index at fra
 | oracle, `--rtc-freeze-until 48000` | **24,315** | 24,314..24,316 | **`0xc66e`** | **10:00:00** |
 
 Both edges of the unarmed window are pinned by a run of their own: `24,502 -> 0xed6d`,
-`24,503`/`24,513`/`24,523` -> `0xc66e`, `24,524 -> 0xdc95` [E: O48-1]. The window is seven times
+`24,503`/`24,513`/`24,523` -> `0xc66e`, `24,524 -> 0xdc95` [H: log/source account: O48-1; receipt provenance unresolved]. The window is seven times
 wider than ORACLE47's forward one. **The armed form corrects ORACLE47's "the arm would break
 it"**: the arm needs its own tap frame, not abolishing, and with it the emulator carries the
 port's clock to the second -- 10:01:06 at 52,000, 10:02:13 at 56,000, from the ledger's
-`rtc-probe` rows [E: O48-2].
+`rtc-probe` rows [H: log/source account: O48-2; receipt provenance unresolved].
 
 | question | what was measured |
 |---|---|
-| the seam, on a shared town id | **48,000..49,600 mean `ncc` 0.9504, `ncc-top` 1.0000**, and frame **49,700 is exact-RGB** -- two fully black doorways. First divergence 49,000, the port further into the town hall's exit fade; 49,800 is `ncc` 0.0000, the port outside and the original still in the black [E: O48-3, 84 shared frames of GP48's `V1-oracle.pad`] |
-| past the walk-out | **0.30..0.44**, and a swept global frame shift does not recover it (best -500 at 0.4573 against 0.2604 at 0). The whole 48,000..56,300 window is 0.5168 armed, 0.4805 unarmed [E: O48-3] |
+| the seam, on a shared town id | **48,000..49,600 mean `ncc` 0.9504, `ncc-top` 1.0000**, and frame **49,700 is exact-RGB** -- two fully black doorways. First divergence 49,000, the port further into the town hall's exit fade; 49,800 is `ncc` 0.0000, the port outside and the original still in the black [H: log/source account: O48-3, 84 shared frames of GP48's `V1-oracle.pad`; receipt provenance unresolved] |
+| past the walk-out | **0.30..0.44**, and a swept global frame shift does not recover it (best -500 at 0.4573 against 0.2604 at 0). The whole 48,000..56,300 window is 0.5168 armed, 0.4805 unarmed [H: log/source account: O48-3; receipt provenance unresolved] |
 | why, if the town id is shared | **one ACRE at the town hall's door.** The port leaves the building at tile (40,**38**) and the armed original at (40,**22**), with world x identical to the unit (`0x51000`); both then walk thirteen tiles south, hold ~4,700 frames and release on the same scripted press [E: `scratchpad/oracle48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O48-4]. TUT45-3 measured the same sixteen tiles against an original in a DIFFERENT town, so ~~**the sixteen tiles are not the town**~~ [H: historical conclusion retracted by `docs/log/cycle41-gameplay.md` X48-4]. **Retraction:** both producers return to their own town hall's doormat in different layouts [E: `scratchpad/exit48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` X48-3, X48-4] |
 | is a shared town id a shared world | **No shared world was established.** One id, three rosters: `4d 10 7f` (port), `09 80 49` (unarmed inverse), `80 89 49` (armed inverse). The draw index at frame 48,000 is 4,667 / 4,727 / 4,721 against 5,095 un-shifted [E: `scratchpad/oracle48/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O48-4]; ~~so the tap closes +428 to about +57 and cannot close it: one knob, two constraints 11,346 frames apart~~ [H: historical inference superseded by `docs/log/cycle41-gameplay.md` O49-2, O49-5]. **Correction:** the inverse recipe enters the layout burst two draws early; the forward recipe aligns id, map and roster [E: `scratchpad/oracle49/RECEIPTS.md`; log: `docs/log/cycle41-gameplay.md` O49-2, O49-4, O49-5] |
-| villager-1's door on the original | **still unanswered, and now for a measured reason.** The port arm reaches the doormat at tile (51,62) at frame 81,344 and shows the OUT note at 82,200; the original, on the same town id and the same clock, is at tile (38,16) -- forty-six tiles away, at a fence line. 54 shared frames 77,000..82,300, mean `ncc` 0.2127 [E: O48-5] |
+| villager-1's door on the original | **still unanswered, and now for a measured reason.** The port arm reaches the doormat at tile (51,62) at frame 81,344 and shows the OUT note at 82,200; the original, on the same town id and the same clock, is at tile (38,16) -- forty-six tiles away, at a fence line. 54 shared frames 77,000..82,300, mean `ncc` 0.2127 [H: log/source account: O48-5; receipt provenance unresolved] |
 
 **Historical conclusion, retracted by EXIT48 and ORACLE49:**
 ~~Score the SEAM, not the walk: on a shared town the interior agrees at
@@ -941,6 +990,200 @@ rule then offered the player's own cell as the tile to stand on with a facing th
 into the room, and each of those produced a run indistinguishable from a refused input. The cheap
 control is to print the walkable COUNT beside the plan: a room that was 23 tiles a moment ago and
 is 1 now has not become smaller, it has become unreadable.
+
+## GAMEPLAY56 -- the savings counter opens, the house is the third room, and a catalogue order wants the money up front
+
+The cycle after GAMEPLAY55, on the same town: `scratchpad/gameplay54/town3.sav` booted on a copy
+in 50 s to the player's own doormat at (41,55) with wallet 135 and loan 18,300, and the errand
+list was the three things GAMEPLAY55 left open.
+
+**The counter tile the planner could not reach.** The town hall has two windows and its door drops
+you at the wrong one. Both service tiles are kind `0x18`; the walkable model was the room's floor
+kind alone, so the second window was a tile `goto.py` could not be given and the savings row sat
+behind it. The fix was not to table the kind but to read it: across every interior this project has
+recorded, `0x18` occurs exactly twice, both times as the tile immediately south of a counter block,
+and never in a room with no counter. Admitted as a standable kind -- separately from the floor, so
+a counter window can still never be offered as the tile to walk out of a room from -- the walk to
+(9,11) takes **one iteration and 1.9 seconds**, where the cycle before walked the player out of
+the building.
+
+**The savings account is a word now.** The counter at (9,11) is the window GAMEPLAY53 measured:
+the same five rows, the same yellow panel to the pixel. Row three by stylus, then the same numeric
+keypad the loan repayment used, with `통장 잔액` reading zero. 100 Bells deposited moved the wallet
+135 -> 35 and the passbook 0 -> 100, and the address fell out of a two-snapshot diff confirmed by
+a store watch: **one** store, at the frame of the confirm tap, and nowhere else. `savetool` reads
+the same number back out of the saved file, which is what makes it a save field and not a heap
+number. One trap worth naming: the balance shown on the page is a live PREVIEW of the result, so
+it reads 100 while the stored word still reads 0. The number on screen is not always the number.
+
+**The player's house, and the room that had no door.** The house is a 4x4 room of floor kind
+`0x1a` with two pieces of furniture in it, and the exit rule found no way out of it at all -- in a
+room the player leaves by holding one direction. The reason was one row: between the floor and the
+step outside there is a doormat of its own kind, and that kind is the *town hall's floor kind*. A
+table of doorway kinds would therefore have been wrong on its second entry. So the doorway is
+grown instead, outward from the step through anything that is neither floor nor the outside
+surround, stopping the moment it reaches floor -- which returns the two previously recorded rooms
+completely unchanged and gives the house its door. The walk that settled it came before the code
+change: one held direction, no dialogue anywhere, straight out.
+
+**The mail-order catalogue, and why nothing was delivered.** Nook's counter menu turns out not to
+share Pelly's panel: it is a different width with four rows instead of five, anchored at its bottom
+edge so the rows grow upward, which means a row's position is state as much as a row's meaning is.
+The catalogue itself opens, lists the single item this player has ever seen, tots up 1,900 Bells
+with delivery included, and asks for confirmation. The answer is that an order is **prepaid**: with
+35 Bells in the wallet the shopkeeper simply declines. So the clock experiment this cycle was aimed
+at -- order today, cross a day, open the mailbox -- never got started, and the letter store in the
+save is still untouched. The gate is money, not a shop upgrade and not the day of the week, and
+that is worth knowing before another cycle spends two boots on it.
+
+**What to carry away.** **A rule read off two examples is a description; the third one is where it
+becomes a model.** Both corrections this cycle came from the same shape -- a kind that means one
+thing in one room and something else in another -- and both were caught by asking what the *whole*
+recorded set says rather than what the room in front of us says. And the cheapest instrument was
+not an instrument at all: before changing the model that said the house had no exit, the player was
+simply walked out of it.
+
+## GAMEPLAY57 -- the beach pays for the parcel, and the parcel arrives the next morning
+
+The cycle after GAMEPLAY56, on the same town: `scratchpad/gameplay56/town4.sav` booted on a copy
+in 46 s to the player's own doormat at (41,55) with wallet 35, savings 100 and loan 18,300. One
+errand was in the way of everything else -- the catalogue wanted 1,900 Bells up front and the
+player had thirty-five.
+
+**The money was lying on the beach the whole time.** The previous cycle's plan was to walk back to
+the shop and sell things one errand at a time. Before spending a single frame on that, the town's
+own item layer was read out of the boot snapshot and every id in it priced from the game's own
+table: the shore rows carry a band of shells worth **2,720 Bells** in this town, and four of them
+sit on four consecutive tiles. **An item id is a fact about a town, not about the game** -- the
+fruit tree a previous cycle recorded does not occur in this town at all.
+
+**And picking them up did not need aiming.** The rule for the pick-up button is that it acts on
+the player's position *rounded* to the nearest tile, stepped one tile in the way they face, which
+turns each single pick-up into an argument about which side of a tile's half-way line a snapshot
+happened to leave the player on. So do not aim: hold one direction along the row the shells are on
+and pulse the button underneath often enough that no rounding window is skipped. **Four shells,
+two runs, 1,690 Bells, and the only geometry that had to be right was "they are on that row and
+the player is west of them".**
+
+**What the shop pays, exactly.** The item table stores a base price and warns only that shop code
+"may divide by four". Selling seven items in two batches settles it: the divisor is four, predicted
+before each run and matched to the Bell -- 4,800 + 80 sold for **1,220**; 160 + 1,600 + 600 + 360 +
+1,000 sold for **930**. The catalogue is the same table read the other way round: its one entry has
+a base of 1,900 and is offered at 1,900, and an earlier cycle sold that same item for 475. One
+number, both directions.
+
+**Five runs lost to a page that was holding something.** With money in hand the sell page would not
+respond to the stylus at all: a drag, a drag behind a throwaway tap, one long tap, three long taps,
+a tap on the page's own cancel button -- nothing, every run clean, with the console's own touch log
+echoing each pixel. The page was not deaf. **It was carrying an item**, because the walk-to-a-
+character helper ends by pressing A twenty-four times, and on a page with a cursor A *lifts*
+whatever is under it. Driving the page with the D-pad instead showed the item drawn on the cursor
+with its name balloon up, and one A press to put it down made the very next drag work. The lesson
+is older than the bug: **when an input is delivered and nothing happens, change the input device,
+not the input.** Five runs varied the tap; one run on the pad answered the question in four
+seconds.
+
+**The order goes through, and then the clock does the rest.** Two thousand one hundred and eighty
+five Bells against a 1,900-Bell prepaid order: the shopkeeper confirms, takes the money in full at
+the press, and says the item will come by post as soon as it comes in. **No day is named anywhere
+in the game's own text**, so the delivery rule is not something that can be read -- it has to be
+measured. Save; boot a copy of that save with the date advanced one day; and on the next morning,
+in the rain, the mailbox beside the player's own front door has its flag up with one envelope in
+it. **The delivery is the next day**, and this is the first thing in the whole project that the
+clock decides rather than a pad script.
+
+**A label that turned out to be wrong.** Every save this project has written reports the region
+past the two banks as completely erased, and that region has been described as "the letter store".
+A save written with the delivered letter sitting in the mailbox reports **exactly the same thing**.
+The letter is inside the save bank instead; a byte diff against the previous day's save leaves two
+candidate records of identical shape, with a day of town simulation still mixed in. The negative is
+what is settled: the letter does not go where the label said.
+
+**Two smaller things, both cheap.** The savings window has a page between the menu row and the
+number pad that an earlier cycle had walked straight past -- deposit and **withdraw** -- and taking
+the second one moves the savings word *down* for the first time, 100 to 0, with the wallet up by
+the same 100. And the player's house has no bed and no staircase: its entire contents are a
+cardboard box and a cassette radio, so the "bed save" a plan asked for does not exist. The game's
+ordinary save works perfectly well from inside the room, and writes byte for byte what it writes
+outdoors.
+
+**What to carry away.** Two of this cycle's three expensive mistakes were the same mistake:
+**a measurement that keeps failing is usually asking the wrong question, not asking it badly.** The
+third was cheaper and more embarrassing -- a pad script whose frames were numbered below the
+snapshot it was resumed on, so it was accepted, logged, and never pressed a single button.
+
+
+## GAMEPLAY58 -- the parcel is opened, the letter is found in the save, and a cherry is worth a hundred
+
+The cycle after GAMEPLAY57, on the same town, and it finishes that cycle's errand. The previous
+cycle had ordered furniture from the catalogue, watched the clock deliver it the next morning, and
+then spent five runs failing to get it out of the letter; it also left the letter's bytes as a
+pair of candidates and a fruit tree unshaken.
+
+**The delivered item comes out on a page nobody had opened.** The mailbox page draws an envelope
+that is not a control -- five runs of taps and drags proved that, and a sixth closed the page from
+the same snapshot, so the page was reading the pen all along. The letter itself is the one slot
+with a picture on it in the page's right-hand column, and tapping it raises a two-row menu: read,
+or cancel. Reading it shows the shop's delivery note. Closing the note, closing the page and
+dragging the letter into a pocket all leave the pockets exactly as they were.
+
+**The row that hands the present over exists, and it is on the ORDINARY pockets page.** The way it
+was found was not another contact: it was the game's own menu archive, which contains a row
+labelled "present" that none of this cycle's menus had shown. The same letter, tapped from the
+pockets page instead of from the mailbox page, raises a menu with **three** rows -- read, present,
+cancel -- and one contact on the middle one puts the furniture in the pockets. The two pages draw
+the same letter fifteen pixels apart, and every widget the tap opens moves with it. **When a
+control cannot be found on the page you are looking at, ask which page draws the row you expect,
+rather than aiming at the page you are on again.**
+
+Two smaller things fell out of the same chain. A letter that has already been read opens *directly*
+on a tap, with no menu at all, so a run that reads it on one page has spent that page's only menu.
+And the game's own button does the wrong thing at every step of this flow: a single press of it on
+the letter's menu **closes** the menu instead of taking its first row, which is the opposite of how
+the shop counters behave.
+
+**A save is not just a place to resume from; it is a variable.** The previous cycle's mailbox pad
+opened nothing this cycle, from the same tile, with the same rows, on the same date. Four runs of
+sub-tile nudging did not recover it. The cause was the store: the save this cycle started from had
+been *written after* the delivery, so the letter was already the player's and the box had nothing
+left to show. Booting the previous day's save across the same delivery, the identical pad opened
+the page on the first attempt.
+
+**Where a letter lives in the save, to the byte.** The repo had carried a label for cycles saying
+that letters live in a third region of the cartridge's flash, outside the two save banks. They do
+not, and a save written with a letter in it reports that region completely erased. A letter is a
+**player** field: ten fixed-size records inside the player's own block, with the attached present a
+single halfword near the end of each one. Four independent readings pin it -- the array repeats
+once per player slot at the player stride; the same 256 bytes appear in two different places in two
+saves taken a day apart and are byte-identical, having *moved* from one array to the other when the
+parcel was delivered; taking the present in game changed exactly three of those 256 bytes, one of
+them the present's id going to the "nothing here" marker; and the record's header is a byte-for-byte
+copy of the town's own id and name and the recipient's own id and name, fields this repo had already
+located. The save tool now prints that census -- slots used, addressee, present -- and reads none
+of the letter's text.
+
+**And the control that made the whole diff trustworthy was cheap.** Two identical boots of one save
+on one date, each followed by the same in-game save, produced two 256 KB files with the same hash
+and not one differing byte. So there is no run-to-run noise in a save at all: every byte that
+differs between two saves differs for a reason the two recipes differ in. That turns a two-save diff
+from a lead into an instrument, and it is what let a sixty-run difference between two days be
+attributed to the day.
+
+**The fruit tree, at last.** This town's fruit tree is a cherry tree, and a tree keeps its state in
+its own id: shaking one turns the tile's id into a second, neighbouring value -- a bearing tree and
+the same tree bare -- and drops three cherries, one on the trunk's own tile and one either side.
+Two of the three needed no walking at all: from where the shake left the player, one direction
+aimed at each.
+
+**A cherry sells for one hundred.** The item table stores it at two thousand, and the previous
+cycle had measured the shop paying exactly a quarter of the stored base on seven items. It does not
+pay a quarter for fruit: the shop's own line said a hundred for the lot and the wallet went from
+285 to 385. The item table's header names the mechanism -- a fruit adjustment applied before any
+shop divisor -- and this is that adjustment measured. **A divisor measured on seven items of one
+kind is a fact about that kind.**
+
+The town was saved from inside the shop, which no cycle had done, and the save verifies against the
+game's own three-part acceptance test with the furniture and the remaining cherry in the pockets.
 
 ## Related
 

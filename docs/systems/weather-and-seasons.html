@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,8 +136,8 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>날씨와 계절</span></div><header class="page-head"><h1>날씨와 계절</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 25</span><span class="gchip g-E"><b>E</b> 10</span><span class="gchip g-H"><b>H</b> 1</span></div><div class="source-line">원문: <code>wiki/systems/weather-and-seasons.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>요약.</strong> 계절은 달력 날짜의 순수 함수이다 &ndash; 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다. 계절과 날씨가 함께 낮/밤 색상 테이블의 한 행(ROW)을 고르고, 시(hour)가 그 행 안에서 <code>0x20</code>바이트 뱅크 한 쌍(PAIR)을 &ndash; 하나는 오전용, 하나는 오후용 &ndash; 고르며, 게임은 현재 시의 뱅크를 다음 시의 뱅크로 두 개의 가중치로 블렌딩하므로 하늘과 조명은 계단식이 아니라 연속적으로 움직인다. 계절별 외형은 마을 자체 모델의 <code>w</code>/<code>s</code>/<code>f</code> 텍스처 변종으로도 나타나며, 눈사람은 그 자체로 하나의 채널이다.</p>
-<h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>날씨와 계절</span></div><header class="page-head"><h1>날씨와 계절</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 17</span><span class="gchip g-E"><b>E</b> 3</span><span class="gchip g-H"><b>H</b> 16</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/weather-and-seasons.md"><code>wiki/systems/weather-and-seasons.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/weather-and-seasons.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="weather-and-seasons"></span><p><strong>요약.</strong> 계절은 달력 날짜의 순수 함수이다 &ndash; 월(month)에 대한 12항목 점프 테이블이며, 열두 달 중 오직 네 달만 일(day)을 검사하고, 경계는 2월 25일과 5월·8월·11월 27일에 놓인다. 계절과 날씨가 함께 낮/밤 색상 테이블의 한 행(ROW)을 고르고, 시(hour)가 그 행 안에서 <code>0x20</code>바이트 뱅크 한 쌍(PAIR)을 &ndash; 하나는 오전용, 하나는 오후용 &ndash; 고르며, 게임은 현재 시의 뱅크를 다음 시의 뱅크로 두 개의 가중치로 블렌딩하므로 하늘과 조명은 계단식이 아니라 연속적으로 움직인다. 계절별 외형은 마을 자체 모델의 <code>w</code>/<code>s</code>/<code>f</code> 텍스처 변종으로도 나타나며, 눈사람은 그 자체로 하나의 채널이다.</p>
+<span class="source-anchor" id="what-happens"></span><h2 id="무슨-일이-일어나는가">무슨 일이 일어나는가</h2>
 <p><code>func_02063bb4(month, day)</code>는 계절을 0, 1, 2, 3 중 하나로 돌려준다. 이것은 단일 <code>switch</code>이다 &ndash; <code>cmp r0,#0xb</code> 다음에 <code>0x02063bc6</code>에 있는 12항목 Thumb 점프 테이블이 오고, 각 항목은 부호 확장되어 <code>0x02063bc6</code>에 더해지며, <code>bhi</code>가 11을 넘는 값을 모두 첫 번째 대상으로 보내기 때문에 월 0과 기본(default)이 같은 답을 낸다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02063bb4, main, port/shim/game/season.c</span></span>. 각 분기(arm)는 다음과 같다: 월 1 -&gt; 3; 월 2 -&gt; <code>day &lt;= 24</code>이면 3, 아니면 0; 월 3과 4 -&gt; 0; 월 5 -&gt; <code>day &lt;= 26</code>이면 0, 아니면 1; 월 6과 7 -&gt; 1; 월 8 -&gt; <code>day &lt;= 26</code>이면 1, 아니면 2; 월 9와 10 -&gt; 2; 월 11 -&gt; <code>day &lt;= 26</code>이면 2, 아니면 3; 월 12와 기본 -&gt; 3
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02063bb4, main, port/shim/game/season.c</span></span>. 달력에서 코드를 읽어 보면 3은 겨울, 0은 봄, 1은 여름, 2는 가을이며, 세 달마다 한 달만 일을 검사하기 때문에 분기 3/4, 6/7, 9/10이 점프 대상을 공유한다
@@ -137,7 +149,7 @@
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204fa8c, main, port/shim/game/seasonidx.c</span></span>. 이 결과는 <code>0x020dc8b4</code>에 있는 <code>func_0204fb80</code>의 테이블의 테이블을 인덱싱한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_0204fb80, main, port/shim/game/exprpick.c</span></span>.</p>
 <p>하늘과 조명은 하나의 메커니즘이다. <code>func_020bba14</code>는 <code>0x021f6cf0</code>의 낮/밤 색상 테이블을 채우는 유일한 함수이며, 마을 색상에서 눈에 보이는 모든 것이 이를 거친다: 래스터라이저는 각 텍셀을 조명이 적용된 버텍스 색상으로 변조하고, 그 색상은 NNS glb 광원 색상에서 오며, 그것은 광원 매니저의 원소들(채널 7, vtable <code>0x020de710</code>, <code>func_02065938</code>가 플러시)에서 오고, 그 원소들은 <code>func_020bbf00</code> = 바로 그 테이블을 샘플링한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020bba14, main, port/shim/game/envlight.c</span></span>
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, glb light words all four black before the repair</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, glb light words all four black before the repair; receipt provenance unresolved</span></span>.</p>
 <p>명령어 단위로 해독하면 <code>func_020bba14</code>는 다음을 수행한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020bba14, main, port/shim/game/envlight.c</span></span>:</p>
 <ul>
@@ -154,21 +166,21 @@
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020bba14, main, port/shim/game/envlight.c</span></span>.</p>
 <p>환경 객체의 init <code>func_020baa28</code>(vtable <code>0x020e69a4</code>, 슬롯 0)는 <code>/sky/*_bg_ncl.bin</code> 팔레트 네 개를 로드한다; 그 다섯 전역 변수가 잘못 바인딩되었을 때는 이 로드가 NULL 이름으로 실행되어 마을 전체가 검게 합성되었다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_020baa28, main, port/BOOT-STATE.md</span></span>
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, 38-42k pixels blended with full alpha and zero colour</span></span>.</p>
-<p>시(hour)는 하늘의 외형을 직접적이고 눈에 띄게 좌우한다: 시계가 새벽 4시를 가리키면 타이틀의 하늘은 별밭이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, <code>acww envlight: hour 0x00000004</code></span></span>. 마을에서 하늘은 별도의 아핀(affine) 배경이다: 엔진 B 모드 1에 BG3 아핀(<code>BG3CNT = 0x6f02</code>)이며, 아핀 레이어가 렌더링되자 구름이 나타났다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code> frame 37800</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, 38-42k pixels blended with full alpha and zero colour; receipt provenance unresolved</span></span>.</p>
+<p>시(hour)는 하늘의 외형을 직접적이고 눈에 띄게 좌우한다: 시계가 새벽 4시를 가리키면 타이틀의 하늘은 별밭이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, <code>acww envlight: hour 0x00000004</code>; receipt provenance unresolved</span></span>. 마을에서 하늘은 별도의 아핀(affine) 배경이다: 엔진 B 모드 1에 BG3 아핀(<code>BG3CNT = 0x6f02</code>)이며, 아핀 레이어가 렌더링되자 구름이 나타났다
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code> frame 37800; <code>scratchpad/cycle40/runs/tap-D57</code></span></span>.</p>
 <p>날씨 상태 자체는 <code>func_02035dcc</code>가 리셋하며, ROM의 모든 호출자는 이를 <code>*(0x021c526c) + 0x2d0</code>로 호출한다 &ndash; 즉 날씨는 필드 객체의 <code>0x2d0</code> 오프셋 하위 구조체이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02035dcc, main, port/shim/game/weather.c</span></span>. 그 호출자는 <code>func_02041c88</code>과 <code>func_020b90cc -&gt; func_0208a2d8 -&gt; func_020f44f8</code>이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">main, port/shim/game/weather.c</span></span>. 필드 객체 자체의 init <code>func_02034d14</code>(vtable <code>0x020da334</code>, 슬롯 0)는 자신의 <code>+0x50</code>을 <code>0x021c526c</code>에 저장한다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">func_02034d14, main, port/shim/game/fieldptr.c</span></span>.</p>
 <p>눈은 이펙트가 아니라 채널이다: 채널 189는 눈사람(SNOWMAN)으로, <code>/snowman/snowball1.nsbmd</code>(모델 <code>SNW0</code>, id <code>0x022383ac</code>)와 <code>/snowman/snow_face.nsbmd</code>(모델 <code>SNW1</code>, id <code>0x022383c8</code>)를 바인딩하며, ov003 역시 자체 풀에 <code>sp_npc_snowman</code>이라는 이름을 갖고 있다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, bind log</span></span> <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>. 오랜 작업 동안 지형으로 취급되었던 53폴리곤 곡면은 알고 보니 눈덩이였다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"</span></span>.</p>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, bind log; receipt provenance unresolved</span></span> <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved</span></span>. 오랜 작업 동안 지형으로 취급되었던 53폴리곤 곡면은 알고 보니 눈덩이였다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md, "CHANNEL 189 IS THE SNOWMAN"; receipt provenance unresolved</span></span>.</p>
 <p>비는 파일이 아니다(NOT). <code>m_rainA</code>, <code>m_rainB</code>, <code>m_splash</code>는 이미 로드된 <code>obj_taxi</code> 모델 안의 모델 노드 또는 애니메이션 이름이며, 파일 시스템에서 <code>*rain*</code>을 검색하면 BMG 메시지 파일 열두 개만 나온다 &ndash; 따라서 빠진 비 에셋은 없으며 아무도 그것을 찾아 헤맬 필요가 없다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from port/VISIBLE-STATE.md, filesystem search; verify against the ROM function or symbol table and this page's recipe</span></span>. ov003의 풀은 택시 객체들 옆에 이들의 이름을 두고 있다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>. 비는 인터프리터 경로에서 프레임 4,500의 택시 실내에서 실제로 보인다(IS)
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51</span></span>.</p>
-<p>계절별 외형은 에셋에도 들어 있다: ov003의 텍스처 이름은 <code>w</code>/<code>s</code>/<code>f</code> 변종을 갖는다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">ov003 pool words, docs/kb/modules/ov003-068.md</span></span>.</p>
-<h2 id="어디에-있는가">어디에 있는가</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved</span></span>. 비는 인터프리터 경로에서 프레임 4,500의 택시 실내에서 실제로 보인다(IS)
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md GX40, off-D51; <code>scratchpad/cycle40/runs/off-D51</code></span></span>.</p>
+<p>계절별 외형은 에셋에도 들어 있다: ov003의 텍스처 이름은 <code>w</code>/<code>s</code>/<code>f</code> 변종을 갖는다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: ov003 pool words, docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="where-it-lives"></span><h2 id="어디에-있는가">어디에 있는가</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -253,7 +265,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
+<span class="source-anchor" id="data-it-reads-and-writes"></span><h2 id="읽고-쓰는-데이터">읽고 쓰는 데이터</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -327,28 +339,28 @@
 </tbody>
 </table></div>
 <p>모든 행은 S 등급이며, 앞 표의 파일들에서 인용했다.</p>
-<h2 id="확인-방법">확인 방법</h2>
+<span class="source-anchor" id="how-to-check-it"></span><h2 id="확인-방법">확인 방법</h2>
 <p>계절은 아무것도 실행하지 않고 확인할 수 있다: <code>arm9.bin</code>에서 <code>0x02063bc6</code>의 점프 테이블 항목 열두 개를 읽어 <code>0x2063c1e, 0x2063bde, 0x2063be2, 0x2063bee, 0x2063bee, 0x2063bf2, 0x2063bfe, 0x2063bfe, 0x2063c02, 0x2063c0e, 0x2063c0e, 0x2063c12</code>로 해석되는지 확인한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">main, port/shim/game/season.c</span></span>. 한 분기는 <code>0x18</code>(2월)과 비교하고 세 분기는 <code>0x1a</code>(5월, 8월, 11월)와 비교하는데, 이것이 일 경계 규칙의 전부이다
 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">main, port/shim/game/season.c</span></span>.</p>
 <p>하늘에 대해서는 <code>ACWW_RTC_*</code>를 서로 다른 시각으로 설정해 실행하고 <code>acww envlight: hour &lt;h&gt;</code>를 지켜본다; 타이틀의 하늘은 4시에 별밭이다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md</span></span>. 마을 하늘에 한정하면, 마을 레시피의 프레임 37,800이 파란 하늘 위의 구름을 보여 준다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code></span></span>.</p>
-<h2 id="가설">가설</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md; receipt provenance unresolved</span></span>. 마을 하늘에 한정하면, 마을 레시피의 프레임 37,800이 파란 하늘 위의 구름을 보여 준다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">docs/log/cycle40-keyboard-gate-probe.md SKY40, <code>tap-D57</code>; <code>scratchpad/cycle40/runs/tap-D57</code></span></span>.</p>
+<span class="source-anchor" id="hypotheses"></span><h2 id="가설">가설</h2>
 <ul>
 <li><strong>H: <code>0x021f8ad4</code>는 날씨만의 인덱스가 아니라 <code>(season, weather)</code> 결합 인덱스이며, <code>table_020d2364</code>는 이를 평탄화하는 테이블이다.</strong> 이중 간접 참조 &ndash; <code>0x021f8ad4</code>의 워드에서 <code>table_020d2364</code>를 거쳐 행으로 &ndash; 는 2차원 조회를 1차원으로 접은 모습 그대로이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/envlight.c</span></span>. 실험: 같은 날짜에서 <code>func_02063bb4</code>의 결과를 0..3 각각으로 강제하고 <code>*(u32 *)0x021f8ad4</code>와 그 결과 행을 기록한다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/envlight.c; direct ROM-source provenance unresolved</span></span>. 실험: 같은 날짜에서 <code>func_02063bb4</code>의 결과를 0..3 각각으로 강제하고 <code>*(u32 *)0x021f8ad4</code>와 그 결과 행을 기록한다.</li>
 <li><strong>H: 날씨는 프레임마다가 아니라 하루에 한 번, 계절별 확률 테이블에서 선택된다.</strong> <code>func_02035dcc</code>는 선택자가 아니라 리셋(RESET)이며, 그 호출자들은 전환 지점이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/weather.c</span></span>. 실험: 사흘짜리 <code>ACWW_RTC_*</code> 실행 동안 <code>0x021f8ad4</code>에 대한 모든 쓰기를 계측하고 세어 본다; 날짜 롤오버당 한 번의 쓰기라면 가설을 뒷받침한다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/weather.c; direct ROM-source provenance unresolved</span></span>. 실험: 사흘짜리 <code>ACWW_RTC_*</code> 실행 동안 <code>0x021f8ad4</code>에 대한 모든 쓰기를 계측하고 세어 본다; 날짜 롤오버당 한 번의 쓰기라면 가설을 뒷받침한다.</li>
 <li><strong>H: <code>w</code>/<code>s</code>/<code>f</code> 텍스처 접미사는 winter / summer / fall이며, 봄은 접미사 없는 기본값이다.</strong> 네 계절에 접미사가 셋이라는 점이 단서이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">docs/kb/modules/ov003-068.md</span></span>. 실험: 계절을 0..3 각각으로 강제한 채 <code>/bg/t%d/%04x.nsbtx</code>와 <code>/fg/**</code>의 모든 열기(open)를 기록하고 이름 집합을 비교한다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: docs/kb/modules/ov003-068.md; direct ROM-source provenance unresolved</span></span>. 실험: 계절을 0..3 각각으로 강제한 채 <code>/bg/t%d/%04x.nsbtx</code>와 <code>/fg/**</code>의 모든 열기(open)를 기록하고 이름 집합을 비교한다.</li>
 <li><strong>H: <code>func_0204fa8c</code>의 8월과 9월 분할은 두 개의 불꽃놀이/축제 기간이며, <code>func_0204fafc</code>는 <code>func_0209df94</code>가 돌려주는 바이트에 대해 일(day-of-month) 또는 요일(day-of-week) 조건을 검사한다.</strong> 오직 그 두 달만 갈라진다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/seasonidx.c</span></span>. 실험: <code>func_0204fafc</code>와 <code>func_0209df94</code>를 디컴파일하고 365일 전체에 대해 그 쌍을 평가한다.</li>
+  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_0204fa8c.c</code>; historical account: port/shim/game/seasonidx.c</span></span>. 실험: <code>func_0204fafc</code>와 <code>func_0209df94</code>를 디컴파일하고 365일 전체에 대해 그 쌍을 평가한다.</li>
 <li><strong>H: 비는 파티클 시스템이 아니라, 택시/필드 모델 자체의 <code>m_rainA</code>/<code>m_rainB</code> 노드가 날씨 상태에 의해 활성화되어 그려진다.</strong> 이들은 로드된 모델 안의 노드이다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/VISIBLE-STATE.md</span></span>. 실험: 마을에서 날씨 워드를 각 값으로 강제하고 프레임당 큰 반투명 폴리곤 수를 센다.</li>
-<li><strong>H: 눈사람 채널(189)은 필드 씬이 무조건 여는 것이 아니라, 계절이 겨울이고 눈이 쌓였을 때 날씨/계절 갱신이 연다.</strong> 채널은 존재하며 눈 모델을 바인딩한다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body">port/BOOT-STATE.md</span></span>. 실험: RTC를 1월과 7월로 설정해 마을 레시피를 실행하고 채널 189가 열리는지 기록한다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/VISIBLE-STATE.md; direct ROM-source provenance unresolved</span></span>. 실험: 마을에서 날씨 워드를 각 값으로 강제하고 프레임당 큰 반투명 폴리곤 수를 센다.</li>
+<li><strong>H: 눈사람 채널(189)은 필드 씬이 무조건 여는 것이 아니라, 계절이 겨울이고 눈이 쌓였을 때 날씨/계절 갱신이 연다.</strong> 채널은 존재하며 눈 모델을 바인딩한다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: port/BOOT-STATE.md; receipt provenance unresolved</span></span>. 실험: RTC를 1월과 7월로 설정해 마을 레시피를 실행하고 채널 189가 열리는지 기록한다.</li>
 <li><strong>H: <code>func_020bbb6c</code>가 돌려주는 두 가중치는 (시간 내 경과 분)과 (행 전환 진행도)이며, 후자가 계절 변화를 하루 이상에 걸쳐 서서히 바뀌게 만드는 요인이다.</strong> 두 번째 가중치는 두 행 블렌드에만 사용된다
-  <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body">port/shim/game/envlight.c</span></span>. 실험: 시간 경계와 계절 경계를 가로질러 <code>w1</code>과 <code>w2</code>를 기록한다.</li>
+  <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: port/shim/game/envlight.c; direct ROM-source provenance unresolved</span></span>. 실험: 시간 경계와 계절 경계를 가로질러 <code>w1</code>과 <code>w2</code>를 기록한다.</li>
 </ul>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>town.md</code> &ndash; 계절이 골라 쓰는 에이커 텍스처</li>
 <li><code>events-and-calendar.md</code> &ndash; <code>func_02063bb4</code>에 공급되는 날짜</li>
@@ -356,7 +368,7 @@
 </ul></div><nav class="prevnext"><a class="pn prev" href="../systems/economy.html"><small>◀ 이전</small>경제</a><a class="pn next" href="../systems/events-and-calendar.html"><small>다음 ▶</small>이벤트와 달력</a></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

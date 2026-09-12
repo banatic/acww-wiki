@@ -13,6 +13,7 @@
   로더, 채널 열기, 이중 간접 핸들러 테이블, 메일박스와 모드 바이트
 - [`display-objects.md`](display-objects.md) -- 디스플레이 오브젝트 프레임워크: 네 개의 리스트,
   네 개의 스테퍼와 그 3슬롯 패턴, join/commit/step, VBlank 태스크
+- [`display-callbacks.md`](display-callbacks.md) -- 세 순회기가 도는 하나의 리스트: 노드의 활성·대기 핸들러 쌍, 확정 규칙, 그리고 각 핸들러의 어느 대응물을 설치할지 정하는 서브·메인 엔진 분기
 - [`memory-map.md`](memory-map.md) -- 메인 RAM, ITCM/DTCM, 모듈 대역, 아레나,
   게임 힙, 전역 주소 대역
 - [`threads-and-interrupts.md`](threads-and-interrupts.md) -- OSContext와 협조적
@@ -26,3 +27,4 @@
   뱅크, 디스플레이 리스트, 그리고 포트 자체 렌더러가 하는 일과 그 비용 (PERF42, RENDER42)
 - [`interpreter-path.md`](interpreter-path.md) -- 하이브리드 런타임(`ACWW_INTERP=1`), 거부
   목록, 그리고 네이티브 본체가 핫 패스를 얻게 되는 차등 검사 (단계 H5)
+- [`time-budgets.md`](time-budgets.md) -- 밀리초 리터럴 32개 전체: 로더 예산, 네트워크 타이머, 알람 변환

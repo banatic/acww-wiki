@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" >
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" open>
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,16 +136,16 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</span></div><header class="page-head"><h1>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 2</span><span class="gchip g-E"><b>E</b> 4</span><span class="gchip g-H"><b>H</b> 6</span></div><div class="source-line">원문: <code>wiki/experiments/silent-audio-probe.md</code> (영문, 기록 문서)</div></header><div class="md"><p><strong>상태: 대체됨(SUPERSEDED), 2026-09-09 (AUDIO6, <code>115984f9</code>) &ndash; 그리고 아래의 설계는 메커니즘에
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../experiments/index.html">실험</a> <span class="sep">›</span> <span>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</span></div><header class="page-head"><h1>무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 1</span><span class="gchip g-E"><b>E</b> 1</span><span class="gchip g-H"><b>H</b> 10</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/experiments/silent-audio-probe.md"><code>wiki/experiments/silent-audio-probe.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/experiments/silent-audio-probe.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="silent-audio-probe-which-sound-commands-does-the-game-emit"></span><p><strong>상태: 대체됨(SUPERSEDED), 2026-09-09 (AUDIO6, <code>115984f9</code>) &ndash; 그리고 아래의 설계는 메커니즘에
 관해 옳았다.</strong> 열두 줄 제한이 제거되고 센서스는 제한 없이 만들어졌으며, 이는 정확히 이
 페이지가 요구한 것이다. 답: 게임은 <strong>프레임 6부터</strong> id 2, 3, 6, 7, 9를 내보내며, 그 제한이
 "게임은 재생 명령을 결코 보내지 않는다"(M1)는 주장의 근거 전부였다. 드라이버를 켜면 OFF
 레시피는 <code>PREPARE_SEQ</code>와 <code>START_PREPARED_SEQ</code>를 각각 371번 본다; 끄면 각각 967번인데,
 무음 ARM7은 <code>playerStatus</code>를 결코 공개하지 않아 게임이 시작하는 모든 시퀀스를 다시 시작하기
-때문이다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/audio.md</code> section 8(c); <code>../systems/audio.md</code></span></span>. 아래 페이지는
+때문이다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/audio.md</code> section 8(c); <code>../systems/audio.md</code>; receipt provenance unresolved</span></span>. 아래 페이지는
 그 추론이 거기까지 도달하게 한 추론이므로 남겨 둔다; 포트의 ARM7이 무음이라는 아래의 모든
 문장은 <code>../systems/audio.md</code>로 대체되었다.</p>
-<h2 id="목적">목적</h2>
+<span class="source-anchor" id="purpose"></span><h2 id="목적">목적</h2>
 <p>포트의 ARM7 사운드 프로세서 전체는 ARM9의 명령 목록을 순회하며 모든 명령을 조용히
 완료하고 완료 태그를 올리는 함수 하나이다
 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/os/pxisend.c</code>; verify with a retained scripted run and frame using this page's recipe</span></span>. 이 함수는 보는 각 명령의 id를 출력한다 &ndash; 그러나 출력이
@@ -144,11 +156,11 @@
 그중 어느 것을 실제로 내보내는지는 아무도 모른다. 프레임 0부터의 열두 줄은 모두 부팅
 트래픽일 것이다.</p>
 <p>따라서 이 실험은 두 부분이다: 제한을 올리고, 그 다음 센다.</p>
-<h2 id="레시피">레시피</h2>
+<span class="source-anchor" id="recipe"></span><h2 id="레시피">레시피</h2>
 <p><strong>1단계, 한 줄짜리 도구 변경.</strong> <code>port/shim/os/pxisend.c</code>의 <code>snd_arm7</code>에서 출력은 12로
 제한된 정적 카운터로 게이트되어 있다. 이를 id별 "seen" 테이블로 교체한다. <code>acww_card_arm7</code>이
 요청 타입에 대해 이미 사용하는 것과 정확히 같은 모양이다 &ndash; 서로 다른 명령 id마다 한 줄,
-게이트 없음 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/fs/cardreq.c</code>, <code>static unsigned char seen[16; verify with a retained scripted run and frame using this page's recipe</span></span></code>]. 이는 출력 홍수
+게이트 없음 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host-source account from <code>port/shim/fs/cardreq.c</code>, <code>static unsigned char seen[16; verify with a retained scripted run and frame using this page's recipe]</code></span></span>. 이는 출력 홍수
 없이 "어떤 id가 발생하는가"에 답한다; id별 두 번째 카운터가 "몇 번인가"에 답하며, 덤프
 시점에 한 번 출력한다.</p>
 <p>근거이며, 이 저장소의 상시 경고가 상수 하나의 형태로 도착한 것이다: 발화할 수 없는
@@ -160,8 +172,8 @@
 그 다음 Python으로 로그에서 카운트를 뽑아낸다 &ndash; <strong>셸 <code>grep</code> 대안(alternation)으로
 하지 말 것</strong>: 여기의 셸은 ripgrep이며 그 대안 기호는 <code>\|</code>가 아니라 <code>|</code>이고, 옛 패턴은
 한 사이클 안에서 두 번이나 조용히 아무것도 매치하지 않았다
-<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/kb/hybrid/recipes.md</code> section 8; <code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40</span></span>.</p>
-<h2 id="예상-관측">예상 관측</h2>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/kb/hybrid/recipes.md</code> section 8; <code>docs/log/cycle40-keyboard-gate-probe.md</code> ENTRY40; receipt provenance unresolved</span></span>.</p>
+<span class="source-anchor" id="expected-observations"></span><h2 id="예상-관측">예상 관측</h2>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -204,17 +216,17 @@
 실패 시그니처가 있다: 호스트 사운드 파사드가 한 번 "아카이브 없음"이라고 답했고,
 <code>NNS_SndArcGetSeqArcParam</code>이 <code>func_020f4b1c</code>에 NULL을 반환했으며, 이것이 ROM의 치명적
 경로 <code>func_0206e3ec</code>를 호출했고, ROM의 크래시 화면이 프레임 ~830부터 두 화면 모두 검은
-채로 루프했다 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40..SND40</span></span>. 그 실행은
+채로 루프했다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">log/source account: <code>docs/log/cycle40-keyboard-gate-probe.md</code> CARD40..SND40; receipt provenance unresolved</span></span>. 그 실행은
 마을에 도달하므로 그 특정 실패는 배제된다 &ndash; 따라서 전부 없음이라는 결과는 진정으로
 놀라운 것이며 추적할 가치가 있다.</p>
 <p>같은 로그에서 공짜로 얻는 두 번째 관측: ARM9가 <em>기다린</em> 적이 있는가. <code>SND_WaitForCommandProc</code>는
-태그가 완료될 때까지 스핀한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_WaitForCommandProc.c</code></span></span>. 끝까지 도달한
+태그가 완료될 때까지 스핀한다 <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SND_WaitForCommandProc.c</code>; source account: <code>src/matched/SND_WaitForCommandProc.c</code></span></span>. 끝까지 도달한
 실행은 그런 대기가 데드락되지 않았음을 증명하며, 이것이 무음 ARM7이 충분하다는 상시
 근거이다 &ndash; ROM의 치명적 경로에 다시 들어가지 않은 90,000 프레임
 <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/cycle40/runs/tap-D59</code>, LONG41</span></span>.</p>
-<h2 id="이-실험이-검증하는-가설의-반증-조건">이 실험이 검증하는 가설의 반증 조건</h2>
+<span class="source-anchor" id="what-would-falsify-the-hypothesis-it-tests"></span><h2 id="이-실험이-검증하는-가설의-반증-조건">이 실험이 검증하는 가설의 반증 조건</h2>
 <p>가설은 무음 ARM7이 게임의 로직에 무기한으로 충분하다는 것이다
-<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>docs/kb/hybrid/hardware-services.md</code> section 7</span></span>. 대기 함수가 <code>SND_*</code> 또는 <code>NNS_Snd*</code>
+<span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">source account: <code>docs/kb/hybrid/hardware-services.md</code> section 7; direct ROM-source provenance unresolved</span></span>. 대기 함수가 <code>SND_*</code> 또는 <code>NNS_Snd*</code>
 심볼인 정체(stall)가 있으면 반증된다 &ndash; ROM의 사운드 스택은 실제 플레이어 상태를 결코
 보고하지 않는 소비자를 상대로 돌아가므로, 게임이 진행을 기다리는 시퀀스는 멈출 것이다.
 이 프로브는 그것을 만들어 낼 수 없다; 어떤 명령이 사용 중인지만 알려 줄 수 있으며, 이는
@@ -222,14 +234,14 @@
 <p><strong>이 실험은 소리를 내지 않으며 그쪽으로 가는 단계도 아니다.</strong> 전송만으로는 시퀀스를
 해석하거나, 뱅크나 웨이브 아카이브를 해석하거나, 채널을 할당하거나, 엔벨로프와 타이머를
 전진시키거나, PCM을 만들어 낼 수 없다 <span class="cite" data-grade="H"><span class="cite-badge"><b class="g g-H" title="가설">H</b></span><span class="cite-body">host/prose inference from <code>docs/kb/port/input-save-audio.md</code>; verify against the ROM function or symbol table and this page's recipe</span></span>.</p>
-<h2 id="관련-문서">관련 문서</h2>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
 <ul>
 <li><code>../systems/audio.md</code></li>
 <li><code>two-tap-town-recipe.md</code>, <code>off-recipe.md</code></li>
 </ul></div><nav class="prevnext"><a class="pn prev" href="../experiments/rng-determinism.html"><small>◀ 이전</small>RNG 결정성</a><span class="pn"></span></nav>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>

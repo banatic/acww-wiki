@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wi-Fi 포트 계획 · ACWW 근거 위키</title>
+<meta name="description" content="제안 순서는 ARM9 게임/WM 코드를 보존하고, 한 호스트에서 두 포트를 지원하는 제한된 ARM7 WM 서비스를 구현한 뒤, LAN에서 두 마을을 입증하고, WFC와 에뮬레이터 피어를 독립적으로 평가하는 것이다. 이 분석에서는 네트워킹 구현이나 호환성 실행을 수행하지">
+<link rel="icon" href="../assets/leaf.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page">
+<a class="skip" href="#main">본문으로 건너뛰기</a>
+
+<header class="sky">
+  <div class="clouds" aria-hidden="true">
+    <span class="cloud c1"></span><span class="cloud c2"></span><span class="cloud c3"></span>
+  </div>
+  <div class="sky-inner">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+    <a class="sign" href="../index.html">
+      <span class="sign-board">
+        <span class="sign-leaf" aria-hidden="true"><img src="../assets/leaf.svg" alt=""></span>
+        <span class="sign-text">놀러오세요 동물의 숲 근거 위키</span>
+      </span>
+      <span class="sign-post l" aria-hidden="true"></span><span class="sign-post r" aria-hidden="true"></span>
+    </a>
+    <form class="search" role="search" id="searchForm" autocomplete="off">
+      <input type="search" id="searchInput" placeholder="문서 검색…  (예: 세이브, 날씨, func_02040c90)" aria-label="검색">
+      <button type="submit" aria-label="검색">🔍</button>
+      <div class="search-results" id="searchResults" hidden></div>
+    </form>
+  </div>
+  <div class="hills" aria-hidden="true">
+    <svg viewBox="0 0 1200 90" preserveAspectRatio="none"><path d="M0,70 C150,10 300,10 450,60 C600,110 750,20 900,45 C1050,70 1150,30 1200,50 L1200,90 L0,90 Z" fill="#79c142"/><path d="M0,90 C200,40 400,80 600,60 C800,40 1000,85 1200,65 L1200,90 Z" fill="#5faa2f"/></svg>
+  </div>
+</header>
+<div class="grass" aria-hidden="true"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="pocket">
+      <div class="pocket-title">🎒 주머니</div>
+      <nav class="nav" aria-label="문서 목록">
+      <details class="nav-sec" open>
+<summary><span class="nav-icon">🕰️</span><a href="../systems/index.html">시스템</a></summary><ul>
+<li><a href="../systems/time-and-rtc.html">시간과 실시간 시계</a></li>
+<li><a href="../systems/save-data.html">세이브 데이터</a></li>
+<li><a href="../systems/town.html">마을</a></li>
+<li><a href="../systems/villagers.html">주민</a></li>
+<li><a href="../systems/player.html">플레이어</a></li>
+<li><a href="../systems/economy.html">경제</a></li>
+<li><a href="../systems/weather-and-seasons.html">날씨와 계절</a></li>
+<li><a href="../systems/events-and-calendar.html">이벤트와 달력</a></li>
+<li><a href="../systems/dialogue.html">대화</a></li>
+<li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
+<li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
+<li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li class="active"><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
+<li><a href="../systems/audio.html">오디오</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">📦</span><a href="../data/index.html">데이터</a></summary><ul>
+<li><a href="../data/items.html">아이템과 가구</a></li>
+<li><a href="../data/villagers.html">주민과 특수 캐릭터</a></li>
+<li><a href="../data/fish-and-bugs.html">물고기와 곤충</a></li>
+<li><a href="../data/music.html">음악과 사운드</a></li>
+<li><a href="../data/archives.html">아카이브와 컨테이너 포맷</a></li>
+<li><a href="../data/rom-layout.html">ROM 레이아웃</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">⚙️</span><a href="../engine/index.html">엔진</a></summary><ul>
+<li><a href="../engine/boot-and-entry.html">부팅과 진입점</a></li>
+<li><a href="../engine/overlays.html">오버레이</a></li>
+<li><a href="../engine/scenes-and-channels.html">씬과 채널</a></li>
+<li><a href="../engine/display-objects.html">디스플레이 오브젝트</a></li>
+<li><a href="../engine/memory-map.html">메모리 맵</a></li>
+<li><a href="../engine/threads-and-interrupts.html">스레드와 인터럽트</a></li>
+<li><a href="../engine/file-system.html">파일 시스템</a></li>
+<li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
+<li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
+<li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
+<li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
+<li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
+<li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
+<li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
+<li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
+<li><a href="../experiments/run-stability.html">실행 안정성: 종료 코드가 뜻하는 것, 그리고 48,000프레임 실행의 비용</a></li>
+<li><a href="../experiments/touch-calibration.html">터치 보정: 탭했을 때 게임이 보는 것</a></li>
+<li><a href="../experiments/touch-latency.html">터치 지연: 접촉이 게임에 도달하는 데 몇 프레임이 걸리며, 어떤 순서로 도달하는가</a></li>
+<li><a href="../experiments/rtc-hour-sweep.html">RTC 시각 스윕</a></li>
+<li><a href="../experiments/save-store-probe.html">세이브 저장소 프로브</a></li>
+<li><a href="../experiments/rng-determinism.html">RNG 결정성</a></li>
+<li><a href="../experiments/silent-audio-probe.html">무음 오디오 프로브: 게임은 어떤 사운드 명령을 내보내는가?</a></li>
+</ul></details>
+<details class="nav-sec" >
+<summary><span class="nav-icon">🔍</span><a href="../audits/index.html">감사</a></summary><ul>
+<li><a href="../audits/consistency.html">일관성 감사</a></li>
+<li><a href="../audits/game-systems.html">감사(audit): 게임 시스템을 공개 지식과 대조하다</a></li>
+<li><a href="../audits/data-formats.html">감사(audit): 공개 사양 대비 데이터 포맷</a></li>
+<li><a href="../audits/save-records.html">감사(audit): 세이브 레코드 내부를 공개 리버싱 코퍼스와 대조하다</a></li>
+<li><a href="../audits/hardware-services.html">감사(audit): 하드웨어 서비스와 공개 기록의 대조</a></li>
+<li><a href="../audits/3d-engine.html">감사(audit): 포트의 3D 엔진을 공개 기록과 대조하다</a></li>
+<li><a href="../audits/audio-design.html">감사와 설계: 호스트 측 ARM7 사운드 드라이버</a></li>
+<li><a href="../audits/sdk-names.html">감사(audit): SDK 계층의 `func_XXXXXXXX`에 이름 붙이기</a></li>
+<li><a href="../audits/night-2026-09-09.html">2026-09-09의 밤: 모든 유닛, 무엇을 확정했고 무엇을 남겼는가</a></li>
+</ul></details>
+<ul class="nav-top">
+<li><a href="../glossary.html"><span class="nav-icon">📖</span>용어집</a></li>
+<li><a href="../about.html"><span class="nav-icon">🍃</span>이 위키에 대하여</a></li>
+<li><a href="../style.html"><span class="nav-icon">✏️</span>문서 템플릿과 규칙</a></li>
+</ul>
+      </nav>
+      <div class="pocket-foot">
+        <label class="toggle"><input type="checkbox" id="citeToggle"> <span>출처 펼쳐 보기</span></label>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="bubble">
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <a href="../systems/index.html">시스템</a> <span class="sep">›</span> <span>Wi-Fi 포트 계획</span></div><header class="page-head"><h1>Wi-Fi 포트 계획</h1><div class="gradebar" title="이 문서의 출처 태그 수"><span class="gradebar-label">근거</span><span class="gchip g-S"><b>S</b> 22</span><span class="gchip g-E"><b>E</b> 30</span></div><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/systems/wifi-port-plan.md"><code>wiki/systems/wifi-port-plan.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/systems/wifi-port-plan.md"><code>aa8cc07f</code></a></div></header><div class="md"><span class="source-anchor" id="wi-fi-port-plan"></span><p><strong>요약.</strong> 제안 순서는 ARM9 게임/WM 코드를 보존하고, 한 호스트에서 두 포트를 지원하는 제한된 ARM7 WM 서비스를 구현한 뒤,
+LAN에서 두 마을을 입증하고, WFC와 에뮬레이터 피어를 독립적으로 평가하는 것이다. 이 분석에서는 네트워킹 구현이나
+호환성 실행을 수행하지 않았다. 아래 비용은 모두 계획 단계의 추정이다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code>, <code>scratchpad/wifi-analysis-1/external-research.json</code></span></span></p>
+<span class="source-anchor" id="evidence-and-estimate-boundaries"></span><h2 id="근거와-추정의-경계">근거와 추정의 경계</h2>
+<p><a href="multiplayer-protocol.html">프로토콜 맵</a>에는 소스의 사실과 명시적인 공백이 들어 있다.
+<code>S</code>는 인용된 매칭 소스가 해당 서술을 뒷받침한다는 뜻이며, 호스트 실행을 증명하지는 않는다. 아래의 외부 참조는
+2026-09-11에 확인한 1차 업스트림 문서이며, URL, 검색 시간, 해시 또는 가져오기 오류가
+<code>scratchpad/wifi-analysis-1/external-research.json</code> (R1-R19)에 기록되어 있다. 해당 <code>E</code> 표시는 그 연구 영수증을
+가리키며, <strong>통과한 게임/서버 테스트를 가리키지 않는다.</strong> 설계 선택과 사이클 범위에는 <strong>Proposal/Estimate</strong>가 표시되며,
+관찰된 호환성으로 승격되지 않는다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code></span></span></p>
+<p>추정 사이클은 제한된 구현 하나, 그 fixture, 소유자가 직렬화해 수행하는 빌드/실행, 그리고 검토를 뜻한다. 고정된 시간 수가
+아니다. 범위에는 매칭되지 않은 코드의 무제한 리버스 엔지니어링과 서버 유지보수가 포함되지 않는다. 첫 게이트가 실패하면
+남은 추정을 대체하며, 경과한 빌드 시간은 진행 근거가 아니다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></p>
+<span class="source-anchor" id="a-wm-service-over-host-transport"></span><h2 id="a-호스트-전송을-통한-wm-서비스">A. 호스트 전송을 통한 WM 서비스</h2>
+<span class="source-anchor" id="contract-to-retain"></span><h3 id="유지할-계약">유지할 계약</h3>
+<p>WM은 소유권 상태가 있는 256바이트 요청 슬롯에 tag-10 포인터를 제출하고 비동기 수락을 반환한다. MP 송신 요청에는 DS
+데이터 포인터, 길이, 대상 비트맵, 논리 포트, 우선순위, 콜백/인자가 들어 있다. 이 포인터는 프로세스 내부의 에뮬레이트된
+주소이며, 다른 호스트로 전송할 필드가 아니다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WMi_SendCommand.c:83</code>, <code>src/matched/WMi_SendCommand.c:112</code>,
+<code>src/matched/WM_SetMPDataToPortEx.c:131</code></span></span></p>
+<p>로컬 마을 드라이버는 포트 12/13을 등록하고 MP 우선순위 2와 재시도 횟수 4를 사용한다. WM은 MP를 시작하기 전에
+parent/child 상태와 버퍼 용량을 확인하며, 수신 버퍼에는 이중 버퍼 규약이 있다. 게임에는 별도의 4096바이트 조립
+버퍼가 있고 최대 4091 데이터 바이트와 5개의 프레이밍 바이트가 있는 청크를 사용한다. 이는 하나의 합법적인 WM 무선
+페이로드가 아니므로, 그 사이의 로컬 조립 경로는 여전히 감사해야 한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_0226b9b8.c:101</code>, <code>src/matched/func_ov066_0226ae50.c:9</code>,
+<code>src/matched/func_ov066_022686f0.c:20</code>, <code>src/matched/WM_StartMPEx.c:67</code>,
+<code>src/matched/WM_StartMPEx.c:104</code>, <code>src/matched/func_02075ff8.c:42</code></span></span></p>
+<p><strong>제안.</strong> <code>port/shim/os/pxisend.c</code>에 좁은 tag-10 디스패치를 추가하고, 요청 디코딩·상태·응답은 새
+<code>port/shim/net/wm_service.c</code>에 넣으며, 호스트 전송과 fixture는 소유자가 선택한 별도 이름의 파일에 둔다. 처음에는
+WM/게임 함수를 인터프리트 상태로 유지한다. 대량 승격이나 매칭 소스 수정은 하지 않는다. 들어오는 호스트 이벤트를
+대기열에 넣고 예약된 틱에 에뮬레이션 스레드에서만 DS 콜백을 실행한다. 소유 중인 요청을 복사하고 검증한 다음 한 번만
+해제하며, 문서화된 완료 수명이 끝날 때까지 콜백 저장 공간을 유지한다. 리셋/연결 해제에서는 오래된 세대를 취소해야 한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WMi_SendCommand.c:83</code>, <code>src/matched/WM_SetMPDataToPortEx.c:131</code></span></span></p>
+<p><strong>제안.</strong> 첫 전송은 루프백의 두 프로세스로 하고, 그다음에는 명시적인 room/session ID, 프로토콜 버전, 송신자 식별자,
+시퀀스 번호, 제한된 길이를 사용하는 사설 LAN UDP로 한다. parent/AID 매핑, 대상 비트맵, 논리 포트, 우선순위, 재시도,
+완료의 구별을 보존한다. 자동 검색을 추가하기 전에 손실, 중복, 오래된 패킷, 대기열 포화, 취소를 정의한다. TCP는
+제어용으로 사용할 수 있지만, 스트림 세그먼트 손실이 MP 완료/타이밍을 조용히 바꾸어서는 안 된다. 이는 복원된 Nintendo
+와이어 형식이 아니라 새 호스트 프레이밍 요구 사항이다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WM_SetMPDataToPortEx.c:117</code>, <code>src/matched/WM_SetMPDataToPortEx.c:131</code></span></span></p>
+<p><strong>타이밍 공백.</strong> 호출은 MP 주파수/구성을 제공하지만, 이 감사에서는 실행 중인 구성을 게이트 상태에 연결하지 않았고 MP
+에포크의 지속 시간도 측정하지 않았다. 게임의 4인 장벽은 프레임별 입력 락스텝이나 고정된 60 Hz 네트워크 틱을 입증하지
+않는다. 페이싱을 선택하기 전에 에뮬레이트된 시간에 따른 제출/완료/수신 순서를 측정해야 한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov066_022686f0.c:20</code>, <code>src/matched/func_02074330.c:169</code>,
+<code>src/matched/func_02074330.c:370</code></span></span></p>
+<p><strong>제안.</strong> 인터넷 릴레이는 게임 성공을 지어내지 않고 room 멤버십, parent 에포크, 제한된 재전송, 전달 확인을 조정한다.
+네트워크 도착 시간과 에뮬레이트 실행 시간을 분리하고, 명시적인 정책에 따라 느린 피어를 중지하거나 연결 해제한다.
+루프백에 측정된 지연/손실 주입부터 시작한다. 임의의 지연을 허용하는 로컬 무선 에뮬레이션을 약속하거나 LAN 타이밍이
+안정되기 전에 릴레이를 추가하지 않는다. 릴레이는 검증된 봉투를 전달할 수 있지만, 마을 권한을 이해하거나 충돌하는
+세이브 변경을 자동으로 해결하지는 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074330.c:213</code>, <code>src/matched/func_020a03e0.c:113</code></span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>제안 단위</th>
+<th style="text-align: right;">추정</th>
+<th>첫 영수증 / 중단 조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A0 게이트와 WM 상태/콜백 계약 관찰</td>
+<td style="text-align: right;">1-2 cycles</td>
+<td>제한된 키 기반 호스트/게스트 메뉴 경로가 식별된 모드/상태/API ID에 도달한다. 오류가 없고 observer OFF 동등성이 성립한다. 브리지 의미가 없으면 구현 가정을 중단한다.</td>
+</tr>
+<tr>
+<td>A1 초기화/리셋과 합성 MP 요청 하나</td>
+<td style="text-align: right;">2-4</td>
+<td>fixture가 요청 소유권, 상태 오류, 완료 하나, 취소, 리셋 후 콜백 없음을 입증한다. 실제 게이트 초기화 하나가 기록된 다음 상태에 도달한다.</td>
+</tr>
+<tr>
+<td>A2 두 프로세스의 검색/연결/송신</td>
+<td style="text-align: right;">3-6</td>
+<td>게스트가 사설 테스트 식별자를 사용해 의도한 호스트만 정확히 나열한다. AID/비트맵이 일치하고, 수락된 송신 하나가 포트 12/13에서 의도한 수신 하나와 완료에 정확히 도달한다.</td>
+</tr>
+<tr>
+<td>A3 두 마을, 도착과 정상적인 출발</td>
+<td style="text-align: right;">4-10+</td>
+<td>마을 전송에서 허용된 영역/수 요약이 일치하고, 양쪽에서 액터 이동을 관찰하며, 정상적인 출발과 각 참가자의 안전한 복귀를 기록한다. 알려지지 않은 액터/롤백 의미가 지배적인 문제가 될 수 있다.</td>
+</tr>
+<tr>
+<td>A4 오류 처리와 인터넷 릴레이 탐색</td>
+<td style="text-align: right;">3-8+</td>
+<td>중복/손실/지연/연결 해제 행렬이 제한된 결과를 갖고, 그다음 고정된 지연/손실과 room 식별자를 가진 원격 쌍 하나를 수행한다. 보편적인 NAT나 지연 주장은 하지 않는다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 A 범위와 영수증 정의는 제안이며, 이 표의 어떤 것도 아직 통과하지 않았다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></p>
+<span class="source-anchor" id="emulator-peers"></span><h3 id="에뮬레이터-피어">에뮬레이터 피어</h3>
+<p>확인한 <a href="https://github.com/melonDS-emu/melonDS/releases">melonDS 릴리스</a>에는 LAN 지원이 들어 있으며, 고정한 업스트림
+<a href="https://github.com/melonDS-emu/melonDS/blob/906e9ebb27da8c6a715cd7abab4abfe8a8d29427/src/net/LAN.cpp">LAN.cpp</a>는
+ENet 세션/제어 교환과 타임스탬프가 있는 MP 명령/응답/확인 트래픽을 구현한다. 이는 가능성 있는 <strong>후속 테스트 피어</strong>다.
+어댑터는 에뮬레이트된 무선 교환, 식별자, 타이밍을 변환해야 한다. UDP를 공유하거나 NiFi라는 이름을 사용한다고 해서
+WM 서비스 데이터그램과 호환되는 것은 아니다. 내부 플레이어 한도도 ACWW의 방문객 한도가 아니다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R7-R8</span></span></p>
+<p>1차 <a href="https://wiki.desmume.org/index.php?title=Faq">DeSmuME FAQ</a>는 검색 인덱스 근거에서 실험적/지원되지 않는 Wi-Fi로
+보였지만, 새 페이지 가져오기는 실패했다. 오래된 공식 지원 게시물로는 현재 바이너리를 인증할 수 없다. DeSmuME는
+<strong>현재 지원이 검증되지 않은</strong> 탐색용 피어이며, 수락 의존성이 아니다. 호환성을 주장하기 전에 정확한 빌드, Wi-Fi 백엔드,
+비컨/연결/MP 교환 하나를 기록한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R9</span></span></p>
+<p><strong>추정.</strong> 별도의 melonDS 브리지 조사는 검색 또는 연결 영수증 하나까지 2-4 사이클이 걸리고, 타이밍/모델이 호환된다면
+마을 방문까지 그다음 4-10+ 사이클이 걸린다. DeSmuME는 마을 플레이 추정이 아닌 1사이클 실현 가능성 검사로 시작한다.
+에뮬레이터 간 LAN, 포트 간 LAN, 포트-에뮬레이터는 서로 독립적인 세 게이트다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions, R8-R9</span></span></p>
+<span class="source-anchor" id="b-wfc-replacement-and-socket-boundary"></span><h2 id="b-wfc-대체와-소켓-경계">B. WFC 대체와 소켓 경계</h2>
+<span class="source-anchor" id="what-exists-and-what-is-not-verified"></span><h3 id="존재하는-것과-검증되지-않은-것">존재하는 것과 검증되지 않은 것</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>후보</th>
+<th>문서 근거</th>
+<th>제안 용도 / 한계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/barronwaffles/dwc_network_server_emulator">DWC 네트워크 서버 에뮬레이터 / altWFC 계보</a></td>
+<td>공개 AGPL 서버 코드가 있으나 README는 여전히 Python 2.7과 레거시 의존성을 지정한다.</td>
+<td>가장 구체적인 자체 호스팅 시작점이다. 테스트 전에 리비전을 고정하고 의존성을 현대화/격리한다. ADMK 로그인이나 방문 영수증은 없다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R1</span></span></td>
+</tr>
+<tr>
+<td>역사적 CoWFC 설정</td>
+<td>업스트림 설정 안내서는 2018년에 편집되었고 오래된 Ubuntu 릴리스를 대상으로 한다.</td>
+<td>포크/배포 계보의 근거이지, 오늘 실행할 명령이나 유지 관리되는 서비스라는 주장이 아니다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R2</span></span></td>
+</tr>
+<tr>
+<td>Wiimmfi 서비스</td>
+<td>Kaeru의 1차 프로젝트 페이지는 Wiimmfi를 인증 백엔드로 식별한다. 이 감사에서는 Wiimmfi 게임 상태 페이지를 가져오지 못했다.</td>
+<td>호스팅된 호환성 참고 자료가 될 수 있으나, 자체 호스팅 소스의 가용성, 현재 ADMK 지원, 서비스 가동 시간은 여기서 검증되지 않았다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R4, R10</span></span></td>
+</tr>
+<tr>
+<td><a href="https://kaerudev.kaeru.world/projects/wfc">Kaeru WFC</a></td>
+<td>ndsconstraint를 사용하는, DNS로 설정된 Wiimmfi 인증 프록시다.</td>
+<td>호스팅된 대체재를 보완하지만, 완전하고 독립적인 오픈 소스 사설 서버라는 근거는 아니다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R4</span></span></td>
+</tr>
+<tr>
+<td>새로운 최소 사설 서비스</td>
+<td>설계 선택지일 뿐이다.</td>
+<td>전체를 통제할 수 있지만 NAS/프로필/친구/매칭/NAT/전송 호환성을 구현하고 테스트해야 한다. 리비전을 고정한 기존 서버를 적용하는 것보다 불확실성이 크다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></td>
+</tr>
+</tbody>
+</table></div>
+<p>업스트림 호환성 위키의 2019년 포괄적인 주장은 ADMK에 특화된 2026년 테스트가 아니다. 공개 문서의 가용성은 서비스가
+살아 있다는 뜻이 아니다. 이 단위에서는 어느 서비스도 배포하거나 인증을 시도하거나 마을 방문에 사용하지 않았다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R3-R4, R10</span></span></p>
+<span class="source-anchor" id="endpoint-inventory-external-defaults-not-captured-admk-destinations"></span><h3 id="엔드포인트-목록-캡처된-admk-대상이-아닌-외부-기본값">엔드포인트 목록: 캡처된 ADMK 대상이 아닌 외부 기본값</h3>
+<p>업스트림 <a href="https://github.com/barronwaffles/dwc_network_server_emulator/blob/2c65a9f6afe508e236c222bd1b8f26fd63621a91/altwfc.cfg">설정</a>과
+서버 리스너가 이 초기 서비스 목록을 제공한다. DNS는 선택한 네임스페이스로 일관되게 라우팅해야 하며, 인증 전용 리디렉션은
+전체 연결이 아니다. 내장된 ROM 엔드포인트 문자열은 추출되지 않았다. 정확한 ADMK DNS 이름, 선택된 지역 별칭, 성공한
+요청 순서는 런타임/소스 경계 게이트로 남아 있다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R11-R18</span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>역할</th>
+<th>공개 업스트림 네임스페이스 / 기본값</th>
+<th>검증할 경계</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>연결 테스트와 NAS</td>
+<td>문서화된 WFC 네임스페이스 아래의 <code>conntest</code> / <code>nas</code>; Apache 프런트엔드가 NAS를 내부 포트 9000으로 프록시한다</td>
+<td>HTTP/SSL 프런트엔드와 백엔드는 별개다. 포트 9000은 추론한 DS 대상이 아니다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R17-R18</span></span></td>
+</tr>
+<tr>
+<td>프로필/현재 상태(GPCM)</td>
+<td>GameSpy 프로필 서비스, TCP 29900</td>
+<td>NAS 식별자는 프로필/친구 세션에 결합되어야 한다. 정확한 ADMK 호스트 이름은 해결되지 않았다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R11-R12</span></span></td>
+</tr>
+<tr>
+<td>플레이어 검색(GPSP)</td>
+<td>공개 서버 문서/소스의 <code>gpsp.gs.nintendowifi.net</code>, TCP 29901</td>
+<td>친구 검색은 프로필 현재 상태와 별개다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R11, R13</span></span></td>
+</tr>
+<tr>
+<td>쿼리/보고</td>
+<td>게임별 <code>*.master.gs</code> / <code>*.available.gs</code> 네임스페이스, 기본값 27900</td>
+<td>하트비트/보고 데이터와 광고된 피어 주소를 검증한다. 게임 키는 내보내지 않는다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R11, R15</span></span></td>
+</tr>
+<tr>
+<td>서버 브라우저</td>
+<td>기본값 28910</td>
+<td>쿼리 서비스는 선택된 게임 피어와 별개다. 정확한 ADMK 도메인은 해결되지 않았다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R11, R16</span></span></td>
+</tr>
+<tr>
+<td>NAT 협상</td>
+<td>UDP 27901</td>
+<td>교환된 주소와 NAT 결과에는 두 피어의 영수증이 필요하며, 범용 게임 릴레이가 아니다. 정확한 ADMK NAT 호스트 이름은 해결되지 않았다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R11, R14</span></span></td>
+</tr>
+<tr>
+<td>게임 데이터</td>
+<td>범용 고정 서버 포트가 아닌, 협상된 피어 엔드포인트</td>
+<td>DWC는 연결로 신뢰성 있는 송신 청크를 보낸다. GT2 트래픽이 작동한다고 설명하기 전에 연결/주소 검색을 고정한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_ov065_0227eda0.c:100</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="shutdown-certificates-and-the-cpu-boundary"></span><h3 id="종료-인증서-cpu-경계">종료, 인증서, CPU 경계</h3>
+<p><a href="https://www.nintendo.com/de-de/Spiele/Nintendo-DS/Animal-Crossing-Wild-World-270011.html">Nintendo의 게임 페이지</a>는
+2014-05-20의 WFC 종료를 기록한다. 이는 서비스 수명 주기에 관한 사실이지, 만료된 Nintendo CA가 포트의 실패를 일으킨다는
+증거가 아니다. 이 감사에서는 인증서를 검사하거나 인증서 만료/ADMK 유효성 검사를 확립하지 않았다. 이 전제는
+<strong>검증되지 않은 상태로</strong> 유지한다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R6</span></span></p>
+<p>1차 <a href="https://github.com/KaeruTeam/nds-constraint">ndsconstraint 설명</a>은 DS 인증서 체인 검증 결함과 SSLv3 호환 서버
+요구 사항을 설명한다. altWFC 위키는 그런 메커니즘이 없는 서버를 위한 클라이언트 SSL 패치를 문서화한다. 이는 대체
+레거시 클라이언트 연결 기법이며, DNS만으로 모든 서버가 복구되거나 현대 TLS가 오래된 핸드셰이크를 수락한다는 근거가
+아니다. 패치 바이트, 인증서, 키는 여기에 포함하지 않는다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R5, R19</span></span></p>
+<p><code>CPS_TcpConnect</code>는 세션 상태에 따라 ARM9에서 SSL로 분기하고, SOCL은 ARM9에서 OS 메시지를 게시한다. 따라서 ARM7
+무선/IP 브리지는 그 SSL 문제를 그대로 갖는다. 인증 빌더에도 RTC/AP 메타데이터가 필요하며 인터넷 펌프는 WCM 단계를
+관찰한다. 소켓을 교체한다고 해서 이런 상태 계약이 자동으로 충족되지는 않는다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CPS_TcpConnect.c:18</code>, <code>src/matched/SOCLi_SendCommandPacket.c:3102</code>,
+<code>src/matched/func_ov065_02274798.c:579</code>, <code>src/matched/func_ov065_0227f32c.c:58</code></span></span></p>
+<p><strong>제안.</strong> 두 개의 명시적인 경계를 비교한다. (B-low)는 기존 CPS 스택 아래에 WCM/DCF/IP를 구현하여 SSL과 DNS 동작을
+보존하는 경계이고, (B-socket)는 SOCL/CPS 연산을 호스트 소켓에 맞추고 SSL 세션의 연결/읽기/쓰기/닫기 동작과 리졸버 및
+AP 상태를 명시적으로 대체하는 경계다. 사설 루프백 서비스에서는 애플리케이션 평문이 선택한 경계를 통과할 수 있다.
+원격 서비스에서는 일반적인 서버 인증을 사용하는 호스트 TLS 프록시를 선택한다. <code>CPS_TcpConnect</code>만 원시 TCP로 바꾸면
+다른 SSL 세션 동작은 감사되지 않은 채 남는다. 특정 함수를 승격할 이유를 연산 수준의 fixture로 입증할 때까지
+DWC/NAS/GameSpy 로직은 인터프리트 상태로 유지한다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/CPS_TcpConnect.c:18</code>, <code>src/matched/func_020ec980.c:41</code></span></span></p>
+<p><strong>제안.</strong> 새 파일은 <code>port/shim/net/</code> 아래의 호스트 소켓/세션 어댑터, 엔드포인트 프로필/리졸버 어댑터, 블로킹/논블로킹
+결과·부분 읽기/쓰기·타임아웃·DNS 실패·닫기/취소를 위한 fixture가 된다. 레지스트리 오버라이드가 필요한 정확한 심볼은
+사전 승인된 대량 네이티브 승격 목록이 아니라 A0/B0 추적의 결과다. 선택한 각 SOCL/CPS 함수는 프로젝트의 함수별 차분
+게이트를 통과해야 하며, SDK 이름만으로 호스트 ABI가 올바르다고 증명할 수 없다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/SOCLi_SendCommandPacket.c:3102</code>, <code>src/matched/CPS_TcpConnect.c:18</code></span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>제안 단위</th>
+<th style="text-align: right;">추정</th>
+<th>첫 측정 영수증</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B0 의존성과 소켓/TLS 경계 프로브</td>
+<td style="text-align: right;">1-3 cycles</td>
+<td>선택된 DS 연산 하나에 알려진 호출자/SSL 상태/결과/비동기 수명이 있고, 로그인이라고 주장하지 않는 사설 합성 호스트 소켓 fixture 하나가 통과한다.</td>
+</tr>
+<tr>
+<td>B1 고정된 사설 서버 기동</td>
+<td style="text-align: right;">2-5</td>
+<td>격리된 환경에서 로컬 상태 확인과 합성 NAS/프로필 왕복을 수행한다. 리비전/설정 해시와 리스너 목록을 남기며, 보고서에는 자격 증명/페이로드를 넣지 않는다.</td>
+</tr>
+<tr>
+<td>B2 포트 로그인/친구</td>
+<td style="text-align: right;">4-8+</td>
+<td>두 사설 식별자가 게임의 온라인 단계 5에 도달하고, 서로의 친구/현재 상태 결과를 확인한 다음 정상적으로 로그아웃한다. 실패는 정확한 DNS/인증/프로필 경계와 연결한다.</td>
+</tr>
+<tr>
+<td>B3 매칭, 피어 전송, 방문/출발</td>
+<td style="text-align: right;">5-12+</td>
+<td>서로 독립적인 두 클라이언트가 피어를 협상하고 사설 세이브 백업과 일관성 요약을 남기며 도착/출발을 완료한다.</td>
+</tr>
+<tr>
+<td>계보를 적용하는 대신 새 서버</td>
+<td style="text-align: right;">12-30+</td>
+<td>첫 게이트는 여전히 합성 NAS/프로필 왕복이다. 모든 게임, 조정, 운영은 추정에 포함하지 않는다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 B 범위는 추정이다. A와 B는 게임 프로토콜 연구를 공유할 수 있지만 하나의 전송 구현은 아니다. 이 문서 단계의
+완료에는 서버 자격 증명이나 인프라 결정이 필요하지 않다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></p>
+<span class="source-anchor" id="c-modding-without-inventing-protocol-semantics"></span><h2 id="c-프로토콜-의미를-지어내지-않는-모딩">C. 프로토콜 의미를 지어내지 않는 모딩</h2>
+<p>공통 제어 수신 진입점은 <code>0x02075050</code>이고 디스패치는 <code>0x02075240</code>이며, 오프셋 기반 대량 핸들러에는 <code>0x02075670</code>과
+<code>0x0207557c</code>가 있다. 디스패치에는 확립된 ID가 24개 있지만 많은 페이로드의 의미는 해결되지 않았다. 외부 변경을
+수락하기 전에는 상위 단계의 길이, 인덱스, 전송 용량, 상태 검사가 필요하다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:33</code>, <code>src/matched/func_02075240.c:5</code>,
+<code>src/matched/func_02075670.c:25</code>, <code>src/matched/func_0207557c.c:15</code></span></span></p>
+<p><strong>제안.</strong> 먼저 ID/길이/송신자/상태/수만 기록하는 관찰자로 시작한다. 그런 다음 새
+<code>port/shim/net/game_protocol.c</code>(제안 이름)에서 디스패치 전에 명시적인 검증/정책 훅을 추가하고, 호스트 room 메타데이터에서
+버전을 협상한다. 기존 피어에는 기존 메시지를 전달하며, 사용자 지정 ID는 모든 참가자가 확장을 협상해야 한다. 관찰 전용
+모드는 이벤트 순서나 세이브를 바꾸지 않아야 한다. 수신 함수를 승격하는 것은 선택 사항이며 별도의 차분 증명이 필요하다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075050.c:36</code>, <code>src/matched/func_02075240.c:5</code></span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>원하는 모드</th>
+<th>실제 작업과 제약</th>
+<th>추정 / 첫 영수증</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>방문객 늘리기</td>
+<td>게임 루프/비트맵은 참가자 네 명과 원격 디스크립터 세 개를 인코딩한다. WM 최대 항목과 SDK 버퍼 한도는 하위 계층의 한도일 뿐이다. 용량을 바꾸기 전에 모든 액터 슬롯, 마스크, 세이브 레코드, UI, 실패 장벽을 감사한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02074330.c:169</code>, <code>src/matched/func_02074330.c:213</code>, <code>src/matched/func_020760bc.c:37</code></span></span></td>
+<td>완전한 용량 목록에 2-4 cycles; 의도적으로 제한한 5인 프로토타입에 12-30+ cycles. 무제한 용량은 방어할 수 있는 목표가 아니다. 첫 영수증: 변경하지 않은 프로토콜이 합성 참가자 다섯 번째를 안전하게 거부한 다음, 확장하려는 모든 구조에 한도가 있음을 확인한다.</td>
+</tr>
+<tr>
+<td>마을 간 아이템 거래</td>
+<td>실제 아이템 인벤토리 변경자와 아이템 메시지 의미를 먼저 찾는다. 이 맵의 ID 이름만으로는 거래 프로토콜을 확립할 수 없다. 제안: 트랜잭션 ID, 검증, 에스크로/커밋, 충돌 복구와 테스트 세이브 포크를 사용한다. 친구 키 CRC는 권한 부여가 아니다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/DWC_Acc_CheckFriendKey.c:36</code>, <code>src/matched/func_020a03e0.c:63</code>, <code>src/matched/func_020a03e0.c:113</code></span></span></td>
+<td>의미 목록에 3-6 cycles; 트랜잭션 프로토타입에 4-10+ cycles. 첫 영수증: 각 커밋 지점 전후 연결 해제에도 합성 아이템 전송 하나의 수가 보존된다.</td>
+</tr>
+<tr>
+<td>사용자 지정 이벤트</td>
+<td>공유 디스패치는 협상된 확장 의도를 운반할 수 있지만, 액터 동작·RNG·이벤트 진행 권한은 여전히 매핑되지 않았다. 제안: 명시적인 버전/참가자 합의를 포함한 호스트 권한 이벤트 상태를 사용하며, RNG 락스텝은 가정하지 않는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020753a8.c:10</code>, <code>src/matched/func_02074330.c:370</code></span></span></td>
+<td>관찰자/스키마 탐색에 2-4 cycles; 이벤트 하나에 3-8+ cycles. 첫 영수증: 무해한 협상 이벤트가 양쪽 클라이언트에 한 번씩 적용되고, 재생과 알 수 없는 버전은 거부된다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>모든 C 범위와 새 동작은 제안이다. 세이브 크기의 스테이징 복사본은 0x173fc 바이트를 복사하고 조건부로 복원하지만,
+이는 영속 세이브 스키마, 원자적 롤백, 안전한 마을 간 거래를 증명하지 않는다. 영속 스키마/체크섬과 세이브 소유자
+규칙은 쓰기 훅 전에 세이브 흐름 분석에서 가져와야 한다. 이 단위에서는 세이브를 변경하지 않았다.
+<span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a03e0.c:63</code>, <code>src/matched/func_020a03e0.c:113</code></span></span></p>
+<span class="source-anchor" id="recommended-sequence-and-acceptance-ladder"></span><h2 id="권장-순서와-수락-단계">권장 순서와 수락 단계</h2>
+<p><strong>권장(설계 판단).</strong> 한 머신에서 서로 격리된 사설 포트 식별자 두 개를 사용하고 사용자 지정 게임 메시지는 두지 않은 채
+먼저 A0-A2를 선택한다. 이는 기존 게임 프로토콜을 보존하면서 구체적으로 빠져 있는 tag-10 서비스를 테스트한다. 방문객
+수를 늘리기 전에 A3를 게이트로 통과시키고, 원래 WFC 방식의 친구/인터넷 상호 운용성이 제품 요구 사항일 때만 B를 선택한다.
+에뮬레이터 브리지는 별도의 실험이며, 첫 WM 영수증에는 에뮬레이터 브리지도 인터넷 릴레이도 전제 조건이 아니다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code>, <code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>게이트</th>
+<th>필요한 산출물</th>
+<th>확립하지 않는 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0 경로와 상태</td>
+<td>제한된 호스트/게스트 메뉴 추적 두 개: 정확한 런처, 실행 파일/산출물 해시, 키가 지정된 경로, 프레임 엔드포인트, 상주 오버레이, 모드/상태 ID, WM 제출/콜백 ID. 매칭되지 않은 브리지 주소는 보존한다.</td>
+<td>검색 결과가 유효한 피어라는 것 또는 콜백이 올바르다는 것.</td>
+</tr>
+<tr>
+<td>G1 요청 소유권</td>
+<td>합성된 잘못된 상태, 대기열 가득 참, 중복 완료, 리셋/취소 사례. 수락된 요청마다 정확히 하나의 종료 결과가 있어야 한다. 실제 초기화 하나가 고정된 다음 상태에 도달한다.</td>
+<td>사용 가능한 MP 데이터 채널.</td>
+</tr>
+<tr>
+<td>G2 피어 하나와 패킷 하나</td>
+<td>프로세스 식별자 두 개, 의도한 검색 결과 하나, 연결/AID 합의, 정확한 논리 포트/길이/대상 수, 수신 하나와 완료 하나. 잘못된 room/늦은 세대의 부정 사례.</td>
+<td>마을 전송, 액터 동기화, 원래 에뮬레이터 호환성 또는 인터넷 플레이.</td>
+</tr>
+<tr>
+<td>G3 방문과 출발</td>
+<td>양쪽 엔드포인트가 동일하게 식별된 방문 단계에 도달하고, 사설 마을/참가자 데이터 수가 일치하며, 양쪽에서 스크립트로 정한 이동을 관찰하고, 정상적인 출발과 복귀를 기록한다.</td>
+<td>중단 중 영속 롤백 또는 모든 게임플레이 기능.</td>
+</tr>
+<tr>
+<td>G4 중단된 세션</td>
+<td>기록된 테스트 PID만 종료하거나 각 전송/커밋 경계에 손실을 주입한다. 재연결/취소는 제한된 결과를 가져야 하며, 사설 세이브 전후 요약은 선택한 보존 규칙을 따라야 한다.</td>
+<td>무제한 방문객 또는 신뢰할 수 없는 모드 클라이언트에 대한 보호.</td>
+</tr>
+<tr>
+<td>G5 선택적 새 백엔드</td>
+<td>각각의 특정 에뮬레이터 빌드, 릴레이 모드, WFC 서버 리비전에 대해 G2-G4를 반복하고, WFC에는 로그인/친구/매칭 게이트를 추가한다.</td>
+<td>다른 빌드/서버/지역 또는 모든 NAT 유형과의 호환성.</td>
+</tr>
+</tbody>
+</table></div>
+<p>이는 제안된 수락 기준이지 완료된 실험이 아니다. 영수증에는 ID, 주소, 수, 지속 시간, 해시를 내보내며 원시 마을/플레이어/
+패킷 데이터, 비밀, 인증서는 내보내지 않는다. 각 미래 관찰자에는 OFF 동등성 검사와 정확한 오류 식별자가 있어야 한다.
+제한된 타임아웃 종료는 통과한 엔드포인트가 아니다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></p>
+<span class="source-anchor" id="owner-decisions-before-implementation"></span><h3 id="구현-전-소유자-결정">구현 전 소유자 결정</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>결정</th>
+<th>우선 권장하는 선택</th>
+<th>더 많은 것을 선택했을 때의 결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>처음 지원할 쌍</td>
+<td>포트-포트, 같은 ADMK 리비전, 루프백 다음 LAN</td>
+<td>에뮬레이터/실제 DS 피어에는 별도의 프레이밍/타이밍과 호환성 근거가 필요하다.</td>
+</tr>
+<tr>
+<td>호스팅</td>
+<td>G0-G3에서는 외부 서버를 사용하지 않음</td>
+<td>WFC/릴레이 작업에는 호스팅/유지보수 소유자, 영속 식별자 정책, 선택한 서버 리비전이 필요하다.</td>
+</tr>
+<tr>
+<td>NAT</td>
+<td>명시적인 동일 LAN 페어링부터 시작</td>
+<td>직접 인터넷에는 주소 검색/포워딩 테스트가 필요하고, 릴레이에는 용량, 수명 주기, 느린 피어 정책, 운영 소유권이 필요하다.</td>
+</tr>
+<tr>
+<td>신뢰</td>
+<td>사설 참가자; 들어오는 모든 길이/인덱스/상태를 검증</td>
+<td>공개/신뢰할 수 없는 피어에는 인증, 악용 제한, 권한 정책, 검토된 변경 경계가 필요하다. 친구 키 CRC의 일관성만으로는 부족하다.</td>
+</tr>
+<tr>
+<td>세이브 변경</td>
+<td>별도의 사설 세이브 복사본과 되돌릴 수 있는 테스트</td>
+<td>마을 간 영속 변경에는 합의된 커밋/롤백 정책, 보존 규칙, 복구 테스트가 필요하다.</td>
+</tr>
+<tr>
+<td>호환성과 모드</td>
+<td>원래 네 참가자 동작부터 시작</td>
+<td>새 ID/용량/이벤트에는 버전이 있는 옵트인과 명확한 비호환 경계가 필요하다.</td>
+</tr>
+</tbody>
+</table></div>
+<p>이는 구현 선택이며 이 문서 단위의 장애물이 아니다. 소유자는 호스팅 계정, 자격 증명, 서버 배포를 요청하지 않았다.
+<span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> decisions</span></span></p>
+<span class="source-anchor" id="ranked-open-questions"></span><h3 id="순위별-미해결-질문">순위별 미해결 질문</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>우선순위</th>
+<th>미지의 사항</th>
+<th>가장 저렴한 다음 근거 / 게이트</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0</td>
+<td>메인 <code>0x02074b44</code> 초기화 브리지와 autoload_2 <code>0x020ed6c4</code> 콜백에는 매칭된 본체가 없다. 호스트/게스트 게이트 선택은 facade 동작에 완전히 연결되지 않았다.</td>
+<td>G0 제한 콜백/상태 추적 또는 소유자가 승인한 주소 수준 복구. 전송 모드만으로 전체 메뉴 의미를 추론하지 않는다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code> core_coverage</span></span></td>
+</tr>
+<tr>
+<td>P0</td>
+<td>정확한 콜백 메모리 수명, 무선 완료 상태, 마을 진입 시점의 실제 MP 구성.</td>
+<td>G0/G1 추적과 요청/응답 구조 감사. 현재 요청 송신자는 한쪽만 증명한다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/WMi_SendCommand.c:83</code>, <code>src/matched/func_ov066_022686f0.c:20</code></span></span></td>
+</tr>
+<tr>
+<td>P0</td>
+<td>공유 게임 대량 버퍼와 기반 로컬 단편화 및 수락/백프레셔의 관계.</td>
+<td>길이/오프셋/수와 함께 로컬 드라이버를 통과하는 송신을 추적한 다음 G2로 간다. 페이로드는 덤프하지 않는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_02075ff8.c:42</code>, <code>src/matched/func_020ec338.c:36</code></span></span></td>
+</tr>
+<tr>
+<td>P1</td>
+<td>모든 ID와 프레임별 위치/행동/RNG 의미의 마을/플레이어/로스터 매핑.</td>
+<td>엔드포인트별로 스크립트화한 행동 하나를 관찰하고 ID/크기/호출자 요약을 비교한다. 헬퍼의 정체를 복구한다. 4인 장벽만으로는 상태 동기화인지 입력 락스텝인지 알 수 없다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020753a8.c:10</code>, <code>src/matched/func_02074330.c:370</code></span></span></td>
+</tr>
+<tr>
+<td>P1</td>
+<td>채팅, 편지, 인벤토리 교환, 영속적인 연결 해제/롤백. 메인 <code>0x020a0848</code>은 매칭되지 않았다.</td>
+<td>하나의 트랜잭션과 각 중단 경계를 세이브 흐름 함수까지 추적한다(G3/G4). <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020a03e0.c:113</code></span></span> <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/stage1-evidence.json</code> core_coverage</span></span></td>
+</tr>
+<tr>
+<td>P1</td>
+<td>완전한 NAS/GPCM/GPSP/매칭/NatNeg/GT2 콜백 체인과 정확한 ADMK 엔드포인트 해결.</td>
+<td>B0 연산 추적, 그다음 사설 서버 합성 테스트와 B2/B3. 다른 지역의 서버 목록에서 추론하지 않는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020ec980.c:41</code>, <code>src/matched/func_ov065_0227eda0.c:100</code></span></span></td>
+</tr>
+<tr>
+<td>P2</td>
+<td>현재 호스팅된 ADMK 지원과 DeSmuME 백엔드의 실현 가능성.</td>
+<td>업스트림을 다시 확인하고 선택했다면 고정 빌드/사설 식별자 실험을 하나 승인받아 수행한다. 실패한 문서 가져오기는 지원도 실패도 증명하지 않는다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R9-R10</span></span></td>
+</tr>
+<tr>
+<td>P2</td>
+<td>melonDS 브리지, 인터넷 지연 허용 범위, 릴레이 에포크 정책.</td>
+<td>하나의 업스트림 프로토콜 리비전을 고정하고 MP 교환 하나를 변환한 다음 지연/손실 행렬을 만든다. <span class="cite" data-grade="E"><span class="cite-badge"><b class="g g-E" title="실험">E</b></span><span class="cite-body"><code>scratchpad/wifi-analysis-1/external-research.json</code> R8</span></span></td>
+</tr>
+<tr>
+<td>P3</td>
+<td>참가자 네 명 초과와 사용자 지정 영속 이벤트.</td>
+<td>G4 이후 용량/권한/세이브 목록을 만든다. 현실적으로 무제한 방문객을 완료한다고 주장하지 않는다. <span class="cite" data-grade="S"><span class="cite-badge"><b class="g g-S" title="소스">S</b></span><span class="cite-body"><code>src/matched/func_020760bc.c:37</code>, <code>src/matched/func_020a03e0.c:63</code></span></span></td>
+</tr>
+</tbody>
+</table></div>
+<span class="source-anchor" id="related"></span><h2 id="관련-문서">관련 문서</h2>
+<ul>
+<li><a href="network.html">네트워크 경계</a>.</li>
+<li><a href="multiplayer-protocol.html">게임 및 SDK 프로토콜 맵</a>.</li>
+<li><a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/docs/kb/hybrid/wifi.md">현재 런타임 라우터</a>.</li>
+</ul></div><nav class="prevnext"><a class="pn prev" href="../systems/online-server.html"><small>◀ 이전</small>온라인 서버: 아키텍처와 위협 모델</a><a class="pn next" href="../systems/wifi-g0.html"><small>다음 ▶</small>Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></nav>
+    </div>
+    <footer class="foot">
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
+      <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
+    </footer>
+  </main>
+
+  <aside class="tocbar"><nav class="toc" aria-label="목차"><div class="toc-title">목차</div><ul><li><a href="#근거와-추정의-경계">근거와 추정의 경계</a></li><li><a href="#a-호스트-전송을-통한-wm-서비스">A. 호스트 전송을 통한 WM 서비스</a><ul><li><a href="#유지할-계약">유지할 계약</a></li><li><a href="#에뮬레이터-피어">에뮬레이터 피어</a></li></ul></li><li><a href="#b-wfc-대체와-소켓-경계">B. WFC 대체와 소켓 경계</a><ul><li><a href="#존재하는-것과-검증되지-않은-것">존재하는 것과 검증되지 않은 것</a></li><li><a href="#엔드포인트-목록-캡처된-admk-대상이-아닌-외부-기본값">엔드포인트 목록: 캡처된 ADMK 대상이 아닌 외부 기본값</a></li><li><a href="#종료-인증서-cpu-경계">종료, 인증서, CPU 경계</a></li></ul></li><li><a href="#c-프로토콜-의미를-지어내지-않는-모딩">C. 프로토콜 의미를 지어내지 않는 모딩</a></li><li><a href="#권장-순서와-수락-단계">권장 순서와 수락 단계</a><ul><li><a href="#구현-전-소유자-결정">구현 전 소유자 결정</a></li><li><a href="#순위별-미해결-질문">순위별 미해결 질문</a></li></ul></li><li><a href="#관련-문서">관련 문서</a></li></ul></nav></aside>
+</div>
+<div class="backdrop" id="backdrop"></div>
+
+<script>window.ACWW_ROOT = "../";</script>
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

@@ -27,6 +27,35 @@ keyboard is up (NAME42's rule, confirmed end to end); your own front door wants 
 button**, not a held direction; and `play.py`'s real clock means the town is ASLEEP in the
 evening -- `--time 113000` on the same save had a villager walk up and talk within 80 s.
 
+**RE-RUN AGAIN AS A REGRESSION CHECK 2026-09-11 (LIVE44, `24b1a636` IRIS54, no C changed).**
+The same deliverable on the build that has per-pixel windows and master brightness (FADE52),
+the per-scanline iris (IRIS54), the switch-guarded sub-frame clock (TICK53/MEM54, both OFF by
+default and both confirmed off here), the loader instrument and the thread quotas: **five
+launches, 246,510 frames, every one exit 0, and zero `unimplemented`, `STOP status`, `fault_pc`
+or queue-full lines.** The title screen now arrives at **24 s**; a saved town loads on the
+continue path; the beach gives up a shell on ONE `X` press and the save file carries it; a
+cherry tree shakes bare; **너굴 상점 pays 190 Bells for a 360-Bell shell and a 2,000-Bell
+cherry -- 90 = base/4 and a flat 100 for the fruit**, wallet 385 -> 575; and START ->
+저장하고 마치기 writes a save that verifies on both banks.
+
+**The headline is the transition.** Walking out of a building now closes a round IRIS, measured
+live from the pixels rather than from a frame-pinned capture: the lit column span walks the
+DS's own fourteen steps down to `119..136`, the lit rows close with them, and the bottom
+screen's mean luma reads `30.51, 24.98, 20.45, 15.73, 10.49, 6.32, 2.84, 0.62` -- IRIS54's
+frame-pinned numbers to the hundredth, from an external capture of a person's own keystrokes.
+Frame rate: **59.8366 fps** against the host clock over 300 s (a shorter window is quantised by
+the caption and reads a tenth high), 198 windows of the port's own counter at mean 59.71 with
+every dip at a scene load, and `ACWW_FRAMETIME` says the renderer draws the town in **4.2 ms**
+against PERF42's 6.5-7.0 -- so the window mask costs nothing measurable. Sound: `FIRST SOUND at
+frame 38`, peak 32,006, sink `dropped 0 frames`, and four of the five launches sounded every
+note; the fifth dropped **19 of 22,224 for `no instrument`**, the one number worse than
+LIVE43's and still unattributed [E: `scratchpad/live44/RECEIPTS.md`, `runs/*/receipt.json`;
+`docs/log/cycle42-save.md` LIVE44]. Three live notes from it: the dark opening under Nook's
+sign is a WINDOW and the door is the panel beside it; Redd's password keyboard draws yellow
+PLACEHOLDER marks in an empty field and refuses 결정 silently until something is typed; and a
+walking villager would not stand still to be talked to in nine attempts, though both
+shopkeepers talk on the first `Z`.
+
 ## Purpose
 
 Every recipe on the other pages is a SCRIPT: it pins the clock, disables the store, prints a
@@ -38,7 +67,7 @@ receipt that it does not.
 
     python port/tools/play.py
 
-That is the whole thing [E: `port/tools/play.py`; `docs/kb/hybrid/live-play.md`]. It
+That is the whole thing [H: log/source account: `port/tools/play.py`; `docs/kb/hybrid/live-play.md`; receipt provenance unresolved]. It
 launches `port/build/acww.exe` on the interpreter path with the real clock, a save at
 `%LOCALAPPDATA%/acww/town.sav`, the pacer on, the interpreter's progress line off, and no console
 window; the log goes beside the save. Options: `--save PATH`, `--log PATH`,
@@ -50,7 +79,7 @@ and since LIVE42 `--mute`, `--wav PATH` and `--no-sink` -- **sound is ON by defa
 right for a receipt and wrong for a player -- the RTC is pinned in every recipe, `ACWW_SAVE` is
 deliberately unset, the interpreter's progress line costs 1,738,500 writes and a 101 MB log on
 the 9,000-frame OFF recipe (about 20% of the frame time), and the console-subsystem exe pops a
-console window when it is not launched from a terminal [E: `docs/kb/hybrid/live-play.md`].
+console window when it is not launched from a terminal [H: log/source account: `docs/kb/hybrid/live-play.md`; receipt provenance unresolved].
 
 ### The key map
 
@@ -77,7 +106,7 @@ two frames behind **re-bases instead of sprinting**, so a stall cannot become a 
 `ACWW_SHOT*` variable, or `ACWW_STOP_FRAME`, or `ACWW_NOPACE=1`, turns it off; the environment is
 scanned once by PREFIX, so a new `ACWW_KEYS4` is covered without editing anything. `ACWW_PACE=1`
 or `ACWW_NOPACE=0` forces it on for a measurement of the pacer itself
-[E: `docs/kb/hybrid/live-play.md`].
+[H: log/source account: `docs/kb/hybrid/live-play.md`; receipt provenance unresolved].
 
 ## What a player does, step by step
 
@@ -141,18 +170,18 @@ chain under a pad script].
 
 **The arrival conversation restarts on its own** while the player stands at Pelly's counter: the
 box closes on `A` and 어머 무슨 일 있으신가요? is back within 2.5 s with nothing pressed
-[E: `shots/32-free.png`, frame 56,310, 150 frames after the closing press]. Hold the direction
+[H: log/source account: `shots/32-free.png`, frame 56,310, 150 frames after the closing press; receipt provenance unresolved]. Hold the direction
 you want to leave in BEFORE the last box closes and you walk away the instant control returns.
 The tour also LOOPS on 혹시 지도를 어떻게 꺼내는지 잊으셨나요?, because `A` picks the first
-option, which is "yes, tell me again" -- press Down first [E: `shots/21-pelly4.png` against
-`24-declined.png`].
+option, which is "yes, tell me again" -- press Down first [H: log/source account: `shots/21-pelly4.png` against
+`24-declined.png`; receipt provenance unresolved].
 
 **The key grid can be measured off one capture.** Crop the lower screen out of a window capture
 (client 512x768, so the lower screen is the bottom half and DS = client/2 at the default 2x),
 scale it 2x again, and DS coordinates are that image's pixels over four. The rows are at
 DS y = 96, 112, 128, 144, columns 20 DS pixels apart from x = 14; backspace is DS(231,112) and
 결정 is DS(220,179) -- which is where `run_town.py`'s long-standing
-`ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181` was pointing all along [E: `shots/06-lower-4x.png`].
+`ACWW_TOUCH_X=221 ACWW_TOUCH_Y=181` was pointing all along [H: log/source account: `shots/06-lower-4x.png`; receipt provenance unresolved].
 
 **Navigating by the map page works.** `scratchpad/live42/nav.py` walks with the arrows, opens
 the map, and finds the player marker (B173 G90 R247) and the player's own house icon
@@ -187,7 +216,7 @@ A normal mouse click of 50-100 ms registers reliably, and so does one shorter th
 more than two frames, and the caption's frame number only updates twice a second, so neither can
 time an input. A `BitBlt` from the window's OWN DC (`GetDC(hwnd)`; the class is `CS_OWNDC` and
 `acww_present` StretchBlts straight into it) costs **0.21 ms** for a 200x160 patch and returns
-real pixels in a session where a BitBlt from the SCREEN DC is black [E: `drive.py`, `FastProbe`].
+real pixels in a session where a BitBlt from the SCREEN DC is black [H: log/source account: `drive.py`, `FastProbe`; receipt provenance unresolved].
 
 ## Sound: a player gets it now, and on this machine it reached a device
 
@@ -200,14 +229,14 @@ command ids in the census (`PREPARE_SEQ` 38, `START_PREPARED_SEQ` 38, `TRACK_PAR
 `PLAYER_PARAM` 75; only `SETUP_ALARM` is still LOGGED rather than dispatched), 43 notes
 attempted and **43 sounded, 0 dropped for any reason**, max 7 simultaneous channels, and a
 33.73 s WAV tee at 32,768 Hz stereo, peak 20,357, 57.7% of samples above 64
-[E: `sessionC.log`, `sessionC.wav`].
+[H: log/source account: `sessionC.log`, `sessionC.wav`; receipt provenance unresolved].
 
 **And `docs/kb/hybrid/audio.md`'s "this machine's session has no audio endpoint" is not always
 true.** Session A got `GetDefaultAudioEndpoint failed, code 0x80070490` and
 `waveOutGetNumDevs = 0`; sessions B and C, forty minutes later on the same machine in the same
 user session, got `acww snd: sink WASAPI shared mode, 32768 Hz stereo, device buffer 6554
-frames` -- the sink opened and the game played out loud [E: `sessionA.log` against
-`sessionB.log`].
+frames` -- the sink opened and the game played out loud [H: log/source account: `sessionA.log` against
+`sessionB.log`; receipt provenance unresolved].
 
 **The stylus finding, and it is the one thing that had to CHANGE for live play to work at all.**
 The window's edge queue already guaranteed that a click shorter than a frame is not lost. But the
@@ -218,8 +247,8 @@ is therefore buried under eight to twelve invalid samples before the ROM looks. 
 the title screen: a DOWN+UP inside one message pump gave `acww touch: DOWN x=128 y=96` and NO
 `TP_POINT` change at all; the same click held 400 ms gave a `TP_POINT` with `trig 1` and advanced
 the screen, with the ROM's publications at frames 7569, 7572, 7581, 7584 -- the three-frame
-cadence, visible [E: `docs/kb/hybrid/live-play.md`; `../systems/input-and-touch.md`;
-`touch-latency.md`]. A consumed contact is now held for `ACWW_TOUCH_MIN_FRAMES` frames (4, about
+cadence, visible [H: log/source account: `docs/kb/hybrid/live-play.md`; `../systems/input-and-touch.md`;
+`touch-latency.md`; receipt provenance unresolved]. A consumed contact is now held for `ACWW_TOUCH_MIN_FRAMES` frames (4, about
 67 ms), far below any human click, and the same sub-frame click then reaches the ROM.
 
 ### What it costs, before and after PERF42
@@ -229,9 +258,10 @@ paths**, interpreted and native alike, so the interpreter was not the cause: `ac
 took 14-22 ms of a 16.71 ms frame and the game's own frame 4-6 ms
 [E: `ACWW_FRAMETIME=1`, `scratchpad/liveplay/frametime/`]. **PERF42 closed that gap the same
 night**: draw is 7.3 ms on the taxi and 6.2 ms on the town, unpaced 77 and 92 fps, and the paced
-live run holds 59.82 Hz with the window open [E: `docs/kb/hybrid/render-perf.md` section 5;
-`../engine/graphics-pipeline.md`]. LIVE41 also named the wrong renderer -- the phase report shows
-the 3D rasteriser was 21.1 of the 26.5 ms, not the 2D compositor [E: same, section 3].
+live run holds 59.82 Hz with the window open [H: log/source account: `docs/kb/hybrid/render-perf.md` section 5;
+`../engine/graphics-pipeline.md`; receipt provenance unresolved]. LIVE41 also named the wrong renderer -- the phase report shows
+the 3D rasteriser was 21.1 of the 26.5 ms, not the 2D compositor [H: log/source account: `docs/kb/hybrid/render-perf.md` section 5;
+`../engine/graphics-pipeline.md`, section 3; receipt provenance unresolved].
 
 ## The receipt that scripted runs are unaffected
 
@@ -266,10 +296,10 @@ This is the whole reason the page can exist beside the recipes.
 - Reading a paced run's 58.4-59.7 fps windows as a renderer cost. On this machine those windows
   are contention (B14): the headless arm holds 59.82 in every window and the same recipe unpaced
   runs at 91.7 fps -- a frame with 10 ms of headroom does not miss a deadline unless something
-  else took the core [E: `docs/kb/hybrid/render-perf.md` section 5].
+  else took the core [H: log/source account: `docs/kb/hybrid/render-perf.md` section 5; receipt provenance unresolved].
 - Comparing a live session against a scripted reference. `play.py` uses the REAL clock, and since
   RTC42 the clock moves every frame of the picture through the day/night blend
-  [E: `../systems/time-and-rtc.md`].
+  [H: log/source account: `../systems/time-and-rtc.md`; receipt provenance unresolved].
 
 ## The rough edges, fixed and left
 
@@ -283,7 +313,7 @@ scratchpad/offgate/33376a19/offgate.json` read **31/31 EXACT** on the untouched 
 | the window did not take focus | the game is launched from a terminal, and the terminal keeps the foreground -- so the first thing typed at a game asking for a touch went to the shell | `SetForegroundWindow` after `ShowWindow`, an optional import |
 | DPI-unaware | on a 150%/200% display Windows renders the 512x768 client small and bitmap-STRETCHES it, defeating the reason `win_scale` is an integer and the blit is `COLORONCOLOR` | `SetProcessDpiAwarenessContext(PER_MONITOR_AWARE_V2)`, falling back to `SetProcessDPIAware`; both optional imports, declared in code because this link has no manifest |
 | the title bar dropped the game's name | it opens as "Animal Crossing: Wild World (port)" and the first status update half a second later replaced it with "ACWW (port)" | the status caption carries the full name |
-| a live session left no sound receipts | `acww_snd_report()` -- the tag-7 census, the driver counters, and the `ACWW_SND_WAV` flush -- ran only on the `ACWW_STOP_FRAME` path, and a live run by definition ends at Escape, so `ACWW_SND_WAV` wrote no file and said nothing about why | `frame.c` calls it on the window-closed path too; inert on every recipe, they all stop at a frame [E: `sessionC.wav`, 4.4 MB, written by an Escape] |
+| a live session left no sound receipts | `acww_snd_report()` -- the tag-7 census, the driver counters, and the `ACWW_SND_WAV` flush -- ran only on the `ACWW_STOP_FRAME` path, and a live run by definition ends at Escape, so `ACWW_SND_WAV` wrote no file and said nothing about why | `frame.c` calls it on the window-closed path too; inert on every recipe, they all stop at a frame [H: log/source account: `sessionC.wav`, 4.4 MB, written by an Escape; receipt provenance unresolved] |
 
 Left open:
 
@@ -291,8 +321,8 @@ Left open:
   name, eight for a town name -- and what you type is appended after them. They are not a
   drawing artefact: the town typed in this session came back out of the save file as raw
   `43 31 43 31 43 31 60 be 34 bb`, that is `ㅃ ㅃ ㅃ 빠 무`, and every dialogue line that prints
-  a name prints the ㅃs [E: `shots/10-nameline.png`, `shots/17-townhall.png`, `savetool.py check`
-  on the played save]. The workaround is to press backspace as many times as the field is wide
+  a name prints the ㅃs [H: log/source account: `shots/10-nameline.png`, `shots/17-townhall.png`, `savetool.py check`
+  on the played save; receipt provenance unresolved]. The workaround is to press backspace as many times as the field is wide
   before typing. **Whether the ORIGINAL does this is not established** -- there is no oracle arm
   here, so this is an open question and not yet a defect claim. It is the most visible thing a
   new player meets.
@@ -311,7 +341,7 @@ Left open:
   first two taps on an open page's tabs did nothing visible and the next four all answered in
   12.2-13.3 frames. It is TOUCH41's stylus-mode switch, seen live. A follow-up trial tapping
   the TOWN did not reproduce it, so it is reported as observed on menu targets, not as a rule
-  [E: `shots/54-saving.png` against `55-saved.png`; `lat-taps.txt` against `lat-firsttap.txt`].
+  [H: log/source account: `shots/54-saving.png` against `55-saved.png`; `lat-taps.txt` against `lat-firsttap.txt`; receipt provenance unresolved].
 - **No window icon** (`wc.hIcon = 0`): this link has no resources and no SDK to build one with.
 - **Escape quits with no confirmation.** It does flush the store, so nothing the GAME wrote is
   lost -- but everything since the last in-game save is. A confirmation needs a dialog in a

@@ -69,22 +69,22 @@ Read the census the run prints at its stop, and then read the FILE:
       FlushViewOfFile calls 2
 
 - The boot reads **both banks back to back** -- 0x2e7f8 bytes from offset 0 at frame 10 --
-  which is `func_020a1a40`'s slot 0 and slot 1 [S: `port/shim/game/savepoll.c`,
+  which is `func_020a1a40`'s slot 0 and slot 1 [S: `src/matched/func_020a1a40.c`; source account: `port/shim/game/savepoll.c`,
   `src/matched/func_020a1a40` tables `data_020d1c20` / `data_020d1bf0`].
 - It writes **one byte, at `0x3fffc`**, at frame 757, and verifies it at 758. That is outside
   both banks and outside the letter store, at the last word of the chip
-  [E: the census above].
+  [H: log/source account: the census above; receipt provenance unresolved].
 - **Nothing else touches the store in 48,000 frames**, and `savetool.py check` afterwards
-  reports both banks `ALL 0xFF -- erased flash, no save here` [E: same run].
+  reports both banks `ALL 0xFF -- erased flash, no save here` [H: log/source account: the census above run; receipt provenance unresolved].
 - An honest 0xFF-erased read does **not** derail this path: no `unimplemented: func_02225a90`,
-  no fault, 48,000 frames [E: same run]. That stop is a native-path observation
-  [E: `port/shim/fs/cardreq.c`'s comment; `../systems/save-data.md`].
+  no fault, 48,000 frames [H: log/source account: the census above run; receipt provenance unresolved]. That stop is a native-path observation
+  [H: log/source account: `port/shim/fs/cardreq.c`'s comment; `../systems/save-data.md`; receipt provenance unresolved].
 
 **The blocker.** Arm B's stills show the taxi interior and the town-name keyboard
 (`마을 이름은?`) at frames 24,000, 37,500 **and** 48,000 alike -- the second scheduled contact
 at 24,600 never confirms the name [E: `scratchpad/saveflow/runs/town1/shot_024000.bmp`,
 `shot_037500.bmp`, `shot_048000.bmp`]. The receipted run `town-R1` at commit `6ca48706` had
-the player in front of the town hall by 37,500 [E: `docs/state/port-frontier.md`, RECEIPT41].
+the player in front of the town hall by 37,500 [H: log/source account: `docs/state/port-frontier.md`, RECEIPT41; receipt provenance unresolved].
 So at commit `174ae9e3` the recipe does not reach gameplay, and everything downstream of
 gameplay -- including the save trigger -- is unreachable by script.
 
@@ -105,9 +105,9 @@ against arm B:
 
 29 frames, mean ncc 0.9762 [O: `scratchpad/saveflow/compare-oracle-vs-town1.txt`]. This run
 used `ACWW_TOUCH2_AT=24600`, the stale recipe line, and on a TOUCH42 build the port stays on the
-town-name keyboard at 24,600 exactly as the original does [E: `tap-T42b`] [O:
+town-name keyboard at 24,600 exactly as the original does [E: `tap-T42b` ; `scratchpad/cycle40/runs/tap-T42b`] [O:
 `scratchpad/oracle/tap-window`]; the town frontier stands on the 24,700 recipe of record, where
-both sides confirm [E: `tap-T42c`] [O: `scratchpad/oracle/tap-24700`] -- see `touch-latency.md`.
+both sides confirm [E: `tap-T42c` ; `scratchpad/cycle40/runs/tap-T42c`] [O: `scratchpad/oracle/tap-24700`] -- see `touch-latency.md`.
 Two frames are the exception, 7,500 and 13,500, which score 0.70 with their mean
 luminance swapped while every frame between them agrees: the dark taxi-ride phase begins and
 ends about one shot interval early on the port, a phase offset against an uncalibrated oracle
@@ -127,13 +127,13 @@ retained reference should be re-taken at HEAD rather than treated as a correctne
 is the identical recipe with `ACWW_SAVE` unset, to 27,000 frames, and its stills are
 **15/15 SHA256-identical** to arm B's over frames 6,000..27,000 -- the taxi, the player-name
 keyboard, the ride, the conversation and the town-name keyboard alike
-[E: `runs/town-nosave` vs `runs/town1`]. That is the prediction `save-store-probe.md` made for
+[H: log/source account: `runs/town-nosave` vs `runs/town1`; receipt provenance unresolved]. That is the prediction `save-store-probe.md` made for
 arms A and B, confirmed.
 
 **The instrument changes are inert when off.** The card census, the `FlushViewOfFile`
 write-through and the new `ACWW_PADSCRIPT` timeline all leave the OFF recipe byte-identical:
 `runs/off-census` and `runs/off-padscript` are each **31/31 SHA256-identical** to
-`runs/off-control`, HEAD's own sources relinked without them [E: those three run directories].
+`runs/off-control`, HEAD's own sources relinked without them [H: log/source account: those three run directories; receipt provenance unresolved].
 
 **...and `ACWW_PADSCRIPT` is not inert when on** (B6). Three resumes from the frame-24,000
 snapshot, each to 25,500 with stills every 150: `runs/r1` (no script) equals arm B on both
@@ -169,10 +169,10 @@ The chain, all DIAGNOSTIC runs (B38) on a relink in the worktree
     FlushViewOfFile calls 745
 
 Consecutive 256-byte pages from `0x00000000`, each verified one frame later: `func_020a1d94`'s
-512-byte step is two card pages [E: the run's own request spans]. On screen:
+512-byte step is two card pages [H: log/source account: the run's own request spans; receipt provenance unresolved]. On screen:
 `오늘은 여기까지 하시겠습니까?` -> `저장하고 있습니다` -> **`저장했습니다！`** -- `sequence2_`
-messages 0, 1 and 2, which is `func_0209f6e4`'s non-refusing branch [S: SAVE42's transcription
-of that branch].
+messages 0, 1 and 2, which is `func_0209f6e4`'s non-refusing branch [H: source account: SAVE42's transcription
+of that branch; direct ROM-source provenance unresolved].
 
 **Claim 2, the bytes satisfy the ROM's own test.** `savetool.py check` on the file afterwards:
 bank 1 checksum stored `0xa6ad` computed `0xa6ad` residual `0x0000`, gamecode ok, flag
@@ -185,14 +185,14 @@ typed [E: `scratchpad/save43/savecheck-S3.txt`].
 the player is inside their own house with the bed and the phone under
 `시작 준비 중입니다 / 전원을 끄지 말고 그대로 기다려 주십시오`, and from 5,000 outside their own
 front door with the HUD -- no taxi, neither keyboard. The control is the identical launch on an
-erased store, which is the taxi interior with the name keyboard [E: `boot-A`; SAVE42's
-`boot9000.png`]. A second launch driven by a pad timeline walks in the reloaded town and meets
-an NPC, so the town is playable and not merely drawable [E: `boot-B`].
+erased store, which is the taxi interior with the name keyboard [H: log/source account: `boot-A`; SAVE42's
+`boot9000.png`; receipt provenance unresolved]. A second launch driven by a pad timeline walks in the reloaded town and meets
+an NPC, so the town is playable and not merely drawable [H: log/source account: `boot-B`; receipt provenance unresolved].
 
 **What this changes about the RULE.** The block is the move-in mode word and only that, and it
 is cleared by the game's own code: `func_020a128c` is a tenth accessor, `mode := 0`, with
 callers `func_0209ec74` and `func_ov068_0226e648`, caught by a store watchpoint
-[E: `gp-W0`]. SAVE42's "there is no `mode := 0`" is retracted. Nook's attic bed is one save
+[E: `gp-W0` ; `scratchpad/save43/runs/gp-W0`]. SAVE42's "there is no `mode := 0`" is retracted. Nook's attic bed is one save
 point, not the gate.
 
 ## Arm D (SAVE42): play on until the game is ASKED to save, and read its answer
@@ -210,18 +210,18 @@ by the map marker) -> `gp-D1`..`gp-D9` (inside a house at 58,920) -> `gp-S2` (ST
 | where | what was observed |
 |---|---|
 | `gp-S2` frame 59,700 | the game's own refusal, `어머？ 지금은 아직 / 저장하지 못하나 봐요` [E: `scratchpad/save42/s2_refuse.png`] |
-| the message archive | that string is `script/KOR/message/sp/etc/sequence4_.bmg` index **4** [S: `scratchpad/save42/bmg.py find`] |
-| the ROM | `func_0209f6e4` attaches `sp_etc_sequence4` and writes 4 into `self+0x72` iff `func_020a12d4() \|\| func_020a12c0()`, i.e. iff the word at `0x021f3c30` is 1 or 2 [S: `func_0209f6e4`, `func_020a12c0`, `func_020a12d4`, main] |
+| the message archive | that string is `script/KOR/message/sp/etc/sequence4_.bmg` index **4** [H: source account: `scratchpad/save42/bmg.py find`; direct ROM-source provenance unresolved] |
+| the ROM | `func_0209f6e4` attaches `sp_etc_sequence4` and writes 4 into `self+0x72` iff `func_020a12d4() \|\| func_020a12c0()`, i.e. iff the word at `0x021f3c30` is 1 or 2 [S: `src/matched/func_020a12c0.c`, `src/matched/func_020a12d4.c`; source account: `func_0209f6e4`, `func_020a12c0`, `func_020a12d4`, main] |
 | the snapshot | `0x021f3c30 = 1` at frame 48,000 [E: `scratchpad/save42/stpeek.py st/town48000.st 0x021f3c30`] |
-| the store, after ~60,000 frames of play | still one byte differing from erased, `+0x3fffc`; both banks `ALL 0xFF` [E: `savetool.py check`] |
-| the census, now that it prints | `arm7 requests 748 ... NO WRITE_BACKUP REACHED THE STORE -- this run never saved` [E: `runs/off-fix`] |
+| the store, after ~60,000 frames of play | still one byte differing from erased, `+0x3fffc`; both banks `ALL 0xFF` [H: log/source account: `savetool.py check`; receipt provenance unresolved] |
+| the census, now that it prints | `arm7 requests 748 ... NO WRITE_BACKUP REACHED THE STORE -- this run never saved` [H: log/source account: `runs/off-fix`; receipt provenance unresolved] |
 
 **So the answer arm D gave was: not yet, and not for a port reason.** ~~The mode word's only
 writers are `func_ov147_02299414` (`:= 1`) and `func_ov147_022997ec` (`:= 2`, `:= 3`) in the
 move-in overlay, plus `func_020a4454` (`:= 3`, `:= 4`); no function in the ROM writes 0, so 0 is
 the BSS default.~~ **Retracted by SAVE43 above**: `func_020a128c` is a tenth accessor, `mode :=
 0`, and the game calls it when the arrival finishes. The three non-zero writers named here are
-correct [S: their pool words]; the "nothing writes 0" half was a search that stopped one
+correct [H: source account: their pool words; direct ROM-source provenance unresolved]; the "nothing writes 0" half was a search that stopped one
 function short.
 
 **The clock is the wrong lever, and it was RUN rather than argued.** Two arms from the same
@@ -236,14 +236,14 @@ the prompt with A:
 The clock really moved -- the date panel reads the next day and the weekday advanced -- and the
 answer did not change [E: `scratchpad/save42/rtc0_a.png`, `rtc1_a.png`]. That is what the ROM
 predicts: `ACWW_RTC_DATE` drives `func_0207b05c`'s missed-day catch-up
-[S: `../systems/time-and-rtc.md`] and touches nothing the refusal branch reads. What lifts the
+[H: source account: `../systems/time-and-rtc.md`; direct ROM-source provenance unresolved] and touches nothing the refusal branch reads. What lifts the
 block is finishing the arrival, and the ROM says so in the same archive: `sequence4_[12]` is
 Nook at the player's house -- lie on the bed in the attic (`옥탑방에 있는 침대`) and the day's
 result can be saved.
 
 **One instrument caveat found while doing it.** A resumed run issues no card request at all,
 so `flash_store()` -- which is lazy -- never opens the file, and the census reports
-`store absent` even with `ACWW_SAVE` set [E: `runs/gp-RTC0`, `gp-RTC1`, `arm7 requests 0`].
+`store absent` even with `ACWW_SAVE` set [E: `runs/gp-RTC0`, `gp-RTC1`, `arm7 requests 0` ; `scratchpad/save42/runs/gp-RTC1`].
 That is not a dropped write; it is "nothing asked". Read the line as the census means it.
 
 **One port defect was found on this path and fixed.** `acww_card_report()` -- the census this
@@ -251,13 +251,13 @@ page quotes -- had no caller anywhere in the tree, while `docs/kb/hybrid/save-fl
 printed at the stop frame; the census had been silent since SAVEFLOW41 (B6). It is now called
 on both exit paths, and the OFF control says the change is invisible: frames 4,500..9,000
 every 150, `runs/off-fix` against `runs/off-control` (the same tree relinked with `frame.c`
-reverted), **31/31 exact (RGB), mean ncc 1.0000** [E: those two run directories].
+reverted), **31/31 exact (RGB), mean ncc 1.0000** [H: log/source account: those two run directories; receipt provenance unresolved].
 
 **The second launch's own machinery is proven, which is worth separating from the blocked
 claim.** `runs/boot-store` is a fresh launch with the same `ACWW_SAVE` and no snapshot, on the
 build with the census wired up: `req 6 READ flash 0x00000000..0x0002e7f8 (190456 bytes) from
 frame 10` -- both banks back to back, `func_020a1a40`'s slot 0 and slot 1 -- and a census of
-748 requests, 1 byte persisted, 0 verify mismatches [E: `runs/boot-store`]. With the banks
+748 requests, 1 byte persisted, 0 verify mismatches [H: log/source account: `runs/boot-store`; receipt provenance unresolved]. With the banks
 erased the boot takes `func_020b5724`'s new-game branch and the still at 9,000 is the taxi
 with the player-name keyboard [E: `scratchpad/save42/boot9000.png`]. **That still is the
 control arm C has to differ from**, and the read path it would differ through works today.
@@ -267,7 +267,7 @@ world: open the map with X, read the pink marker and the target icon in map pixe
 convert at **0.184 map px per frame east, 0.23 per frame north**. And **walking into a door
 does not open it** -- `gp-D8` centred the player in the doorway (Up held 700 frames, Left
 pulsed 20 in 100, because pad rows OR together) and nothing happened; `gp-D9` added A pulses
-and went inside [E: those two run directories]. Whether the ORIGINAL also needs the A press is
+and went inside [H: log/source account: those two run directories; receipt provenance unresolved]. Whether the ORIGINAL also needs the A press is
 unverified [H: one oracle arm over `st/door57700.st`'s approach settles it].
 
 ## What would falsify it
@@ -280,7 +280,7 @@ unverified [H: one oracle arm over `st/door57700.st`'s approach settles it].
   rewrite the value as a path list, and `24000:C:/...` goes in as `24000:/c/...`; the snapshot
   is then never written and the run says nothing about it until it ends.
 - Trusting a run that ended with exit 1. Nothing in the image exits 1
-  [S: `port/tools/measure.py`'s `acww_exit` table]; it means another session ran
+  [H: source account: `port/tools/measure.py`'s `acww_exit` table; direct ROM-source provenance unresolved]; it means another session ran
   `taskkill /F /IM acww.exe`. `run_sf.py` launches a uniquely named copy for that reason.
 
 ## Related

@@ -57,7 +57,16 @@
 <li><a href="../systems/dialogue.html">대화</a></li>
 <li><a href="../systems/input-and-touch.html">입력과 터치</a></li>
 <li><a href="../systems/rng.html">난수</a></li>
+<li><a href="../systems/acre-grid.html">에이커 격자</a></li>
 <li><a href="../systems/network.html">네트워크</a></li>
+<li><a href="../systems/multiplayer-callbacks.html">멀티플레이 콜백: 무선 구조체 다섯 개와 그 호출 대상</a></li>
+<li><a href="../systems/multiplayer-protocol.html">멀티플레이어 프로토콜: 소스 맵과 미해결 경계</a></li>
+<li><a href="../systems/multiplayer-visit.html">멀티플레이 방문: 마을 도착 순서, 프레임별 플레이와 퇴장</a></li>
+<li><a href="../systems/online-server.html">온라인 서버: 아키텍처와 위협 모델</a></li>
+<li><a href="../systems/wifi-port-plan.html">Wi-Fi 포트 계획</a></li>
+<li><a href="../systems/wifi-g0.html">Wi-Fi G0: 문지기 경로와 첫 WM 요청</a></li>
+<li><a href="../systems/wifi-g1.html">오프라인 ARM7 모델의 WM 요청 수명</a></li>
+<li><a href="../systems/wifi-g2.html">WM 릴레이 브리지: G2 검증</a></li>
 <li><a href="../systems/audio.html">오디오</a></li>
 </ul></details>
 <details class="nav-sec" open>
@@ -81,12 +90,15 @@
 <li><a href="../engine/graphics-pipeline.html">그래픽스 파이프라인</a></li>
 <li><a href="../engine/text-and-messages.html">텍스트와 메시지</a></li>
 <li><a href="../engine/interpreter-path.html">인터프리터 경로, 그리고 네이티브 본체가 핫 패스를 얻는 방법</a></li>
+<li><a href="../engine/bus-timings.html">버스 타이밍: 캐시 적중이 아닐 때 접근에 드는 비용</a></li>
+<li><a href="../engine/display-callbacks.html">디스플레이 콜백: V-Blank와 H-Blank 핸들러가 순회하는 리스트</a></li>
+<li><a href="../engine/time-budgets.html">시간 예산과 밀리초 시계를 사용하는 다른 곳들</a></li>
 </ul></details>
 <details class="nav-sec" >
 <summary><span class="nav-icon">🔬</span><a href="../experiments/index.html">실험</a></summary><ul>
 <li><a href="../experiments/off-recipe.html">OFF 레시피</a></li>
 <li><a href="../experiments/two-tap-town-recipe.html">두 번 탭 마을 레시피</a></li>
-<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 마을 회관을 나와 집으로, 그리고 다시 불러와지는 세이브</a></li>
+<li><a href="../experiments/gameplay-walkthrough.html">게임플레이 워크스루: 현재 상태와 이를 확립한 실험들</a></li>
 <li><a href="../experiments/live-play.html">라이브 플레이: 키보드로 포트를 조작하기</a></li>
 <li><a href="../experiments/save-and-reload.html">저장과 재로드</a></li>
 <li><a href="../experiments/savestate-resume.html">세이브스테이트와 재개: 늦은 프레임에 10분 대신 1분 만에 도달하기</a></li>
@@ -124,7 +136,7 @@
 
   <main class="main" id="main">
     <div class="bubble">
-    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>데이터</span></div><header class="page-head"><h1>데이터</h1><div class="source-line">원문: <code>wiki/data/README.md</code> (영문, 기록 문서)</div></header><div class="cards"><a class="card" href="../data/items.html"><h3>아이템과 가구</h3><p>ACWW는 &quot;물건&quot;을 병렬 저장 구조를 가진 두 계열로 나눈다. 가구는 0x0000-0x06e8 범위의 16비트 id이며, ftr/ 아래에 모델과 텍스처 세트를 가지고, ftr_info/의 세 테이…</p></a><a class="card" href="../data/villagers.html"><h3>주민과 특수 캐릭터</h3><p>일반 주민 모델은 150개로, 0부터 149까지 번호가 붙어 npc/model/ 아래에 디렉터리당 여덟 개씩 저장되며, 여기에 npc_sp/model/ 아래에 세 글자 코드로 저장된 37명의 특수 …</p></a><a class="card" href="../data/fish-and-bugs.html"><h3>물고기와 곤충</h3><p>물고기와 곤충은 작고 병렬적인 두 계열이다. 각각은 자기 디렉터리에 번호가 붙은 3D 모델 세트, 잡은 포즈를 위한 두 번째 &quot;들고 있는&quot; 모델 세트, 박물관과 카탈로그를 위한 56개 항목의 그림 …</p></a><a class="card" href="../data/music.html"><h3>음악과 사운드</h3><p>게임의 모든 오디오는 파일 시스템 루트에 있는 10.7 MB 크기의 SDAT 아카이브 하나, sound_data.sdat이다. 심볼 블록이 출시 전에 제거되었으므로 내부의 어떤 것도 이름이 없다: …</p></a><a class="card" href="../data/archives.html"><h3>아카이브와 컨테이너 포맷</h3><p>ROM의 거의 모든 파일은 4바이트 LZ77 매직과 그 뒤의 표준 NitroSDK 압축 헤더로 감싸여 있고, 그 래퍼 안에는 소수의 Nintendo 컨테이너 포맷 중 하나가 들어 있다: NARC 아…</p></a><a class="card" href="../data/rom-layout.html"><h3>ROM 레이아웃</h3><p>한국판 카트리지 ADMK는 통상적인 NitroSDK ROM이다: 헤더, ARM9 및 ARM7 바이너리, 네 개의 ARM9 오토로드/TCM 영역, 148개의 ARM9 오버레이가 담긴 오버레이 테이블,…</p></a></div><div class="md"><p>테이블과 아카이브: 구조, 위치, 개수, 그리고 읽는 방법 (덤프는 없음).</p>
+    <div class="crumbs"><a href="../index.html">🏠 홈</a> <span class="sep">›</span> <span>데이터</span></div><header class="page-head"><h1>데이터</h1><div class="source-line">보관 원문: <a href="https://github.com/banatic/acww-wiki/blob/main/source/data/README.md"><code>wiki/data/README.md</code></a> · 원본 커밋 <a href="https://github.com/banatic/acww-decomp/blob/aa8cc07f39deb685df5e7a204a75e53840b66d53/wiki/data/README.md"><code>aa8cc07f</code></a></div></header><div class="cards"><a class="card" href="../data/items.html"><h3>아이템과 가구</h3><p>ACWW는 &quot;물건&quot;을 병렬 저장 구조를 가진 두 계열로 나눈다. 가구는 0x0000-0x06e8 범위의 16비트 id이며, ftr/ 아래에 모델과 텍스처 세트를 가지고, ftr_info/의 세 테이…</p></a><a class="card" href="../data/villagers.html"><h3>주민과 특수 캐릭터</h3><p>일반 주민 모델은 150개로, 0부터 149까지 번호가 붙어 npc/model/ 아래에 디렉터리당 여덟 개씩 저장되며, 여기에 npc_sp/model/ 아래에 세 글자 코드로 저장된 37명의 특수 …</p></a><a class="card" href="../data/fish-and-bugs.html"><h3>물고기와 곤충</h3><p>물고기와 곤충은 작고 병렬적인 두 계열이다. 각각은 자기 디렉터리에 번호가 붙은 3D 모델 세트, 잡은 포즈를 위한 두 번째 &quot;들고 있는&quot; 모델 세트, 박물관과 카탈로그를 위한 56개 항목의 그림 …</p></a><a class="card" href="../data/music.html"><h3>음악과 사운드</h3><p>게임의 모든 오디오는 파일 시스템 루트에 있는 10.7 MB 크기의 SDAT 아카이브 하나, sound_data.sdat이다. 심볼 블록이 출시 전에 제거되었으므로 내부의 어떤 것도 이름이 없다: …</p></a><a class="card" href="../data/archives.html"><h3>아카이브와 컨테이너 포맷</h3><p>ROM의 거의 모든 파일은 4바이트 LZ77 매직과 그 뒤의 표준 NitroSDK 압축 헤더로 감싸여 있고, 그 래퍼 안에는 소수의 Nintendo 컨테이너 포맷 중 하나가 들어 있다: NARC 아…</p></a><a class="card" href="../data/rom-layout.html"><h3>ROM 레이아웃</h3><p>한국판 카트리지 ADMK는 통상적인 NitroSDK ROM이다: 헤더, ARM9 및 ARM7 바이너리, 네 개의 ARM9 오토로드/TCM 영역, 148개의 ARM9 오버레이가 담긴 오버레이 테이블,…</p></a></div><div class="md"><span class="source-anchor" id="data"></span><p>테이블과 아카이브: 구조, 위치, 개수, 그리고 읽는 방법 (덤프는 없음).</p>
 <div class="table-wrap"><table>
 <thead>
 <tr>
@@ -159,7 +171,7 @@
 </tr>
 </tbody>
 </table></div>
-<h2 id="이-페이지들의-등급-규약">이 페이지들의 등급 규약</h2>
+<span class="source-anchor" id="grade-convention-on-these-pages"></span><h2 id="이-페이지들의-등급-규약">이 페이지들의 등급 규약</h2>
 <p><code>STYLE.md</code>의 등급이 그대로 적용되며, 이 페이지들에 필요한 한 가지 보충 설명이 있다. 여기서 <strong>S</strong>는
 두 종류의 출처를 포함한다:</p>
 <ol>
@@ -176,7 +188,7 @@ Python으로 다시 도출할 수 있다. 여기 있는 대부분의 페이지�
 그 경로를 만들 수 있다는 것을 증명할 뿐, 그 파일들을 여는 유일한 모듈이라는 것도, 그 파일이 실제로
 열리기는 한다는 것도 증명하지 않는다. 페이지가 파일 트리 구조를 게임이 무엇을 하는지에 대한 주장으로
 바꾸는 곳마다, 그 주장은 이를 결정지을 실험이 딸린 <strong>H</strong>이다.</p>
-<h2 id="데이터-페이지에-특유한-경계">데이터 페이지에 특유한 경계</h2>
+<span class="source-anchor" id="boundaries-specific-to-data-pages"></span><h2 id="데이터-페이지에-특유한-경계">데이터 페이지에 특유한 경계</h2>
 <ul>
 <li><em>구조</em>만 기록하고, 덤프는 절대 하지 않는다. 항목 개수, 스트라이드, 필드 의미, 인덱싱 방법은
   내용이다; 그 내용물은 아니다.</li>
@@ -188,7 +200,7 @@ Python으로 다시 도출할 수 있다. 여기 있는 대부분의 페이지�
 </ul></div>
     </div>
     <footer class="foot">
-      <p>이 위키의 모든 주장은 등급(S 소스 · E 실험 · O 오라클 · H 가설)과 출처를 달고 있다. 원문(영문)이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키다.</p>
+      <p>원문의 근거 등급(S 소스 · E 실험 · O 오라클 · H 가설 · P 공개 기록 · M 측정)과 출처를 함께 읽어 주세요. 원문이 기록 문서이며, 이 사이트는 그것을 한글로 옮긴 팬 위키입니다.</p>
       <p>비공식 팬 프로젝트. 「놀러오세요 동물의 숲」은 Nintendo의 상표다. 디컴파일 소스·ROM 문자열·에셋은 싣지 않는다.</p>
     </footer>
   </main>
