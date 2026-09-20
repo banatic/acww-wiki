@@ -2,6 +2,8 @@
 
 이 폴더만 공개 Git 저장소 `banatic/acww-wiki`에 넣을 수 있습니다. `../drafts/`, `../research/`, `../data/`, ROM 및 추출 바이너리는 게시 입력이 아닙니다. 현재 본문은 사이트 준비 상태를 알리는 안내문이며, 게임 설명 글은 없습니다.
 
+공개 주소: <https://banatic.github.io/acww-wiki/>
+
 ## Windows에서 글 편집과 미리보기
 
 PowerShell에서 이 폴더로 이동해 실행합니다.
