@@ -1,0 +1,1504 @@
+{
+ "walkers": [
+  {
+   "id": 0,
+   "name": "사지마",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 1,
+   "name": "퍼머거",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 2,
+   "name": "패트라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 3,
+   "name": "아롱이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 4,
+   "name": "병태",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 5,
+   "name": "링링",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 6,
+   "name": "뚝심",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 7,
+   "name": "츄양",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 8,
+   "name": "참돌이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 9,
+   "name": "파틱",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 10,
+   "name": "안쵸비",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 11,
+   "name": "핀틱",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 12,
+   "name": "딩요",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 13,
+   "name": "반데스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 14,
+   "name": "로데오",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 15,
+   "name": "히죽",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 16,
+   "name": "마르",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 17,
+   "name": "부케",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 18,
+   "name": "올리비아",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 19,
+   "name": "캐비어",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 20,
+   "name": "백프로",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 21,
+   "name": "빙티",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 22,
+   "name": "타마",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 23,
+   "name": "진상",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 24,
+   "name": "가북희",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 25,
+   "name": "１호",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 26,
+   "name": "제인",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 27,
+   "name": "호냥이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 28,
+   "name": "글루민",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 29,
+   "name": "메이첼",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 30,
+   "name": "봉추",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 31,
+   "name": "우띠",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 32,
+   "name": "아이다호",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 33,
+   "name": "패치",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 34,
+   "name": "건태",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 35,
+   "name": "페니실린",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 36,
+   "name": "김희",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 37,
+   "name": "밀크",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 38,
+   "name": "마틸다",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 39,
+   "name": "알베르트",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 40,
+   "name": "크로크",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 41,
+   "name": "카라멜",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 42,
+   "name": "존",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 43,
+   "name": "럭키",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 44,
+   "name": "로빈",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 45,
+   "name": "토미",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 46,
+   "name": "블랜더",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 47,
+   "name": "벤",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 48,
+   "name": "바닐라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 49,
+   "name": "코코아",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 50,
+   "name": "리처드",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 51,
+   "name": "나키",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 52,
+   "name": "앤",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 53,
+   "name": "마리모",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 54,
+   "name": "주디",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 55,
+   "name": "스미모",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 56,
+   "name": "다랑어",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 57,
+   "name": "봉",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 58,
+   "name": "푸아그라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 59,
+   "name": "오팔",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 60,
+   "name": "휴지",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 61,
+   "name": "３호",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 62,
+   "name": "엘레핀",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 63,
+   "name": "샐리",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 64,
+   "name": "레이니",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 65,
+   "name": "철컥",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 66,
+   "name": "구리구리",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 67,
+   "name": "충성",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 68,
+   "name": "덕",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 69,
+   "name": "샘",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 70,
+   "name": "가위",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 71,
+   "name": "드리미",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 72,
+   "name": "윤이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 73,
+   "name": "순이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 74,
+   "name": "앨런",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 75,
+   "name": "덤벨",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 76,
+   "name": "만복이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 77,
+   "name": "곤잘레스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 78,
+   "name": "바야시코프",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 79,
+   "name": "센트엘로",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 80,
+   "name": "사반나",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 81,
+   "name": "샤브렌",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 82,
+   "name": "슈베르트",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 83,
+   "name": "유카리",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 84,
+   "name": "멜버른",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 85,
+   "name": "아델레이드",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 86,
+   "name": "애플리케",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 87,
+   "name": "안젤라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 88,
+   "name": "선글",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 89,
+   "name": "킹",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 90,
+   "name": "티미",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 91,
+   "name": "단무지",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 92,
+   "name": "이자벨",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 93,
+   "name": "사라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 94,
+   "name": "피스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 95,
+   "name": "쟝",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 96,
+   "name": "문복",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 97,
+   "name": "문리나",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 98,
+   "name": "택주",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 99,
+   "name": "빅토리아",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 100,
+   "name": "아폴로",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 101,
+   "name": "안데스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 102,
+   "name": "세바스찬",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 103,
+   "name": "오로라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 104,
+   "name": "펭수",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 105,
+   "name": "빙수",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 106,
+   "name": "달만이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 107,
+   "name": "사브리나",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 108,
+   "name": "폴라",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 109,
+   "name": "햄까스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 110,
+   "name": "탱고",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 111,
+   "name": "글레이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 112,
+   "name": "먹고파",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 113,
+   "name": "루시",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 114,
+   "name": "릴리안",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 115,
+   "name": "서머",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 116,
+   "name": "이요",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 117,
+   "name": "닌토",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 118,
+   "name": "대길",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 119,
+   "name": "패티카",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 120,
+   "name": "로타",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 121,
+   "name": "바슬레",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 122,
+   "name": "토시",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 123,
+   "name": "루나",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 124,
+   "name": "탱크",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 125,
+   "name": "론다",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 126,
+   "name": "메리어스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 127,
+   "name": "트로와",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 128,
+   "name": "핑키",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 129,
+   "name": "실루엣",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 130,
+   "name": "리키",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 131,
+   "name": "레베카",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 132,
+   "name": "그리미",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 133,
+   "name": "２호",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 134,
+   "name": "캐롤라인",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 135,
+   "name": "라라미",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 136,
+   "name": "스파크",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 137,
+   "name": "민트",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 138,
+   "name": "호랭이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 139,
+   "name": "고메스",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 140,
+   "name": "대장",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 141,
+   "name": "늑태",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 142,
+   "name": "로보",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 143,
+   "name": "비앙카",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 144,
+   "name": "몽돌이",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 145,
+   "name": "키키",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 146,
+   "name": "시몬",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 147,
+   "name": "에이프릴",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 148,
+   "name": "몽티",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  },
+  {
+   "id": 149,
+   "name": "몽자",
+   "frames": 12,
+   "frame_w": 112,
+   "frame_h": 112,
+   "baseline_y": 107,
+   "cycle_seconds_suggested": 1.2,
+   "travel_px_per_cycle_no_slide": 20.6
+  }
+ ]
+}

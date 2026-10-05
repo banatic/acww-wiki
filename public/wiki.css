@@ -1,0 +1,17 @@
+/* Site font: Pretendard (loaded in <head> from the official jsDelivr distribution, dynamic subset). */
+:root, :root[data-theme] { --sl-font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+body { font-feature-settings: "ss06"; letter-spacing: -0.005em; }
+
+/* Site-wide additions for wiki pages (copied by scripts/build_full_preview.py). */
+figure.wiki-figure { margin: 1.5rem auto; text-align: center; }
+figure.wiki-figure img { display: block; margin: 0 auto; height: auto; max-width: 100%; border-radius: 8px; border: 1px solid var(--sl-color-gray-5); }
+figure.wiki-figure.small img { width: 15rem; }
+figure.wiki-figure.medium img { width: 25rem; }
+figure.wiki-figure.wide img { width: 100%; }
+figure.wiki-figure.pixel img { image-rendering: pixelated; }
+figure.wiki-figure figcaption { font-size: var(--sl-text-sm); color: var(--sl-color-gray-3); margin-top: .5rem; }
+
+/* Wiki name in Galmuri9 (Lee Minseo, SIL OFL 1.1; jsDelivr npm galmuri@2.40.3). A pixel font: keep sizes at whole multiples of 10px. */
+@font-face { font-family: Galmuri9; font-style: normal; font-weight: 400; font-display: swap;
+  src: url('https://cdn.jsdelivr.net/npm/galmuri@2.40.3/dist/Galmuri9.woff2') format('woff2'); }
+.site-title { font-family: Galmuri9, var(--sl-font); font-size: 20px; font-weight: 400; letter-spacing: 0; -webkit-font-smoothing: none; font-smooth: never; }
