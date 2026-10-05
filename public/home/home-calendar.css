@@ -330,3 +330,5 @@
   background: color-mix(in srgb, var(--acc) 18%, transparent); color: var(--sl-color-gray-2); border: 0; }
 /* public main page before the articles open: directory names without links */
 .hd-soon span { display: block; padding: .38rem .55rem; margin: 0 -.55rem; font-size: .93rem; color: var(--ink-2); }
+.home-cal a:not([href]) { cursor: default; }
+.home-cal a:not([href]):hover { color: inherit; }

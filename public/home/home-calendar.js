@@ -112,6 +112,8 @@
       </div>`;
     root.querySelectorAll('[data-go]').forEach(b => b.onclick = () => { view = b.dataset.go.split(',').map(Number); draw(); });
     root.querySelectorAll('[data-save]').forEach(b => b.onclick = () => saveImage(b));
+    // public page before the articles open: keep the look, drop the destinations
+    if (!LINKS) root.querySelectorAll('a[href]').forEach(x => x.removeAttribute('href'));
   }
 
   function strip(months, m) {
