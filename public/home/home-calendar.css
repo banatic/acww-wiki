@@ -332,3 +332,8 @@
 .hd-soon span { display: block; padding: .38rem .55rem; margin: 0 -.55rem; font-size: .93rem; color: var(--ink-2); }
 .home-cal a:not([href]) { cursor: default; }
 .home-cal a:not([href]):hover { color: inherit; }
+
+/* Main page disclaimer: quiet small print under the directory. */
+.home-note { margin: 2.2rem auto .5rem; max-width: 50rem; padding: .9rem 1.3rem .5rem; border-radius: 16px; text-align: center; font-size: .78rem; line-height: 1.65; color: var(--ink-3); }
+.home-note p { margin: 0 0 .45rem; }
+.home-note a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
